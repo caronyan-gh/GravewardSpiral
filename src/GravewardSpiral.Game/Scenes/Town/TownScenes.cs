@@ -598,6 +598,7 @@ public sealed class StatusScene : Scene
         Text(c.Name, Theme.Title, 26);
         Text($"{sv.Name(race.Subrace ?? race.Name)}  {sv.Name(data.Classes[c.ClassId].Name)}  Lv{c.Level}  {s[$"alignment.{c.Alignment.ToString().ToLowerInvariant()}"]}", Theme.Text);
         Text(s.Format("status.hp_ac", c.Hp, c.MaxHp, c.ArmorClass(data), c.ProficiencyBonus), Theme.Text);
+        Text(s.Format("status.hit_dice", c.HitDice, c.Level, data.Classes[c.ClassId].HitDie), c.HitDice == 0 ? Theme.Warn : Theme.Dim, 18);
         Text(string.Join("  ", Abilities.All.Select(a => $"{s[$"ability_short.{a.Code()}"]} {c.Scores[a]}")), Theme.Text, 18);
         Text(s.Format("status.xp", c.Xp, Progression.XpForLevel(c.Level + 1)), Theme.Dim, 18);
         Text(s.Format("status.gold", c.Gold), Theme.Gold, 18);

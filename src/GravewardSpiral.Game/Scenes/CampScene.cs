@@ -265,7 +265,16 @@ public sealed class CampScene : MenuScene
     {
         var s = Services.Strings;
         var rng = Services.Session!.Rng[RngStreams.Names.Combat];
-        int dice = Party.Sum(c => c.ShortRest(Services.Data, rng));
+        // 人ごとに、戻った HP と残りのヒットダイスを知らせる(HP が満タンで使わなかった人は出さない)
+        var rested = new List<string>();
+        foreach (var c in Party)
+        {
+            int hp = c.Hp;
+            int used = c.ShortRest(Services.Data, rng);
+            if (!c.IsAlive) continue;
+            if (used > 0) rested.Add(s.Format("camp.rest_healed", c.Name, c.Hp - hp, c.HitDice, c.Level));
+            else if (c.Hp < c.MaxHp) rested.Add(s.Format("camp.rest_no_dice", c.Name, c.Hp, c.MaxHp));
+        }
         // 休むあいだに、1人1個ずつ未鑑定の品を調べる(休みが邪魔されたら分からない)
         var unknownNames = Party.SelectMany(c => c.Inventory.Items.Concat(c.Inventory.Equipped.Values)).Where(i => !i.Identified)
             .ToDictionary(i => (object)i, i => ItemText.Name(Services, i, count: false), ReferenceEqualityComparer.Instance);
@@ -282,7 +291,7 @@ public sealed class CampScene : MenuScene
         }
         var studied = RestStudy.Run(Party);
         Message = string.Join("\n", studied.Select(x => s.Format("camp.studied", x.Who.Name, unknownNames[x.Item], ItemText.Name(Services, x.Item, count: false)))
-            .Prepend(s.Format("camp.rested", dice)));
+            .Prepend(string.Join("\n", rested.Prepend(s["camp.rested"]))));
         if (studied.Count > 0) Services.Audio.PlaySe(Sounds.Confirm);
         Refresh();
     }
@@ -344,6 +353,19 @@ public sealed class CampScene : MenuScene
             "options" => "camp.about_options",
             _ => "camp.about",
         };
-        Line(d, area, y, s[key], Theme.Text, 19);
+        y = Line(d, area, y, s[key], Theme.Text, 19);
+        // 小休憩では、みんなのヒットダイスの残りを薄く見せる(休んだあとの知らせが出ているあいだは出さない)
+        if (List.Current?.Tag is "rest" && Message == null)
+        {
+            y += 16;
+            d.Text(s["camp.hit_dice"], new Vector2(area.X + 20, y), 18, Theme.Dim);
+            foreach (var m in Party)
+            {
+                y += 26;
+                var color = m.HitDice == 0 ? Color.Lerp(Theme.Warn, Theme.Dim, 0.4f) : Theme.Dim;
+                d.Text(m.Name, new Vector2(area.X + 20, y), 18, color);
+                d.Text($"{m.HitDice}/{m.Level}", new Vector2(area.X + 260, y), 18, color, TextAlign.Right);
+            }
+        }
     }
 }
