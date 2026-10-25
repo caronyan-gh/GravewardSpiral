@@ -92,8 +92,10 @@ public sealed class CampaignSim
         _enc = EncounterSettings.Load(content);
         _treasure = TreasureSettings.Load(content);
         var gen = MazeGenSettings.Load(content);
-        var request = GenerationRequest.Default(gen, seed);
-        var dungeon = new MazeGenerator(gen).Generate(request).Dungeon;
+        // シナリオが迷宮を持っていればそれを使い、無ければシードから作る
+        var dungeon = DungeonLoader.ScenarioDungeon(content);
+        var request = dungeon != null ? DungeonLoader.RequestFor(dungeon, seed) : GenerationRequest.Default(gen, seed);
+        dungeon ??= new MazeGenerator(gen).Generate(request).Dungeon;
         _session = GameSession.New(0, request, dungeon);
         for (int i = 0; i < classes.Length; i++) AddMember(classes[i], i);
         // 強いパーティで始めたら、世界のレベル帯をその強さに合わせる(周回)
@@ -102,6 +104,7 @@ public sealed class CampaignSim
             _session.SetWorldLevel(_enc, WorldLevel.ClanPower(data, Party));
             _enc = _session.WorldSettings(_enc);
         }
+        if (content.Scenario == null) _session.Origin = Ai.WorldBuilder.Pick(data, seed);   // 自由な迷宮は、由来で出る敵が決まる
         _session.BuildRosters(data, _enc);
         _session.PlaceEvents(data, gen, _enc);
         _state = _session.EnterMaze();
@@ -389,7 +392,7 @@ public sealed class CampaignSim
                         return Grind(f, here);
                     }
                     _bossAttempts++;
-                    var boss = _data.Bosses[next.Mark["boss:".Length..]];
+                    var boss = _session.Boss(_data, next.Mark["boss:".Length..])!;
                     var outcome = Fight(boss.Fighters(_data.Monsters), boss.Scale.Times(_session.FixedScale(_enc)));
                     Log($"ボスと戦った: {outcome}(平均 L{AverageLevel:F1})");
                     if (outcome != CombatOutcome.Victory)
@@ -657,7 +660,7 @@ public sealed class CampaignSim
                     }
                     List<(MonsterDef, int)> groups;
                     MonsterScale? scale;
-                    if (c.Boss != null && _data.Bosses.TryGetValue(c.Boss, out var b))
+                    if (c.Boss != null && _session.Boss(_data, c.Boss) is { } b)
                     {
                         groups = b.Fighters(_data.Monsters);
                         scale = b.Scale.Times(_session.FixedScale(_enc));

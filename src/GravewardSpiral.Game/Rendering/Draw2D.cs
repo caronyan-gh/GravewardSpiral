@@ -101,7 +101,9 @@ public sealed class Draw2D
             var pieces = byWord ? paragraph.Split(' ').Select((w, i) => i == 0 ? w : " " + w) : paragraph.Select(c => c.ToString());
             foreach (var piece in pieces)
             {
-                if (line.Length > 0 && Fonts.Measure(line.ToString() + piece, size, style).X > width)
+                // 句読点や閉じ括弧は行の頭に出さず、前の行の終わりにぶら下げる(禁則)
+                bool hang = !byWord && piece.Length == 1 && NoLineStart.Contains(piece[0]);
+                if (line.Length > 0 && !hang && Fonts.Measure(line.ToString() + piece, size, style).X > width)
                 {
                     Text(line.ToString(), new Vector2(position.X, y), size, color, style: style);
                     y += size + lineGap;
@@ -116,6 +118,9 @@ public sealed class Draw2D
         }
         return y;
     }
+
+    /// <summary>行の頭に置かない文字(句読点、閉じ括弧、小さい仮名、長音など)。</summary>
+    private const string NoLineStart = "、。，．,.・：；？！?!」』）)〕］]｝}〉》】ーぁぃぅぇぉっゃゅょゎァィゥェォッャュョヮヵヶ…‥々";
 
     public void Text(string text, Vector2 position, float size, Color color, TextAlign align = TextAlign.Left,
         FontStyle style = FontStyle.Ui) =>

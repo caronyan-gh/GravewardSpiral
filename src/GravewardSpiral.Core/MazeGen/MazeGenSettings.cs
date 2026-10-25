@@ -91,6 +91,13 @@ public sealed class MazeGenSettings
         if (item == null) return new MazeGenSettings();
         var s = item.As<MazeGenSettings>();
         foreach (var p in s.Prefabs) p.ResolvedPath = item.ResolvePath(p.File);
+        // シナリオなどのパックが足すはめ込む部屋(prefabs.json。物語の部屋)。ファイルはそのパックのフォルダから探す
+        foreach (var extra in content.All(PrefabRule.Collection))
+        {
+            var p = extra.As<PrefabRule>();
+            p.ResolvedPath = extra.ResolvePath(p.File);
+            s.Prefabs.Add(p);
+        }
         return s;
     }
 }
@@ -137,6 +144,10 @@ public sealed class RegionRule
 /// <summary>はめ込む部屋。File はパックのフォルダからの相対パス(マップのテキスト形式で、entrance を書く)。</summary>
 public sealed class PrefabRule
 {
+    /// <summary>mazegen.json の外で、パックが足すはめ込む部屋の集まり(prefabs.json。項目には id が要る)。</summary>
+    public const string Collection = "prefabs";
+
+    public string? Id { get; set; }
     public string File { get; set; } = "";
 
     /// <summary>はめ込む深さの範囲(割合)。</summary>

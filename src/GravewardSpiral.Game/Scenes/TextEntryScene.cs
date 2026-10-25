@@ -28,22 +28,29 @@ public sealed class TextEntryScene : Scene
 
     private enum Page { Hiragana, Katakana, Alnum }
 
-    private static readonly string[] FunctionKeyIds = ["hiragana", "katakana", "alnum", "space", "delete", "done"];
+    /// <summary>機能のキー。おまかせ(random)は、名前を選ぶ手立てを渡されたときだけ出す。</summary>
+    private readonly string[] _functionKeyIds;
 
     /// <summary>機能の鍵の名前(text の entry.key.*)。</summary>
-    private string[] FunctionKeys => FunctionKeyIds.Select(k => Services.Strings["entry.key." + k]).ToArray();
+    private string[] FunctionKeys => _functionKeyIds.Select(k => Services.Strings["entry.key." + k]).ToArray();
 
     private readonly string _title;
     private readonly int _maxLength;
     private readonly Action<string> _onDone;
     private readonly Action? _onCancel;
+    private readonly Func<string?>? _suggest;
     private string _text;
     private Page _page = GameServices.Language == "ja" ? Page.Katakana : Page.Alnum;
     private int _row, _col;
     private string? _message;
 
-    public TextEntryScene(string title, string initial, int maxLength, Action<string> onDone, Action? onCancel = null)
+    /// <param name="suggest">おまかせのキーで入れる文を返す(名前の一覧から選ぶなど)。null ならおまかせのキーを出さない。</param>
+    public TextEntryScene(string title, string initial, int maxLength, Action<string> onDone, Action? onCancel = null, Func<string?>? suggest = null)
     {
+        _suggest = suggest;
+        _functionKeyIds = suggest != null
+            ? ["hiragana", "katakana", "alnum", "space", "delete", "random", "done"]
+            : ["hiragana", "katakana", "alnum", "space", "delete", "done"];
         _title = title;
         _text = initial;
         _maxLength = maxLength;
@@ -69,8 +76,8 @@ public sealed class TextEntryScene : Scene
 
     private static RectangleF KeyRect(int row, int col) => new(GridX + col * CellW, GridY + row * CellH, CellW - 6, CellH - 6);
 
-    private static RectangleF FunctionRect(int row, int i) => new(GridX + i * (CellW * Cols / FunctionKeyIds.Length), GridY + row * CellH + 10,
-        CellW * Cols / FunctionKeyIds.Length - 6, CellH - 6);
+    private RectangleF FunctionRect(int row, int i) => new(GridX + i * (CellW * Cols / _functionKeyIds.Length), GridY + row * CellH + 10,
+        CellW * Cols / _functionKeyIds.Length - 6, CellH - 6);
 
     public override void Update(GameTime time, InputState input)
     {
@@ -138,13 +145,17 @@ public sealed class TextEntryScene : Scene
     {
         if (OnFunctionRow)
         {
-            switch (_col)
+            switch (_functionKeyIds[_col])
             {
-                case 0: _page = Page.Hiragana; break;
-                case 1: _page = Page.Katakana; break;
-                case 2: _page = Page.Alnum; break;
-                case 3: Type(" "); break;
-                case 4: Erase(); break;
+                case "hiragana": _page = Page.Hiragana; break;
+                case "katakana": _page = Page.Katakana; break;
+                case "alnum": _page = Page.Alnum; break;
+                case "space": Type(" "); break;
+                case "delete": Erase(); break;
+                case "random":
+                    if (_suggest?.Invoke() is { Length: > 0 } name) _text = name.Length > _maxLength ? name[.._maxLength] : name;
+                    _message = null;
+                    break;
                 default: Finish(); return;
             }
             Services.Audio.PlaySe(Sounds.Confirm);
@@ -218,7 +229,8 @@ public sealed class TextEntryScene : Scene
             bool active = (i == 0 && _page == Page.Hiragana) || (i == 1 && _page == Page.Katakana) || (i == 2 && _page == Page.Alnum);
             d.FillRect(rect, selected ? Theme.SelectedFill : new Color(22, 30, 40, 230));
             d.Rect(rect, selected ? Theme.SelectedFrame : active ? Theme.Gold : Theme.Frame, 1.5f);
-            d.Text(FunctionKeys[i], new Vector2(rect.X + rect.Width / 2, rect.Y + 10), 22, selected ? Color.White : Theme.Text, TextAlign.Center);
+            float size = Math.Min(22f, 22f * (rect.Width - 8) / Math.Max(1f, d.Fonts.Measure(FunctionKeys[i], 22).X));   // 長い名前は縮めて収める
+            d.Text(FunctionKeys[i], new Vector2(rect.X + rect.Width / 2, rect.Y + 10 + (22 - size) / 2), size, selected ? Color.White : Theme.Text, TextAlign.Center);
         }
         if (_message != null) d.Text(_message, new Vector2(640, 668), 18, Theme.Warn, TextAlign.Center);
         d.Text(s["text.hint"], new Vector2(640, 694), 15, Theme.Dim, TextAlign.Center);

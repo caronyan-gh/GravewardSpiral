@@ -237,6 +237,12 @@ public sealed class PackManifest
     /// <summary>シナリオの推奨レベル [最小, 最大](選ぶ画面に出す)。</summary>
     public List<int> Levels { get; set; } = [];
 
+    /// <summary>
+    /// シナリオの迷宮(dungeons.json の id)。迷宮はシナリオの中身で、新しいゲームでは生成せずにこれを使う(シード・階層・大きさは選ばない)。
+    /// 省くと、新しいゲームのたびに生成する。
+    /// </summary>
+    public string? Dungeon { get; set; }
+
     /// <summary>クランを連れて入れるか(シナリオ)。</summary>
     public bool AllowImport { get; set; } = true;
 

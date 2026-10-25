@@ -15,6 +15,10 @@ public sealed class ClanFile
 
     public int Version { get; set; } = CurrentVersion;
     public string Name { get; set; } = "";
+
+    /// <summary>クランの id(GameSession.ClanId)。持ち込んだ世界のセーブも、このクランのものとして並ぶ。</summary>
+    public string? Id { get; set; }
+
     public DateTime SavedAt { get; set; } = DateTime.Now;
 
     /// <summary>書き出したときに遊んでいたシナリオ(標準なら null)と、クリアしていたか。</summary>
@@ -38,10 +42,11 @@ public sealed class ClanFile
     public static ClanFile From(GameSession session, string name, string? scenario)
     {
         var roster = session.Roster;
-        var chars = roster.Characters.Where(c => !roster.LeftInMaze.ContainsKey(c.Id)).ToList();
+        var chars = roster.Characters.Where(roster.Available).ToList();
         return new ClanFile
         {
             Name = name,
+            Id = session.ClanId,
             Scenario = scenario,
             Cleared = session.Flags.Contains("cleared"),
             Clears = session.Clears,
@@ -73,24 +78,31 @@ public sealed class ClanFile
     }
 
     /// <summary>
-    /// セーブの枠のクラン(書き出さなくても、手元のセーブから新しいゲームへ連れていける)。Path は "slot:番号"。
-    /// 名前はセーブのクランの名前(無ければ「枠 N」)。読めないセーブは飛ばす。
+    /// セーブにあるクラン(新しい世界をそのクランで始める。名簿は写さずに、そのクランのものを使う)。Path は "clan:&lt;id&gt;"。
+    /// 名前が無ければ unnamed(クランの id)。Scenario は最近遊んだ世界のシナリオ。
     /// </summary>
-    public static List<(string Path, ClanFile Clan)> FromSaves(SaveStore saves, Func<int, string> unnamed)
+    public static List<(string Path, ClanFile Clan)> FromSaves(SaveStore saves, Func<string, string> unnamed)
     {
         var list = new List<(string, ClanFile)>();
-        for (int slot = 1; slot <= SaveStore.SlotCount; slot++)
+        foreach (var summary in saves.ListClans())
         {
-            if (!saves.Exists(slot)) continue;
             try
             {
-                var session = saves.Load(slot);
-                if (session.Roster.Characters.Count == 0) continue;
-                var clan = From(session, session.ClanName ?? unnamed(slot), session.Scenario);
-                clan.SavedAt = File.GetLastWriteTime(saves.SlotFile(slot));
-                list.Add(($"slot:{slot}", clan));
+                var data = saves.LoadClan(summary.Id);
+                if (data == null) continue;
+                list.Add(($"clan:{summary.Id}", new ClanFile
+                {
+                    Name = data.Name ?? unnamed(data.Id),
+                    Id = data.Id,
+                    SavedAt = summary.SavedAt,
+                    Scenario = summary.Latest?.Scenario,
+                    Clears = data.Clears,
+                    EventsSeen = data.EventsSeen,
+                    Characters = data.Characters,
+                    House = data.House,
+                }));
             }
-            catch (Exception ex) when (ex is JsonException or IOException or InvalidDataException or InvalidOperationException) { }
+            catch (Exception ex) when (ex is JsonException or IOException or InvalidDataException) { }
         }
         return list;
     }
@@ -125,6 +137,7 @@ public sealed class ClanFile
         }
         session.ClanHouse = JsonSerializer.Deserialize<ClanHouse>(JsonSerializer.Serialize(House, SaveStore.Json), SaveStore.Json) ?? new();
         session.ClanName ??= Name;
+        if (Id != null) session.ClanId = Id;
         session.Clears = Clears;
         session.EventsSeen = EventsSeen.ToHashSet(StringComparer.Ordinal);
     }

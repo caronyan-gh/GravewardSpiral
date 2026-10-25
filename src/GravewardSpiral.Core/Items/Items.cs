@@ -129,6 +129,9 @@ public sealed class ItemDef
     /// </summary>
     public bool DropOnly { get; set; }
 
+    /// <summary>宝箱の抽選で、この目安のレベルより下では出ない(浅い階で出すぎる便利な品に)。</summary>
+    public double MinLevel { get; set; }
+
     /// <summary>出たときにランダムに付く追加効果の数(固有のレア品。核の効果は passive と on_hit に書く)。</summary>
     public int RandomAffixes { get; set; }
 

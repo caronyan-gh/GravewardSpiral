@@ -19,7 +19,7 @@ namespace GravewardSpiral.Game.Scenes;
 /// </summary>
 public sealed class NewGameScene : Scene
 {
-    private enum Row { Scenario, Clan, ClanName, Seed, Floors, SizeMode, Width, Height, MaxWidth, MaxHeight, Difficulty, Bodies, Revive, Save, Create, Back }
+    private enum Row { Scenario, Clan, ClanName, Seed, Floors, SizeMode, Width, Height, MaxWidth, MaxHeight, Difficulty, Bodies, Revive, Save, UseAi, Create, Back }
 
     private const float Left = 300f, ValueX = 760f, Top = 112f, Step = 34f;
 
@@ -38,13 +38,47 @@ public sealed class NewGameScene : Scene
     private string? _message;
     private double _repeatHeld;
 
+    /// <summary>AI につながっているか(AI 設定で入、キーあり)。つながっていれば「AI を使う」の行を出す。</summary>
+    private bool _aiAvailable;
+    private bool _useAi = true;
+
+    private readonly string? _startScenario;
+    private readonly bool _startFree;
+    private readonly string? _startClan;
+
+    /// <summary>
+    /// 続きからの画面で、まだ行っていないシナリオ(か新しい自由な迷宮)を選んだときは、そのシナリオとクランを選んだ状態で開く。
+    /// </summary>
+    public NewGameScene(string? scenarioId = null, bool free = false, string? clanId = null)
+    {
+        _startScenario = scenarioId;
+        _startFree = free;
+        _startClan = clanId;
+    }
+
     public override void Enter()
     {
         _scenarios = Services.FindScenarios();
-        // 手元のセーブのクラン(書き出さなくても選べる)と、書き出したクランファイル
-        _clans = [.. ClanFile.FromSaves(Services.Saves, slot => Services.Strings.Format("newgame.clan_slot_unnamed", slot)),
+        // セーブにあるクラン(写さずに、その名簿で始める)と、書き出したクランファイル(写しの新しいクランになる)
+        _clans = [.. ClanFile.FromSaves(Services.Saves, id => Services.ClanDisplayName(null, id)),
                   .. ClanFile.List(AppPaths.Clans)];
-        _scenario = Services.Content.Scenario is { } sc ? _scenarios.FindIndex(x => x.Id == sc.Id) : -1;
+        _aiAvailable = Services.AiClient() != null;
+        if (_startClan != null) _clan = _clans.FindIndex(x => x.Path == "clan:" + _startClan);
+        if (_clan >= 0) _clanName = _clans[_clan].Clan.Name;
+        if (_startFree)
+        {
+            Services.UseScenario(null);
+            _scenario = -1;
+        }
+        else if (_startScenario != null && _scenarios.FindIndex(x => x.Id == _startScenario) is var want and >= 0
+                 && Services.UseScenario(_scenarios[want]).Count == 0) _scenario = want;
+        else
+        {
+            _scenario = Services.Content.Scenario is { } sc ? _scenarios.FindIndex(x => x.Id == sc.Id) : -1;
+            // 初めは本編(第1部)を選んでおく。選ばなければ、物語の無い自由な迷宮
+            if (_scenario < 0 && _scenarios.FindIndex(x => x.Id == ScenarioCatalog.Gravekeeper) is var main and >= 0
+                && Services.UseScenario(_scenarios[main]).Count == 0) _scenario = main;
+        }
         LoadSettings();
     }
 
@@ -65,13 +99,20 @@ public sealed class NewGameScene : Scene
         var rows = new List<Row> { Row.Scenario };
         if (Services.Content.Scenario?.AllowImport ?? true) rows.Add(Row.Clan);
         rows.Add(Row.ClanName);
-        rows.AddRange([Row.Seed, Row.Floors, Row.SizeMode, Row.Width, Row.Height]);
-        if (_randomSize) rows.AddRange([Row.MaxWidth, Row.MaxHeight]);
+        // 迷宮を持つシナリオは、迷宮もシナリオの中身なので、シード・階層・大きさは選ばない(フルオートの自由な迷宮だけ)
+        if (!ScenarioHasDungeon)
+        {
+            rows.AddRange([Row.Seed, Row.Floors, Row.SizeMode, Row.Width, Row.Height]);
+            if (_randomSize) rows.AddRange([Row.MaxWidth, Row.MaxHeight]);
+        }
         rows.Add(Row.Difficulty);
         if (_difficulty.Preset == Difficulty.Custom) rows.AddRange([Row.Bodies, Row.Revive, Row.Save]);
+        if (_aiAvailable) rows.Add(Row.UseAi);
         rows.AddRange([Row.Create, Row.Back]);
         return rows;
     }
+
+    private bool ScenarioHasDungeon => Services.Content.Scenario?.Dungeon != null;
 
     private static RectangleF RowRect(int i) => new(Left - 20, Top + i * Step - 6, 760, Step - 4);
 
@@ -123,10 +164,11 @@ public sealed class NewGameScene : Scene
             {
                 case Row.Seed: _seed = RandomSeed(); break;
                 case Row.ClanName:
-                    Stack.Push(new TextEntryScene(Services.Strings["newgame.clan_name"], _clanName, ClanNameLength, name => _clanName = name));
+                    Stack.Push(new TextEntryScene(Services.Strings["newgame.clan_name"], _clanName, ClanNameLength, name => _clanName = name,
+                        suggest: Services.ClanNameSuggester()));
                     break;
                 case Row.SizeMode: _randomSize = !_randomSize; break;
-                case Row.Difficulty or Row.Bodies or Row.Revive or Row.Save or Row.Scenario or Row.Clan: Adjust(row, 1); break;
+                case Row.Difficulty or Row.Bodies or Row.Revive or Row.Save or Row.Scenario or Row.Clan or Row.UseAi: Adjust(row, 1); break;
                 case Row.Create: Create(); break;
                 case Row.Back: Stack.Replace(new TitleScene()); break;
             }
@@ -148,7 +190,7 @@ public sealed class NewGameScene : Scene
     private const float ArrowSpan = 210f;
 
     private static bool IsAdjustable(Row row) => row is Row.Floors or Row.SizeMode or Row.Width or Row.Height or Row.MaxWidth or Row.MaxHeight
-        or Row.Difficulty or Row.Bodies or Row.Revive or Row.Save or Row.Scenario or Row.Clan;
+        or Row.Difficulty or Row.Bodies or Row.Revive or Row.Save or Row.Scenario or Row.Clan or Row.UseAi;
 
     private void Adjust(Row row, int delta)
     {
@@ -185,11 +227,14 @@ public sealed class NewGameScene : Scene
             case Row.Clan:
                 if (_clans.Count == 0) return;
                 _clan = (_clan + 1 + Math.Sign(delta) + _clans.Count + 1) % (_clans.Count + 1) - 1;
-                if (_clan >= 0) _clanName = _clans[_clan].Clan.Name;   // 連れていくクランの名前を引き継ぐ
+                // 連れていくクランの名前を引き継ぐ。連れていかないに戻したら、引き継いだ名前は消す(自分で打った名前は残す)
+                if (_clan >= 0) _clanName = _clans[_clan].Clan.Name;
+                else if (_clans.Any(c => c.Clan.Name == _clanName)) _clanName = "";
                 break;
             case Row.Bodies: _difficulty.BodiesRemain = !_difficulty.BodiesRemain; break;
             case Row.Revive: _difficulty.RiskyRevive = !_difficulty.RiskyRevive; break;
             case Row.Save: _difficulty.StrictSave = !_difficulty.StrictSave; break;
+            case Row.UseAi: _useAi = !_useAi; break;
             default: return;
         }
         Services.Audio.PlaySe(Sounds.Cursor);
@@ -201,33 +246,81 @@ public sealed class NewGameScene : Scene
         ulong seed = RngStreams.ParseSeed(_seed) ?? (ulong)Random.Shared.NextInt64(1, long.MaxValue);
         var size = _randomSize ? new FloorSizeMode(_width, _maxWidth, _height, _maxHeight) : FloorSizeMode.Fixed(_width, _height);
         var request = new GenerationRequest(seed, _floors, size);
-        if (Services.Saves.FirstEmptySlot() is int slot) Start(request, slot);
-        else Stack.Push(new SlotScene(SlotScene.Purpose.Overwrite, s => Start(request, s)));
+        // セーブはクラン × 世界ごと。そのクランが同じ世界をもう遊んでいれば、上書きするか確かめる
+        bool shared = SharedClan;
+        string clanId = shared ? _clans[_clan].Clan.Id! : GameSession.NewClanId();
+        string? scenario = Services.Content.Scenario?.Id;
+        string worldKey = scenario ?? $"free-{seed}";
+        if (shared && Services.Saves.WorldExists(clanId, worldKey))
+        {
+            Stack.Push(new ConfirmScene(Services.Strings.Format("newgame.confirm_overwrite",
+                Services.ClanDisplayName(_clans[_clan].Clan.Name, clanId), Services.ScenarioDisplayName(scenario)), () =>
+                {
+                    Services.Saves.DeleteWorld(clanId, worldKey);
+                    Start(request, clanId);
+                }));
+            return;
+        }
+        Start(request, clanId);
     }
 
-    /// <summary>迷宮を作り、その枠で新しいゲームを始めて町へ。</summary>
-    private void Start(GenerationRequest request, int slot)
+    /// <summary>セーブにあるクランを選んでいる(写さずに、そのクランの名簿で始める)。</summary>
+    private bool SharedClan => _clan >= 0 && Rows().Contains(Row.Clan) && _clans[_clan].Path.StartsWith("clan:");
+
+    /// <summary>迷宮を作り、新しい世界を始めて町へ。</summary>
+    private void Start(GenerationRequest request, string clanId)
     {
         try
         {
-            var dungeon = new MazeGenerator(_settings).Generate(request).Dungeon;
-            Console.WriteLine($"dungeon: seed {request.Seed}, {dungeon.Floors.Count} floors, slot {slot}");
-            Services.Saves.Delete(slot);
-            Services.Session = GameSession.New(slot, request, dungeon);
+            // シナリオの迷宮があればそれを使う(シードは顔ぶれ・散らすイベントなどの抽選に使う)
+            var dungeon = DungeonLoader.ScenarioDungeon(Services.Content);
+            if (dungeon != null) request = DungeonLoader.RequestFor(dungeon, request.Seed);
+            else dungeon = new MazeGenerator(_settings).Generate(request).Dungeon;
+            Console.WriteLine($"dungeon: seed {request.Seed}, {dungeon.Floors.Count} floors, clan {clanId}");
+            Services.Session = GameSession.New(1, request, dungeon);
             Services.Session.Difficulty = _difficulty;
             Services.Session.ClanName = _clanName.Trim().Length > 0 ? _clanName.Trim() : null;
             Services.Session.Scenario = Services.Content.Scenario?.Id;
             Services.Session.ScenarioVersion = Services.Content.Scenario?.Version;
+            Services.Session.ClanId = clanId;
             var enc = Core.Combat.EncounterSettings.Load(Services.Content);
-            if (_clan >= 0 && Rows().Contains(Row.Clan))
+            if (SharedClan && Services.Saves.LoadClan(clanId) is { } clan)
             {
+                // セーブにあるクラン: 名簿は写さずに、そのクランのものを使う。パーティは最近遊んだ世界の並び
+                var session = Services.Session;
+                session.ClanId = clanId;
+                session.Roster.Characters.AddRange(clan.Characters);
+                session.ClanHouse = clan.House;
+                session.Clears = clan.Clears;
+                session.EventsSeen = clan.EventsSeen.ToHashSet(StringComparer.Ordinal);
+                session.ClanName ??= clan.Name;
+                Services.Saves.MarkAway(session);
+                var latest = Services.Saves.ListClans().FirstOrDefault(x => x.Id == clanId)?.Latest;
+                foreach (var id in latest?.PartyIds ?? [])
+                    if (session.Roster.Find(id) is { } c) session.Roster.AddToParty(c);
+                session.SetWorldLevel(enc, ClanPower(_clans[_clan].Clan));   // 世界のレベル帯を、クランの強さに合わせる(周回)
+            }
+            else if (_clan >= 0 && Rows().Contains(Row.Clan))
+            {
+                // クランファイル: 写して、新しいクランにする
                 _clans[_clan].Clan.ApplyTo(Services.Session);
-                // 世界のレベル帯を、連れていくクランの強さに合わせる(周回)
                 Services.Session.SetWorldLevel(enc, ClanPower(_clans[_clan].Clan));
             }
+            Services.Session.ClanId = clanId;
+            Services.Session.ClanName ??= Services.ClanDisplayName(null, clanId);   // 名前が無ければ、決まった名前を付ける
+            // 自由な迷宮は、由来(場所・災い・底)を選び、出る敵と世界の文をそこから決める(AI が書けば、AI の文に置き換わる)
+            if (Services.Content.Scenario == null)
+                Services.Session.Origin = Core.Ai.WorldBuilder.Pick(Services.Data, request.Seed);
             Services.Session.BuildRosters(Services.Data, enc);
             Services.Session.PlaceEvents(Services.Data, _settings, enc);
-            Stack.Replace(new TownScene());
+            if (Services.Session.Origin is { } origin)
+                Services.Session.World = Core.Ai.WorldBuilder.Build(Services.Data, origin, dungeon.Floors.Count, request.Seed);
+            // AI の手伝いがあれば、この世界の文を書いてもらってから町へ(無ければパックの決まった文)
+            // シナリオに決まった序文(文言の scenario.prologue)があれば、それを序文にする(AI が書けば置き換わる)
+            Services.GiveScenarioPrologue(Services.Session);
+            if (_useAi && Services.AiClient() is { } ai) Stack.Replace(new WorldWritingScene(ai));
+            else if (Services.Session.World?.Prologue != null) Stack.Replace(new WorldWritingScene(null));   // 部品で作った序文を見せる
+            else Stack.Replace(new TownScene());
         }
         catch (InvalidOperationException ex)
         {
@@ -290,6 +383,7 @@ public sealed class NewGameScene : Scene
             Row.Bodies => (s["newgame.bodies"], s[_difficulty.BodiesRemain ? "newgame.bodies.on" : "newgame.bodies.off"]),
             Row.Revive => (s["newgame.revive"], s[_difficulty.RiskyRevive ? "newgame.revive.on" : "newgame.revive.off"]),
             Row.Save => (s["newgame.save"], s[_difficulty.StrictSave ? "newgame.save.on" : "newgame.save.off"]),
+            Row.UseAi => (s["newgame.use_ai"], s[_useAi ? "newgame.use_ai.on" : "newgame.use_ai.off"]),
             Row.Create => (s["newgame.create"], null),
             _ => (s["newgame.back"], null),
         };
@@ -310,12 +404,12 @@ public sealed class NewGameScene : Scene
         return WorldLevel.Band(enc.FirstLevel, enc.LastLevel, ClanPower(clan));
     }
 
-    /// <summary>「[セーブ 1] 名前(6 人)」。</summary>
+    /// <summary>「名前(6 人)・墓守の螺旋」(セーブのクランは、遊んでいる世界も出す)。</summary>
     private string ClanLabel(ClanFile clan)
     {
         string label = Services.Strings.Format("newgame.clan_value", clan.Name, clan.Characters.Count);
         string path = _clans[_clan].Path;
-        return path.StartsWith("slot:") ? Services.Strings.Format("newgame.clan_from_slot", path["slot:".Length..]) + label : label;
+        return path.StartsWith("clan:") ? label : label + Services.Strings["newgame.clan_from_file"];
     }
 
     /// <summary>「クリア 2 回・強さ L8.5。世界は L7〜11 で作る」。</summary>
@@ -339,6 +433,7 @@ public sealed class NewGameScene : Scene
         Row.ClanName => "newgame.hint_clan_name",
         Row.Difficulty or Row.Bodies or Row.Revive or Row.Save => "newgame.hint_difficulty",
         Row.Create => "newgame.hint_create",
+        Row.UseAi => "newgame.hint_use_ai",
         Row.Back => "newgame.hint_back",
         _ => "newgame.hint_adjust",
     };

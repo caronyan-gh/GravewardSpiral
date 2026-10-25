@@ -1,0 +1,11 @@
+{
+  "town.title": "Warden's Town",
+  "boss.final.intro": "Atop the altar stands a shadow holding up a guttering lantern. \"...Is it time for the watch to change? ...No. The Call says: the living go below. ...Sleep here.\"",
+  "boss.final.victory": "As he crumbles, Ord, the First Warden, smiles faintly. \"...At last, I can sleep. ...The Call... still... in the drowned... city...\"\nFrom behind the altar rolls a stone heart, still beating. Carry it to the surface.",
+  "ending.1": "The heart carried up from the bottom of the spiral\nstopped beating quietly before the gate of the graveyard.",
+  "ending.2": "Riine took her master's lantern\nand rolled up the sleeves of her oversized cloak.",
+  "ending.3": "“From today, I am the Warden.\n... I will see the dead of the spiral off properly.”",
+  "ending.4": "The dead of the spiral lie quiet.\nBut the stone heart is not whole. Its missing piece points far away -\nto a city drowned beneath the water.",
+  "ending.end": "— Part I: The Warden's Spiral, The End —",
+  "scenario.prologue": "The town stands over a burial ground that winds down into the earth in a spiral. The dead are laid to rest far below, and generation after generation of gravekeepers have watched over their sleep.\n\nA month ago, the last gravekeeper took his lantern and went down the spiral. He has not come back.\nSince then, every night, graves open from within. The earth is pushed up from below, and the coffins lie empty.\n\nLene, the gravekeeper's apprentice, stands at the tavern door in her master's old cloak.\n\"Please find my master. ...And let the dead sleep again.\""
+}

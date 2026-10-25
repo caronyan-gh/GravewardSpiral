@@ -367,7 +367,7 @@ public sealed class MazeScene : Scene
         else if (mark.StartsWith(EventPlacer.MarkPrefix) && Services.Session != null
             && Services.Data.Events.TryGetValue(mark[EventPlacer.MarkPrefix.Length..], out var ev)) StartEvent(ev);
         else if (mark.StartsWith("boss:") && !State.UsedMarks.Contains(here) && Services.Session != null
-            && Services.Data.Bosses.TryGetValue(mark["boss:".Length..], out var boss))
+            && Services.Session.Boss(Services.Data, mark["boss:".Length..]) is { } boss)
         {
             // 決まった場所の敵。倒すまで、来るたびに戦う
             if (boss.Intro != null) Say(s[boss.Intro]);
@@ -437,7 +437,7 @@ public sealed class MazeScene : Scene
         List<(Core.Monsters.MonsterDef, int)> groups;
         MonsterScale? scale;
         string? bgm = null;
-        if (fight.Boss != null && data.Bosses.TryGetValue(fight.Boss, out var boss))
+        if (fight.Boss != null && session.Boss(data, fight.Boss) is { } boss)
         {
             groups = boss.Fighters(data.Monsters);
             scale = boss.Scale.Times(session.FixedScale(_encounters));
@@ -665,17 +665,21 @@ public sealed class MazeScene : Scene
     /// <summary>今の階のテーマ(名前の無い生成した階に、名前と入ったときの文を付ける)。</summary>
     private FloorTheme? CurrentTheme => Services.Data == null ? null : FloorAdvisor.ThemeFor(Services.Data, Depth);
 
+    /// <summary>AI がこの世界のために書いた、今の階の文(無ければ null)。</summary>
+    private Core.Ai.WorldFloorText? WorldFloor => Services.Session?.World?.Floor(State.Position.Floor);
+
     private string FloorLabel()
     {
         var f = State.Floor;
-        string? name = f.NameJa ?? f.NameEn ?? (CurrentTheme?.Name is { } tn ? Services.Name(tn) : null);
+        var themeName = WorldFloor?.Name ?? CurrentTheme?.Name;
+        string? name = f.NameJa ?? f.NameEn ?? (themeName is { } tn ? Services.Name(tn) : null);
         return name == null ? $"B{State.Position.Floor + 1}" : $"B{State.Position.Floor + 1} {name}";
     }
 
     /// <summary>テーマのある階に着いたら、その階の様子を一文で知らせる。</summary>
     private void SayFloorEnter()
     {
-        if (State.Floor.NameJa == null && State.Floor.NameEn == null && CurrentTheme?.Enter is { } text) Say(Services.Name(text));
+        if (State.Floor.NameJa == null && State.Floor.NameEn == null && (WorldFloor?.Enter ?? CurrentTheme?.Enter) is { } text) Say(Services.Name(text));
     }
 
     private void Say(string message)

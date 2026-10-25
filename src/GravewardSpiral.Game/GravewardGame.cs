@@ -81,7 +81,7 @@ public sealed class GravewardGame : Microsoft.Xna.Framework.Game
         {
             Content = content,
             Data = data,
-            Saves = new SaveStore(_options.SavesDir ?? Path.Combine(AppPaths.UserData, "saves")),
+            Saves = OpenSaves(_options.SavesDir ?? Path.Combine(AppPaths.UserData, "saves"), content),
             Strings = GameServices.MakeStrings(content),
             Textures = new TextureCache(GraphicsDevice),
             // 確認用の起動(--screenshot)では音を出さない
@@ -114,6 +114,15 @@ public sealed class GravewardGame : Microsoft.Xna.Framework.Game
         else _services.Scenes.Push(new TitleScene());
         _services.Scenes.Flush();
         _screen.Update(GraphicsDevice.PresentationParameters.BackBufferWidth, GraphicsDevice.PresentationParameters.BackBufferHeight);
+    }
+
+    /// <summary>セーブの置き場所を開く。前の形(枠ごとの save.json)があれば、クランと世界に移す(元は saves/old/ に残す)。</summary>
+    private static SaveStore OpenSaves(string root, ContentLibrary content)
+    {
+        var saves = new SaveStore(root);
+        int moved = saves.MigrateOldSlots(content);
+        if (moved > 0) Console.WriteLine($"saves: {moved} 個の古いセーブを、クランと世界に移しました(元は {Path.Combine(root, "old")})");
+        return saves;
     }
 
     /// <summary>パックの中のファイルを探す。後から読んだパックのものを優先する。</summary>

@@ -87,9 +87,9 @@ public sealed class TitleScene : Scene
         }
         if (key == "title.continue")
         {
-            if (Services.Saves.List().Count > 0)
+            if (Services.Saves.HasAny())
             {
-                Stack.Replace(new SlotScene(SlotScene.Purpose.Load));
+                Stack.Replace(new ContinueScene());
                 return;
             }
             _message = Services.Strings["title.no_save"];

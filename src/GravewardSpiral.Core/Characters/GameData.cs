@@ -108,6 +108,12 @@ public sealed class GameData
     public Dictionary<string, DropTable> Drops { get; } = new(StringComparer.Ordinal);
     public List<string> WishOrder { get; } = [];
 
+    /// <summary>自由な迷宮の由来の部品(場所・災い・底・町の頼み・町の名前)。</summary>
+    public Dictionary<string, Ai.WorldPart> WorldParts { get; } = new(StringComparer.Ordinal);
+
+    /// <summary>種族ごとの名前の一覧(おまかせの名前)。</summary>
+    public Dictionary<string, NameListDef> NameLists { get; } = new(StringComparer.Ordinal);
+
     /// <summary>パックの順番どおりの並び(画面に出す順)。</summary>
     public List<string> RaceOrder { get; } = [];
     public List<string> ClassOrder { get; } = [];
@@ -146,6 +152,8 @@ public sealed class GameData
         Read(Combat.FloorTheme.Collection, d.FloorThemes, null, t => t.Id);
         Read(AffixDef.Collection, d.Affixes, null, a => a.Id);
         Read(DropTable.Collection, d.Drops, null, t => t.Id);
+        Read(NameListDef.Collection, d.NameLists, null, n => n.Id);
+        Read(Ai.WorldPart.Collection, d.WorldParts, null, p => p.Id);
         d.Check(content);
         return d;
     }

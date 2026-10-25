@@ -1,0 +1,37 @@
+[
+  {
+    "id": "a_b1_footprints",
+    "file": "maps/prefabs/a_b1_footprints.txt",
+    "min_depth": 0,
+    "max_depth": 0.15,
+    "once": true
+  },
+  {
+    "id": "a_b2_remains",
+    "file": "maps/prefabs/a_b2_remains.txt",
+    "min_depth": 0.15,
+    "max_depth": 0.35,
+    "once": true
+  },
+  {
+    "id": "a_b3_bell",
+    "file": "maps/prefabs/a_b3_bell.txt",
+    "min_depth": 0.35,
+    "max_depth": 0.55,
+    "once": true
+  },
+  {
+    "id": "a_b4_stele",
+    "file": "maps/prefabs/a_b4_stele.txt",
+    "min_depth": 0.55,
+    "max_depth": 0.75,
+    "once": true
+  },
+  {
+    "id": "a_b5_seal",
+    "file": "maps/prefabs/a_b5_seal.txt",
+    "min_depth": 0.75,
+    "max_depth": 0.95,
+    "once": true
+  }
+]

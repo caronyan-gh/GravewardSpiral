@@ -7,6 +7,7 @@
 //   --count K   シードを S から K 個続けて試す(地図は出さず、通ったかと時間だけ)
 //   --out DIR   各階をマップのテキスト形式で DIR に書き出す
 //   --quiet     地図を出さない
+//   --scenario  重ねて読むシナリオ(Content/scenarios/ID)。省略すると第1部 gravekeeper、none なら自由な迷宮
 //   どの指定でも、自動で歩くボット(MazeBot)でも確かめる(鍵の順番、回転床、テレポーター、エレベーター)
 using System.Diagnostics;
 using GravewardSpiral.Core.Content;
@@ -21,6 +22,7 @@ int? floors = null, count = null;
 (int W, int H)? size = null, min = null, max = null;
 bool quiet = false;
 
+string scenarioId = ScenarioCatalog.Gravekeeper;   // --scenario ID(none なら標準のパックだけの自由な迷宮)
 for (int i = 0; i < args.Length; i++)
 {
     string next = i + 1 < args.Length ? args[i + 1] : "";
@@ -35,6 +37,7 @@ for (int i = 0; i < args.Length; i++)
         case "--count": count = int.Parse(next); i++; break;
         case "--out": outDir = next; i++; break;
         case "--quiet": quiet = true; break;
+        case "--scenario": scenarioId = next; i++; break;
         default:
             Console.Error.WriteLine($"引数 '{args[i]}' は読めません");
             return 2;
@@ -42,7 +45,9 @@ for (int i = 0; i < args.Length; i++)
 }
 
 string contentRoot = FindContent();
-var content = ContentLibrary.Load(contentRoot);
+var content = scenarioId == "none"
+    ? ContentLibrary.Load(contentRoot)
+    : ContentLibrary.Load(contentRoot, Path.Combine(contentRoot, "scenarios", scenarioId));
 if (!content.IsValid)
 {
     foreach (var p in content.Problems) Console.Error.WriteLine(p);

@@ -8,7 +8,10 @@ namespace GravewardSpiral.Game.Scenes;
 /// <summary>「はい / いいえ」を聞く小さな窓。下の画面に重ねて出す。</summary>
 public sealed class ConfirmScene : Scene
 {
-    private static readonly RectangleF Box = new(390, 270, 500, 180);
+    /// <summary>窓の大きさ(文の長さに合わせて、描くときに決め直す。長い文は幅 1000 まで広げ、それでも入らなければ折り返す)。</summary>
+    private RectangleF Box = new(390, 270, 500, 180);
+
+    private const float TextSize = 26f, LineGap = 8f;
 
     private readonly string _message;
     private readonly Action _onYes;
@@ -22,7 +25,7 @@ public sealed class ConfirmScene : Scene
 
     public override bool IsOverlay => true;
 
-    private static RectangleF Button(int i) => new(Box.X + 70 + i * 200, Box.Y + 110, 160, 44);
+    private RectangleF Button(int i) => new(Box.X + Box.Width / 2 - 180 + i * 200, Box.Y + Box.Height - 70, 160, 44);
 
     public override void Update(GameTime time, InputState input)
     {
@@ -51,10 +54,19 @@ public sealed class ConfirmScene : Scene
 
     public override void Draw(Draw2D d)
     {
+        // 文に合わせて窓を広げる(幅は 500〜1000。入らなければ折り返して、高さを足す)
+        string[] lines = _message.Split('\n');
+        float textWidth = lines.Max(l => d.Fonts.Measure(l, TextSize).X);
+        float width = Math.Clamp(textWidth + 80, 500, 1000);
+        int rows = lines.Sum(l => Math.Max(1, (int)Math.Ceiling(d.Fonts.Measure(l, TextSize).X / (width - 80))));
+        float height = 140 + rows * (TextSize + LineGap);
+        Box = new RectangleF(640 - width / 2, 360 - height / 2, width, height);
+
         d.FillRect(new RectangleF(0, 0, 1280, 720), new Color(0, 0, 0, 120));
         d.FillRect(Box, new Color(14, 18, 26, 245));
         d.Rect(Box, new Color(150, 190, 230), 1.5f);
-        d.Text(_message, new Vector2(Box.X + Box.Width / 2, Box.Y + 40), 26, Color.White, TextAlign.Center);
+        if (rows == 1) d.Text(_message, new Vector2(Box.X + Box.Width / 2, Box.Y + 40), TextSize, Color.White, TextAlign.Center);
+        else d.TextWrapped(_message, new Vector2(Box.X + 40, Box.Y + 36), width - 80, TextSize, Color.White, LineGap);
         string[] labels = [Services.Strings["common.yes"], Services.Strings["common.no"]];
         for (int i = 0; i < 2; i++)
         {

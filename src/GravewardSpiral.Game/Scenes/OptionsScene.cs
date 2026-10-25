@@ -12,10 +12,10 @@ namespace GravewardSpiral.Game.Scenes;
 /// </summary>
 public sealed class OptionsScene : Scene
 {
-    private enum Row { Language, Bgm, Se, LogSpeed, Wireframe, Map, Back }
+    private enum Row { Language, Bgm, Se, LogSpeed, Wireframe, Map, Ai, Back }
 
     private static readonly Row[] Rows = Enum.GetValues<Row>();
-    private static readonly RectangleF Area = new(240, 110, 800, 500);
+    private static readonly RectangleF Area = new(240, 70, 800, 580);
     private const float RowHeight = 56f;
 
     private readonly bool _overlay;
@@ -96,6 +96,13 @@ public sealed class OptionsScene : Scene
             Close();
             return;
         }
+        // AI の手伝いは、決定で別の画面を開いて決める
+        if (row == Row.Ai && (input.Pressed(GameAction.Confirm) || input.LeftClicked && hovered == _cursor))
+        {
+            Services.Audio.PlaySe(Sounds.Confirm);
+            Stack.Push(new AiOptionsScene());
+            return;
+        }
         bool clickLeft = input.LeftClicked && hovered == _cursor && input.Mouse is { } cm && LeftArrow(_cursor).Contains(cm);
         int step = input.Repeat(GameAction.Left) || clickLeft ? -1
             : input.Repeat(GameAction.Right) || input.Pressed(GameAction.Confirm) || input.LeftClicked && hovered == _cursor ? 1 : 0;
@@ -174,6 +181,7 @@ public sealed class OptionsScene : Scene
             Row.LogSpeed => s["options.log." + O.LogSpeed],
             Row.Wireframe => s[O.MonoWireframe ? "options.wire.mono" : "options.wire.color"],
             Row.Map => s["options.map." + O.MapMode],
+            Row.Ai => s[!O.AiEnabled ? "options.ai.off" : Ai.ApiKeyStore.Load(Ai.ApiKeyStore.Claude) != null ? "options.ai.on" : "options.ai.no_key"],
             _ => "",
         };
     }
@@ -197,6 +205,11 @@ public sealed class OptionsScene : Scene
             var color = selected ? Color.White : Theme.Text;
             d.Text(s["options." + Rows[i].ToString().ToLowerInvariant()], new Vector2(r.X + 16, r.Y + 12), 24, color);
             if (Rows[i] == Row.Back) continue;
+            if (Rows[i] == Row.Ai)
+            {
+                d.Text(Value(Rows[i]), new Vector2((LeftArrow(i).X + LeftArrow(i).Width + RightArrow(i).X) / 2, r.Y + 12), 24, color, TextAlign.Center);
+                continue;
+            }
             string v = Value(Rows[i]);
             var la = LeftArrow(i);
             var ra = RightArrow(i);

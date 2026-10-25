@@ -36,6 +36,10 @@ Name: "english"; MessagesFile: "compiler:Default.isl"
 [Tasks]
 Name: "desktopicon"; Description: "{cm:CreateDesktopIcon}"; GroupDescription: "{cm:AdditionalIcons}"; Flags: unchecked
 
+[InstallDelete]
+; 上書きで入れ直すとき、前の版のデータ(消えたファイル・動いたファイル)が残らないように、先に消す。セーブは %LOCALAPPDATA% にあるので消えない
+Type: filesandordirs; Name: "{app}\Content"
+
 [Files]
 Source: "{#SourceDir}\*"; DestDir: "{app}"; Excludes: "*.pdb"; Flags: ignoreversion recursesubdirs createallsubdirs
 

@@ -1,0 +1,23 @@
+{
+  "id": "gravekeeper",
+  "kind": "scenario",
+  "name": {
+    "en": "The Gravekeeper's Spiral",
+    "ja": "墓守の螺旋"
+  },
+  "version": "1.0",
+  "depends": [
+    "srd"
+  ],
+  "order": 0,
+  "author": "GRAVEWARD SPIRAL",
+  "description": {
+    "en": "Part 1. The last gravekeeper went down into the spiral and never came back. Go down after him.",
+    "ja": "第1部。最後の墓守が螺旋を下りたまま、戻らない。その後を追って下りる。"
+  },
+  "levels": [
+    1,
+    5
+  ],
+  "dungeon": "gravekeeper"
+}

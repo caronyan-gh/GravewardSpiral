@@ -15,6 +15,25 @@ public class MazeGeneratorTests
     private static string Text(Dungeon d) => string.Join("\n----\n", d.Floors.Select(MazeTextFormat.Write));
 
     [Fact]
+    public void GeneratedFloorsSurviveTheTextFormat()
+    {
+        // シナリオの迷宮は、生成したものを手作りのマップの形式で保存して使う。書いて読み直しても同じになること
+        for (ulong seed = 1; seed <= 6; seed++)
+        {
+            var dungeon = Generate(seed, 6);
+            var back = new Dungeon(dungeon.Id, dungeon.Floors.Select(f => MazeTextFormat.Parse(MazeTextFormat.Write(f), f.Id)).ToList());
+            Assert.Equal(Text(dungeon), Text(back));
+            Assert.Empty(back.Validate());
+            Assert.True(MazeBot.Explore(back).Ok);
+            for (int i = 0; i < dungeon.Floors.Count; i++)
+            {
+                Assert.Equal(dungeon.Floors[i].Rooms.Count, back.Floors[i].Rooms.Count);
+                Assert.Equal(dungeon.Floors[i].Start, back.Floors[i].Start);
+            }
+        }
+    }
+
+    [Fact]
     public void SettingsLoadFromPack()
     {
         Assert.Equal(6, Settings.DefaultFloors);   // 第1部 A は L1〜5 の 6 階

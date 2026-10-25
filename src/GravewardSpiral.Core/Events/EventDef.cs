@@ -133,6 +133,8 @@ public sealed class EventOption
 /// - town: 町へ戻る
 /// - end: ここで終わる
 /// - again: ここで終わり、一度きりでも済んだことにしない(立ち去る、など。また来れば起こる)
+/// - world_doc: AI がこの世界のために書いた、この階の書き付けを1つ見せる(同じ迷宮の同じマスでは毎回同じもの)。
+///   AI を使っていない世界では else の手順を行う(決まった文を書いておく)
 /// </summary>
 public sealed class EventStep
 {
@@ -140,6 +142,7 @@ public sealed class EventStep
     [
         "text", "choice", "if", "check", "random", "flag", "unflag", "counter", "counter_set", "give_item", "take_item", "treasure", "gold",
         "xp", "heal", "damage", "condition", "cure", "light", "combat", "open", "sound", "run", "town", "end", "again",
+        "world_doc",
     ];
 
     public string Type { get; set; } = "";

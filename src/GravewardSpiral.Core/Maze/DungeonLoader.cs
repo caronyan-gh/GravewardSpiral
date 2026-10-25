@@ -29,6 +29,14 @@ public static class DungeonLoader
         return new Dungeon(def.Id, floors);
     }
 
+    /// <summary>選んでいるシナリオの迷宮(manifest の dungeon)。シナリオが迷宮を持たなければ null(生成する)。</summary>
+    public static Dungeon? ScenarioDungeon(ContentLibrary content) =>
+        content.Scenario?.Dungeon is { } id ? Load(content, id) : null;
+
+    /// <summary>決まった迷宮で始めるときの生成の指定(シードは顔ぶれ・散らすイベントなどの抽選に使う)。</summary>
+    public static MazeGen.GenerationRequest RequestFor(Dungeon dungeon, ulong seed) =>
+        new(seed, dungeon.Floors.Count, MazeGen.FloorSizeMode.Fixed(dungeon.Floors[0].Width, dungeon.Floors[0].Height));
+
     /// <summary>パックにある手作りの迷宮を全部読んで、辻褄を調べる(起動時の検査)。</summary>
     public static void ValidateAll(ContentLibrary content)
     {

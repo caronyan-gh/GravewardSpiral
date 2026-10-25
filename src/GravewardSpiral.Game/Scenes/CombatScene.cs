@@ -350,6 +350,14 @@ public sealed class CombatScene : Scene
     private void Set(PlayerCommand cmd)
     {
         _commands[Current.Id] = cmd;
+        // 逃げるは全員で: 残りの人の行動は選ばずに、みんなで逃げる(だれか1人でも成功すれば逃げられる)
+        if (cmd.Kind == CommandKind.Flee)
+        {
+            foreach (var p in _state.Party.Skip(_member + 1).Where(p => p.CanAct)) _commands[p.Id] = cmd;
+            _member = _state.Party.Count;
+            RunRound();
+            return;
+        }
         NextMember();
     }
 

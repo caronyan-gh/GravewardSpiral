@@ -57,7 +57,7 @@ public class NamedMonsterTests
         var store = new SaveStore(dir.Path);
         w.Named[0].Defeated = true;
         store.Save(w, Content);
-        var back = store.Load(1);
+        var back = store.Load(w.ClanId, w.WorldKey);
         Assert.Equal(w.Named.Select(n => (n.Id, n.Floor, n.Lair, n.Rumored, n.Defeated)), back.Named.Select(n => (n.Id, n.Floor, n.Lair, n.Rumored, n.Defeated)));
 
         // 便利なユニーク品: 鍵開けと罠外し、知覚

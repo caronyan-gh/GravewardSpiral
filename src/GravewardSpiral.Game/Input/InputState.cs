@@ -126,6 +126,8 @@ public sealed class InputState
         RightClicked = Mouse.HasValue && mouse.RightButton == ButtonState.Pressed && _prevMouse.RightButton == ButtonState.Released;
         WheelDelta = windowActive ? (mouse.ScrollWheelValue - _prevMouse.ScrollWheelValue) / 120 : 0;
         if (RightClicked) _pressed.Add(GameAction.Cancel);
+        // ホイールのクリック(中ボタン)は地図
+        if (Mouse.HasValue && mouse.MiddleButton == ButtonState.Pressed && _prevMouse.MiddleButton == ButtonState.Released) _pressed.Add(GameAction.Map);
         foreach (var action in _injected)
         {
             _pressed.Add(action);

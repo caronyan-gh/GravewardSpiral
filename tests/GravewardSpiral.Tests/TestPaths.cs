@@ -7,6 +7,9 @@ internal static class TestPaths
 
     public static string Content => Path.Combine(Root, "Content");
 
+    /// <summary>第1部(墓守の螺旋)のシナリオのパック。</summary>
+    public static string Gravekeeper => Path.Combine(Content, "scenarios", "gravekeeper");
+
     private static string FindRoot()
     {
         for (var dir = new DirectoryInfo(AppContext.BaseDirectory); dir != null; dir = dir.Parent)

@@ -102,7 +102,7 @@ public class DifficultyTests
         s.ClanName = "灰の鐘団";
         var store = new SaveStore(dir.Path);
         store.Save(s, Content);
-        var back = store.Load(s.Slot);
+        var back = store.Load(s.ClanId, s.WorldKey);
         Assert.Equal(Difficulty.Custom, back.Difficulty.Preset);
         Assert.False(back.Difficulty.RiskyRevive);
         Assert.True(back.Difficulty.BodiesRemain);

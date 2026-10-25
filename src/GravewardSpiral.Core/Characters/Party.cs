@@ -20,9 +20,19 @@ public sealed class Roster
     /// <summary>迷宮に残っている(パーティが全滅して置いてきた)キャラクター。M9 の回収で使う。</summary>
     public Dictionary<string, Maze.PartyPosition> LeftInMaze { get; set; } = [];
 
+    /// <summary>
+    /// ほかの世界の迷宮にいる人(キャラの id → その世界)。名簿はクランで1つなので、よその世界で中断したパーティと置いてきた死体は、この世界では使えない。
+    /// セーブには書かず、読むときに入れる(SaveStore.MarkAway)。
+    /// </summary>
+    [System.Text.Json.Serialization.JsonIgnore]
+    public Dictionary<string, string> Away { get; } = new(StringComparer.Ordinal);
+
+    /// <summary>この世界で使える(よその世界の迷宮にも、この世界の迷宮にもいない)。</summary>
+    public bool Available(Character c) => !LeftInMaze.ContainsKey(c.Id) && !Away.ContainsKey(c.Id);
+
     public bool AddToParty(Character c)
     {
-        if (Party.Count >= MaxParty || InParty(c) || LeftInMaze.ContainsKey(c.Id)) return false;
+        if (Party.Count >= MaxParty || InParty(c) || !Available(c)) return false;
         Party.Add(c.Id);
         return true;
     }

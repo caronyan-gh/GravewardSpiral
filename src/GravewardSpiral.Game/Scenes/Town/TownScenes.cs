@@ -12,13 +12,17 @@ namespace GravewardSpiral.Game.Scenes.Town;
 /// <summary>町。酒場・宿屋・商店・寺院・訓練場と、迷宮への入口。町に来るたびに自動でセーブする。</summary>
 public sealed class TownScene : MenuScene
 {
-    private enum Place { Tavern, Inn, Shop, Temple, Training, House, Visit, Maze, Quit }
+    private enum Place { Tavern, Inn, Shop, Temple, Training, House, Visit, Story, Maze, Quit }
 
     /// <summary>町の BGM(「Candlelight and Cold Stone」)。町の中の画面のあいだ、ずっと流す。</summary>
     public const string Bgm = "audio/bgm/town.mp3";
 
+    /// <summary>町の名前(自由な迷宮は、由来で決まった町の名前)。</summary>
+    private string TownName => Services.Session?.Origin is { } o && Services.Data.WorldParts.GetValueOrDefault(o.Town)?.Name is { } n
+        ? Services.Name(n) : Services.Strings["town.title"];
+
     protected override string Title => Services.Session?.ClanName is { } clan
-        ? Services.Strings.Format("town.title_clan", Services.Strings["town.title"], clan) : Services.Strings["town.title"];
+        ? Services.Strings.Format("town.title_clan", TownName, clan) : TownName;
 
     public override void Enter()
     {
@@ -31,9 +35,9 @@ public sealed class TownScene : MenuScene
             Message = notice;
             Services.Session.TownNotice = null;
         }
-        // 最下層のボスの証を持ち帰ったら、エンディング
+        // 最下層のボス(final)を倒した証を持って戻ったら、エンディング
         var flags = Services.Session.Flags;
-        if (flags.Contains("has_spiral_heart") && !flags.Contains("cleared")) Stack.Push(new EndingScene());
+        if (Services.Data.Bosses.GetValueOrDefault("final")?.RewardFlag is { } heart && flags.Contains(heart) && !flags.Contains("cleared")) Stack.Push(new EndingScene());
     }
 
     private bool PartyCanEnter => Services.Session!.Roster.PartyMembers.Any(c => c.CanAct);
@@ -49,6 +53,8 @@ public sealed class TownScene : MenuScene
         yield return new MenuItem(s["town.house"], Tag: Place.House);
         // 町のイベントがあるときだけ出す
         if (Services.Data.Events.Values.Any(e => e.Place == "town")) yield return new MenuItem(s["town.visit"], Tag: Place.Visit);
+        // この世界のいわれ(序文)があれば、読み返せる
+        if (StoryScene.Available(Services)) yield return new MenuItem(s["town.story"], Tag: Place.Story);
         yield return new MenuItem(s["town.maze"], Enabled: PartyCanEnter, Tag: Place.Maze);
         yield return new MenuItem(s["town.quit"], Tag: Place.Quit);
     }
@@ -63,6 +69,7 @@ public sealed class TownScene : MenuScene
             case Place.Temple: Stack.Push(new TempleScene()); break;
             case Place.Training: Stack.Push(new TrainingScene(Refresh)); break;
             case Place.Visit: Stack.Push(new VisitScene()); break;
+            case Place.Story: Stack.Push(new StoryScene()); break;
             case Place.House: Stack.Push(new ClanHouseScene()); break;
             case Place.Maze:
                 var state = Services.Session!.EnterMaze();
@@ -94,6 +101,7 @@ public sealed class TownScene : MenuScene
             Place.Training => "town.about_training",
             Place.House => "town.about_house",
             Place.Visit => "town.about_visit",
+            Place.Story => "town.about_story",
             Place.Maze => PartyCanEnter ? "town.about_maze" : "town.about_maze_no_party",
             _ => "town.about_quit",
         };
@@ -153,7 +161,7 @@ public sealed class TavernScene : MenuScene
     }
 
     private IEnumerable<Character> Available() =>
-        Roster.Characters.Where(c => !Roster.InParty(c) && !Roster.LeftInMaze.ContainsKey(c.Id));
+        Roster.Characters.Where(c => !Roster.InParty(c) && Roster.Available(c));
 
     private string Describe(Character c) => $"{Services.Name(Services.Data.Classes[c.ClassId].Name)} Lv{c.Level}";
 
@@ -392,7 +400,13 @@ public sealed class TrainingScene : MenuScene
         yield return new MenuItem(s["training.create"], Roster.Characters.Count >= MaxRoster ? s["training.full"] : null,
             Enabled: Roster.Characters.Count < MaxRoster, Tag: "create");
         foreach (var ch in Roster.Characters)
-            yield return new MenuItem(ch.Name, $"{Services.Name(Services.Data.Classes[ch.ClassId].Name)} Lv{ch.Level}{(ch.CanLevelUp ? " ↑" : "")}", Tag: ch);
+        {
+            // ほかの世界の迷宮にいる人は、この世界では使えない
+            if (Roster.Away.TryGetValue(ch.Id, out var where))
+                yield return new MenuItem(ch.Name, s.Format("roster.away", Services.ScenarioDisplayName(where.StartsWith("free-") ? null : where)), Enabled: false, Tag: ch);
+            else
+                yield return new MenuItem(ch.Name, $"{Services.Name(Services.Data.Classes[ch.ClassId].Name)} Lv{ch.Level}{(ch.CanLevelUp ? " ↑" : "")}", Tag: ch);
+        }
         yield return new MenuItem(s["training.export_clan"], Enabled: Roster.Characters.Count > 0, Tag: "export");
         yield return new MenuItem(s["common.back"], Tag: "back");
     }
@@ -431,7 +445,7 @@ public sealed class TrainingScene : MenuScene
                     {
                         Message = ex.Message;
                     }
-                }));
+                }, suggest: Services.ClanNameSuggester()));
                 break;
             case "create":
                 Stack.Push(new CharacterCreateScene(c =>
@@ -491,7 +505,7 @@ public sealed class TrainingScene : MenuScene
                 {
                     target.Name = name;
                     Refresh();
-                }));
+                }, suggest: CharacterCreateScene.NameSuggester(Services, target.RaceId)));
                 break;
             case "delete":
                 var victim = _selected!;
@@ -581,7 +595,7 @@ public sealed class StatusScene : Scene
         Text(c.Name, Theme.Title, 26);
         Text($"{sv.Name(race.Subrace ?? race.Name)}  {sv.Name(data.Classes[c.ClassId].Name)}  Lv{c.Level}  {s[$"alignment.{c.Alignment.ToString().ToLowerInvariant()}"]}", Theme.Text);
         Text(s.Format("status.hp_ac", c.Hp, c.MaxHp, c.ArmorClass(data), c.ProficiencyBonus), Theme.Text);
-        Text(string.Join("  ", Abilities.All.Select(a => $"{s[$"ability.{a.Code()}"]} {c.Scores[a]}")), Theme.Text, 18);
+        Text(string.Join("  ", Abilities.All.Select(a => $"{s[$"ability_short.{a.Code()}"]} {c.Scores[a]}")), Theme.Text, 18);
         Text(s.Format("status.xp", c.Xp, Progression.XpForLevel(c.Level + 1)), Theme.Dim, 18);
         Text(s.Format("status.gold", c.Gold), Theme.Gold, 18);
         if (UI.SpellText.Slots(s, data, c) is { } slots) Text(slots, Theme.Text, 18);

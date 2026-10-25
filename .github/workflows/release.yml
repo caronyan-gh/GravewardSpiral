@@ -1,0 +1,61 @@
+# v1.2.3 のようなタグを push すると、テストを流してからインストーラーを作り、GitHub Releases に公開する。
+# リリースノートは注釈付きタグのメッセージ(git tag -a v1.2.3 -m "...")を使う。
+name: Release
+
+on:
+  push:
+    tags: ['v*']
+
+permissions:
+  contents: write
+
+jobs:
+  release:
+    runs-on: windows-latest
+    env:
+      # 道具の Python が日本語を出すので、文字コードを UTF-8 にする
+      PYTHONUTF8: '1'
+    steps:
+      - uses: actions/checkout@v7
+        with:
+          # タグのメッセージをリリースノートに使うため、タグの情報も取る
+          fetch-depth: 0
+
+      - uses: actions/setup-dotnet@v6
+        with:
+          dotnet-version: 10.0.x
+
+      - name: Version from tag
+        id: version
+        shell: pwsh
+        run: |
+          $tag = '${{ github.ref_name }}'
+          "version=$($tag.TrimStart('v'))" >> $env:GITHUB_OUTPUT
+
+      - name: Test
+        run: dotnet test tests/GravewardSpiral.Tests -c Release
+
+      - name: Install Inno Setup
+        run: choco install innosetup -y --no-progress
+
+      - name: Build installer
+        run: python tools/make_installer.py --version ${{ steps.version.outputs.version }}
+
+      - name: Collect assets and checksums
+        shell: pwsh
+        run: |
+          New-Item -ItemType Directory -Force dist | Out-Null
+          Copy-Item out/installer/GravewardSpiral-Setup-${{ steps.version.outputs.version }}.exe dist/
+          Get-ChildItem dist -Filter *.exe | ForEach-Object {
+            "{0}  {1}" -f (Get-FileHash $_.FullName -Algorithm SHA256).Hash.ToLowerInvariant(), $_.Name
+          } | Set-Content dist/SHA256SUMS.txt -Encoding ascii
+          Get-Content dist/SHA256SUMS.txt
+
+      - name: Create GitHub release
+        shell: pwsh
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          gh release create '${{ github.ref_name }}' dist/GravewardSpiral-Setup-${{ steps.version.outputs.version }}.exe dist/SHA256SUMS.txt `
+            --title "GRAVEWARD SPIRAL ${{ github.ref_name }}" `
+            --notes-from-tag

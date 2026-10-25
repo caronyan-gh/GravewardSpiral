@@ -232,6 +232,7 @@ public sealed class TempleScene : MenuScene
         // 名簿の全員(パーティにいない死者も、ここで蘇生できる)
         foreach (var c in Services.Session!.Roster.Characters)
         {
+            if (Services.Session.Roster.Away.ContainsKey(c.Id)) continue;   // ほかの世界の迷宮にいる人は、ここにはいない
             if (c.State is LifeState.Dead or LifeState.Ashes)
                 yield return new MenuItem(s.Format("temple.revive", c.Name), s.Format("temple.revive_detail", House(ClanHouseLevel.Chapel, Temple.RevivePrice(c)), Temple.ReviveChance(c, sure: !Services.Session!.Difficulty.RiskyRevive)),
                     House(ClanHouseLevel.Chapel, Temple.RevivePrice(c)) <= PartyGold.Total(Party), c);

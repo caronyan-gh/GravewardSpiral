@@ -165,9 +165,9 @@ public static class Encounters
     /// 階の顔ぶれを抽選する(その深さで予算に合うモンスターから roster_size 種類。階のテーマがあれば、種類の重みで寄せる)。
     /// 生成のときに決めてセーブに入れる。候補は FloorAdvisor.Monsters(エディタのおすすめと同じ)。
     /// </summary>
-    public static List<string> Roster(GameData data, EncounterSettings s, double depth, int partySize, IRandom rng)
+    public static List<string> Roster(GameData data, EncounterSettings s, double depth, int partySize, IRandom rng, FloorTheme? theme = null)
     {
-        var pool = FloorAdvisor.Monsters(data, s, depth, partySize, FloorAdvisor.ThemeFor(data, depth))
+        var pool = FloorAdvisor.Monsters(data, s, depth, partySize, theme ?? FloorAdvisor.ThemeFor(data, depth))
             .OrderBy(x => x.Monster.Id, StringComparer.Ordinal).ToList();
         var picked = new List<string>();
         while (picked.Count < s.RosterSize && pool.Count > 0)

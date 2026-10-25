@@ -21,6 +21,9 @@ public static class ScenarioCatalog
 {
     public const string Kind = "scenario";
 
+    /// <summary>第1部(墓守の螺旋)のシナリオの id。前は標準のパックに入っていたので、シナリオの無い古いセーブはこれで読む。</summary>
+    public const string Gravekeeper = "gravekeeper";
+
     public static List<ScenarioInfo> Find(IEnumerable<string> searchDirs, string cacheDir, List<string>? problems = null)
     {
         var found = new Dictionary<string, ScenarioInfo>(StringComparer.Ordinal);

@@ -61,14 +61,49 @@ public sealed class GameSession
         var rng = RngStreams.Create(Request.Seed, "rosters");
         int floors = Dungeon.Floors.Count;
         FloorRosters = Enumerable.Range(0, floors)
-            .Select(i => Combat.Encounters.Roster(data, s, floors <= 1 ? 0 : (double)i / (floors - 1), Characters.Roster.MaxParty, rng)).ToList();
+            .Select(i =>
+            {
+                double depth = floors <= 1 ? 0 : (double)i / (floors - 1);
+                return Combat.Encounters.Roster(data, s, depth, Characters.Roster.MaxParty, rng, ThemeAt(data, depth));
+            }).ToList();
         // 落とし物の味付け(仕組みだけ。生成ではまだ全部の階を ×1 にする)
         FloorDrops = Enumerable.Range(0, floors).Select(_ => new Items.DropBoost()).ToList();
         PlaceNamed(data, RngStreams.Create(Request.Seed, "named"));
+        PickBosses(data, s);
+    }
+
+    /// <summary>auto のボス(自由な迷宮の主)に、この世界で選んだ敵の組(ボスの id → 組)。</summary>
+    public Dictionary<string, List<Monsters.BossDef.BossGroup>> BossPicks { get; set; } = new(StringComparer.Ordinal);
+
+    /// <summary>auto のボスの組を、世界の最後のレベル帯と最下層の顔ぶれから選ぶ。</summary>
+    public void PickBosses(Characters.GameData data, Combat.EncounterSettings s)
+    {
+        BossPicks.Clear();
+        var rng = RngStreams.Create(Request.Seed, "boss");
+        var deepest = FloorRosters.Count > 0 ? FloorRosters[^1] : [];
+        foreach (var boss in data.Bosses.Values.Where(b => b.Auto).OrderBy(b => b.Id, StringComparer.Ordinal))
+            BossPicks[boss.Id] = Monsters.BossDef.PickGroups(data, s.LastLevel, deepest, rng, ThemeAt(data, 1.0));
+    }
+
+    /// <summary>ボス(auto のボスは、この世界で選んだ組に差し替えた写し)。無ければ null。</summary>
+    public Monsters.BossDef? Boss(Characters.GameData data, string id)
+    {
+        if (!data.Bosses.TryGetValue(id, out var boss)) return null;
+        return boss.Auto && BossPicks.TryGetValue(id, out var groups) ? boss.WithGroups(groups) : boss;
     }
 
     /// <summary>この世界にいる名のある敵(0〜2 体)。</summary>
     public List<Monsters.NamedSpawn> Named { get; set; } = [];
+
+    /// <summary>自由な迷宮の由来(場所・災い・底などの部品)。出る敵の種類と、世界の文の元になる。シナリオの世界と古いセーブは null。</summary>
+    public Ai.WorldOrigin? Origin { get; set; }
+
+    /// <summary>その深さで出る敵の種類の重み。由来があれば由来から、無ければパックの階のテーマ。</summary>
+    public Combat.FloorTheme? ThemeAt(Characters.GameData data, double depth) =>
+        (Origin is { } o ? Ai.WorldBuilder.Theme(data, o, depth) : null) ?? Combat.FloorAdvisor.ThemeFor(data, depth);
+
+    /// <summary>AI が書いたこの世界の文(背景・階の名前と文・書き付け)。AI を使わなかった世界と古いセーブは null。</summary>
+    public Ai.WorldText? World { get; set; }
 
     /// <summary>名のある敵を抽選して置く: 何体いるか(0〜2)、どの敵か(深さの合う中から重みで)、どの階か、ねぐらかさまようか、噂に乗るか。</summary>
     public void PlaceNamed(Characters.GameData data, IRandom rng)
@@ -148,6 +183,17 @@ public sealed class GameSession
 
     /// <summary>クランの名前(新しいゲームで付ける。町に出し、クランを書き出すときの既定の名前にする)。</summary>
     public string? ClanName { get; set; }
+
+    /// <summary>
+    /// クランの id。同じクランが別の世界(シナリオ)を遊ぶと、セーブは「クラン × シナリオ」ごとに分かれ、続きからはクランで選ぶ。
+    /// 持ち込んだクランはその id を引き継ぐ。id を持つ前のセーブは "slot&lt;枠&gt;"。
+    /// </summary>
+    public string ClanId { get; set; } = NewClanId();
+
+    public static string NewClanId() => "c" + Guid.NewGuid().ToString("N")[..12];
+
+    /// <summary>世界の key(セーブのフォルダの名前)。シナリオの id、自由な迷宮は free-&lt;シード&gt;。</summary>
+    public string WorldKey => Scenario ?? $"free-{Request.Seed}";
 
     /// <summary>遊んでいるシナリオ(パックの id と版。標準のパックだけなら null)。</summary>
     public string? Scenario { get; set; }

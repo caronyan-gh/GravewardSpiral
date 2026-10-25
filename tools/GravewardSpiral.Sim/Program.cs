@@ -22,6 +22,7 @@
 //   --parties A;B;...  編成を並べる(1つは fighter,cleric,... の形)。省略すると、いろいろな編成を試す
 //   --verbose          1回ごとの流れも出す
 //   --simple           単純なボット(逃げない・水薬なし・装備を替えない)で遊ばせる(比べる用)
+//   --scenario ID      重ねて読むシナリオ(Content/scenarios/ID)。省略すると第1部 gravekeeper、none なら自由な迷宮(標準のパックだけ)
 using GravewardSpiral.Core.Characters;
 using GravewardSpiral.Core.Combat;
 using GravewardSpiral.Core.Content;
@@ -36,6 +37,7 @@ string? partiesArg = null;
 var checkFiles = new List<string>();
 bool allowExisting = false;
 string? bossId = null;
+string scenarioId = ScenarioCatalog.Gravekeeper;
 ulong seed = 1;
 double? depth = null;
 string[] classes = ["fighter", "fighter", "paladin", "rogue", "ranger", "cleric"];
@@ -57,6 +59,7 @@ for (int i = 0; i < args.Length; i++)
         case "--at-level": atLevel = true; break;
         case "--boss": bossId = next; i++; break;
         case "--campaign": campaign = true; break;
+        case "--scenario": scenarioId = next; i++; break;
         case "--allow-existing": allowExisting = true; break;
         case "--check-events":
             while (i + 1 < args.Length && !args[i + 1].StartsWith("--")) checkFiles.Add(args[++i]);
@@ -78,7 +81,10 @@ for (int i = 0; i < args.Length; i++)
     }
 }
 
-var content = ContentLibrary.Load(FindContent());
+string contentRoot = FindContent();
+var content = scenarioId == "none"
+    ? ContentLibrary.Load(contentRoot)
+    : ContentLibrary.Load(contentRoot, Path.Combine(contentRoot, "scenarios", scenarioId));
 if (!content.IsValid)
 {
     foreach (var p in content.Problems) Console.Error.WriteLine(p);

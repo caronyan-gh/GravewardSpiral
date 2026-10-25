@@ -11,10 +11,10 @@ namespace GravewardSpiral.Game.Scenes;
 /// <summary>確認用の起動(--start party / --start combat)。試しの迷宮に、おまかせの6人で入る。枠 0 なのでセーブしない。</summary>
 public static class DebugStart
 {
-    private static readonly (string Name, string Race, string Class)[] Members =
+    private static readonly (string Race, string Class)[] Members =
     [
-        ("ルカ", "human", "fighter"), ("ガルド", "dwarf", "fighter"), ("セラ", "human", "paladin"),
-        ("ピピン", "halfling", "rogue"), ("エルウィン", "elf", "wizard"), ("マリア", "human", "cleric"),
+        ("human", "fighter"), ("dwarf", "fighter"), ("human", "paladin"),
+        ("halfling", "rogue"), ("elf", "wizard"), ("human", "cleric"),
     ];
 
     public static void Party(GameServices services) => Party(services, MazeScene.TestDungeonId);
@@ -70,8 +70,11 @@ public static class DebugStart
     private static void Party(GameServices services, Dungeon dungeon, GenerationRequest request)
     {
         var session = GameSession.New(0, request, dungeon);
-        foreach (var (name, race, cls) in Members)
+        // 名前は名前辞書から(シードを決めてあるので、起動のたびに同じ6人になる)
+        var names = new Pcg32(2026, 3);
+        foreach (var (race, cls) in Members)
         {
+            string name = RandomNames.Pick(services.Data, race, GameServices.Language, names, session.Roster.Characters.Select(m => m.Name)) ?? race;
             var c = CharacterFactory.QuickCreate(services.Data, name, race, cls);
             if (cls == "wizard")
             {
@@ -83,17 +86,17 @@ public static class DebugStart
             session.Roster.AddToParty(c);
         }
         // レアな装備の見本(鑑定済み): 追加効果つきの +2 ロングソードと、固有の品
-        var luka = session.Roster.Characters[0];
+        var leader = session.Roster.Characters[0];
         var ts = Core.Items.TreasureSettings.Load(services.Content);
         var lrng = new Core.Rng.Pcg32(11, 11);
         var sword = new Core.Items.ItemInstance { ItemId = "longsword", Bonus = 2 };
         Core.Items.Loot.AddAffixes(services.Data, sword, services.Data.Items["longsword"], 2, 8, lrng);
         var unique = Core.Items.Loot.Make(services.Data, ts, services.Data.Items["hellbrand"], 8, lrng);
         unique.Identified = true;
-        luka.Inventory.TryAdd(sword, services.Data.Items);
-        luka.Inventory.TryAdd(unique, services.Data.Items);
+        leader.Inventory.TryAdd(sword, services.Data.Items);
+        leader.Inventory.TryAdd(unique, services.Data.Items);
         // 未鑑定の見本(キャンプの小休憩で調べられる)
-        luka.Inventory.TryAdd(new Core.Items.ItemInstance { ItemId = "ring_of_protection", Identified = false }, services.Data.Items);
+        leader.Inventory.TryAdd(new Core.Items.ItemInstance { ItemId = "ring_of_protection", Identified = false }, services.Data.Items);
         session.Roster.Characters[3].Inventory.TryAdd(new Core.Items.ItemInstance { ItemId = "longsword", Bonus = 1, Identified = false }, services.Data.Items);
         session.Roster.Characters[1].Inventory.TryAdd(new Core.Items.ItemInstance { ItemId = "cursed_longsword_of_misfortune", Identified = false }, services.Data.Items);   // 呪い(鑑定しても +1 に見える)
         services.Session = session;
@@ -134,7 +137,7 @@ public static class DebugStart
     public static void Ending(GameServices services)
     {
         Party(services);
-        services.Session!.Flags.Add("has_spiral_heart");
+        if (services.Session!.Boss(services.Data, "final")?.RewardFlag is { } flag) services.Session.Flags.Add(flag);
         services.Scenes.Replace(new Town.TownScene());
     }
 
@@ -142,7 +145,7 @@ public static class DebugStart
     public static void Boss(GameServices services)
     {
         Party(services);
-        var boss = services.Data.Bosses["final"];
+        var boss = services.Session!.Boss(services.Data, "final")!;
         var groups = boss.Fighters(services.Data.Monsters);
         services.Scenes.Push(new CombatScene(groups, scale: boss.Scale, bgm: CombatScene.BossBgm));
     }

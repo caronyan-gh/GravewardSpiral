@@ -1,0 +1,18 @@
+[
+  {
+    "id": "gravekeeper",
+    "name": {
+      "en": "The Gravekeeper's Spiral",
+      "ja": "墓守の螺旋"
+    },
+    "note": "MapCheck --seed 墓守の螺旋 で生成したものを保存した(シナリオの迷宮は、セーブと同じく固定)",
+    "floors": [
+      "maps/gravekeeper_b1.txt",
+      "maps/gravekeeper_b2.txt",
+      "maps/gravekeeper_b3.txt",
+      "maps/gravekeeper_b4.txt",
+      "maps/gravekeeper_b5.txt",
+      "maps/gravekeeper_b6.txt"
+    ]
+  }
+]

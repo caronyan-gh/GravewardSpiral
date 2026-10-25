@@ -64,6 +64,7 @@ public sealed class CampScene : MenuScene
                 yield return new MenuItem(s["camp.status"], Tag: "status");
                 yield return new MenuItem(s["camp.swap"], Enabled: Party.Count > 1, Tag: "swap");
                 yield return new MenuItem(s["camp.memo"], Enabled: Services.Session?.Exploration?.Notes.Count > 0, Tag: "memo");
+                if (StoryScene.Available(Services)) yield return new MenuItem(s["camp.story"], Tag: "story");
                 yield return new MenuItem(s["camp.options"], Tag: "options");
                 yield return new MenuItem(s["common.back"], Tag: "back");
                 break;
@@ -154,6 +155,7 @@ public sealed class CampScene : MenuScene
                 Go(Mode.Reorder);
                 break;
             case (Mode.Main, "memo") when Services.Session?.Exploration is { } memoState: Stack.Push(new MemoScene(memoState)); break;
+            case (Mode.Main, "story"): Stack.Push(new StoryScene()); break;
             case (Mode.Main, "options"): Stack.Push(new OptionsScene(overlay: true)); break;
             case (Mode.Main, "items"): Go(Mode.ItemsWho); break;
             case (Mode.ItemsWho, Character c): Stack.Push(new InventoryScene(c)); break;
@@ -331,6 +333,7 @@ public sealed class CampScene : MenuScene
             "status" => "camp.about_status",
             "swap" => "camp.about_swap",
             "memo" => "camp.about_memo",
+            "story" => "camp.about_story",
             "options" => "camp.about_options",
             _ => "camp.about",
         };

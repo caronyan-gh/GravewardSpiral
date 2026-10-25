@@ -117,6 +117,45 @@ public sealed class GameServices
     /// <summary>データの名前を、今の言語で。</summary>
     public string Name(LocalizedText? text) => text?.Get(Language) ?? "";
 
+    /// <summary>クランの名前。無ければ、クランの id で決まる名前(clan_names.json)を付ける。</summary>
+    public string ClanDisplayName(string? name, string clanId) =>
+        name is { Length: > 0 } ? name : Core.Save.ClanNameParts.Load(Content).Pick(clanId, Language) ?? clanId;
+
+    /// <summary>
+    /// シナリオに決まった序文(文言の scenario.prologue)があり、世界にまだ序文が無ければ付ける。
+    /// 新しく始めるときと、序文の無いころに始めた世界を続きから読むときに使う。
+    /// </summary>
+    public void GiveScenarioPrologue(Core.Save.GameSession session)
+    {
+        if (session.World != null || !Content.Texts("en").TryGetValue("scenario.prologue", out var en)) return;
+        session.World = new Core.Ai.WorldText
+        {
+            Model = "scenario",
+            Prologue = LocalizedText.Of(en, Content.Texts("ja").GetValueOrDefault("scenario.prologue")),
+        };
+    }
+
+    /// <summary>クランの名前の入力の「おまかせ」(押すたびに clan_names.json から1つ選ぶ)。</summary>
+    public Func<string?> ClanNameSuggester() => () => Core.Save.ClanNameParts.Load(Content).Pick(Guid.NewGuid().ToString("N"), Language);
+
+    /// <summary>シナリオの名前(自由な迷宮は「自由な迷宮」、見つからないシナリオは id)。</summary>
+    public string ScenarioDisplayName(string? scenarioId)
+    {
+        if (scenarioId == null) return Strings["slot.free_world"];
+        _scenarioNames ??= FindScenarios().ToDictionary(x => x.Id, x => x.Manifest.Name);
+        return _scenarioNames.TryGetValue(scenarioId, out var n) && n != null ? Name(n) : scenarioId;
+    }
+
+    private Dictionary<string, LocalizedText?>? _scenarioNames;
+
+    /// <summary>AI の窓口。AI の手伝いを切っているか、キーが無ければ null。</summary>
+    public Core.Ai.IAiClient? AiClient()
+    {
+        if (!Options.AiEnabled) return null;
+        string? key = Ai.ApiKeyStore.Load(Ai.ApiKeyStore.Claude);
+        return key == null ? null : new Core.Ai.ClaudeClient(key, Options.AiModel);
+    }
+
     /// <summary>モンスターの画像(後から読んだパックを優先。art/monsters/&lt;id&gt;.png)。無ければ null。</summary>
     public Microsoft.Xna.Framework.Graphics.Texture2D? MonsterArt(Core.Monsters.MonsterDef def) => Art("monsters", def.Id);
 

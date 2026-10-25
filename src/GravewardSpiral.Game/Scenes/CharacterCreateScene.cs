@@ -56,7 +56,16 @@ public sealed class CharacterCreateScene : Scene
                 _name = name;
                 Go(Step.Race);
             },
-            onCancel: () => Stack.Pop()));
+            onCancel: () => Stack.Pop(), suggest: NameSuggester(Services, null)));
+
+    private static readonly Pcg32 NameRng = new((ulong)Environment.TickCount64, 77);
+
+    /// <summary>
+    /// 名前の入力の「おまかせ」。種族の名前の一覧から、名簿にいない名前を選ぶ(種族が決まっていなければ全部から)。
+    /// 見た目だけのことなので、セーブの乱数は使わない。
+    /// </summary>
+    public static Func<string?> NameSuggester(GameServices services, string? raceId) => () =>
+        RandomNames.Pick(services.Data, raceId, GameServices.Language, NameRng, services.Session?.Roster.Characters.Select(c => c.Name));
 
     private void Go(Step step)
     {

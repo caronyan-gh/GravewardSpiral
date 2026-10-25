@@ -1,4 +1,5 @@
 using GravewardSpiral.Core.Characters;
+using GravewardSpiral.Core.Combat;
 using GravewardSpiral.Core.Content;
 using GravewardSpiral.Core.Events;
 using GravewardSpiral.Core.Items;
@@ -14,10 +15,14 @@ public class EventTests
     private static readonly ContentLibrary Content = ContentLibrary.Load(TestPaths.Content);
     private static readonly GameData Data = GameData.Load(Content);
 
+    /// <summary>第1部のシナリオを重ねたもの(物語のイベントと部屋)。</summary>
+    private static readonly ContentLibrary StoryContent = ContentLibrary.Load(TestPaths.Content, TestPaths.Gravekeeper);
+    private static readonly GameData StoryData = GameData.Load(StoryContent);
+
     /// <summary>はめ込む部屋を1階の迷宮にして、6人のパーティで立たせる。</summary>
-    private static (GameSession Session, ExplorationState State) Room(string prefab, int x, int y)
+    private static (GameSession Session, ExplorationState State) Room(string prefab, int x, int y, string? pack = null)
     {
-        var floor = MazeTextFormat.Parse(File.ReadAllText(Path.Combine(TestPaths.Content, "srd", "maps", "prefabs", prefab)), prefab);
+        var floor = MazeTextFormat.Parse(File.ReadAllText(Path.Combine(pack ?? Path.Combine(TestPaths.Content, "srd"), "maps", "prefabs", prefab)), prefab);
         var dungeon = new Dungeon("t", [floor]);
         var session = GameSession.New(0, new GenerationRequest(1, 1, FloorSizeMode.Fixed(floor.Width, floor.Height)), dungeon);
         foreach (var cls in new[] { "fighter", "cleric", "rogue", "wizard", "paladin", "ranger" })
@@ -432,7 +437,7 @@ public class EventTests
         s.Flags.Add("twin_a");
         var store = new SaveStore(dir.Path);
         store.Save(s, Content);
-        var back = store.Load(s.Slot);
+        var back = store.Load(s.ClanId, s.WorldKey);
         Assert.Equal(3, back.Counters["levers"]);
         Assert.Contains("twin_a", back.Flags);
     }
@@ -440,7 +445,12 @@ public class EventTests
     [Fact]
     public void StoryALanternAndNameOpenTheWay()
     {
-        var (s, state) = Room("a_b5_seal.txt", 1, 2);
+        EventRunner Run(string id, GameSession s, ExplorationState state) => new(StoryData.Events[id], new EventContext
+        {
+            Data = StoryData, Session = s, Maze = state, At = (state.Position.Floor, state.Position.Cell), Rng = new Pcg32(1, 3),
+            Depth = 0.5, TargetLevel = 5, Treasure = TreasureSettings.Load(StoryContent),
+        });
+        var (s, state) = Room("a_b5_seal.txt", 1, 2, TestPaths.Gravekeeper);
         Drive(Run("a_b5_seal", s, state), [0]);
         Assert.False(state.IsUnlocked(0, new GridPos(1, 1), Direction.South));   // 角灯が無いと開かない
         Drive(Run("a_b2_remains", s, state));
@@ -448,21 +458,60 @@ public class EventTests
         Drive(Run("a_b5_seal", s, state), [0]);
         Assert.True(state.IsUnlocked(0, new GridPos(1, 1), Direction.South));
 
-        var (s2, stele) = Room("a_b4_stele.txt", 1, 2);
+        var (s2, stele) = Room("a_b4_stele.txt", 1, 2, TestPaths.Gravekeeper);
         Drive(Run("a_b4_stele", s2, stele), [0]);
         Assert.False(stele.IsUnlocked(0, new GridPos(1, 1), Direction.South));   // 名前を知らない
         s2.Flags.Add("a_found_remains");
-        var town = new EventContext { Data = Data, Session = s2, Rng = new Pcg32(1, 1) };
-        Drive(new EventRunner(Data.Events["a_priest"], town));
+        var town = new EventContext { Data = StoryData, Session = s2, Rng = new Pcg32(1, 1) };
+        Drive(new EventRunner(StoryData.Events["a_priest"], town));
         Assert.Contains("a_priest_name", s2.Flags);
         Drive(Run("a_b4_stele", s2, stele), [0]);   // オルド
         Assert.True(stele.IsUnlocked(0, new GridPos(1, 1), Direction.South));
     }
 
     [Fact]
-    public void StoryARoomsLandOnTheirFloors()
+    public void TheFreeDungeonHasNoStoryRoomsButAMasterAtTheBottom()
     {
         var settings = MazeGenSettings.Load(Content);
+        var request = GenerationRequest.Default(settings, 3);
+        var dungeon = new MazeGenerator(settings).Generate(request).Dungeon;
+        Assert.DoesNotContain(dungeon.Floors, f => f.AllCells().Any(p => f[p].Mark?.StartsWith("event:a_") == true));
+        Assert.Contains(dungeon.Floors[^1].AllCells(), p => dungeon.Floors[^1][p].Mark == "boss:final");
+        var session = GameSession.New(0, request, dungeon);
+        session.BuildRosters(Data, EncounterSettings.Load(Content));
+        var boss = session.Boss(Data, "final")!;
+        Assert.True(Data.Bosses["final"].Auto);
+        Assert.NotEmpty(boss.Groups);   // 世界のレベル帯から選んだ主
+        Assert.All(boss.Groups, g => Assert.True(Data.Monsters.ContainsKey(g.Monster)));
+        Assert.Equal(boss.Groups.Select(g => g.Monster), session.Boss(Data, "final")!.Groups.Select(g => g.Monster));
+        // 第1部では、決まったボス(オルド)のまま
+        Assert.False(StoryData.Bosses["final"].Auto);
+        Assert.Equal("wraith", StoryData.Bosses["final"].Groups[0].Monster);
+    }
+
+    [Fact]
+    public void ThePartOneDungeonIsFixedInTheScenario()
+    {
+        // シナリオの迷宮はシナリオの中身(生成したものを保存してある)。新しいゲームでは生成せずに、これを使う
+        var dungeon = DungeonLoader.ScenarioDungeon(StoryContent)!;
+        Assert.NotNull(dungeon);
+        Assert.Null(DungeonLoader.ScenarioDungeon(Content));   // 自由な迷宮は毎回生成する
+        Assert.Equal(6, dungeon.Floors.Count);
+        Assert.Empty(dungeon.Validate());
+        int FloorOf(string mark) => dungeon.Floors.ToList().FindIndex(f => f.AllCells().Any(p => f[p].Mark == mark));
+        Assert.Equal(0, FloorOf("event:a_b1_footprints"));
+        Assert.Equal(4, FloorOf("event:a_b5_seal"));
+        Assert.Equal(5, FloorOf("boss:final"));
+        Assert.True(MazeBot.Explore(dungeon).Ok);
+        var request = DungeonLoader.RequestFor(dungeon, 99);
+        Assert.Equal((99UL, 6), (request.Seed, request.Floors));
+    }
+
+    [Fact]
+    public void StoryARoomsLandOnTheirFloors()
+    {
+        Assert.True(StoryContent.IsValid, string.Join("\n", StoryContent.Problems));
+        var settings = MazeGenSettings.Load(StoryContent);
         for (ulong seed = 1; seed <= 5; seed++)
         {
             var dungeon = new MazeGenerator(settings).Generate(GenerationRequest.Default(settings, seed)).Dungeon;

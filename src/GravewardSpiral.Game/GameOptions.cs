@@ -35,6 +35,17 @@ public sealed class GameOptions
 
     public static readonly string[] MapModes = ["auto", "map", "none"];
 
+    /// <summary>
+    /// AI の手伝い(新しいゲームで、その世界の文を AI に書いてもらう)。キーが無ければ使わない。
+    /// キーはここに置かず、資格情報マネージャーに置く(Ai.ApiKeyStore)。
+    /// </summary>
+    public bool AiEnabled { get; set; } = true;
+
+    /// <summary>AI のモデル(空なら既定)。</summary>
+    public string? AiModel { get; set; }
+
+    public static readonly string[] AiModels = ["claude-opus-5-5", "claude-sonnet-5-5", "claude-haiku-5-5"];
+
     public bool ShowMiniMap => MapMode == "auto";
     public bool AllowMap => MapMode != "none";
 

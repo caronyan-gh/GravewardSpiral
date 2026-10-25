@@ -166,7 +166,7 @@ public static class Treasure
             var cursed = all.Where(i => i.Cursed && !i.DropOnly).ToList();
             if (cursed.Count > 0) return Make(Pick(cursed));
         }
-        var pool = all.Where(i => i.Rarity == rarity && !i.Cursed && !i.DropOnly).ToList();
+        var pool = all.Where(i => i.Rarity == rarity && !i.Cursed && !i.DropOnly && i.MinLevel <= level + 1e-9).ToList();
         if (pool.Count == 0) pool = all.Where(i => i.IsMagic && !i.Cursed && !i.DropOnly).ToList();
         if (pool.Count == 0) return ItemInstance.Of(Pick(all).Id);
         return Make(Pick(pool));

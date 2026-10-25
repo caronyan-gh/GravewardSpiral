@@ -182,6 +182,18 @@ public sealed class EventRunner
             case "text":
                 _out.Enqueue(new EventMessage(LiftText(s.Text), s.Key, [], s.Speaker, s.Art));
                 break;
+            case "world_doc":
+            {
+                // AI が書いたこの階の書き付けを1つ(この迷宮のこのマスでは毎回同じもの)。無ければ else の手順(決まった文)
+                var docs = _ctx.At is { } here ? _ctx.Session.World?.Floor(here.Floor)?.Documents : null;
+                if (docs is { Count: > 0 })
+                {
+                    var rng = PlaceRng(new EventStep { Type = s.Type, PerPlace = true });
+                    _out.Enqueue(new EventMessage(docs[rng.Next(0, docs.Count)], null, [], s.Speaker, s.Art));
+                }
+                else _frames.Push((s.Else, 0));
+                break;
+            }
             case "choice":
             {
                 var shown = s.Options.Where(o => Test(o.When, _ctx)).ToList();

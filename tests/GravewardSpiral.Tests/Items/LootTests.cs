@@ -21,6 +21,15 @@ public class LootTests
     }
 
     [Fact]
+    public void SomeItemsWaitForAHigherTreasureLevel()
+    {
+        var s = TreasureSettings.Load(Content);
+        int Bags(double level) => Enumerable.Range(0, 3000).Count(i => Treasure.Roll(Data, s, "common", new Pcg32((ulong)i, 2), level).ItemId == "dimension_bag");
+        Assert.Equal(0, Bags(3));   // 第1部なら B4 くらい(目安 L4)までは出ない
+        Assert.True(Bags(4) > 0);
+    }
+
+    [Fact]
     public void ClanHouseMaterialsComeFromDeepChestsAndCertainMonsters()
     {
         var s = TreasureSettings.Load(Content);

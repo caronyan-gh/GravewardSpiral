@@ -1,0 +1,832 @@
+[
+  {
+    "id": "a_b1_footprints",
+    "place": "maze",
+    "once": "game",
+    "note": "A B1: 最後の墓守の足跡。リーネの頼みを思い出す",
+    "steps": [
+      {
+        "type": "text",
+        "text": {
+          "en": "A single line of footprints runs through the damp earth, heading steadily downward.",
+          "ja": "湿った土に、足跡が一筋だけ続いている。重い靴の跡が、迷わず下へ向かっている。"
+        }
+      },
+      {
+        "type": "text",
+        "text": {
+          "en": "\"My master went down with his lantern. ...Please, find him.\"",
+          "ja": "「師匠は、角灯を持って下りていきました。……どうか、見つけてください」"
+        },
+        "speaker": {
+          "en": "Riine",
+          "ja": "リーネ"
+        }
+      },
+      {
+        "type": "text",
+        "text": {
+          "en": "You remember Riine's words back in town.",
+          "ja": "町で聞いたリーネの声を、思い出した。"
+        }
+      },
+      {
+        "type": "flag",
+        "id": "a_b1_footprints"
+      }
+    ],
+    "bgm": "audio/bgm/story.mp3"
+  },
+  {
+    "id": "a_b2_remains",
+    "place": "maze",
+    "once": "game",
+    "note": "A B2: 最後の墓守の亡骸と手記。角灯が手に入る",
+    "steps": [
+      {
+        "type": "text",
+        "text": {
+          "en": "A body in a warden's coat leans against the wall, clutching a lantern that still burns with a pale blue flame.",
+          "ja": "墓守の外套をまとった亡骸が、壁にもたれている。胸に、青白い火の灯った角灯を抱えている。"
+        }
+      },
+      {
+        "type": "text",
+        "text": {
+          "en": "A journal lies beside him.",
+          "ja": "そばに、手記が落ちていた。"
+        }
+      },
+      {
+        "type": "text",
+        "text": {
+          "en": "\"The seal has broken from within. The First Warden has woken.\nHe is not evil. He has simply held on too long.\nI will go down and bind it again. If I do not return, take this lantern to the sealing chamber.\"",
+          "ja": "「封じが内側から破られた。最初の墓守が、目を覚ましたのだ。\nあれは悪ではない。長く守りすぎたのだ。\n私が下りて、結び直す。もし戻らなければ――この角灯を、封じの間へ」"
+        },
+        "speaker": {
+          "en": "The Last Warden",
+          "ja": "最後の墓守"
+        }
+      },
+      {
+        "type": "give_item",
+        "id": "masters_lantern"
+      },
+      {
+        "type": "text",
+        "text": {
+          "en": "...The hand still feels warm. He did not end here. Only his spirit went on, further down.",
+          "ja": "……亡骸の手は、まだ温かい気がした。この人は、ここで力尽きたのではない。魂だけが、さらに下へ向かったのだ。"
+        }
+      },
+      {
+        "type": "flag",
+        "id": "a_found_remains"
+      }
+    ],
+    "bgm": "audio/bgm/story.mp3"
+  },
+  {
+    "id": "a_b3_bell",
+    "place": "maze",
+    "once": "place",
+    "note": "A B3: 弔いの鐘。鳴らすと奥の扉 (gate:a_bell) が開き、亡者が静まる",
+    "steps": [
+      {
+        "type": "text",
+        "text": {
+          "en": "A rusted funeral bell hangs from the ceiling. Its rope is braided from bone.",
+          "ja": "天井から、錆びた弔いの鐘が下がっている。綱は骨で編まれている。"
+        }
+      },
+      {
+        "type": "choice",
+        "text": {
+          "en": "Ring it?",
+          "ja": "鳴らす？"
+        },
+        "options": [
+          {
+            "label": {
+              "en": "Ring the bell",
+              "ja": "鳴らす"
+            },
+            "steps": [
+              {
+                "type": "sound",
+                "id": "secret_found"
+              },
+              {
+                "type": "text",
+                "text": {
+                  "en": "A low toll spreads through the ossuary. The rustling of the bone walls falls silent for a moment.",
+                  "ja": "ごおん……と、低い音が納骨堂に広がった。骨の壁のざわめきが、ひととき止んだ。"
+                }
+              },
+              {
+                "type": "heal",
+                "dice": "2d8"
+              },
+              {
+                "type": "open",
+                "id": "a_bell"
+              },
+              {
+                "type": "flag",
+                "id": "a_bell_rung"
+              }
+            ]
+          },
+          {
+            "label": {
+              "en": "Leave",
+              "ja": "立ち去る"
+            },
+            "steps": [
+              {
+                "type": "again"
+              }
+            ]
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "id": "a_b3_offerings",
+    "place": "maze",
+    "once": "game",
+    "note": "A B3: 鐘の奥の供物",
+    "steps": [
+      {
+        "type": "text",
+        "text": {
+          "en": "In the little room behind the bell, offerings left by mourners remain.",
+          "ja": "鐘の奥の小部屋に、弔いに来た人々の供物が残っていた。"
+        }
+      },
+      {
+        "type": "sound",
+        "id": "chest_open"
+      },
+      {
+        "type": "treasure",
+        "count": 2
+      },
+      {
+        "type": "gold",
+        "value": 150
+      }
+    ]
+  },
+  {
+    "id": "a_b4_stele",
+    "place": "maze",
+    "once": "place",
+    "note": "A B4: 歴代墓守の石碑。最初の墓守の名を答えると開く (gate:a_stele)",
+    "steps": [
+      {
+        "type": "text",
+        "text": {
+          "en": "The names of every warden are carved into the stele. Only the topmost name is gone, as if scraped away by fingernails from the inside.",
+          "ja": "石碑に、歴代の墓守の名が刻まれている。一番上の名だけが、内側から爪で掻いたように削れている。"
+        }
+      },
+      {
+        "type": "text",
+        "text": {
+          "en": "Below, in small letters: \"Speak the name of the First Warden. Only those who bear it may pass.\"",
+          "ja": "下に小さく、こう刻んである。「最初の墓守の名を呼べ。その名を持つ者だけが、先へ進める」"
+        }
+      },
+      {
+        "type": "if",
+        "when": [
+          {
+            "type": "flag",
+            "id": "a_priest_name"
+          }
+        ],
+        "then": [
+          {
+            "type": "choice",
+            "text": {
+              "en": "Speak a name",
+              "ja": "名を呼ぶ"
+            },
+            "options": [
+              {
+                "label": {
+                  "en": "Ord",
+                  "ja": "オルド"
+                },
+                "steps": [
+                  {
+                    "type": "sound",
+                    "id": "secret_found"
+                  },
+                  {
+                    "type": "text",
+                    "text": {
+                      "en": "The scraped name glows faintly. Behind the stele, a door unlatches.",
+                      "ja": "削られた名の跡が、かすかに光った。石碑の奥で、扉の外れる音がした。"
+                    }
+                  },
+                  {
+                    "type": "open",
+                    "id": "a_stele"
+                  }
+                ]
+              },
+              {
+                "label": {
+                  "en": "Elm",
+                  "ja": "エルム"
+                },
+                "steps": [
+                  {
+                    "type": "sound",
+                    "id": "trap"
+                  },
+                  {
+                    "type": "text",
+                    "text": {
+                      "en": "The stele is cold and silent. A chill runs down your spine.",
+                      "ja": "石碑は冷たく黙っている。背筋に悪寒が走った。"
+                    }
+                  },
+                  {
+                    "type": "damage",
+                    "dice": "2d6",
+                    "damage_type": "necrotic"
+                  },
+                  {
+                    "type": "again"
+                  }
+                ]
+              },
+              {
+                "label": {
+                  "en": "Vail",
+                  "ja": "ヴァイル"
+                },
+                "steps": [
+                  {
+                    "type": "sound",
+                    "id": "trap"
+                  },
+                  {
+                    "type": "text",
+                    "text": {
+                      "en": "The stele is cold and silent. A chill runs down your spine.",
+                      "ja": "石碑は冷たく黙っている。背筋に悪寒が走った。"
+                    }
+                  },
+                  {
+                    "type": "damage",
+                    "dice": "2d6",
+                    "damage_type": "necrotic"
+                  },
+                  {
+                    "type": "again"
+                  }
+                ]
+              },
+              {
+                "label": {
+                  "en": "Leave",
+                  "ja": "立ち去る"
+                },
+                "steps": [
+                  {
+                    "type": "again"
+                  }
+                ]
+              }
+            ]
+          }
+        ],
+        "else": [
+          {
+            "type": "text",
+            "text": {
+              "en": "You do not know the First Warden's name. Someone in town might.",
+              "ja": "最初の墓守の名を、知らない。町の誰かが知っているかもしれない。"
+            }
+          },
+          {
+            "type": "again"
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "id": "a_b4_relic",
+    "place": "maze",
+    "once": "game",
+    "note": "A B4: 石碑の奥。歴代墓守の遺した品",
+    "steps": [
+      {
+        "type": "text",
+        "text": {
+          "en": "Behind the stele lie relics left by the wardens of old.",
+          "ja": "石碑の奥には、歴代の墓守が遺した品が並べてあった。"
+        }
+      },
+      {
+        "type": "sound",
+        "id": "chest_open"
+      },
+      {
+        "type": "treasure",
+        "count": 2
+      },
+      {
+        "type": "xp",
+        "value": 200
+      }
+    ]
+  },
+  {
+    "id": "a_b5_seal",
+    "place": "maze",
+    "once": "place",
+    "note": "A B5: 封じの扉。墓守の角灯で開く (gate:a_seal)",
+    "steps": [
+      {
+        "type": "text",
+        "text": {
+          "en": "A door traced with pale blue sigils. At its center is a hook for a lantern.",
+          "ja": "青白い紋様の走る扉がある。扉の真ん中に、角灯を掛ける鉤がある。"
+        }
+      },
+      {
+        "type": "if",
+        "when": [
+          {
+            "type": "item",
+            "id": "masters_lantern"
+          }
+        ],
+        "then": [
+          {
+            "type": "choice",
+            "text": {
+              "en": "Hang the lantern?",
+              "ja": "角灯を掛ける？"
+            },
+            "options": [
+              {
+                "label": {
+                  "en": "Hang it",
+                  "ja": "掛ける"
+                },
+                "steps": [
+                  {
+                    "type": "sound",
+                    "id": "door"
+                  },
+                  {
+                    "type": "text",
+                    "text": {
+                      "en": "The lantern's flame spreads into the sigils, and the door swings open without a sound.",
+                      "ja": "角灯の火が扉の紋様へ燃え移り、扉は音もなく開いた。"
+                    }
+                  },
+                  {
+                    "type": "open",
+                    "id": "a_seal"
+                  }
+                ]
+              },
+              {
+                "label": {
+                  "en": "Leave",
+                  "ja": "立ち去る"
+                },
+                "steps": [
+                  {
+                    "type": "again"
+                  }
+                ]
+              }
+            ]
+          }
+        ],
+        "else": [
+          {
+            "type": "text",
+            "text": {
+              "en": "You have nothing to hang there.",
+              "ja": "掛けるものを持っていない。"
+            }
+          },
+          {
+            "type": "again"
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "id": "a_b5_master",
+    "place": "maze",
+    "once": "game",
+    "note": "A B5: 最後の墓守の魂。最期の言葉と祝福",
+    "steps": [
+      {
+        "type": "text",
+        "text": {
+          "en": "Deep in the chamber stands a half-transparent warden, the same pale blue as the lantern's flame.",
+          "ja": "封じの間の奥に、半ば透けた墓守が立っていた。角灯の火と同じ、青白い姿だった。"
+        }
+      },
+      {
+        "type": "text",
+        "text": {
+          "en": "\"You came. My binding broke halfway. The First Warden, Ord, lies below.\"",
+          "ja": "「よく来てくれた。私の封じは、半ばで破れた。最初の墓守――オルドは、この下にいる」"
+        },
+        "speaker": {
+          "en": "The Last Warden",
+          "ja": "最後の墓守"
+        }
+      },
+      {
+        "type": "text",
+        "text": {
+          "en": "\"Ord drove his own heart into the bottom of the spiral as a wedge, to hold back the Call that rises from below. For a thousand years he held it alone.\nHe held on so long that he and the Call became one. He is not a villain. Let him sleep.\nCarry his heart to the surface. ...And tell Riine I am sorry.\"",
+          "ja": "「オルドは、自分の心臓を楔にして螺旋の底へ打ち込み、下から湧く『呼び声』を押さえた。千年、ひとりでだ。\n押さえすぎて、呼び声と混ざってしまった。悪人ではない。眠らせてやってくれ。\nその心臓を、地上へ持ち帰ってくれ。……リーネに、すまなかったと」"
+        },
+        "speaker": {
+          "en": "The Last Warden",
+          "ja": "最後の墓守"
+        }
+      },
+      {
+        "type": "sound",
+        "id": "heal"
+      },
+      {
+        "type": "text",
+        "text": {
+          "en": "The warden's hand glows, and all your wounds close.",
+          "ja": "墓守の手が光り、傷がすべて癒えた。"
+        }
+      },
+      {
+        "type": "heal"
+      },
+      {
+        "type": "cure"
+      },
+      {
+        "type": "xp",
+        "value": 300
+      },
+      {
+        "type": "flag",
+        "id": "a_master_found"
+      }
+    ],
+    "bgm": "audio/bgm/story.mp3"
+  },
+  {
+    "id": "a_riine",
+    "place": "town",
+    "title": {
+      "en": "Riine, the Apprentice Warden",
+      "ja": "墓守見習いのリーネ"
+    },
+    "note": "A: 物語の中心。進み具合で話が変わる",
+    "steps": [
+      {
+        "type": "if",
+        "when": [
+          {
+            "type": "flag",
+            "id": "has_spiral_heart"
+          }
+        ],
+        "then": [
+          {
+            "type": "text",
+            "text": {
+              "en": "\"...Thank you. Now the spiral can rest.\"",
+              "ja": "「……ありがとう。これで、螺旋は静かになります」"
+            },
+            "speaker": {
+              "en": "Riine",
+              "ja": "リーネ"
+            }
+          }
+        ],
+        "else": [
+          {
+            "type": "if",
+            "when": [
+              {
+                "type": "flag",
+                "id": "a_master_found"
+              }
+            ],
+            "then": [
+              {
+                "type": "text",
+                "text": {
+                  "en": "\"You... met my master?\"",
+                  "ja": "「師匠に……会えたんですか」"
+                },
+                "speaker": {
+                  "en": "Riine",
+                  "ja": "リーネ"
+                }
+              },
+              {
+                "type": "text",
+                "text": {
+                  "en": "\"I see. 'I'm sorry'... How unfair of him.\"",
+                  "ja": "「そうですか。すまなかった、なんて。……ずるい人です」"
+                },
+                "speaker": {
+                  "en": "Riine",
+                  "ja": "リーネ"
+                }
+              },
+              {
+                "type": "text",
+                "text": {
+                  "en": "\"Bring back the First Warden's heart. Then I will become the new warden.\"",
+                  "ja": "「最初の墓守の心臓を、持ち帰ってください。そうしたら、私が新しい墓守になります」"
+                },
+                "speaker": {
+                  "en": "Riine",
+                  "ja": "リーネ"
+                }
+              }
+            ],
+            "else": [
+              {
+                "type": "if",
+                "when": [
+                  {
+                    "type": "flag",
+                    "id": "a_found_remains"
+                  }
+                ],
+                "then": [
+                  {
+                    "type": "text",
+                    "text": {
+                      "en": "\"That lantern... it's my master's.\"",
+                      "ja": "「その角灯……師匠のです」"
+                    },
+                    "speaker": {
+                      "en": "Riine",
+                      "ja": "リーネ"
+                    }
+                  },
+                  {
+                    "type": "text",
+                    "text": {
+                      "en": "\"It was beside his body? ...But I don't think it's over. He was heading for the Sealing Chambers.\"",
+                      "ja": "「亡骸のそばにあったんですか。……でも、きっとまだ終わっていない。師匠は、封じの間を目指していたはずです」"
+                    },
+                    "speaker": {
+                      "en": "Riine",
+                      "ja": "リーネ"
+                    }
+                  }
+                ],
+                "else": [
+                  {
+                    "type": "text",
+                    "text": {
+                      "en": "A girl waits by the cemetery gate. Her warden's coat is far too big for her.",
+                      "ja": "町外れの墓地の門の前で、少女が待っていた。墓守の外套は、体に合わないほど大きい。"
+                    }
+                  },
+                  {
+                    "type": "text",
+                    "text": {
+                      "en": "\"I'm Riine, an apprentice warden. My master went down into the spiral with his lantern, and he hasn't come back.\"",
+                      "ja": "「墓守見習いのリーネです。師匠が、角灯を持って螺旋へ下りたまま、戻ってきません」"
+                    },
+                    "speaker": {
+                      "en": "Riine",
+                      "ja": "リーネ"
+                    }
+                  },
+                  {
+                    "type": "text",
+                    "text": {
+                      "en": "\"The dead began spilling out the night he went down. ...Please. Find him.\"",
+                      "ja": "「螺旋の死者があふれ始めたのは、師匠が下りた夜からです。……お願いします。師匠を、見つけてください」"
+                    },
+                    "speaker": {
+                      "en": "Riine",
+                      "ja": "リーネ"
+                    }
+                  }
+                ]
+              }
+            ]
+          }
+        ]
+      }
+    ],
+    "bgm": "audio/bgm/story.mp3"
+  },
+  {
+    "id": "a_priest",
+    "place": "town",
+    "title": {
+      "en": "The Old Priest",
+      "ja": "寺院の老司祭"
+    },
+    "note": "A: 墓守の歴史。最初の墓守の名を教える(石碑の謎に要る)",
+    "steps": [
+      {
+        "type": "text",
+        "text": {
+          "en": "\"The wardens? This town was built as a lid over the spiral tomb.\"",
+          "ja": "「墓守のことかね。この町は、螺旋の墓所の蓋として建てられたのだよ」"
+        },
+        "speaker": {
+          "en": "The Old Priest",
+          "ja": "老司祭"
+        }
+      },
+      {
+        "type": "if",
+        "when": [
+          {
+            "type": "flag",
+            "id": "a_found_remains"
+          }
+        ],
+        "then": [
+          {
+            "type": "text",
+            "text": {
+              "en": "\"Below, they say, stands a stele carved with every warden's name. The topmost has been worn away. That is the First Warden: Ord.\"",
+              "ja": "「下には、歴代の墓守の名を刻んだ石碑があるそうだ。一番上の名は擦り切れておる。最初の墓守、オルドの名だ」"
+            },
+            "speaker": {
+              "en": "The Old Priest",
+              "ja": "老司祭"
+            }
+          },
+          {
+            "type": "text",
+            "text": {
+              "en": "\"Ord made his own heart the wedge that sealed the bottom of the spiral. Every warden since has bound the seal again from above. That is what a warden is.\"",
+              "ja": "「オルドは、自分の心臓を楔にして、螺旋の底を封じた。それからの墓守は、上から封じを結び直してきた。それが墓守の務めだ」"
+            },
+            "speaker": {
+              "en": "The Old Priest",
+              "ja": "老司祭"
+            }
+          },
+          {
+            "type": "flag",
+            "id": "a_priest_name"
+          }
+        ],
+        "else": [
+          {
+            "type": "text",
+            "text": {
+              "en": "\"Generation after generation, the wardens sealed the dead ever deeper. The spiral is deep because they have sent off the dead for so long.\"",
+              "ja": "「代々の墓守が、死者を下へ下へと封じてきた。螺旋が深いのは、それだけ長く死者を見送ってきたからだ」"
+            },
+            "speaker": {
+              "en": "The Old Priest",
+              "ja": "老司祭"
+            }
+          },
+          {
+            "type": "text",
+            "text": {
+              "en": "\"Come back when you learn what became of the last warden. I may have more to tell you.\"",
+              "ja": "「最後の墓守の行方が知れたら、また来なさい。話せることがある」"
+            },
+            "speaker": {
+              "en": "The Old Priest",
+              "ja": "老司祭"
+            }
+          }
+        ]
+      }
+    ],
+    "bgm": "audio/bgm/story.mp3"
+  },
+  {
+    "id": "a_barkeep",
+    "place": "town",
+    "title": {
+      "en": "Ask the Barkeep for Rumors",
+      "ja": "酒場の主人に噂を聞く"
+    },
+    "note": "A: 噂(ランダム)。あとでユニーク装備の持ち主の噂も入れる",
+    "steps": [
+      {
+        "type": "text",
+        "text": {
+          "en": "\"Rumors? I've got a drink's worth.\"",
+          "ja": "「噂か？ 一杯ぶんの話ならあるぜ」"
+        },
+        "speaker": {
+          "en": "The Barkeep",
+          "ja": "酒場の主人"
+        }
+      },
+      {
+        "type": "random",
+        "options": [
+          {
+            "weight": 1,
+            "steps": [
+              {
+                "type": "text",
+                "text": {
+                  "en": "\"Folk say there's an old adventurer's remains in a dead end on the first level. Pay your respects, and maybe he left something.\"",
+                  "ja": "「地下一階の行き止まりで、昔の冒険者の亡骸を見たって話だ。手を合わせりゃ、何か残してるかもな」"
+                },
+                "speaker": {
+                  "en": "The Barkeep",
+                  "ja": "酒場の主人"
+                }
+              }
+            ]
+          },
+          {
+            "weight": 1,
+            "steps": [
+              {
+                "type": "text",
+                "text": {
+                  "en": "\"They say ringing the bell in the ossuary quiets the dead. An old warden's trick.\"",
+                  "ja": "「納骨堂の鐘を鳴らすと、亡者が静まるらしい。昔の墓守の仕掛けさ」"
+                },
+                "speaker": {
+                  "en": "The Barkeep",
+                  "ja": "酒場の主人"
+                }
+              }
+            ]
+          },
+          {
+            "weight": 1,
+            "steps": [
+              {
+                "type": "text",
+                "text": {
+                  "en": "\"The First Warden's name? The old man at the temple knows those tales.\"",
+                  "ja": "「最初の墓守の名前？ そういう昔話は、寺院のじいさんが詳しいぜ」"
+                },
+                "speaker": {
+                  "en": "The Barkeep",
+                  "ja": "酒場の主人"
+                }
+              }
+            ]
+          },
+          {
+            "weight": 1,
+            "steps": [
+              {
+                "type": "text",
+                "text": {
+                  "en": "\"Rumor has it there's a door that opens with three sigils: sun, moon, and star. Don't ask me where.\"",
+                  "ja": "「太陽と月と星の紋章を三つそろえると、開く扉があるって噂だ。どこにあるかは知らねえ」"
+                },
+                "speaker": {
+                  "en": "The Barkeep",
+                  "ja": "酒場の主人"
+                }
+              }
+            ]
+          },
+          {
+            "weight": 1,
+            "steps": [
+              {
+                "type": "text",
+                "text": {
+                  "en": "\"Inspect a chest before you open it. And don't trust the trap you think you found.\"",
+                  "ja": "「宝箱は、調べてから開けな。調べて分かった罠の名前も、うのみにするんじゃねえぞ」"
+                },
+                "speaker": {
+                  "en": "The Barkeep",
+                  "ja": "酒場の主人"
+                }
+              }
+            ]
+          }
+        ]
+      }
+    ]
+  }
+]
