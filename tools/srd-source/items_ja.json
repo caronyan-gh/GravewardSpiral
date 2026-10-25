@@ -1,0 +1,14 @@
+{
+  "club": "棍棒", "dagger": "ダガー", "greatclub": "大棍棒", "handaxe": "ハンドアックス", "javelin": "ジャベリン",
+  "light_hammer": "ライト・ハンマー", "mace": "メイス", "quarterstaff": "クォータースタッフ", "sickle": "シックル", "spear": "スピア",
+  "light_crossbow": "ライト・クロスボウ", "dart": "ダーツ", "shortbow": "ショートボウ", "sling": "スリング",
+  "battleaxe": "バトルアックス", "flail": "フレイル", "glaive": "グレイヴ", "greataxe": "グレートアックス", "greatsword": "グレートソード",
+  "halberd": "ハルバード", "lance": "ランス", "longsword": "ロングソード", "maul": "モール", "morningstar": "モーニングスター",
+  "pike": "パイク", "rapier": "レイピア", "scimitar": "シミター", "shortsword": "ショートソード", "trident": "トライデント",
+  "war_pick": "ウォーピック", "warhammer": "ウォーハンマー", "whip": "ウィップ", "blowgun": "吹き矢", "hand_crossbow": "ハンド・クロスボウ",
+  "heavy_crossbow": "ヘビー・クロスボウ", "longbow": "ロングボウ", "net": "ネット",
+  "padded_armor": "パデッド・アーマー", "leather_armor": "レザー・アーマー", "studded_leather": "スタデッド・レザー",
+  "hide_armor": "ハイド・アーマー", "chain_shirt": "チェイン・シャツ", "scale_mail": "スケイル・メイル", "breastplate": "ブレストプレート",
+  "half_plate_armor": "ハーフプレート", "ring_mail": "リング・メイル", "chain_mail": "チェイン・メイル", "splint_armor": "スプリント・アーマー",
+  "plate_armor": "プレート・アーマー", "shield": "シールド"
+}

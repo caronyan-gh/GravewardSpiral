@@ -1,0 +1,18 @@
+# 双子のスイッチ。左上 (0,0) と右上 (4,0) のスイッチを両方踏むと、(2,0)→(2,1) の錠が開く
+floor prefab_twin_room
+size 5 3
+wrap none
+start 2 2 N
+walls
++-+-+-+-+-+
+|         |
++ +-+L+-+ +
+| |#| |#| |
++ +-+-+-+ +
+|         |
++-+-+-+-+-+
+mark 0 0 event:twin_switch_a
+mark 4 0 event:twin_switch_b
+mark 2 0 gate:twin
+mark 2 1 event:twin_vault
+entrance 2 2 S

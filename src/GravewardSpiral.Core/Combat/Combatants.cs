@@ -1,0 +1,337 @@
+using GravewardSpiral.Core.Characters;
+using GravewardSpiral.Core.Content;
+using GravewardSpiral.Core.Effects;
+using GravewardSpiral.Core.Items;
+using GravewardSpiral.Core.Monsters;
+using GravewardSpiral.Core.Rules;
+
+namespace GravewardSpiral.Core.Combat;
+
+public enum Side { Party, Enemy }
+
+/// <summary>かかっている状態1つ。</summary>
+public sealed class ActiveCondition
+{
+    public Condition Condition { get; init; }
+
+    /// <summary>残りのラウンド数(自分の番の終わりに 1 減る)。null なら戦闘の終わりまで。</summary>
+    public int? RoundsLeft { get; set; }
+
+    /// <summary>自分の番の終わりにセーヴし直す能力値と難易度(null なら、し直さない)。</summary>
+    public Ability? SaveAbility { get; init; }
+
+    public int Dc { get; init; }
+
+    /// <summary>かけた人と呪文(集中が切れたら、この2つが同じものを消す)。</summary>
+    public string? SourceId { get; init; }
+    public string? SpellId { get; init; }
+}
+
+/// <summary>かかっている修正値1つ(ブレスの命中 +1d4、シールド・オヴ・フェイスの AC +2 など)。</summary>
+public sealed class ActiveModifier
+{
+    /// <summary>ac / attack / save / damage / attacks(攻撃の回数)、resist:&lt;種類&gt;、immune:&lt;状態&gt;、set:&lt;能力値&gt;。</summary>
+    public string Stat { get; init; } = "";
+    public int Value { get; init; }
+
+    /// <summary>毎回振るダイス("1d4"、"-1d4")。</summary>
+    public string? Dice { get; init; }
+
+    public int? RoundsLeft { get; set; }
+    public string? SourceId { get; init; }
+    public string? SpellId { get; init; }
+}
+
+/// <summary>戦闘に出ている1人(パーティの1人か、モンスター1体)。</summary>
+public abstract class Combatant
+{
+    public abstract Side Side { get; }
+    public abstract string Id { get; }
+    public abstract LocalizedText Name { get; }
+    public abstract int Hp { get; set; }
+    public abstract int MaxHp { get; }
+
+    /// <summary>修正値を足す前の AC。</summary>
+    public abstract int BaseAc { get; }
+
+    public int Ac => BaseAc + Modifiers.Where(m => m.Stat == "ac").Sum(m => m.Value);
+
+    /// <summary>一時的な HP(ダメージはここから減る)。</summary>
+    public abstract int TempHp { get; set; }
+    public abstract int AbilityMod(Ability a);
+    public abstract int SaveBonus(Ability a);
+    public abstract bool ImmuneTo(Condition c);
+
+    /// <summary>その状態にならないか(もともとの耐性か、呪文などのしばらくのあいだの耐性 immune:&lt;状態&gt;)。</summary>
+    /// <summary>このラウンドにリアクション(カウンタースペルなど)を使ったか。自分の番の始めに戻る。</summary>
+    public bool ReactionUsed { get; set; }
+
+    public bool Immune(Condition c) => ImmuneTo(c) || Modifiers.Any(m => m.Stat == "immune:" + c.ToString().ToLowerInvariant());
+
+    /// <summary>ダメージの倍率(完全耐性 0、抵抗 0.5、脆弱 2)。</summary>
+    public abstract double DamageMultiplier(string damageType, bool magical);
+
+    /// <summary>まだ戦える(HP が 0 でなく、死んでいない)。</summary>
+    public abstract bool Standing { get; }
+
+    public int Initiative { get; set; }
+    public List<ActiveCondition> Conditions { get; } = [];
+    public List<ActiveModifier> Modifiers { get; } = [];
+
+    /// <summary>集中している呪文(1つだけ)。</summary>
+    public string? Concentration { get; set; }
+
+    /// <summary>回避の行動(次の自分の番まで、自分への攻撃が不利)。</summary>
+    public bool Dodging { get; set; }
+
+    /// <summary>隠れている(次の攻撃が有利。隠れているあいだは、ほかに相手がいれば狙われない)。</summary>
+    public bool Hidden { get; set; }
+
+    /// <summary>援護を受けた(次の攻撃が有利)。</summary>
+    public bool Helped { get; set; }
+
+    public bool Has(Condition c) => Conditions.Any(x => x.Condition == c);
+
+    /// <summary>行動できない状態(麻痺、朦朧、気絶、石化、無力化)。</summary>
+    public bool Incapacitated => Conditions.Any(x => x.Condition is Condition.Paralyzed or Condition.Stunned
+        or Condition.Unconscious or Condition.Petrified or Condition.Incapacitated);
+
+    public bool CanAct => Standing && !Incapacitated;
+}
+
+/// <summary>パーティの1人。HP と状態はキャラクターに直接書く。</summary>
+public sealed class PartyMember(Character character, GameData data) : Combatant
+{
+    public Character Character { get; } = character;
+    private readonly GameData _data = data;
+
+    public override Side Side => Side.Party;
+    public override string Id => Character.Id;
+    public override LocalizedText Name => LocalizedText.Of(Character.Name);
+
+    public override int Hp
+    {
+        get => Character.Hp;
+        set => Character.Hp = Math.Clamp(value, 0, Character.MaxHp);
+    }
+
+    public override int MaxHp => Character.MaxHp;
+    public override int BaseAc => Character.ArmorClass(_data);
+
+    public override int TempHp
+    {
+        get => Character.TempHp;
+        set => Character.TempHp = Math.Max(0, value);
+    }
+    /// <summary>能力値の修正値(装備の効果と、水薬などのしばらくのあいだの能力値の高い方)。</summary>
+    public override int AbilityMod(Ability a)
+    {
+        int score = Character.Stats(_data)[a];
+        foreach (var m in Modifiers.Where(m => m.Stat == "set:" + a.Code())) score = Math.Max(score, m.Value);
+        return Abilities.Modifier(score);
+    }
+    public override int SaveBonus(Ability a) => Character.SaveBonus(_data, a);
+
+    public override bool ImmuneTo(Condition c) =>
+        Character.Passive(_data).Any(p => p.Type == EffectPart.ImmuneCondition && p.Condition == c);
+
+    /// <summary>装備の抵抗と脆弱。</summary>
+    public override double DamageMultiplier(string damageType, bool magical)
+    {
+        var passive = Character.Passive(_data).ToList();
+        double m = 1;
+        if (passive.Any(p => p.Type == EffectPart.Resist && p.DamageType == damageType)) m *= 0.5;
+        if (passive.Any(p => p.Type == EffectPart.Vulnerable && p.DamageType == damageType)) m *= 2;
+        return m;
+    }
+
+    public ItemInstance? WeaponItem => Character.Inventory[EquipSlot.MainHand];
+    public override bool Standing => Character.State == LifeState.Alive && Character.Hp > 0;
+
+    // 死亡セーヴ
+    public int DeathSuccesses { get; set; }
+    public int DeathFailures { get; set; }
+    public bool Stable { get; set; }
+
+    public bool Dying => Character.State == LifeState.Unconscious && !Stable;
+
+    public ItemDef? Weapon =>
+        Character.Inventory[EquipSlot.MainHand] is { } w && _data.Items.TryGetValue(w.ItemId, out var d) && d.Kind == ItemKind.Weapon ? d : null;
+
+    /// <summary>
+    /// その攻撃で使える武器(装備しているものだけ。バックパックの武器は使わない)。
+    /// 近接で届くなら: 利き手の近接武器(無ければ素手)と、遠隔の枠・利き手の飛び道具(隣接して撃つので不利)。
+    /// 届かないなら: 遠隔の枠の武器と、利き手の飛び道具か投げられる武器。
+    /// どれを使うかは、戦闘が期待ダメージで選ぶ。Item は null なら素手。
+    /// </summary>
+    public IEnumerable<(ItemDef? Def, ItemInstance? Item, bool Ranged)> WeaponChoices(bool melee)
+    {
+        (ItemDef? Def, ItemInstance? Item) Of(EquipSlot slot) =>
+            Character.Inventory[slot] is { } it && Left(it) > 0 && _data.Items.TryGetValue(it.ItemId, out var d) && d.Kind == ItemKind.Weapon ? (d, it) : (null, null);
+        var main = Of(EquipSlot.MainHand);
+        var ranged = Of(EquipSlot.Ranged);
+        if (melee)
+        {
+            yield return main.Def is { Ranged: false } ? (main.Def, main.Item, false) : (null, null, false);
+            if (main.Def is { Ranged: true }) yield return (main.Def, main.Item, true);
+        }
+        else if (main.Def is { } md && (md.Ranged || md.Has("thrown"))) yield return (md, main.Item, true);
+        if (ranged.Def != null) yield return (ranged.Def, ranged.Item, true);
+    }
+
+    /// <summary>
+    /// この戦闘で投げた本数(装備の品ごと)。投げた武器は戦闘の終わりまで手元に無い。
+    /// 勝てば拾って戻る。逃げたら、投げたぶんをなくす(5版: 投げたら拾うまで使えない)。
+    /// </summary>
+    public Dictionary<ItemInstance, int> Thrown { get; } = new(ReferenceEqualityComparer.Instance);
+
+    /// <summary>その品の、まだ手元にある本数。</summary>
+    public int Left(ItemInstance item) => item.Count - Thrown.GetValueOrDefault(item);
+
+    /// <summary>飛び道具か投げられる武器を装備している(後列や遠くのグループに届く)。</summary>
+    public bool HasReach => WeaponChoices(melee: false).Any();
+
+    public int PassivePerception => 10 + Character.SkillBonus(_data, "perception");
+    public int StealthBonus => Character.SkillBonus(_data, "stealth");
+
+    public bool StealthDisadvantage =>
+        Character.Inventory[EquipSlot.Armor] is { } a && _data.Items.TryGetValue(a.ItemId, out var d) && d.StealthDisadvantage;
+}
+
+/// <summary>モンスター1体。</summary>
+public sealed class MonsterUnit : Combatant
+{
+    private static int _next;
+
+    public MonsterUnit(MonsterDef def, int hp, MonsterScale? scale = null)
+    {
+        Def = def;
+        Scale = scale ?? MonsterScale.None;
+        _hp = MaxHpValue = Math.Max(1, (int)(hp * Scale.HpMult));
+        _id = $"{def.Id}#{Interlocked.Increment(ref _next)}";
+        foreach (var a in def.Actions.Where(a => a.Uses.HasValue)) UsesLeft[a.Id] = a.Uses!.Value;
+        LegendaryResistLeft = def.Has("legendary_resistance") ? 3 : 0;
+    }
+
+    private readonly string _id;
+    private int _hp;
+
+    public MonsterDef Def { get; }
+    public int MaxHpValue { get; }
+
+    /// <summary>伝説的抵抗の残り(5版: 1日に3回、セーヴの失敗を成功に変える。この戦いのあいだで数える)。</summary>
+    public int LegendaryResistLeft { get; set; }
+
+    /// <summary>深い階の強化。</summary>
+    public MonsterScale Scale { get; }
+
+    /// <summary>1回の戦闘で使える行動の残り。</summary>
+    public Dictionary<string, int> UsesLeft { get; } = [];
+
+    /// <summary>使ったあと、再使用の目を待っている行動。</summary>
+    public HashSet<string> Spent { get; } = [];
+
+    /// <summary>使った呪文スロット(呪文レベルごと)。</summary>
+    public Dictionary<int, int> SlotsUsed { get; } = [];
+
+    public int SlotsLeft(int level) =>
+        Def.Spellcasting is { } sc && sc.Slots.TryGetValue(level.ToString(), out int n) ? n - SlotsUsed.GetValueOrDefault(level) : 0;
+
+    public override Side Side => Side.Enemy;
+    public override string Id => _id;
+    public override LocalizedText Name => Def.Name;
+
+    public override int Hp
+    {
+        get => _hp;
+        set => _hp = Math.Clamp(value, 0, MaxHpValue);
+    }
+
+    public override int MaxHp => MaxHpValue;
+    public override int BaseAc => Def.Ac + Scale.AcBonus;
+    public override int TempHp { get; set; }
+    public override int AbilityMod(Ability a) => Def.Mod(a);
+    public override int SaveBonus(Ability a) => Def.SaveBonus(a);
+    public override bool ImmuneTo(Condition c) => Def.ConditionImmune.Contains(c);
+    public override bool Standing => _hp > 0;
+
+    public override double DamageMultiplier(string damageType, bool magical)
+    {
+        bool nonmagicalPhysical = !magical && DamageTypes.IsPhysical(damageType);
+        bool In(List<string> list) => list.Contains(damageType) || (nonmagicalPhysical && list.Contains(DamageTypes.NonmagicalPhysical));
+        if (In(Def.Immune)) return 0;
+        double m = 1;
+        if (In(Def.Resist)) m *= 0.5;
+        if (In(Def.Vulnerable)) m *= 2;
+        return m;
+    }
+
+    public bool Ready(MonsterAction a) =>
+        !Spent.Contains(a.Id) && (!a.Uses.HasValue || UsesLeft.GetValueOrDefault(a.Id) > 0);
+}
+
+/// <summary>敵の1グループ(同じ種類のモンスター)。</summary>
+public sealed class EnemyGroup(MonsterDef def, List<MonsterUnit> units)
+{
+    public MonsterDef Def { get; } = def;
+    public List<MonsterUnit> Units { get; } = units;
+
+    /// <summary>正体が分かっているか(分かるまでは「小さな人影」などと出す)。</summary>
+    public bool Identified { get; set; }
+
+    public IEnumerable<MonsterUnit> Alive => Units.Where(u => u.Standing);
+    public int AliveCount => Units.Count(u => u.Standing);
+    public bool Wiped => AliveCount == 0;
+
+    public LocalizedText DisplayName => Identified || Def.UnknownName == null ? Def.Name : Def.UnknownName;
+}
+
+/// <summary>
+/// 召喚したもの(同じ種類の何体かをまとめて1つで持つ)。HP は 1 体の HP × 数で、減ると数が減る(HP の残りを 1 体の HP で割って切り上げ)。
+/// パーティの側で、敵から狙われる(知能の低い敵ほど、目の前の召喚に食いつく)。唱えた人の集中が切れると消える。
+/// </summary>
+public sealed class SummonUnit : Combatant
+{
+    private static int _next;
+    private readonly string _id;
+    private int _hp;
+
+    public SummonUnit(MonsterDef def, int count)
+    {
+        Def = def;
+        HpEach = Math.Max(1, def.HpAverage);
+        _hp = HpEach * Math.Max(1, count);
+        MaxHpValue = _hp;
+        _id = $"summon:{def.Id}#{Interlocked.Increment(ref _next)}";
+    }
+
+    public MonsterDef Def { get; }
+    public int HpEach { get; }
+    public int MaxHpValue { get; }
+
+    /// <summary>残っている数。</summary>
+    public int Count => _hp <= 0 ? 0 : (_hp + HpEach - 1) / HpEach;
+
+    public override Side Side => Side.Party;
+    public override string Id => _id;
+    public override LocalizedText Name => Def.Name;
+    public override int Hp { get => _hp; set => _hp = Math.Max(0, value); }
+    public override int MaxHp => MaxHpValue;
+    public override int BaseAc => Def.Ac;
+    public override int TempHp { get; set; }
+    public override int AbilityMod(Ability a) => Def.Mod(a);
+    public override int SaveBonus(Ability a) => Def.SaveBonus(a);
+    public override bool ImmuneTo(Condition c) => Def.ConditionImmune.Contains(c);
+    public override bool Standing => _hp > 0;
+
+    public override double DamageMultiplier(string damageType, bool magical)
+    {
+        bool nonmagicalPhysical = !magical && DamageTypes.IsPhysical(damageType);
+        bool In(List<string> list) => list.Contains(damageType) || (nonmagicalPhysical && list.Contains(DamageTypes.NonmagicalPhysical));
+        if (In(Def.Immune)) return 0;
+        double m = 1;
+        if (In(Def.Resist)) m *= 0.5;
+        if (In(Def.Vulnerable)) m *= 2;
+        return m;
+    }
+}

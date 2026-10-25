@@ -1,0 +1,13 @@
+# 第1部 A の B2: 最後の墓守の亡骸と角灯
+floor prefab_a_b2_remains
+size 3 2
+wrap none
+start 1 1 N
+walls
++-+-+-+
+|     |
++ + + +
+|     |
++-+-+-+
+mark 1 0 event:a_b2_remains
+entrance 1 1 S

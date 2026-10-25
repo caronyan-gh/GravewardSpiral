@@ -1,0 +1,9797 @@
+[
+ {
+  "id": "acid_splash",
+  "name": {
+   "en": "Acid Splash",
+   "ja": "アシッド・スプラッシュ"
+  },
+  "level": 0,
+  "school": "conjuration",
+  "classes": [
+   "sorcerer",
+   "wizard"
+  ],
+  "ritual": false,
+  "concentration": false,
+  "time": "action",
+  "rounds": 0,
+  "scale": "character",
+  "target": "enemy",
+  "effects": [
+   {
+    "type": "save",
+    "ability": "dex",
+    "fail": [
+     {
+      "type": "damage",
+      "dice": "1d6",
+      "damage_type": "acid",
+      "by_level": {
+       "1": "1d6",
+       "5": "2d6",
+       "11": "3d6",
+       "17": "4d6"
+      }
+     }
+    ]
+   }
+  ],
+  "status": "ok",
+  "use": [
+   "combat"
+  ],
+  "icon": "acid"
+ },
+ {
+  "id": "chill_touch",
+  "name": {
+   "en": "Chill Touch",
+   "ja": "チル・タッチ"
+  },
+  "level": 0,
+  "school": "necromancy",
+  "classes": [
+   "sorcerer",
+   "warlock",
+   "wizard"
+  ],
+  "ritual": false,
+  "concentration": false,
+  "time": "action",
+  "rounds": 1,
+  "scale": "character",
+  "attack": "ranged",
+  "target": "enemy",
+  "effects": [
+   {
+    "type": "damage",
+    "dice": "1d8",
+    "damage_type": "necrotic",
+    "by_level": {
+     "1": "1d8",
+     "5": "2d8",
+     "11": "3d8",
+     "17": "4d8"
+    }
+   }
+  ],
+  "status": "ok",
+  "use": [
+   "combat"
+  ],
+  "icon": "necrotic"
+ },
+ {
+  "id": "dancing_lights",
+  "name": {
+   "en": "Dancing Lights",
+   "ja": "ダンシング・ライツ"
+  },
+  "level": 0,
+  "school": "evocation",
+  "classes": [
+   "bard",
+   "sorcerer",
+   "wizard"
+  ],
+  "ritual": false,
+  "concentration": false,
+  "time": "action",
+  "rounds": 10,
+  "effects": [
+   {
+    "type": "light",
+    "value": 10
+   }
+  ],
+  "status": "ok",
+  "target": "self",
+  "use": [
+   "camp"
+  ],
+  "note": "10 分のあいだ明かりになる",
+  "icon": "light"
+ },
+ {
+  "id": "druidcraft",
+  "name": {
+   "en": "Druidcraft",
+   "ja": "ドルイドクラフト"
+  },
+  "level": 0,
+  "school": "transmutation",
+  "classes": [
+   "druid"
+  ],
+  "ritual": false,
+  "concentration": false,
+  "time": "action",
+  "rounds": 0,
+  "effects": [],
+  "status": "roleplay",
+  "use": [
+   "combat"
+  ],
+  "icon": "buff"
+ },
+ {
+  "id": "eldritch_blast",
+  "name": {
+   "en": "Eldritch Blast",
+   "ja": "エルドリッチ・ブラスト"
+  },
+  "level": 0,
+  "school": "evocation",
+  "classes": [
+   "warlock"
+  ],
+  "ritual": false,
+  "concentration": false,
+  "time": "action",
+  "rounds": 0,
+  "scale": "character",
+  "attack": "ranged",
+  "target": "enemy",
+  "effects": [
+   {
+    "type": "damage",
+    "dice": "1d10",
+    "damage_type": "force",
+    "by_level": {
+     "1": "1d10",
+     "5": "1d10",
+     "11": "1d10",
+     "17": "1d10"
+    }
+   }
+  ],
+  "status": "ok",
+  "use": [
+   "combat"
+  ],
+  "icon": "force"
+ },
+ {
+  "id": "fire_bolt",
+  "name": {
+   "en": "Fire Bolt",
+   "ja": "ファイアー・ボルト"
+  },
+  "level": 0,
+  "school": "evocation",
+  "classes": [
+   "sorcerer",
+   "wizard"
+  ],
+  "ritual": false,
+  "concentration": false,
+  "time": "action",
+  "rounds": 0,
+  "scale": "character",
+  "attack": "ranged",
+  "target": "enemy",
+  "effects": [
+   {
+    "type": "damage",
+    "dice": "1d10",
+    "damage_type": "fire",
+    "by_level": {
+     "1": "1d10",
+     "5": "2d10",
+     "11": "3d10",
+     "17": "4d10"
+    }
+   }
+  ],
+  "status": "ok",
+  "use": [
+   "combat"
+  ],
+  "icon": "fire"
+ },
+ {
+  "id": "guidance",
+  "name": {
+   "en": "Guidance",
+   "ja": "ガイダンス"
+  },
+  "level": 0,
+  "school": "divination",
+  "classes": [
+   "cleric",
+   "druid"
+  ],
+  "ritual": false,
+  "concentration": true,
+  "time": "action",
+  "rounds": 10,
+  "effects": [],
+  "status": "unsupported",
+  "use": [
+   "combat"
+  ],
+  "icon": "buff"
+ },
+ {
+  "id": "light",
+  "name": {
+   "en": "Light",
+   "ja": "ライト"
+  },
+  "level": 0,
+  "school": "evocation",
+  "classes": [
+   "bard",
+   "cleric",
+   "sorcerer",
+   "wizard"
+  ],
+  "ritual": false,
+  "concentration": false,
+  "time": "action",
+  "rounds": 600,
+  "effects": [
+   {
+    "type": "light",
+    "value": 60
+   }
+  ],
+  "status": "ok",
+  "target": "self",
+  "use": [
+   "camp"
+  ],
+  "note": "1時間(60 歩)のあいだ、暗闇でも見える",
+  "icon": "light"
+ },
+ {
+  "id": "mage_hand",
+  "name": {
+   "en": "Mage Hand",
+   "ja": "メイジ・ハンド"
+  },
+  "level": 0,
+  "school": "conjuration",
+  "classes": [
+   "bard",
+   "sorcerer",
+   "warlock",
+   "wizard"
+  ],
+  "ritual": false,
+  "concentration": false,
+  "time": "action",
+  "rounds": 10,
+  "effects": [],
+  "status": "unsupported",
+  "use": [
+   "combat"
+  ],
+  "icon": "buff"
+ },
+ {
+  "id": "mending",
+  "name": {
+   "en": "Mending",
+   "ja": "メンディング"
+  },
+  "level": 0,
+  "school": "transmutation",
+  "classes": [
+   "cleric",
+   "bard",
+   "druid",
+   "sorcerer",
+   "wizard"
+  ],
+  "ritual": false,
+  "concentration": false,
+  "time": "long",
+  "rounds": 0,
+  "use": [
+   "camp"
+  ],
+  "effects": [],
+  "status": "unsupported",
+  "icon": "buff"
+ },
+ {
+  "id": "message",
+  "name": {
+   "en": "Message",
+   "ja": "メッセージ"
+  },
+  "level": 0,
+  "school": "transmutation",
+  "classes": [
+   "bard",
+   "sorcerer",
+   "wizard"
+  ],
+  "ritual": false,
+  "concentration": false,
+  "time": "action",
+  "rounds": 1,
+  "effects": [],
+  "status": "roleplay",
+  "use": [
+   "combat"
+  ],
+  "icon": "buff"
+ },
+ {
+  "id": "minor_illusion",
+  "name": {
+   "en": "Minor Illusion",
+   "ja": "マイナー・イリュージョン"
+  },
+  "level": 0,
+  "school": "illusion",
+  "classes": [
+   "bard",
+   "sorcerer",
+   "warlock",
+   "wizard"
+  ],
+  "ritual": false,
+  "concentration": false,
+  "time": "action",
+  "rounds": 10,
+  "effects": [],
+  "status": "roleplay",
+  "use": [
+   "combat"
+  ],
+  "icon": "buff"
+ },
+ {
+  "id": "poison_spray",
+  "name": {
+   "en": "Poison Spray",
+   "ja": "ポイズン・スプレー"
+  },
+  "level": 0,
+  "school": "conjuration",
+  "classes": [
+   "sorcerer",
+   "warlock",
+   "wizard",
+   "druid"
+  ],
+  "ritual": false,
+  "concentration": false,
+  "time": "action",
+  "rounds": 0,
+  "scale": "character",
+  "target": "enemy",
+  "effects": [
+   {
+    "type": "save",
+    "ability": "con",
+    "fail": [
+     {
+      "type": "damage",
+      "dice": "1d12",
+      "damage_type": "poison",
+      "by_level": {
+       "1": "1d12",
+       "5": "2d12",
+       "11": "3d12",
+       "17": "4d12"
+      }
+     }
+    ]
+   }
+  ],
+  "status": "ok",
+  "use": [
+   "combat"
+  ],
+  "icon": "poison"
+ },
+ {
+  "id": "prestidigitation",
+  "name": {
+   "en": "Prestidigitation",
+   "ja": "プレスティディジテイション"
+  },
+  "level": 0,
+  "school": "transmutation",
+  "classes": [
+   "bard",
+   "sorcerer",
+   "warlock",
+   "wizard"
+  ],
+  "ritual": false,
+  "concentration": false,
+  "time": "action",
+  "rounds": 600,
+  "effects": [],
+  "status": "roleplay",
+  "use": [
+   "combat"
+  ],
+  "icon": "buff"
+ },
+ {
+  "id": "produce_flame",
+  "name": {
+   "en": "Produce Flame",
+   "ja": "プロデュース・フレイム"
+  },
+  "level": 0,
+  "school": "conjuration",
+  "classes": [
+   "druid"
+  ],
+  "ritual": false,
+  "concentration": false,
+  "time": "action",
+  "rounds": 100,
+  "scale": "character",
+  "attack": "ranged",
+  "target": "enemy",
+  "effects": [
+   {
+    "type": "damage",
+    "dice": "1d8",
+    "damage_type": "fire",
+    "by_level": {
+     "1": "1d8",
+     "5": "2d8",
+     "11": "3d8",
+     "17": "4d8"
+    }
+   }
+  ],
+  "status": "ok",
+  "use": [
+   "combat"
+  ],
+  "icon": "fire"
+ },
+ {
+  "id": "ray_of_frost",
+  "name": {
+   "en": "Ray of Frost",
+   "ja": "レイ・オヴ・フロスト"
+  },
+  "level": 0,
+  "school": "evocation",
+  "classes": [
+   "sorcerer",
+   "wizard"
+  ],
+  "ritual": false,
+  "concentration": false,
+  "time": "action",
+  "rounds": 0,
+  "scale": "character",
+  "attack": "ranged",
+  "target": "enemy",
+  "effects": [
+   {
+    "type": "damage",
+    "dice": "1d8",
+    "damage_type": "cold",
+    "by_level": {
+     "1": "1d8",
+     "5": "2d8",
+     "11": "3d8",
+     "17": "4d8"
+    }
+   }
+  ],
+  "status": "ok",
+  "use": [
+   "combat"
+  ],
+  "icon": "cold"
+ },
+ {
+  "id": "resistance",
+  "name": {
+   "en": "Resistance",
+   "ja": "レジスタンス"
+  },
+  "level": 0,
+  "school": "abjuration",
+  "classes": [
+   "cleric",
+   "druid"
+  ],
+  "ritual": false,
+  "concentration": true,
+  "time": "action",
+  "rounds": 10,
+  "effects": [
+   {
+    "type": "modifier",
+    "stat": "save",
+    "dice": "1d4",
+    "rounds": 10
+   }
+  ],
+  "status": "ok",
+  "target": "ally",
+  "note": "5版では1回のセーヴだけ。ここでは 1 分のあいだのセーヴに足す",
+  "use": [
+   "combat"
+  ],
+  "icon": "buff"
+ },
+ {
+  "id": "sacred_flame",
+  "name": {
+   "en": "Sacred Flame",
+   "ja": "セイクリッド・フレイム"
+  },
+  "level": 0,
+  "school": "evocation",
+  "classes": [
+   "cleric"
+  ],
+  "ritual": false,
+  "concentration": false,
+  "time": "action",
+  "rounds": 0,
+  "scale": "character",
+  "target": "enemy",
+  "effects": [
+   {
+    "type": "save",
+    "ability": "dex",
+    "fail": [
+     {
+      "type": "damage",
+      "dice": "1d8",
+      "damage_type": "radiant",
+      "by_level": {
+       "1": "1d8",
+       "5": "2d8",
+       "11": "3d8",
+       "17": "4d8"
+      }
+     }
+    ]
+   }
+  ],
+  "status": "ok",
+  "use": [
+   "combat"
+  ],
+  "icon": "radiant"
+ },
+ {
+  "id": "shillelagh",
+  "name": {
+   "en": "Shillelagh",
+   "ja": "シレイリ"
+  },
+  "level": 0,
+  "school": "transmutation",
+  "classes": [
+   "druid"
+  ],
+  "ritual": false,
+  "concentration": false,
+  "time": "bonus",
+  "rounds": 10,
+  "effects": [],
+  "status": "unsupported",
+  "use": [
+   "combat"
+  ],
+  "icon": "buff"
+ },
+ {
+  "id": "shocking_grasp",
+  "name": {
+   "en": "Shocking Grasp",
+   "ja": "ショッキング・グラスプ"
+  },
+  "level": 0,
+  "school": "evocation",
+  "classes": [
+   "sorcerer",
+   "wizard"
+  ],
+  "ritual": false,
+  "concentration": false,
+  "time": "action",
+  "rounds": 0,
+  "scale": "character",
+  "attack": "melee",
+  "target": "enemy",
+  "effects": [
+   {
+    "type": "damage",
+    "dice": "1d8",
+    "damage_type": "lightning",
+    "by_level": {
+     "1": "1d8",
+     "5": "2d8",
+     "11": "3d8",
+     "17": "4d8"
+    }
+   }
+  ],
+  "status": "ok",
+  "use": [
+   "combat"
+  ],
+  "icon": "lightning"
+ },
+ {
+  "id": "spare_the_dying",
+  "name": {
+   "en": "Spare the Dying",
+   "ja": "スペア・ザ・ダイイング"
+  },
+  "level": 0,
+  "school": "necromancy",
+  "classes": [
+   "cleric"
+  ],
+  "ritual": false,
+  "concentration": false,
+  "time": "action",
+  "rounds": 0,
+  "effects": [
+   {
+    "type": "stabilize"
+   }
+  ],
+  "status": "ok",
+  "target": "ally",
+  "use": [
+   "combat"
+  ],
+  "icon": "heal"
+ },
+ {
+  "id": "thaumaturgy",
+  "name": {
+   "en": "Thaumaturgy",
+   "ja": "ソーマタージー"
+  },
+  "level": 0,
+  "school": "transmutation",
+  "classes": [
+   "cleric"
+  ],
+  "ritual": false,
+  "concentration": false,
+  "time": "action",
+  "rounds": 10,
+  "effects": [],
+  "status": "roleplay",
+  "use": [
+   "combat"
+  ],
+  "icon": "buff"
+ },
+ {
+  "id": "true_strike",
+  "name": {
+   "en": "True Strike",
+   "ja": "トゥルー・ストライク"
+  },
+  "level": 0,
+  "school": "divination",
+  "classes": [
+   "bard",
+   "sorcerer",
+   "warlock",
+   "wizard"
+  ],
+  "ritual": false,
+  "concentration": true,
+  "time": "action",
+  "rounds": 600,
+  "effects": [],
+  "status": "unsupported",
+  "use": [
+   "combat"
+  ],
+  "icon": "buff"
+ },
+ {
+  "id": "vicious_mockery",
+  "name": {
+   "en": "Vicious Mockery",
+   "ja": "ヴィシャス・モッカリー"
+  },
+  "level": 0,
+  "school": "enchantment",
+  "classes": [
+   "bard"
+  ],
+  "ritual": false,
+  "concentration": false,
+  "time": "action",
+  "rounds": 0,
+  "scale": "character",
+  "target": "enemy",
+  "effects": [
+   {
+    "type": "save",
+    "ability": "wis",
+    "fail": [
+     {
+      "type": "damage",
+      "dice": "1d4",
+      "damage_type": "psychic",
+      "by_level": {
+       "1": "1d4",
+       "5": "2d4",
+       "11": "3d4",
+       "17": "4d4"
+      }
+     }
+    ]
+   }
+  ],
+  "status": "ok",
+  "use": [
+   "combat"
+  ],
+  "icon": "psychic"
+ },
+ {
+  "id": "alarm",
+  "name": {
+   "en": "Alarm",
+   "ja": "アラーム"
+  },
+  "level": 1,
+  "school": "abjuration",
+  "classes": [
+   "ranger",
+   "wizard"
+  ],
+  "ritual": true,
+  "concentration": false,
+  "time": "long",
+  "rounds": 4800,
+  "use": [
+   "camp"
+  ],
+  "effects": [],
+  "status": "unsupported",
+  "icon": "buff"
+ },
+ {
+  "id": "animal_friendship",
+  "name": {
+   "en": "Animal Friendship",
+   "ja": "アニマル・フレンドシップ"
+  },
+  "level": 1,
+  "school": "enchantment",
+  "classes": [
+   "bard",
+   "druid",
+   "ranger"
+  ],
+  "ritual": false,
+  "concentration": false,
+  "time": "action",
+  "rounds": 14400,
+  "effects": [],
+  "status": "roleplay",
+  "use": [
+   "combat"
+  ],
+  "icon": "buff"
+ },
+ {
+  "id": "bane",
+  "name": {
+   "en": "Bane",
+   "ja": "ベイン"
+  },
+  "level": 1,
+  "school": "enchantment",
+  "classes": [
+   "bard",
+   "cleric"
+  ],
+  "ritual": false,
+  "concentration": true,
+  "time": "action",
+  "rounds": 10,
+  "effects": [
+   {
+    "type": "save",
+    "ability": "cha",
+    "fail": [
+     {
+      "type": "modifier",
+      "stat": "attack",
+      "dice": "-1d4",
+      "rounds": 10
+     },
+     {
+      "type": "modifier",
+      "stat": "save",
+      "dice": "-1d4",
+      "rounds": 10
+     }
+    ]
+   }
+  ],
+  "status": "ok",
+  "target": "group",
+  "use": [
+   "combat"
+  ],
+  "icon": "debuff"
+ },
+ {
+  "id": "bless",
+  "name": {
+   "en": "Bless",
+   "ja": "ブレス"
+  },
+  "level": 1,
+  "school": "enchantment",
+  "classes": [
+   "cleric",
+   "paladin"
+  ],
+  "ritual": false,
+  "concentration": true,
+  "time": "action",
+  "rounds": 10,
+  "effects": [
+   {
+    "type": "modifier",
+    "stat": "attack",
+    "dice": "1d4",
+    "rounds": 10
+   },
+   {
+    "type": "modifier",
+    "stat": "save",
+    "dice": "1d4",
+    "rounds": 10
+   }
+  ],
+  "status": "ok",
+  "target": "allies",
+  "count": 3,
+  "use": [
+   "combat"
+  ],
+  "icon": "buff"
+ },
+ {
+  "id": "burning_hands",
+  "name": {
+   "en": "Burning Hands",
+   "ja": "バーニング・ハンズ"
+  },
+  "level": 1,
+  "school": "evocation",
+  "classes": [
+   "sorcerer",
+   "wizard"
+  ],
+  "ritual": false,
+  "concentration": false,
+  "time": "action",
+  "rounds": 0,
+  "scale": "slot",
+  "target": "group",
+  "effects": [
+   {
+    "type": "save",
+    "ability": "dex",
+    "fail": [
+     {
+      "type": "damage",
+      "dice": "3d6",
+      "damage_type": "fire",
+      "by_level": {
+       "1": "3d6",
+       "2": "4d6",
+       "3": "5d6",
+       "4": "6d6",
+       "5": "7d6",
+       "6": "8d6",
+       "7": "9d6",
+       "8": "10d6",
+       "9": "11d6"
+      }
+     }
+    ],
+    "half": true
+   }
+  ],
+  "status": "ok",
+  "use": [
+   "combat"
+  ],
+  "icon": "fire"
+ },
+ {
+  "id": "charm_person",
+  "name": {
+   "en": "Charm Person",
+   "ja": "チャーム・パーソン"
+  },
+  "level": 1,
+  "school": "enchantment",
+  "classes": [
+   "bard",
+   "druid",
+   "sorcerer",
+   "warlock",
+   "wizard"
+  ],
+  "ritual": false,
+  "concentration": false,
+  "time": "action",
+  "rounds": 600,
+  "effects": [],
+  "status": "roleplay",
+  "use": [
+   "combat"
+  ],
+  "icon": "buff"
+ },
+ {
+  "id": "color_spray",
+  "name": {
+   "en": "Color Spray",
+   "ja": "カラー・スプレー"
+  },
+  "level": 1,
+  "school": "illusion",
+  "classes": [
+   "sorcerer",
+   "wizard"
+  ],
+  "ritual": false,
+  "concentration": false,
+  "time": "action",
+  "rounds": 1,
+  "effects": [
+   {
+    "type": "hp_pool",
+    "condition": "blinded",
+    "rounds": 1,
+    "dice": "6d10",
+    "by_level": {
+     "1": "6d10",
+     "2": "8d10",
+     "3": "10d10",
+     "4": "12d10",
+     "5": "14d10",
+     "6": "16d10",
+     "7": "18d10",
+     "8": "20d10",
+     "9": "22d10"
+    }
+   }
+  ],
+  "status": "ok",
+  "target": "group",
+  "scale": "slot",
+  "use": [
+   "combat"
+  ],
+  "icon": "debuff"
+ },
+ {
+  "id": "command",
+  "name": {
+   "en": "Command",
+   "ja": "コマンド"
+  },
+  "level": 1,
+  "school": "enchantment",
+  "classes": [
+   "cleric",
+   "paladin"
+  ],
+  "ritual": false,
+  "concentration": false,
+  "time": "action",
+  "rounds": 1,
+  "effects": [
+   {
+    "type": "save",
+    "ability": "wis",
+    "fail": [
+     {
+      "type": "condition",
+      "condition": "prone"
+     },
+     {
+      "type": "condition",
+      "condition": "incapacitated",
+      "rounds": 1
+     }
+    ]
+   }
+  ],
+  "status": "ok",
+  "target": "enemy",
+  "use": [
+   "combat"
+  ],
+  "icon": "debuff"
+ },
+ {
+  "id": "comprehend_languages",
+  "name": {
+   "en": "Comprehend Languages",
+   "ja": "コンプリヘンド・ランゲージズ"
+  },
+  "level": 1,
+  "school": "divination",
+  "classes": [
+   "bard",
+   "sorcerer",
+   "warlock",
+   "wizard"
+  ],
+  "ritual": true,
+  "concentration": false,
+  "time": "action",
+  "rounds": 600,
+  "effects": [],
+  "status": "roleplay",
+  "use": [
+   "combat"
+  ],
+  "icon": "buff"
+ },
+ {
+  "id": "create_or_destroy_water",
+  "name": {
+   "en": "Create or Destroy Water",
+   "ja": "クリエイト／デストロイ・ウォーター"
+  },
+  "level": 1,
+  "school": "transmutation",
+  "classes": [
+   "cleric",
+   "druid"
+  ],
+  "ritual": false,
+  "concentration": false,
+  "time": "action",
+  "rounds": 0,
+  "effects": [],
+  "status": "unsupported",
+  "use": [
+   "combat"
+  ],
+  "icon": "buff"
+ },
+ {
+  "id": "cure_wounds",
+  "name": {
+   "en": "Cure Wounds",
+   "ja": "キュア・ウーンズ"
+  },
+  "level": 1,
+  "school": "evocation",
+  "classes": [
+   "bard",
+   "cleric",
+   "druid",
+   "paladin",
+   "ranger"
+  ],
+  "ritual": false,
+  "concentration": false,
+  "time": "action",
+  "rounds": 0,
+  "scale": "slot",
+  "use": [
+   "combat",
+   "camp"
+  ],
+  "target": "ally",
+  "effects": [
+   {
+    "type": "heal",
+    "dice": "1d8+MOD",
+    "by_level": {
+     "1": "1d8+MOD",
+     "2": "2d8+MOD",
+     "3": "3d8+MOD",
+     "4": "4d8+MOD",
+     "5": "5d8+MOD",
+     "6": "6d8+MOD",
+     "7": "7d8+MOD",
+     "8": "8d8+MOD",
+     "9": "9d8+MOD"
+    }
+   }
+  ],
+  "status": "ok",
+  "icon": "heal"
+ },
+ {
+  "id": "detect_evil_and_good",
+  "name": {
+   "en": "Detect Evil and Good",
+   "ja": "ディテクト・イーヴル・アンド・グッド"
+  },
+  "level": 1,
+  "school": "divination",
+  "classes": [
+   "cleric",
+   "paladin"
+  ],
+  "ritual": false,
+  "concentration": true,
+  "time": "action",
+  "rounds": 100,
+  "effects": [],
+  "status": "unsupported",
+  "use": [
+   "combat"
+  ],
+  "icon": "buff"
+ },
+ {
+  "id": "detect_magic",
+  "name": {
+   "en": "Detect Magic",
+   "ja": "ディテクト・マジック"
+  },
+  "level": 1,
+  "school": "divination",
+  "classes": [
+   "bard",
+   "cleric",
+   "druid",
+   "paladin",
+   "ranger",
+   "sorcerer",
+   "wizard"
+  ],
+  "ritual": true,
+  "concentration": true,
+  "time": "action",
+  "rounds": 100,
+  "effects": [],
+  "status": "later",
+  "use": [
+   "combat"
+  ],
+  "icon": "buff"
+ },
+ {
+  "id": "detect_poison_and_disease",
+  "name": {
+   "en": "Detect Poison and Disease",
+   "ja": "ディテクト・ポイズン・アンド・ディジーズ"
+  },
+  "level": 1,
+  "school": "divination",
+  "classes": [
+   "cleric",
+   "druid",
+   "paladin",
+   "ranger"
+  ],
+  "ritual": true,
+  "concentration": true,
+  "time": "action",
+  "rounds": 100,
+  "effects": [],
+  "status": "unsupported",
+  "use": [
+   "combat"
+  ],
+  "icon": "buff"
+ },
+ {
+  "id": "disguise_self",
+  "name": {
+   "en": "Disguise Self",
+   "ja": "ディスガイズ・セルフ"
+  },
+  "level": 1,
+  "school": "illusion",
+  "classes": [
+   "bard",
+   "sorcerer",
+   "wizard"
+  ],
+  "ritual": false,
+  "concentration": false,
+  "time": "action",
+  "rounds": 600,
+  "effects": [],
+  "status": "roleplay",
+  "use": [
+   "combat"
+  ],
+  "icon": "buff"
+ },
+ {
+  "id": "divine_favor",
+  "name": {
+   "en": "Divine Favor",
+   "ja": "ディヴァイン・フェイヴァー"
+  },
+  "level": 1,
+  "school": "evocation",
+  "classes": [
+   "paladin"
+  ],
+  "ritual": false,
+  "concentration": true,
+  "time": "bonus",
+  "rounds": 10,
+  "scale": "slot",
+  "target": "self",
+  "effects": [
+   {
+    "type": "modifier",
+    "stat": "damage",
+    "dice": "1d4",
+    "rounds": 10
+   }
+  ],
+  "status": "ok",
+  "use": [
+   "combat"
+  ],
+  "icon": "buff"
+ },
+ {
+  "id": "entangle",
+  "name": {
+   "en": "Entangle",
+   "ja": "エンタングル"
+  },
+  "level": 1,
+  "school": "conjuration",
+  "classes": [
+   "druid"
+  ],
+  "ritual": false,
+  "concentration": true,
+  "time": "action",
+  "rounds": 10,
+  "effects": [
+   {
+    "type": "save",
+    "ability": "str",
+    "fail": [
+     {
+      "type": "condition",
+      "condition": "restrained",
+      "rounds": 10,
+      "escape_dc": 0
+     }
+    ]
+   }
+  ],
+  "status": "ok",
+  "target": "group",
+  "use": [
+   "combat"
+  ],
+  "icon": "debuff"
+ },
+ {
+  "id": "expeditious_retreat",
+  "name": {
+   "en": "Expeditious Retreat",
+   "ja": "エクスペディシャス・リトリート"
+  },
+  "level": 1,
+  "school": "transmutation",
+  "classes": [
+   "sorcerer",
+   "warlock",
+   "wizard"
+  ],
+  "ritual": false,
+  "concentration": true,
+  "time": "bonus",
+  "rounds": 100,
+  "effects": [],
+  "status": "unsupported",
+  "use": [
+   "combat"
+  ],
+  "icon": "buff"
+ },
+ {
+  "id": "faerie_fire",
+  "name": {
+   "en": "Faerie Fire",
+   "ja": "フェアリー・ファイアー"
+  },
+  "level": 1,
+  "school": "evocation",
+  "classes": [
+   "druid"
+  ],
+  "ritual": false,
+  "concentration": true,
+  "time": "action",
+  "rounds": 10,
+  "effects": [
+   {
+    "type": "save",
+    "ability": "dex",
+    "fail": [
+     {
+      "type": "modifier",
+      "stat": "ac",
+      "value": -2,
+      "rounds": 10
+     }
+    ]
+   }
+  ],
+  "status": "ok",
+  "target": "group",
+  "note": "5版では攻撃が有利になる。ここでは AC -2 で代わりにする",
+  "use": [
+   "combat"
+  ],
+  "icon": "debuff"
+ },
+ {
+  "id": "false_life",
+  "name": {
+   "en": "False Life",
+   "ja": "フォールス・ライフ"
+  },
+  "level": 1,
+  "school": "necromancy",
+  "classes": [
+   "sorcerer",
+   "wizard"
+  ],
+  "ritual": false,
+  "concentration": false,
+  "time": "action",
+  "rounds": 600,
+  "scale": "slot",
+  "use": [
+   "combat",
+   "camp"
+  ],
+  "target": "self",
+  "effects": [
+   {
+    "type": "temp_hp",
+    "dice": "1d4+4",
+    "by_level": {
+     "1": "1d4+4",
+     "2": "1d4+9",
+     "3": "1d4+14",
+     "4": "1d4+19",
+     "5": "1d4+24",
+     "6": "1d4+29",
+     "7": "1d4+34",
+     "8": "1d4+39",
+     "9": "1d4+44"
+    }
+   }
+  ],
+  "status": "ok",
+  "icon": "buff"
+ },
+ {
+  "id": "feather_fall",
+  "name": {
+   "en": "Feather Fall",
+   "ja": "フェザー・フォール"
+  },
+  "level": 1,
+  "school": "transmutation",
+  "classes": [
+   "bard",
+   "sorcerer",
+   "wizard"
+  ],
+  "ritual": false,
+  "concentration": false,
+  "time": "reaction",
+  "rounds": 10,
+  "effects": [
+   {
+    "type": "feather_fall",
+    "value": 60
+   }
+  ],
+  "status": "ok",
+  "target": "self",
+  "use": [
+   "camp"
+  ],
+  "note": "5版ではリアクション。ここでは先に唱えておき、1時間のあいだ落とし穴でダメージを受けない",
+  "icon": "float"
+ },
+ {
+  "id": "find_familiar",
+  "name": {
+   "en": "Find Familiar",
+   "ja": "ファインド・ファミリアー"
+  },
+  "level": 1,
+  "school": "conjuration",
+  "classes": [
+   "wizard"
+  ],
+  "ritual": true,
+  "concentration": false,
+  "time": "long",
+  "rounds": 0,
+  "use": [
+   "camp"
+  ],
+  "effects": [],
+  "status": "unsupported",
+  "icon": "buff"
+ },
+ {
+  "id": "floating_disk",
+  "name": {
+   "en": "Floating Disk",
+   "ja": "フローティング・ディスク"
+  },
+  "level": 1,
+  "school": "conjuration",
+  "classes": [
+   "wizard"
+  ],
+  "ritual": true,
+  "concentration": false,
+  "time": "action",
+  "rounds": 600,
+  "effects": [],
+  "status": "unsupported",
+  "use": [
+   "combat"
+  ],
+  "icon": "buff"
+ },
+ {
+  "id": "fog_cloud",
+  "name": {
+   "en": "Fog Cloud",
+   "ja": "フォッグ・クラウド"
+  },
+  "level": 1,
+  "school": "conjuration",
+  "classes": [
+   "druid",
+   "ranger",
+   "sorcerer",
+   "wizard"
+  ],
+  "ritual": false,
+  "concentration": true,
+  "time": "action",
+  "rounds": 600,
+  "effects": [],
+  "status": "unsupported",
+  "use": [
+   "combat"
+  ],
+  "icon": "buff"
+ },
+ {
+  "id": "goodberry",
+  "name": {
+   "en": "Goodberry",
+   "ja": "グッドベリー"
+  },
+  "level": 1,
+  "school": "transmutation",
+  "classes": [
+   "druid",
+   "ranger"
+  ],
+  "ritual": false,
+  "concentration": false,
+  "time": "action",
+  "rounds": 0,
+  "effects": [],
+  "status": "unsupported",
+  "use": [
+   "combat"
+  ],
+  "icon": "buff"
+ },
+ {
+  "id": "grease",
+  "name": {
+   "en": "Grease",
+   "ja": "グリース"
+  },
+  "level": 1,
+  "school": "conjuration",
+  "classes": [
+   "wizard"
+  ],
+  "ritual": false,
+  "concentration": false,
+  "time": "action",
+  "rounds": 10,
+  "effects": [],
+  "status": "unsupported",
+  "use": [
+   "combat"
+  ],
+  "icon": "buff"
+ },
+ {
+  "id": "guiding_bolt",
+  "name": {
+   "en": "Guiding Bolt",
+   "ja": "ガイディング・ボルト"
+  },
+  "level": 1,
+  "school": "evocation",
+  "classes": [
+   "cleric"
+  ],
+  "ritual": false,
+  "concentration": false,
+  "time": "action",
+  "rounds": 1,
+  "scale": "slot",
+  "attack": "ranged",
+  "target": "enemy",
+  "effects": [
+   {
+    "type": "damage",
+    "dice": "4d6",
+    "damage_type": "radiant",
+    "by_level": {
+     "1": "4d6",
+     "2": "5d6",
+     "3": "6d6",
+     "4": "7d6",
+     "5": "8d6",
+     "6": "9d6",
+     "7": "10d6",
+     "8": "11d6",
+     "9": "12d6"
+    }
+   }
+  ],
+  "status": "ok",
+  "use": [
+   "combat"
+  ],
+  "icon": "radiant"
+ },
+ {
+  "id": "healing_word",
+  "name": {
+   "en": "Healing Word",
+   "ja": "ヒーリング・ワード"
+  },
+  "level": 1,
+  "school": "evocation",
+  "classes": [
+   "bard",
+   "cleric",
+   "druid"
+  ],
+  "ritual": false,
+  "concentration": false,
+  "time": "bonus",
+  "rounds": 0,
+  "scale": "slot",
+  "use": [
+   "combat",
+   "camp"
+  ],
+  "target": "ally",
+  "effects": [
+   {
+    "type": "heal",
+    "dice": "1d4+MOD",
+    "by_level": {
+     "1": "1d4+MOD",
+     "2": "2d4+MOD",
+     "3": "3d4+MOD",
+     "4": "4d4+MOD",
+     "5": "5d4+MOD",
+     "6": "6d4+MOD",
+     "7": "7d4+MOD",
+     "8": "8d4+MOD",
+     "9": "9d4+MOD"
+    }
+   }
+  ],
+  "status": "ok",
+  "icon": "heal"
+ },
+ {
+  "id": "hellish_rebuke",
+  "name": {
+   "en": "Hellish Rebuke",
+   "ja": "ヘリッシュ・リビューク"
+  },
+  "level": 1,
+  "school": "evocation",
+  "classes": [
+   "warlock"
+  ],
+  "ritual": false,
+  "concentration": false,
+  "time": "reaction",
+  "rounds": 0,
+  "scale": "slot",
+  "target": "enemy",
+  "effects": [
+   {
+    "type": "save",
+    "ability": "dex",
+    "fail": [
+     {
+      "type": "damage",
+      "dice": "2d10",
+      "damage_type": "fire",
+      "by_level": {
+       "1": "2d10",
+       "2": "3d10",
+       "3": "4d10",
+       "4": "5d10",
+       "5": "6d10",
+       "6": "7d10",
+       "7": "8d10",
+       "8": "9d10",
+       "9": "10d10"
+      }
+     }
+    ],
+    "half": true
+   }
+  ],
+  "status": "later",
+  "note": "リアクション",
+  "use": [
+   "combat"
+  ],
+  "icon": "fire"
+ },
+ {
+  "id": "heroism",
+  "name": {
+   "en": "Heroism",
+   "ja": "ヒロイズム"
+  },
+  "level": 1,
+  "school": "enchantment",
+  "classes": [
+   "bard",
+   "paladin"
+  ],
+  "ritual": false,
+  "concentration": true,
+  "time": "action",
+  "rounds": 10,
+  "effects": [
+   {
+    "type": "temp_hp",
+    "dice": "MOD",
+    "by_level": {}
+   }
+  ],
+  "status": "ok",
+  "target": "ally",
+  "use": [
+   "combat"
+  ],
+  "icon": "buff"
+ },
+ {
+  "id": "hideous_laughter",
+  "name": {
+   "en": "Hideous Laughter",
+   "ja": "ヒディアス・ラフター"
+  },
+  "level": 1,
+  "school": "enchantment",
+  "classes": [
+   "bard",
+   "wizard"
+  ],
+  "ritual": false,
+  "concentration": true,
+  "time": "action",
+  "rounds": 10,
+  "effects": [
+   {
+    "type": "save",
+    "ability": "wis",
+    "fail": [
+     {
+      "type": "condition",
+      "condition": "prone"
+     },
+     {
+      "type": "condition",
+      "condition": "incapacitated",
+      "rounds": 10,
+      "repeat_save": true
+     }
+    ]
+   }
+  ],
+  "status": "ok",
+  "target": "enemy",
+  "use": [
+   "combat"
+  ],
+  "icon": "debuff"
+ },
+ {
+  "id": "hunters_mark",
+  "name": {
+   "en": "Hunter's Mark",
+   "ja": "ハンターズ・マーク"
+  },
+  "level": 1,
+  "school": "divination",
+  "classes": [
+   "ranger"
+  ],
+  "ritual": false,
+  "concentration": true,
+  "time": "bonus",
+  "rounds": 600,
+  "effects": [],
+  "status": "unsupported",
+  "use": [
+   "combat"
+  ],
+  "icon": "buff"
+ },
+ {
+  "id": "identify",
+  "name": {
+   "en": "Identify",
+   "ja": "アイデンティファイ"
+  },
+  "level": 1,
+  "school": "divination",
+  "classes": [
+   "bard",
+   "wizard"
+  ],
+  "ritual": true,
+  "concentration": false,
+  "time": "long",
+  "rounds": 0,
+  "use": [
+   "camp"
+  ],
+  "effects": [
+   {
+    "type": "identify"
+   }
+  ],
+  "status": "ok",
+  "target": "ally",
+  "note": "選んだ人の、まだ分からない持ち物を1つ鑑定する",
+  "icon": "identify"
+ },
+ {
+  "id": "illusory_script",
+  "name": {
+   "en": "Illusory Script",
+   "ja": "イルーソリー・スクリプト"
+  },
+  "level": 1,
+  "school": "illusion",
+  "classes": [
+   "bard",
+   "warlock",
+   "wizard"
+  ],
+  "ritual": true,
+  "concentration": false,
+  "time": "long",
+  "rounds": 600,
+  "use": [
+   "camp"
+  ],
+  "effects": [],
+  "status": "roleplay",
+  "icon": "buff"
+ },
+ {
+  "id": "inflict_wounds",
+  "name": {
+   "en": "Inflict Wounds",
+   "ja": "インフリクト・ウーンズ"
+  },
+  "level": 1,
+  "school": "necromancy",
+  "classes": [
+   "cleric"
+  ],
+  "ritual": false,
+  "concentration": false,
+  "time": "action",
+  "rounds": 0,
+  "scale": "slot",
+  "attack": "melee",
+  "target": "enemy",
+  "effects": [
+   {
+    "type": "damage",
+    "dice": "3d10",
+    "damage_type": "necrotic",
+    "by_level": {
+     "1": "3d10",
+     "2": "4d10",
+     "3": "5d10",
+     "4": "6d10",
+     "5": "7d10",
+     "6": "8d10",
+     "7": "9d10",
+     "8": "10d10",
+     "9": "11d10"
+    }
+   }
+  ],
+  "status": "ok",
+  "use": [
+   "combat"
+  ],
+  "icon": "necrotic"
+ },
+ {
+  "id": "jump",
+  "name": {
+   "en": "Jump",
+   "ja": "ジャンプ"
+  },
+  "level": 1,
+  "school": "transmutation",
+  "classes": [
+   "druid",
+   "ranger",
+   "sorcerer",
+   "wizard"
+  ],
+  "ritual": false,
+  "concentration": false,
+  "time": "action",
+  "rounds": 10,
+  "effects": [],
+  "status": "unsupported",
+  "use": [
+   "combat"
+  ],
+  "icon": "buff"
+ },
+ {
+  "id": "longstrider",
+  "name": {
+   "en": "Longstrider",
+   "ja": "ロングストライダー"
+  },
+  "level": 1,
+  "school": "transmutation",
+  "classes": [
+   "bard",
+   "druid",
+   "ranger",
+   "wizard"
+  ],
+  "ritual": false,
+  "concentration": false,
+  "time": "action",
+  "rounds": 600,
+  "effects": [],
+  "status": "unsupported",
+  "use": [
+   "combat"
+  ],
+  "icon": "buff"
+ },
+ {
+  "id": "mage_armor",
+  "name": {
+   "en": "Mage Armor",
+   "ja": "メイジ・アーマー"
+  },
+  "level": 1,
+  "school": "abjuration",
+  "classes": [
+   "sorcerer",
+   "wizard"
+  ],
+  "ritual": false,
+  "concentration": false,
+  "time": "action",
+  "rounds": 4800,
+  "effects": [
+   {
+    "type": "modifier",
+    "stat": "ac",
+    "value": 3,
+    "rounds": 4800
+   }
+  ],
+  "status": "ok",
+  "target": "ally",
+  "use": [
+   "combat"
+  ],
+  "icon": "protect"
+ },
+ {
+  "id": "magic_missile",
+  "name": {
+   "en": "Magic Missile",
+   "ja": "マジック・ミサイル"
+  },
+  "level": 1,
+  "school": "evocation",
+  "classes": [
+   "sorcerer",
+   "wizard"
+  ],
+  "ritual": false,
+  "concentration": false,
+  "time": "action",
+  "rounds": 0,
+  "scale": "slot",
+  "target": "enemy",
+  "effects": [
+   {
+    "type": "damage",
+    "dice": "3d4+3",
+    "damage_type": "force",
+    "by_level": {
+     "1": "3d4+3",
+     "2": "4d4+4",
+     "3": "5d4+5",
+     "4": "6d4+6",
+     "5": "7d4+7",
+     "6": "8d4+8",
+     "7": "9d4+9",
+     "8": "10d4+10",
+     "9": "11d4+11"
+    }
+   }
+  ],
+  "status": "ok",
+  "use": [
+   "combat"
+  ],
+  "icon": "force"
+ },
+ {
+  "id": "protection_from_evil_and_good",
+  "name": {
+   "en": "Protection from Evil and Good",
+   "ja": "プロテクション・フロム・イーヴル・アンド・グッド"
+  },
+  "level": 1,
+  "school": "abjuration",
+  "classes": [
+   "cleric",
+   "paladin",
+   "warlock",
+   "wizard"
+  ],
+  "ritual": false,
+  "concentration": true,
+  "time": "action",
+  "rounds": 100,
+  "effects": [],
+  "status": "unsupported",
+  "use": [
+   "combat"
+  ],
+  "icon": "buff"
+ },
+ {
+  "id": "purify_food_and_drink",
+  "name": {
+   "en": "Purify Food and Drink",
+   "ja": "ピュリファイ・フード・アンド・ドリンク"
+  },
+  "level": 1,
+  "school": "transmutation",
+  "classes": [
+   "cleric",
+   "druid",
+   "paladin"
+  ],
+  "ritual": true,
+  "concentration": false,
+  "time": "action",
+  "rounds": 0,
+  "effects": [],
+  "status": "unsupported",
+  "use": [
+   "combat"
+  ],
+  "icon": "buff"
+ },
+ {
+  "id": "sanctuary",
+  "name": {
+   "en": "Sanctuary",
+   "ja": "サンクチュアリ"
+  },
+  "level": 1,
+  "school": "abjuration",
+  "classes": [
+   "cleric"
+  ],
+  "ritual": false,
+  "concentration": false,
+  "time": "bonus",
+  "rounds": 10,
+  "effects": [],
+  "status": "unsupported",
+  "use": [
+   "combat"
+  ],
+  "icon": "buff"
+ },
+ {
+  "id": "shield",
+  "name": {
+   "en": "Shield",
+   "ja": "シールド"
+  },
+  "level": 1,
+  "school": "abjuration",
+  "classes": [
+   "sorcerer",
+   "wizard"
+  ],
+  "ritual": false,
+  "concentration": false,
+  "time": "reaction",
+  "rounds": 1,
+  "effects": [],
+  "status": "later",
+  "note": "リアクション(事前の設定で自動で使う)",
+  "use": [
+   "combat"
+  ],
+  "icon": "buff"
+ },
+ {
+  "id": "shield_of_faith",
+  "name": {
+   "en": "Shield of Faith",
+   "ja": "シールド・オヴ・フェイス"
+  },
+  "level": 1,
+  "school": "abjuration",
+  "classes": [
+   "cleric",
+   "paladin"
+  ],
+  "ritual": false,
+  "concentration": true,
+  "time": "bonus",
+  "rounds": 100,
+  "effects": [
+   {
+    "type": "modifier",
+    "stat": "ac",
+    "value": 2,
+    "rounds": 100
+   }
+  ],
+  "status": "ok",
+  "target": "ally",
+  "use": [
+   "combat"
+  ],
+  "icon": "protect"
+ },
+ {
+  "id": "silent_image",
+  "name": {
+   "en": "Silent Image",
+   "ja": "サイレント・イメージ"
+  },
+  "level": 1,
+  "school": "illusion",
+  "classes": [
+   "bard",
+   "sorcerer",
+   "wizard"
+  ],
+  "ritual": false,
+  "concentration": true,
+  "time": "action",
+  "rounds": 100,
+  "effects": [],
+  "status": "roleplay",
+  "use": [
+   "combat"
+  ],
+  "icon": "buff"
+ },
+ {
+  "id": "sleep",
+  "name": {
+   "en": "Sleep",
+   "ja": "スリープ"
+  },
+  "level": 1,
+  "school": "enchantment",
+  "classes": [
+   "bard",
+   "sorcerer",
+   "wizard"
+  ],
+  "ritual": false,
+  "concentration": false,
+  "time": "action",
+  "rounds": 10,
+  "effects": [
+   {
+    "type": "hp_pool",
+    "condition": "unconscious",
+    "rounds": 10,
+    "dice": "5d8",
+    "by_level": {
+     "1": "5d8",
+     "2": "7d8",
+     "3": "9d8",
+     "4": "11d8",
+     "5": "13d8",
+     "6": "15d8",
+     "7": "17d8",
+     "8": "19d8",
+     "9": "21d8"
+    }
+   }
+  ],
+  "status": "ok",
+  "target": "group",
+  "scale": "slot",
+  "use": [
+   "combat"
+  ],
+  "icon": "debuff"
+ },
+ {
+  "id": "speak_with_animals",
+  "name": {
+   "en": "Speak with Animals",
+   "ja": "スピーク・ウィズ・アニマルズ"
+  },
+  "level": 1,
+  "school": "divination",
+  "classes": [
+   "bard",
+   "druid",
+   "ranger"
+  ],
+  "ritual": true,
+  "concentration": false,
+  "time": "action",
+  "rounds": 100,
+  "effects": [],
+  "status": "roleplay",
+  "use": [
+   "combat"
+  ],
+  "icon": "buff"
+ },
+ {
+  "id": "thunderwave",
+  "name": {
+   "en": "Thunderwave",
+   "ja": "サンダーウェイヴ"
+  },
+  "level": 1,
+  "school": "evocation",
+  "classes": [
+   "bard",
+   "druid",
+   "sorcerer",
+   "wizard"
+  ],
+  "ritual": false,
+  "concentration": false,
+  "time": "action",
+  "rounds": 0,
+  "scale": "slot",
+  "target": "group",
+  "effects": [
+   {
+    "type": "save",
+    "ability": "con",
+    "fail": [
+     {
+      "type": "damage",
+      "dice": "2d8",
+      "damage_type": "thunder",
+      "by_level": {
+       "1": "2d8",
+       "2": "3d8",
+       "3": "4d8",
+       "4": "5d8",
+       "5": "6d8",
+       "6": "7d8",
+       "7": "8d8",
+       "8": "9d8",
+       "9": "10d8"
+      }
+     }
+    ],
+    "half": true
+   }
+  ],
+  "status": "ok",
+  "use": [
+   "combat"
+  ],
+  "icon": "thunder"
+ },
+ {
+  "id": "unseen_servant",
+  "name": {
+   "en": "Unseen Servant",
+   "ja": "アンシーン・サーヴァント"
+  },
+  "level": 1,
+  "school": "conjuration",
+  "classes": [
+   "bard",
+   "warlock",
+   "wizard"
+  ],
+  "ritual": true,
+  "concentration": false,
+  "time": "action",
+  "rounds": 600,
+  "effects": [],
+  "status": "unsupported",
+  "use": [
+   "combat"
+  ],
+  "icon": "buff"
+ },
+ {
+  "id": "acid_arrow",
+  "name": {
+   "en": "Acid Arrow",
+   "ja": "アシッド・アロー"
+  },
+  "level": 2,
+  "school": "evocation",
+  "classes": [
+   "wizard"
+  ],
+  "ritual": false,
+  "concentration": false,
+  "time": "action",
+  "rounds": 0,
+  "scale": "slot",
+  "attack": "ranged",
+  "target": "enemy",
+  "effects": [
+   {
+    "type": "damage",
+    "dice": "4d4",
+    "damage_type": "acid",
+    "by_level": {
+     "2": "4d4",
+     "3": "5d4",
+     "4": "6d4",
+     "5": "7d4",
+     "6": "8d4",
+     "7": "9d4",
+     "8": "10d4",
+     "9": "11d4"
+    }
+   }
+  ],
+  "status": "ok",
+  "use": [
+   "combat"
+  ],
+  "icon": "acid"
+ },
+ {
+  "id": "aid",
+  "name": {
+   "en": "Aid",
+   "ja": "エイド"
+  },
+  "level": 2,
+  "school": "abjuration",
+  "classes": [
+   "cleric",
+   "paladin"
+  ],
+  "ritual": false,
+  "concentration": false,
+  "time": "action",
+  "rounds": 4800,
+  "scale": "slot",
+  "use": [
+   "combat",
+   "camp"
+  ],
+  "target": "allies",
+  "effects": [
+   {
+    "type": "temp_hp",
+    "dice": "5",
+    "by_level": {
+     "2": "5",
+     "3": "10",
+     "4": "15",
+     "5": "20",
+     "6": "25",
+     "7": "30",
+     "8": "35",
+     "9": "40"
+    }
+   }
+  ],
+  "status": "ok",
+  "count": 3,
+  "icon": "buff"
+ },
+ {
+  "id": "alter_self",
+  "name": {
+   "en": "Alter Self",
+   "ja": "オルター・セルフ"
+  },
+  "level": 2,
+  "school": "transmutation",
+  "classes": [
+   "sorcerer",
+   "wizard"
+  ],
+  "ritual": false,
+  "concentration": true,
+  "time": "action",
+  "rounds": 600,
+  "effects": [],
+  "status": "unsupported",
+  "use": [
+   "combat"
+  ],
+  "icon": "buff"
+ },
+ {
+  "id": "animal_messenger",
+  "name": {
+   "en": "Animal Messenger",
+   "ja": "アニマル・メッセンジャー"
+  },
+  "level": 2,
+  "school": "enchantment",
+  "classes": [
+   "bard",
+   "druid",
+   "ranger"
+  ],
+  "ritual": true,
+  "concentration": false,
+  "time": "action",
+  "rounds": 14400,
+  "effects": [],
+  "status": "roleplay",
+  "use": [
+   "combat"
+  ],
+  "icon": "buff"
+ },
+ {
+  "id": "arcane_lock",
+  "name": {
+   "en": "Arcane Lock",
+   "ja": "アーケイン・ロック"
+  },
+  "level": 2,
+  "school": "abjuration",
+  "classes": [
+   "wizard"
+  ],
+  "ritual": false,
+  "concentration": false,
+  "time": "action",
+  "rounds": 600,
+  "effects": [],
+  "status": "unsupported",
+  "use": [
+   "combat"
+  ],
+  "icon": "buff"
+ },
+ {
+  "id": "arcanists_magic_aura",
+  "name": {
+   "en": "Arcanist's Magic Aura",
+   "ja": "マジック・オーラ"
+  },
+  "level": 2,
+  "school": "illusion",
+  "classes": [
+   "wizard"
+  ],
+  "ritual": false,
+  "concentration": false,
+  "time": "action",
+  "rounds": 14400,
+  "effects": [],
+  "status": "unsupported",
+  "use": [
+   "combat"
+  ],
+  "icon": "buff"
+ },
+ {
+  "id": "augury",
+  "name": {
+   "en": "Augury",
+   "ja": "オーギュリー"
+  },
+  "level": 2,
+  "school": "divination",
+  "classes": [
+   "cleric"
+  ],
+  "ritual": true,
+  "concentration": false,
+  "time": "long",
+  "rounds": 0,
+  "use": [
+   "camp"
+  ],
+  "effects": [],
+  "status": "roleplay",
+  "icon": "buff"
+ },
+ {
+  "id": "barkskin",
+  "name": {
+   "en": "Barkskin",
+   "ja": "バークスキン"
+  },
+  "level": 2,
+  "school": "transmutation",
+  "classes": [
+   "druid",
+   "ranger"
+  ],
+  "ritual": false,
+  "concentration": true,
+  "time": "action",
+  "rounds": 600,
+  "effects": [
+   {
+    "type": "modifier",
+    "stat": "ac",
+    "value": 2,
+    "rounds": 600
+   }
+  ],
+  "status": "ok",
+  "target": "ally",
+  "use": [
+   "combat"
+  ],
+  "icon": "protect"
+ },
+ {
+  "id": "blindness_deafness",
+  "name": {
+   "en": "Blindness/Deafness",
+   "ja": "ブラインドネス／デフネス"
+  },
+  "level": 2,
+  "school": "necromancy",
+  "classes": [
+   "bard",
+   "cleric",
+   "sorcerer",
+   "wizard"
+  ],
+  "ritual": false,
+  "concentration": false,
+  "time": "action",
+  "rounds": 10,
+  "effects": [
+   {
+    "type": "save",
+    "ability": "con",
+    "fail": [
+     {
+      "type": "condition",
+      "condition": "blinded",
+      "rounds": 10,
+      "repeat_save": true
+     }
+    ]
+   }
+  ],
+  "status": "ok",
+  "target": "enemy",
+  "use": [
+   "combat"
+  ],
+  "icon": "debuff"
+ },
+ {
+  "id": "blur",
+  "name": {
+   "en": "Blur",
+   "ja": "ブラー"
+  },
+  "level": 2,
+  "school": "illusion",
+  "classes": [
+   "sorcerer",
+   "wizard"
+  ],
+  "ritual": false,
+  "concentration": true,
+  "time": "action",
+  "rounds": 10,
+  "effects": [
+   {
+    "type": "modifier",
+    "stat": "ac",
+    "value": 4,
+    "rounds": 10
+   }
+  ],
+  "status": "ok",
+  "target": "self",
+  "note": "不利を AC +4 で近似",
+  "use": [
+   "combat"
+  ],
+  "icon": "protect"
+ },
+ {
+  "id": "branding_smite",
+  "name": {
+   "en": "Branding Smite",
+   "ja": "ブランディング・スマイト"
+  },
+  "level": 2,
+  "school": "evocation",
+  "classes": [
+   "paladin"
+  ],
+  "ritual": false,
+  "concentration": true,
+  "time": "bonus",
+  "rounds": 10,
+  "scale": "slot",
+  "target": "enemy",
+  "effects": [
+   {
+    "type": "damage",
+    "dice": "2d6",
+    "damage_type": "radiant",
+    "by_level": {
+     "2": "2d6",
+     "3": "3d6",
+     "4": "4d6",
+     "5": "5d6",
+     "6": "6d6",
+     "7": "7d6",
+     "8": "8d6",
+     "9": "9d6"
+    }
+   }
+  ],
+  "status": "ok",
+  "use": [
+   "combat"
+  ],
+  "icon": "radiant"
+ },
+ {
+  "id": "calm_emotions",
+  "name": {
+   "en": "Calm Emotions",
+   "ja": "カーム・エモーションズ"
+  },
+  "level": 2,
+  "school": "enchantment",
+  "classes": [
+   "bard",
+   "cleric"
+  ],
+  "ritual": false,
+  "concentration": true,
+  "time": "action",
+  "rounds": 10,
+  "effects": [],
+  "status": "roleplay",
+  "use": [
+   "combat"
+  ],
+  "icon": "buff"
+ },
+ {
+  "id": "continual_flame",
+  "name": {
+   "en": "Continual Flame",
+   "ja": "コンティニュアル・フレイム"
+  },
+  "level": 2,
+  "school": "evocation",
+  "classes": [
+   "cleric",
+   "wizard"
+  ],
+  "ritual": false,
+  "concentration": false,
+  "time": "action",
+  "rounds": 600,
+  "effects": [
+   {
+    "type": "light",
+    "value": 480
+   }
+  ],
+  "status": "ok",
+  "target": "self",
+  "use": [
+   "camp"
+  ],
+  "note": "5版ではずっと。ここでは 8 時間",
+  "icon": "light"
+ },
+ {
+  "id": "darkness",
+  "name": {
+   "en": "Darkness",
+   "ja": "ダークネス"
+  },
+  "level": 2,
+  "school": "evocation",
+  "classes": [
+   "sorcerer",
+   "warlock",
+   "wizard"
+  ],
+  "ritual": false,
+  "concentration": true,
+  "time": "action",
+  "rounds": 100,
+  "effects": [],
+  "status": "later",
+  "use": [
+   "combat"
+  ],
+  "icon": "buff"
+ },
+ {
+  "id": "darkvision",
+  "name": {
+   "en": "Darkvision",
+   "ja": "ダークヴィジョン"
+  },
+  "level": 2,
+  "school": "transmutation",
+  "classes": [
+   "druid",
+   "ranger",
+   "sorcerer",
+   "wizard"
+  ],
+  "ritual": false,
+  "concentration": false,
+  "time": "action",
+  "rounds": 4800,
+  "effects": [],
+  "status": "unsupported",
+  "use": [
+   "combat"
+  ],
+  "icon": "buff"
+ },
+ {
+  "id": "detect_thoughts",
+  "name": {
+   "en": "Detect Thoughts",
+   "ja": "ディテクト・ソウツ"
+  },
+  "level": 2,
+  "school": "divination",
+  "classes": [
+   "bard",
+   "sorcerer",
+   "wizard"
+  ],
+  "ritual": false,
+  "concentration": true,
+  "time": "action",
+  "rounds": 10,
+  "effects": [],
+  "status": "roleplay",
+  "use": [
+   "combat"
+  ],
+  "icon": "buff"
+ },
+ {
+  "id": "enhance_ability",
+  "name": {
+   "en": "Enhance Ability",
+   "ja": "エンハンス・アビリティ"
+  },
+  "level": 2,
+  "school": "transmutation",
+  "classes": [
+   "bard",
+   "cleric",
+   "druid",
+   "sorcerer"
+  ],
+  "ritual": false,
+  "concentration": true,
+  "time": "action",
+  "rounds": 600,
+  "effects": [],
+  "status": "unsupported",
+  "use": [
+   "combat"
+  ],
+  "icon": "buff"
+ },
+ {
+  "id": "enlarge_reduce",
+  "name": {
+   "en": "Enlarge/Reduce",
+   "ja": "エンラージ／リデュース"
+  },
+  "level": 2,
+  "school": "transmutation",
+  "classes": [
+   "sorcerer",
+   "wizard"
+  ],
+  "ritual": false,
+  "concentration": true,
+  "time": "action",
+  "rounds": 10,
+  "effects": [
+   {
+    "type": "modifier",
+    "stat": "damage",
+    "dice": "1d4",
+    "rounds": 10
+   }
+  ],
+  "status": "ok",
+  "target": "ally",
+  "note": "拡大だけ(ダメージ +1d4)",
+  "use": [
+   "combat"
+  ],
+  "icon": "buff"
+ },
+ {
+  "id": "enthrall",
+  "name": {
+   "en": "Enthrall",
+   "ja": "エンスロール"
+  },
+  "level": 2,
+  "school": "enchantment",
+  "classes": [
+   "bard",
+   "warlock"
+  ],
+  "ritual": false,
+  "concentration": false,
+  "time": "action",
+  "rounds": 10,
+  "effects": [],
+  "status": "roleplay",
+  "use": [
+   "combat"
+  ],
+  "icon": "buff"
+ },
+ {
+  "id": "find_steed",
+  "name": {
+   "en": "Find Steed",
+   "ja": "ファインド・スティード"
+  },
+  "level": 2,
+  "school": "conjuration",
+  "classes": [
+   "paladin"
+  ],
+  "ritual": false,
+  "concentration": false,
+  "time": "long",
+  "rounds": 0,
+  "use": [
+   "camp"
+  ],
+  "effects": [],
+  "status": "unsupported",
+  "icon": "buff"
+ },
+ {
+  "id": "find_traps",
+  "name": {
+   "en": "Find Traps",
+   "ja": "ファインド・トラップス"
+  },
+  "level": 2,
+  "school": "divination",
+  "classes": [
+   "cleric",
+   "druid",
+   "ranger"
+  ],
+  "ritual": false,
+  "concentration": false,
+  "time": "action",
+  "rounds": 0,
+  "effects": [],
+  "status": "later",
+  "note": "宝箱の罠(M5)",
+  "use": [
+   "combat"
+  ],
+  "icon": "buff"
+ },
+ {
+  "id": "flame_blade",
+  "name": {
+   "en": "Flame Blade",
+   "ja": "フレイム・ブレード"
+  },
+  "level": 2,
+  "school": "evocation",
+  "classes": [
+   "druid"
+  ],
+  "ritual": false,
+  "concentration": true,
+  "time": "bonus",
+  "rounds": 100,
+  "scale": "slot",
+  "target": "enemy",
+  "effects": [
+   {
+    "type": "damage",
+    "dice": "3d6",
+    "damage_type": "fire",
+    "by_level": {
+     "2": "3d6",
+     "4": "4d6",
+     "6": "5d6",
+     "8": "6d6"
+    }
+   }
+  ],
+  "status": "ok",
+  "use": [
+   "combat"
+  ],
+  "icon": "fire"
+ },
+ {
+  "id": "flaming_sphere",
+  "name": {
+   "en": "Flaming Sphere",
+   "ja": "フレイミング・スフィア"
+  },
+  "level": 2,
+  "school": "conjuration",
+  "classes": [
+   "druid",
+   "wizard"
+  ],
+  "ritual": false,
+  "concentration": true,
+  "time": "action",
+  "rounds": 10,
+  "scale": "slot",
+  "target": "enemy",
+  "effects": [
+   {
+    "type": "damage",
+    "dice": "2d6",
+    "damage_type": "fire",
+    "by_level": {
+     "2": "2d6",
+     "3": "3d6",
+     "4": "4d6",
+     "5": "5d6",
+     "6": "6d6",
+     "7": "7d6",
+     "8": "8d6",
+     "9": "9d6"
+    }
+   }
+  ],
+  "status": "ok",
+  "use": [
+   "combat"
+  ],
+  "icon": "fire"
+ },
+ {
+  "id": "gentle_repose",
+  "name": {
+   "en": "Gentle Repose",
+   "ja": "ジェントル・リポーズ"
+  },
+  "level": 2,
+  "school": "necromancy",
+  "classes": [
+   "cleric",
+   "wizard"
+  ],
+  "ritual": true,
+  "concentration": false,
+  "time": "action",
+  "rounds": 600,
+  "effects": [],
+  "status": "unsupported",
+  "use": [
+   "combat"
+  ],
+  "icon": "buff"
+ },
+ {
+  "id": "gust_of_wind",
+  "name": {
+   "en": "Gust of Wind",
+   "ja": "ガスト・オヴ・ウィンド"
+  },
+  "level": 2,
+  "school": "evocation",
+  "classes": [
+   "druid",
+   "sorcerer",
+   "wizard"
+  ],
+  "ritual": false,
+  "concentration": true,
+  "time": "action",
+  "rounds": 10,
+  "effects": [],
+  "status": "unsupported",
+  "use": [
+   "combat"
+  ],
+  "icon": "buff"
+ },
+ {
+  "id": "heat_metal",
+  "name": {
+   "en": "Heat Metal",
+   "ja": "ヒート・メタル"
+  },
+  "level": 2,
+  "school": "transmutation",
+  "classes": [
+   "bard",
+   "druid"
+  ],
+  "ritual": false,
+  "concentration": true,
+  "time": "action",
+  "rounds": 10,
+  "scale": "slot",
+  "target": "enemy",
+  "effects": [
+   {
+    "type": "save",
+    "ability": "con",
+    "fail": [
+     {
+      "type": "damage",
+      "dice": "2d8",
+      "damage_type": "fire",
+      "by_level": {
+       "2": "2d8",
+       "3": "3d8",
+       "4": "4d8",
+       "5": "5d8",
+       "6": "6d8",
+       "7": "7d8",
+       "8": "8d8",
+       "9": "9d8"
+      }
+     }
+    ]
+   }
+  ],
+  "status": "ok",
+  "use": [
+   "combat"
+  ],
+  "icon": "fire"
+ },
+ {
+  "id": "hold_person",
+  "name": {
+   "en": "Hold Person",
+   "ja": "ホールド・パーソン"
+  },
+  "level": 2,
+  "school": "enchantment",
+  "classes": [
+   "bard",
+   "cleric",
+   "druid",
+   "sorcerer",
+   "warlock",
+   "wizard"
+  ],
+  "ritual": false,
+  "concentration": true,
+  "time": "action",
+  "rounds": 10,
+  "effects": [
+   {
+    "type": "save",
+    "ability": "wis",
+    "fail": [
+     {
+      "type": "condition",
+      "condition": "paralyzed",
+      "rounds": 10,
+      "repeat_save": true
+     }
+    ]
+   }
+  ],
+  "status": "ok",
+  "target": "enemy",
+  "only": "humanoid",
+  "use": [
+   "combat"
+  ],
+  "icon": "debuff"
+ },
+ {
+  "id": "invisibility",
+  "name": {
+   "en": "Invisibility",
+   "ja": "インヴィジビリティ"
+  },
+  "level": 2,
+  "school": "illusion",
+  "classes": [
+   "bard",
+   "sorcerer",
+   "warlock",
+   "wizard"
+  ],
+  "ritual": false,
+  "concentration": true,
+  "time": "action",
+  "rounds": 10,
+  "effects": [
+   {
+    "type": "condition",
+    "condition": "invisible",
+    "rounds": 2
+   }
+  ],
+  "status": "ok",
+  "target": "ally",
+  "note": "攻撃すると解ける代わりに、2 ラウンドで切れる(近似)",
+  "use": [
+   "combat"
+  ],
+  "icon": "buff"
+ },
+ {
+  "id": "knock",
+  "name": {
+   "en": "Knock",
+   "ja": "ノック"
+  },
+  "level": 2,
+  "school": "transmutation",
+  "classes": [
+   "bard",
+   "sorcerer",
+   "wizard"
+  ],
+  "ritual": false,
+  "concentration": false,
+  "time": "action",
+  "rounds": 0,
+  "effects": [
+   {
+    "type": "knock"
+   }
+  ],
+  "status": "ok",
+  "target": "self",
+  "use": [
+   "maze"
+  ],
+  "note": "錠のある扉の前で唱えると開く",
+  "icon": "unlock"
+ },
+ {
+  "id": "lesser_restoration",
+  "name": {
+   "en": "Lesser Restoration",
+   "ja": "レッサー・レストレーション"
+  },
+  "level": 2,
+  "school": "abjuration",
+  "classes": [
+   "bard",
+   "cleric",
+   "druid",
+   "paladin",
+   "ranger"
+  ],
+  "ritual": false,
+  "concentration": false,
+  "time": "action",
+  "rounds": 0,
+  "effects": [
+   {
+    "type": "remove_condition",
+    "condition": "blinded"
+   },
+   {
+    "type": "remove_condition",
+    "condition": "deafened"
+   },
+   {
+    "type": "remove_condition",
+    "condition": "paralyzed"
+   },
+   {
+    "type": "remove_condition",
+    "condition": "poisoned"
+   }
+  ],
+  "status": "ok",
+  "target": "ally",
+  "use": [
+   "combat",
+   "camp"
+  ],
+  "icon": "cure"
+ },
+ {
+  "id": "levitate",
+  "name": {
+   "en": "Levitate",
+   "ja": "レヴィテート"
+  },
+  "level": 2,
+  "school": "transmutation",
+  "classes": [
+   "sorcerer",
+   "wizard"
+  ],
+  "ritual": false,
+  "concentration": true,
+  "time": "action",
+  "rounds": 100,
+  "effects": [],
+  "status": "unsupported",
+  "use": [
+   "combat"
+  ],
+  "icon": "buff"
+ },
+ {
+  "id": "locate_animals_or_plants",
+  "name": {
+   "en": "Locate Animals or Plants",
+   "ja": "ロケート・アニマルズ・オア・プランツ"
+  },
+  "level": 2,
+  "school": "divination",
+  "classes": [
+   "bard",
+   "druid",
+   "ranger"
+  ],
+  "ritual": true,
+  "concentration": false,
+  "time": "action",
+  "rounds": 0,
+  "effects": [],
+  "status": "unsupported",
+  "use": [
+   "combat"
+  ],
+  "icon": "buff"
+ },
+ {
+  "id": "locate_object",
+  "name": {
+   "en": "Locate Object",
+   "ja": "ロケート・オブジェクト"
+  },
+  "level": 2,
+  "school": "divination",
+  "classes": [
+   "bard",
+   "cleric",
+   "druid",
+   "paladin",
+   "ranger",
+   "wizard"
+  ],
+  "ritual": false,
+  "concentration": true,
+  "time": "action",
+  "rounds": 100,
+  "effects": [],
+  "status": "later",
+  "use": [
+   "combat"
+  ],
+  "icon": "buff"
+ },
+ {
+  "id": "magic_mouth",
+  "name": {
+   "en": "Magic Mouth",
+   "ja": "マジック・マウス"
+  },
+  "level": 2,
+  "school": "illusion",
+  "classes": [
+   "bard",
+   "wizard"
+  ],
+  "ritual": true,
+  "concentration": false,
+  "time": "long",
+  "rounds": 600,
+  "use": [
+   "camp"
+  ],
+  "effects": [],
+  "status": "roleplay",
+  "icon": "buff"
+ },
+ {
+  "id": "magic_weapon",
+  "name": {
+   "en": "Magic Weapon",
+   "ja": "マジック・ウェポン"
+  },
+  "level": 2,
+  "school": "transmutation",
+  "classes": [
+   "paladin",
+   "wizard"
+  ],
+  "ritual": false,
+  "concentration": true,
+  "time": "bonus",
+  "rounds": 600,
+  "effects": [],
+  "status": "unsupported",
+  "use": [
+   "combat"
+  ],
+  "icon": "buff"
+ },
+ {
+  "id": "mirror_image",
+  "name": {
+   "en": "Mirror Image",
+   "ja": "ミラー・イメージ"
+  },
+  "level": 2,
+  "school": "illusion",
+  "classes": [
+   "sorcerer",
+   "warlock",
+   "wizard"
+  ],
+  "ritual": false,
+  "concentration": false,
+  "time": "action",
+  "rounds": 10,
+  "effects": [],
+  "status": "unsupported",
+  "use": [
+   "combat"
+  ],
+  "icon": "buff"
+ },
+ {
+  "id": "misty_step",
+  "name": {
+   "en": "Misty Step",
+   "ja": "ミスティ・ステップ"
+  },
+  "level": 2,
+  "school": "conjuration",
+  "classes": [
+   "sorcerer",
+   "warlock",
+   "wizard"
+  ],
+  "ritual": false,
+  "concentration": false,
+  "time": "bonus",
+  "rounds": 0,
+  "effects": [],
+  "status": "unsupported",
+  "use": [
+   "combat"
+  ],
+  "icon": "buff"
+ },
+ {
+  "id": "moonbeam",
+  "name": {
+   "en": "Moonbeam",
+   "ja": "ムーンビーム"
+  },
+  "level": 2,
+  "school": "evocation",
+  "classes": [
+   "druid"
+  ],
+  "ritual": false,
+  "concentration": true,
+  "time": "action",
+  "rounds": 10,
+  "scale": "slot",
+  "target": "group",
+  "effects": [
+   {
+    "type": "save",
+    "ability": "con",
+    "fail": [
+     {
+      "type": "damage",
+      "dice": "2d10",
+      "damage_type": "radiant",
+      "by_level": {
+       "2": "2d10",
+       "3": "3d10",
+       "4": "4d10",
+       "5": "5d10",
+       "6": "6d10",
+       "7": "7d10",
+       "8": "8d10",
+       "9": "9d10"
+      }
+     }
+    ],
+    "half": true
+   }
+  ],
+  "status": "ok",
+  "zone": true,
+  "use": [
+   "combat"
+  ],
+  "icon": "radiant"
+ },
+ {
+  "id": "pass_without_trace",
+  "name": {
+   "en": "Pass Without Trace",
+   "ja": "パス・ウィザウト・トレース"
+  },
+  "level": 2,
+  "school": "abjuration",
+  "classes": [
+   "druid",
+   "ranger"
+  ],
+  "ritual": false,
+  "concentration": true,
+  "time": "action",
+  "rounds": 600,
+  "effects": [],
+  "status": "unsupported",
+  "use": [
+   "combat"
+  ],
+  "icon": "buff"
+ },
+ {
+  "id": "prayer_of_healing",
+  "name": {
+   "en": "Prayer of Healing",
+   "ja": "プレイヤー・オヴ・ヒーリング"
+  },
+  "level": 2,
+  "school": "evocation",
+  "classes": [
+   "cleric"
+  ],
+  "ritual": false,
+  "concentration": false,
+  "time": "long",
+  "rounds": 0,
+  "scale": "slot",
+  "use": [
+   "camp"
+  ],
+  "target": "allies",
+  "effects": [
+   {
+    "type": "heal",
+    "dice": "2d8+MOD",
+    "by_level": {
+     "2": "2d8+MOD",
+     "3": "3d8+MOD",
+     "4": "4d8+MOD",
+     "5": "5d8+MOD",
+     "6": "6d8+MOD",
+     "7": "7d8+MOD",
+     "8": "8d8+MOD",
+     "9": "9d8+MOD"
+    }
+   }
+  ],
+  "status": "ok",
+  "icon": "heal"
+ },
+ {
+  "id": "protection_from_poison",
+  "name": {
+   "en": "Protection from Poison",
+   "ja": "プロテクション・フロム・ポイズン"
+  },
+  "level": 2,
+  "school": "abjuration",
+  "classes": [
+   "cleric",
+   "druid",
+   "paladin",
+   "ranger"
+  ],
+  "ritual": false,
+  "concentration": false,
+  "time": "action",
+  "rounds": 600,
+  "effects": [
+   {
+    "type": "remove_condition",
+    "condition": "poisoned"
+   }
+  ],
+  "status": "ok",
+  "target": "ally",
+  "use": [
+   "combat",
+   "camp"
+  ],
+  "icon": "cure"
+ },
+ {
+  "id": "ray_of_enfeeblement",
+  "name": {
+   "en": "Ray of Enfeeblement",
+   "ja": "レイ・オヴ・エンフィーブルメント"
+  },
+  "level": 2,
+  "school": "necromancy",
+  "classes": [
+   "warlock",
+   "wizard"
+  ],
+  "ritual": false,
+  "concentration": true,
+  "time": "action",
+  "rounds": 10,
+  "attack": "ranged",
+  "effects": [],
+  "status": "unsupported",
+  "use": [
+   "combat"
+  ],
+  "icon": "buff"
+ },
+ {
+  "id": "rope_trick",
+  "name": {
+   "en": "Rope Trick",
+   "ja": "ロープ・トリック"
+  },
+  "level": 2,
+  "school": "transmutation",
+  "classes": [
+   "wizard"
+  ],
+  "ritual": false,
+  "concentration": false,
+  "time": "action",
+  "rounds": 600,
+  "effects": [],
+  "status": "unsupported",
+  "use": [
+   "combat"
+  ],
+  "icon": "buff"
+ },
+ {
+  "id": "scorching_ray",
+  "name": {
+   "en": "Scorching Ray",
+   "ja": "スコーチング・レイ"
+  },
+  "level": 2,
+  "school": "evocation",
+  "classes": [
+   "sorcerer",
+   "wizard"
+  ],
+  "ritual": false,
+  "concentration": false,
+  "time": "action",
+  "rounds": 0,
+  "scale": "slot",
+  "target": "enemy",
+  "effects": [
+   {
+    "type": "damage",
+    "dice": "2d6",
+    "damage_type": "fire",
+    "by_level": {
+     "2": "2d6"
+    }
+   }
+  ],
+  "status": "ok",
+  "use": [
+   "combat"
+  ],
+  "icon": "fire"
+ },
+ {
+  "id": "see_invisibility",
+  "name": {
+   "en": "See Invisibility",
+   "ja": "シー・インヴィジビリティ"
+  },
+  "level": 2,
+  "school": "divination",
+  "classes": [
+   "bard",
+   "sorcerer",
+   "wizard"
+  ],
+  "ritual": false,
+  "concentration": false,
+  "time": "action",
+  "rounds": 600,
+  "effects": [],
+  "status": "unsupported",
+  "use": [
+   "combat"
+  ],
+  "icon": "buff"
+ },
+ {
+  "id": "shatter",
+  "name": {
+   "en": "Shatter",
+   "ja": "シャッター"
+  },
+  "level": 2,
+  "school": "evocation",
+  "classes": [
+   "bard",
+   "sorcerer",
+   "warlock",
+   "wizard"
+  ],
+  "ritual": false,
+  "concentration": false,
+  "time": "action",
+  "rounds": 0,
+  "scale": "slot",
+  "target": "group",
+  "effects": [
+   {
+    "type": "save",
+    "ability": "con",
+    "fail": [
+     {
+      "type": "damage",
+      "dice": "3d8",
+      "damage_type": "thunder",
+      "by_level": {
+       "2": "3d8",
+       "3": "4d8",
+       "4": "5d8",
+       "5": "6d8",
+       "6": "7d8",
+       "7": "8d8",
+       "8": "9d8",
+       "9": "10d8"
+      }
+     }
+    ],
+    "half": true
+   }
+  ],
+  "status": "ok",
+  "use": [
+   "combat"
+  ],
+  "icon": "thunder"
+ },
+ {
+  "id": "silence",
+  "name": {
+   "en": "Silence",
+   "ja": "サイレンス"
+  },
+  "level": 2,
+  "school": "illusion",
+  "classes": [
+   "bard",
+   "cleric",
+   "ranger"
+  ],
+  "ritual": true,
+  "concentration": true,
+  "time": "action",
+  "rounds": 100,
+  "effects": [],
+  "status": "unsupported",
+  "use": [
+   "combat"
+  ],
+  "icon": "buff"
+ },
+ {
+  "id": "spider_climb",
+  "name": {
+   "en": "Spider Climb",
+   "ja": "スパイダー・クライム"
+  },
+  "level": 2,
+  "school": "transmutation",
+  "classes": [
+   "sorcerer",
+   "warlock",
+   "wizard"
+  ],
+  "ritual": false,
+  "concentration": true,
+  "time": "action",
+  "rounds": 600,
+  "effects": [],
+  "status": "unsupported",
+  "use": [
+   "combat"
+  ],
+  "icon": "buff"
+ },
+ {
+  "id": "spike_growth",
+  "name": {
+   "en": "Spike Growth",
+   "ja": "スパイク・グロウス"
+  },
+  "level": 2,
+  "school": "transmutation",
+  "classes": [
+   "druid",
+   "ranger"
+  ],
+  "ritual": false,
+  "concentration": true,
+  "time": "action",
+  "rounds": 100,
+  "effects": [],
+  "status": "unsupported",
+  "use": [
+   "combat"
+  ],
+  "icon": "buff"
+ },
+ {
+  "id": "spiritual_weapon",
+  "name": {
+   "en": "Spiritual Weapon",
+   "ja": "スピリチュアル・ウェポン"
+  },
+  "level": 2,
+  "school": "evocation",
+  "classes": [
+   "cleric"
+  ],
+  "ritual": false,
+  "concentration": false,
+  "time": "bonus",
+  "rounds": 10,
+  "scale": "slot",
+  "attack": "melee",
+  "target": "enemy",
+  "effects": [
+   {
+    "type": "damage",
+    "dice": "1d8+MOD",
+    "damage_type": "force",
+    "by_level": {
+     "2": "1d8+MOD",
+     "3": "1d8+MOD",
+     "4": "2d8+MOD",
+     "5": "2d8+MOD",
+     "6": "3d8+MOD",
+     "7": "3d8+MOD",
+     "8": "4d8+MOD",
+     "9": "4d8+MOD"
+    }
+   }
+  ],
+  "status": "ok",
+  "use": [
+   "combat"
+  ],
+  "icon": "force"
+ },
+ {
+  "id": "suggestion",
+  "name": {
+   "en": "Suggestion",
+   "ja": "サジェスチョン"
+  },
+  "level": 2,
+  "school": "enchantment",
+  "classes": [
+   "bard",
+   "sorcerer",
+   "warlock",
+   "wizard"
+  ],
+  "ritual": false,
+  "concentration": true,
+  "time": "action",
+  "rounds": 4800,
+  "effects": [],
+  "status": "roleplay",
+  "use": [
+   "combat"
+  ],
+  "icon": "buff"
+ },
+ {
+  "id": "warding_bond",
+  "name": {
+   "en": "Warding Bond",
+   "ja": "ウォーディング・ボンド"
+  },
+  "level": 2,
+  "school": "abjuration",
+  "classes": [
+   "cleric"
+  ],
+  "ritual": false,
+  "concentration": false,
+  "time": "action",
+  "rounds": 600,
+  "effects": [],
+  "status": "unsupported",
+  "use": [
+   "combat"
+  ],
+  "icon": "buff"
+ },
+ {
+  "id": "web",
+  "name": {
+   "en": "Web",
+   "ja": "ウェブ"
+  },
+  "level": 2,
+  "school": "conjuration",
+  "classes": [
+   "sorcerer",
+   "wizard"
+  ],
+  "ritual": false,
+  "concentration": true,
+  "time": "action",
+  "rounds": 600,
+  "effects": [
+   {
+    "type": "save",
+    "ability": "dex",
+    "fail": [
+     {
+      "type": "condition",
+      "condition": "restrained",
+      "rounds": 600,
+      "escape_dc": 0
+     }
+    ]
+   }
+  ],
+  "status": "ok",
+  "target": "group",
+  "use": [
+   "combat"
+  ],
+  "icon": "debuff"
+ },
+ {
+  "id": "zone_of_truth",
+  "name": {
+   "en": "Zone of Truth",
+   "ja": "ゾーン・オヴ・トゥルース"
+  },
+  "level": 2,
+  "school": "enchantment",
+  "classes": [
+   "bard",
+   "cleric",
+   "paladin"
+  ],
+  "ritual": false,
+  "concentration": false,
+  "time": "action",
+  "rounds": 100,
+  "effects": [],
+  "status": "roleplay",
+  "use": [
+   "combat"
+  ],
+  "icon": "buff"
+ },
+ {
+  "id": "animate_dead",
+  "name": {
+   "en": "Animate Dead",
+   "ja": "アニメイト・デッド"
+  },
+  "level": 3,
+  "school": "necromancy",
+  "classes": [
+   "cleric",
+   "wizard"
+  ],
+  "ritual": false,
+  "concentration": false,
+  "time": "long",
+  "rounds": 0,
+  "use": [
+   "camp"
+  ],
+  "effects": [],
+  "status": "unsupported",
+  "icon": "buff"
+ },
+ {
+  "id": "beacon_of_hope",
+  "name": {
+   "en": "Beacon of Hope",
+   "ja": "ビーコン・オヴ・ホープ"
+  },
+  "level": 3,
+  "school": "abjuration",
+  "classes": [
+   "cleric"
+  ],
+  "ritual": false,
+  "concentration": true,
+  "time": "action",
+  "rounds": 10,
+  "effects": [
+   {
+    "type": "modifier",
+    "stat": "save",
+    "value": 3,
+    "rounds": 10
+   }
+  ],
+  "status": "ok",
+  "target": "allies",
+  "note": "判断力と死亡のセーヴの有利を、セーヴ +3 で近似",
+  "use": [
+   "combat"
+  ],
+  "icon": "buff"
+ },
+ {
+  "id": "bestow_curse",
+  "name": {
+   "en": "Bestow Curse",
+   "ja": "ビストウ・カース"
+  },
+  "level": 3,
+  "school": "necromancy",
+  "classes": [
+   "bard",
+   "cleric",
+   "wizard"
+  ],
+  "ritual": false,
+  "concentration": true,
+  "time": "action",
+  "rounds": 10,
+  "effects": [
+   {
+    "type": "save",
+    "ability": "wis",
+    "fail": [
+     {
+      "type": "modifier",
+      "stat": "attack",
+      "value": -5,
+      "rounds": 10
+     }
+    ]
+   }
+  ],
+  "status": "ok",
+  "target": "enemy",
+  "note": "命中 -5 で近似",
+  "use": [
+   "combat"
+  ],
+  "icon": "debuff"
+ },
+ {
+  "id": "blink",
+  "name": {
+   "en": "Blink",
+   "ja": "ブリンク"
+  },
+  "level": 3,
+  "school": "transmutation",
+  "classes": [
+   "sorcerer",
+   "wizard"
+  ],
+  "ritual": false,
+  "concentration": false,
+  "time": "action",
+  "rounds": 10,
+  "effects": [],
+  "status": "unsupported",
+  "use": [
+   "combat"
+  ],
+  "icon": "buff"
+ },
+ {
+  "id": "call_lightning",
+  "name": {
+   "en": "Call Lightning",
+   "ja": "コール・ライトニング"
+  },
+  "level": 3,
+  "school": "conjuration",
+  "classes": [
+   "druid"
+  ],
+  "ritual": false,
+  "concentration": true,
+  "time": "action",
+  "rounds": 100,
+  "scale": "slot",
+  "target": "group",
+  "effects": [
+   {
+    "type": "damage",
+    "dice": "3d10",
+    "damage_type": "lightning",
+    "by_level": {
+     "3": "3d10",
+     "4": "4d10",
+     "5": "5d10",
+     "6": "6d10",
+     "7": "7d10",
+     "8": "8d10",
+     "9": "9d10"
+    }
+   }
+  ],
+  "status": "ok",
+  "use": [
+   "combat"
+  ],
+  "icon": "lightning"
+ },
+ {
+  "id": "clairvoyance",
+  "name": {
+   "en": "Clairvoyance",
+   "ja": "クレアヴォイアンス"
+  },
+  "level": 3,
+  "school": "divination",
+  "classes": [
+   "bard",
+   "cleric",
+   "sorcerer",
+   "wizard"
+  ],
+  "ritual": false,
+  "concentration": true,
+  "time": "long",
+  "rounds": 100,
+  "use": [
+   "camp"
+  ],
+  "effects": [],
+  "status": "unsupported",
+  "icon": "buff"
+ },
+ {
+  "id": "conjure_animals",
+  "name": {
+   "en": "Conjure Animals",
+   "ja": "コンジュア・アニマルズ"
+  },
+  "level": 3,
+  "school": "conjuration",
+  "classes": [
+   "druid",
+   "ranger"
+  ],
+  "ritual": false,
+  "concentration": true,
+  "time": "action",
+  "rounds": 600,
+  "effects": [],
+  "status": "ok",
+  "target": "self",
+  "use": [
+   "combat"
+  ],
+  "icon": "buff",
+  "summon": {
+   "monster": "dire_wolf",
+   "count": 2,
+   "per_level": 1
+  },
+  "note": "ダイア・ウルフを呼ぶ(上のスロットで1体ずつ増える)"
+ },
+ {
+  "id": "counterspell",
+  "name": {
+   "en": "Counterspell",
+   "ja": "カウンタースペル"
+  },
+  "level": 3,
+  "school": "abjuration",
+  "classes": [
+   "sorcerer",
+   "warlock",
+   "wizard"
+  ],
+  "ritual": false,
+  "concentration": false,
+  "time": "reaction",
+  "rounds": 0,
+  "effects": [],
+  "status": "ok",
+  "target": "self",
+  "icon": "protect",
+  "note": "リアクション: 敵が 3 レベル以上の呪文を唱えると、スロットを使って自動で打ち消す(スロットが呪文のレベル以上なら必ず成功)",
+  "use": [
+   "combat"
+  ]
+ },
+ {
+  "id": "create_food_and_water",
+  "name": {
+   "en": "Create Food and Water",
+   "ja": "クリエイト・フード・アンド・ウォーター"
+  },
+  "level": 3,
+  "school": "conjuration",
+  "classes": [
+   "cleric",
+   "druid",
+   "paladin"
+  ],
+  "ritual": false,
+  "concentration": false,
+  "time": "action",
+  "rounds": 0,
+  "effects": [],
+  "status": "unsupported",
+  "use": [
+   "combat"
+  ],
+  "icon": "buff"
+ },
+ {
+  "id": "daylight",
+  "name": {
+   "en": "Daylight",
+   "ja": "デイライト"
+  },
+  "level": 3,
+  "school": "evocation",
+  "classes": [
+   "cleric",
+   "druid",
+   "paladin",
+   "ranger",
+   "sorcerer"
+  ],
+  "ritual": false,
+  "concentration": false,
+  "time": "action",
+  "rounds": 600,
+  "effects": [
+   {
+    "type": "light",
+    "value": 60
+   }
+  ],
+  "status": "ok",
+  "target": "self",
+  "use": [
+   "camp"
+  ],
+  "note": "1時間、魔法の暗闇も照らす",
+  "icon": "light"
+ },
+ {
+  "id": "dispel_magic",
+  "name": {
+   "en": "Dispel Magic",
+   "ja": "ディスペル・マジック"
+  },
+  "level": 3,
+  "school": "abjuration",
+  "classes": [
+   "bard",
+   "cleric",
+   "druid",
+   "paladin",
+   "sorcerer",
+   "warlock",
+   "wizard"
+  ],
+  "ritual": false,
+  "concentration": false,
+  "time": "action",
+  "rounds": 0,
+  "effects": [],
+  "status": "unsupported",
+  "use": [
+   "combat"
+  ],
+  "icon": "buff"
+ },
+ {
+  "id": "fear",
+  "name": {
+   "en": "Fear",
+   "ja": "フィアー"
+  },
+  "level": 3,
+  "school": "illusion",
+  "classes": [
+   "bard",
+   "sorcerer",
+   "warlock",
+   "wizard"
+  ],
+  "ritual": false,
+  "concentration": true,
+  "time": "action",
+  "rounds": 10,
+  "effects": [
+   {
+    "type": "save",
+    "ability": "wis",
+    "fail": [
+     {
+      "type": "condition",
+      "condition": "frightened",
+      "rounds": 10,
+      "repeat_save": true
+     }
+    ]
+   }
+  ],
+  "status": "ok",
+  "target": "group",
+  "use": [
+   "combat"
+  ],
+  "icon": "debuff"
+ },
+ {
+  "id": "fireball",
+  "name": {
+   "en": "Fireball",
+   "ja": "ファイアーボール"
+  },
+  "level": 3,
+  "school": "evocation",
+  "classes": [
+   "sorcerer",
+   "wizard"
+  ],
+  "ritual": false,
+  "concentration": false,
+  "time": "action",
+  "rounds": 0,
+  "scale": "slot",
+  "target": "group",
+  "effects": [
+   {
+    "type": "save",
+    "ability": "dex",
+    "fail": [
+     {
+      "type": "damage",
+      "dice": "8d6",
+      "damage_type": "fire",
+      "by_level": {
+       "3": "8d6",
+       "4": "9d6",
+       "5": "10d6",
+       "6": "11d6",
+       "7": "12d6",
+       "8": "13d6",
+       "9": "14d6"
+      }
+     }
+    ],
+    "half": true
+   }
+  ],
+  "status": "ok",
+  "use": [
+   "combat"
+  ],
+  "icon": "fire"
+ },
+ {
+  "id": "fly",
+  "name": {
+   "en": "Fly",
+   "ja": "フライ"
+  },
+  "level": 3,
+  "school": "transmutation",
+  "classes": [
+   "sorcerer",
+   "warlock",
+   "wizard"
+  ],
+  "ritual": false,
+  "concentration": true,
+  "time": "action",
+  "rounds": 100,
+  "effects": [],
+  "status": "unsupported",
+  "use": [
+   "combat"
+  ],
+  "icon": "buff"
+ },
+ {
+  "id": "gaseous_form",
+  "name": {
+   "en": "Gaseous Form",
+   "ja": "ガシアス・フォーム"
+  },
+  "level": 3,
+  "school": "transmutation",
+  "classes": [
+   "sorcerer",
+   "warlock",
+   "wizard"
+  ],
+  "ritual": false,
+  "concentration": true,
+  "time": "action",
+  "rounds": 600,
+  "effects": [],
+  "status": "unsupported",
+  "use": [
+   "combat"
+  ],
+  "icon": "buff"
+ },
+ {
+  "id": "glyph_of_warding",
+  "name": {
+   "en": "Glyph of Warding",
+   "ja": "グリフ・オヴ・ウォーディング"
+  },
+  "level": 3,
+  "school": "abjuration",
+  "classes": [
+   "bard",
+   "cleric",
+   "wizard"
+  ],
+  "ritual": false,
+  "concentration": false,
+  "time": "long",
+  "rounds": 600,
+  "use": [
+   "camp"
+  ],
+  "effects": [],
+  "status": "unsupported",
+  "icon": "buff"
+ },
+ {
+  "id": "haste",
+  "name": {
+   "en": "Haste",
+   "ja": "ヘイスト"
+  },
+  "level": 3,
+  "school": "transmutation",
+  "classes": [
+   "sorcerer",
+   "wizard"
+  ],
+  "ritual": false,
+  "concentration": true,
+  "time": "action",
+  "rounds": 10,
+  "effects": [
+   {
+    "type": "modifier",
+    "stat": "ac",
+    "value": 2,
+    "rounds": 10
+   },
+   {
+    "type": "modifier",
+    "stat": "attacks",
+    "value": 1,
+    "rounds": 10
+   }
+  ],
+  "status": "ok",
+  "icon": "buff",
+  "target": "ally",
+  "note": "AC +2 と攻撃 +1 回。切れたあとの気だるさは無し",
+  "use": [
+   "combat"
+  ]
+ },
+ {
+  "id": "hypnotic_pattern",
+  "name": {
+   "en": "Hypnotic Pattern",
+   "ja": "ヒプノティック・パターン"
+  },
+  "level": 3,
+  "school": "illusion",
+  "classes": [
+   "bard",
+   "sorcerer",
+   "warlock",
+   "wizard"
+  ],
+  "ritual": false,
+  "concentration": true,
+  "time": "action",
+  "rounds": 10,
+  "effects": [
+   {
+    "type": "save",
+    "ability": "wis",
+    "fail": [
+     {
+      "type": "condition",
+      "condition": "incapacitated",
+      "rounds": 10
+     }
+    ]
+   }
+  ],
+  "status": "ok",
+  "target": "group",
+  "use": [
+   "combat"
+  ],
+  "icon": "debuff"
+ },
+ {
+  "id": "lightning_bolt",
+  "name": {
+   "en": "Lightning Bolt",
+   "ja": "ライトニング・ボルト"
+  },
+  "level": 3,
+  "school": "evocation",
+  "classes": [
+   "sorcerer",
+   "wizard"
+  ],
+  "ritual": false,
+  "concentration": false,
+  "time": "action",
+  "rounds": 0,
+  "scale": "slot",
+  "target": "two_groups",
+  "effects": [
+   {
+    "type": "save",
+    "ability": "dex",
+    "fail": [
+     {
+      "type": "damage",
+      "dice": "8d6",
+      "damage_type": "lightning",
+      "by_level": {
+       "3": "8d6",
+       "4": "9d6",
+       "5": "10d6",
+       "6": "11d6",
+       "7": "12d6",
+       "8": "13d6",
+       "9": "14d6"
+      }
+     }
+    ],
+    "half": true
+   }
+  ],
+  "status": "ok",
+  "use": [
+   "combat"
+  ],
+  "icon": "lightning"
+ },
+ {
+  "id": "magic_circle",
+  "name": {
+   "en": "Magic Circle",
+   "ja": "マジック・サークル"
+  },
+  "level": 3,
+  "school": "abjuration",
+  "classes": [
+   "cleric",
+   "paladin",
+   "warlock",
+   "wizard"
+  ],
+  "ritual": false,
+  "concentration": false,
+  "time": "long",
+  "rounds": 600,
+  "use": [
+   "camp"
+  ],
+  "effects": [],
+  "status": "unsupported",
+  "icon": "buff"
+ },
+ {
+  "id": "major_image",
+  "name": {
+   "en": "Major Image",
+   "ja": "メジャー・イメージ"
+  },
+  "level": 3,
+  "school": "illusion",
+  "classes": [
+   "bard",
+   "sorcerer",
+   "warlock",
+   "wizard"
+  ],
+  "ritual": false,
+  "concentration": true,
+  "time": "action",
+  "rounds": 100,
+  "effects": [],
+  "status": "roleplay",
+  "use": [
+   "combat"
+  ],
+  "icon": "buff"
+ },
+ {
+  "id": "mass_healing_word",
+  "name": {
+   "en": "Mass Healing Word",
+   "ja": "マス・ヒーリング・ワード"
+  },
+  "level": 3,
+  "school": "evocation",
+  "classes": [
+   "cleric"
+  ],
+  "ritual": false,
+  "concentration": false,
+  "time": "bonus",
+  "rounds": 0,
+  "scale": "slot",
+  "use": [
+   "combat",
+   "camp"
+  ],
+  "target": "allies",
+  "effects": [
+   {
+    "type": "heal",
+    "dice": "1d4+MOD",
+    "by_level": {
+     "3": "1d4+MOD",
+     "4": "2d4+MOD",
+     "5": "3d4+MOD",
+     "6": "4d4+MOD",
+     "7": "5d4+MOD",
+     "8": "6d4+MOD",
+     "9": "7d4+MOD"
+    }
+   }
+  ],
+  "status": "ok",
+  "icon": "heal"
+ },
+ {
+  "id": "meld_into_stone",
+  "name": {
+   "en": "Meld Into Stone",
+   "ja": "メルド・イントゥ・ストーン"
+  },
+  "level": 3,
+  "school": "transmutation",
+  "classes": [
+   "cleric"
+  ],
+  "ritual": true,
+  "concentration": false,
+  "time": "action",
+  "rounds": 4800,
+  "effects": [],
+  "status": "unsupported",
+  "use": [
+   "combat"
+  ],
+  "icon": "buff"
+ },
+ {
+  "id": "nondetection",
+  "name": {
+   "en": "Nondetection",
+   "ja": "ノンディテクション"
+  },
+  "level": 3,
+  "school": "abjuration",
+  "classes": [
+   "bard",
+   "ranger",
+   "wizard"
+  ],
+  "ritual": false,
+  "concentration": false,
+  "time": "action",
+  "rounds": 4800,
+  "effects": [],
+  "status": "unsupported",
+  "use": [
+   "combat"
+  ],
+  "icon": "buff"
+ },
+ {
+  "id": "phantom_steed",
+  "name": {
+   "en": "Phantom Steed",
+   "ja": "ファントム・スティード"
+  },
+  "level": 3,
+  "school": "illusion",
+  "classes": [
+   "wizard"
+  ],
+  "ritual": true,
+  "concentration": false,
+  "time": "long",
+  "rounds": 600,
+  "use": [
+   "camp"
+  ],
+  "effects": [],
+  "status": "unsupported",
+  "icon": "buff"
+ },
+ {
+  "id": "plant_growth",
+  "name": {
+   "en": "Plant Growth",
+   "ja": "プラント・グロウス"
+  },
+  "level": 3,
+  "school": "transmutation",
+  "classes": [
+   "bard",
+   "druid",
+   "ranger"
+  ],
+  "ritual": false,
+  "concentration": false,
+  "time": "action",
+  "rounds": 0,
+  "effects": [],
+  "status": "unsupported",
+  "use": [
+   "combat"
+  ],
+  "icon": "buff"
+ },
+ {
+  "id": "protection_from_energy",
+  "name": {
+   "en": "Protection From Energy",
+   "ja": "プロテクション・フロム・エナジー"
+  },
+  "level": 3,
+  "school": "abjuration",
+  "classes": [
+   "cleric",
+   "druid",
+   "ranger",
+   "sorcerer",
+   "wizard"
+  ],
+  "ritual": false,
+  "concentration": true,
+  "time": "action",
+  "rounds": 600,
+  "effects": [
+   {
+    "type": "resist",
+    "damage_type": "fire",
+    "rounds": 600
+   }
+  ],
+  "status": "ok",
+  "target": "ally",
+  "note": "種類は選べず、火に抵抗(近似)",
+  "use": [
+   "combat"
+  ],
+  "icon": "protect"
+ },
+ {
+  "id": "remove_curse",
+  "name": {
+   "en": "Remove Curse",
+   "ja": "リムーヴ・カース"
+  },
+  "level": 3,
+  "school": "abjuration",
+  "classes": [
+   "cleric",
+   "paladin",
+   "warlock",
+   "wizard"
+  ],
+  "ritual": false,
+  "concentration": false,
+  "time": "action",
+  "rounds": 0,
+  "effects": [
+   {
+    "type": "remove_curse"
+   }
+  ],
+  "status": "ok",
+  "target": "ally",
+  "use": [
+   "camp"
+  ],
+  "icon": "cure"
+ },
+ {
+  "id": "revivify",
+  "name": {
+   "en": "Revivify",
+   "ja": "リヴィヴィファイ"
+  },
+  "level": 3,
+  "school": "conjuration",
+  "classes": [
+   "cleric",
+   "paladin"
+  ],
+  "ritual": false,
+  "concentration": false,
+  "time": "action",
+  "rounds": 0,
+  "effects": [
+   {
+    "type": "revive"
+   }
+  ],
+  "status": "ok",
+  "target": "ally",
+  "use": [
+   "combat",
+   "camp"
+  ],
+  "note": "5版では死んで1分以内。ここではいつでも",
+  "icon": "revive"
+ },
+ {
+  "id": "sending",
+  "name": {
+   "en": "Sending",
+   "ja": "センディング"
+  },
+  "level": 3,
+  "school": "evocation",
+  "classes": [
+   "bard",
+   "cleric",
+   "wizard"
+  ],
+  "ritual": false,
+  "concentration": false,
+  "time": "action",
+  "rounds": 1,
+  "effects": [],
+  "status": "roleplay",
+  "use": [
+   "combat"
+  ],
+  "icon": "buff"
+ },
+ {
+  "id": "sleet_storm",
+  "name": {
+   "en": "Sleet Storm",
+   "ja": "スリート・ストーム"
+  },
+  "level": 3,
+  "school": "conjuration",
+  "classes": [
+   "druid",
+   "sorcerer",
+   "wizard"
+  ],
+  "ritual": false,
+  "concentration": true,
+  "time": "action",
+  "rounds": 10,
+  "effects": [],
+  "status": "unsupported",
+  "use": [
+   "combat"
+  ],
+  "icon": "buff"
+ },
+ {
+  "id": "slow",
+  "name": {
+   "en": "Slow",
+   "ja": "スロウ"
+  },
+  "level": 3,
+  "school": "transmutation",
+  "classes": [
+   "sorcerer",
+   "wizard"
+  ],
+  "ritual": false,
+  "concentration": true,
+  "time": "action",
+  "rounds": 10,
+  "effects": [
+   {
+    "type": "save",
+    "ability": "wis",
+    "fail": [
+     {
+      "type": "modifier",
+      "stat": "ac",
+      "value": -2,
+      "rounds": 10
+     },
+     {
+      "type": "modifier",
+      "stat": "attack",
+      "value": -3,
+      "rounds": 10
+     }
+    ]
+   }
+  ],
+  "status": "ok",
+  "target": "group",
+  "note": "AC -2 と命中 -3 で近似",
+  "use": [
+   "combat"
+  ],
+  "icon": "debuff"
+ },
+ {
+  "id": "speak_with_dead",
+  "name": {
+   "en": "Speak with Dead",
+   "ja": "スピーク・ウィズ・デッド"
+  },
+  "level": 3,
+  "school": "necromancy",
+  "classes": [
+   "bard",
+   "cleric"
+  ],
+  "ritual": false,
+  "concentration": false,
+  "time": "action",
+  "rounds": 100,
+  "effects": [],
+  "status": "roleplay",
+  "use": [
+   "combat"
+  ],
+  "icon": "buff"
+ },
+ {
+  "id": "speak_with_plants",
+  "name": {
+   "en": "Speak with Plants",
+   "ja": "スピーク・ウィズ・プランツ"
+  },
+  "level": 3,
+  "school": "transmutation",
+  "classes": [
+   "bard",
+   "druid",
+   "ranger"
+  ],
+  "ritual": false,
+  "concentration": false,
+  "time": "action",
+  "rounds": 100,
+  "effects": [],
+  "status": "roleplay",
+  "use": [
+   "combat"
+  ],
+  "icon": "buff"
+ },
+ {
+  "id": "spirit_guardians",
+  "name": {
+   "en": "Spirit Guardians",
+   "ja": "スピリット・ガーディアンズ"
+  },
+  "level": 3,
+  "school": "conjuration",
+  "classes": [
+   "cleric"
+  ],
+  "ritual": false,
+  "concentration": true,
+  "time": "action",
+  "rounds": 100,
+  "effects": [
+   {
+    "type": "save",
+    "ability": "wis",
+    "half": true,
+    "fail": [
+     {
+      "type": "damage",
+      "dice": "3d8",
+      "damage_type": "radiant",
+      "by_level": {
+       "3": "3d8",
+       "4": "4d8",
+       "5": "5d8",
+       "6": "6d8",
+       "7": "7d8",
+       "8": "8d8",
+       "9": "9d8"
+      }
+     }
+    ]
+   }
+  ],
+  "status": "ok",
+  "zone": true,
+  "target": "group",
+  "scale": "slot",
+  "note": "毎ターンのダメージは無く、唱えたときに1回",
+  "use": [
+   "combat"
+  ],
+  "icon": "radiant"
+ },
+ {
+  "id": "stinking_cloud",
+  "name": {
+   "en": "Stinking Cloud",
+   "ja": "スティンキング・クラウド"
+  },
+  "level": 3,
+  "school": "conjuration",
+  "classes": [
+   "bard",
+   "sorcerer",
+   "wizard"
+  ],
+  "ritual": false,
+  "concentration": true,
+  "time": "action",
+  "rounds": 10,
+  "effects": [
+   {
+    "type": "save",
+    "ability": "con",
+    "fail": [
+     {
+      "type": "condition",
+      "condition": "incapacitated",
+      "rounds": 1
+     }
+    ]
+   }
+  ],
+  "status": "ok",
+  "target": "group",
+  "use": [
+   "combat"
+  ],
+  "icon": "debuff"
+ },
+ {
+  "id": "tiny_hut",
+  "name": {
+   "en": "Tiny Hut",
+   "ja": "タイニー・ハット"
+  },
+  "level": 3,
+  "school": "evocation",
+  "classes": [
+   "bard",
+   "wizard"
+  ],
+  "ritual": true,
+  "concentration": false,
+  "time": "long",
+  "rounds": 4800,
+  "use": [
+   "camp"
+  ],
+  "effects": [],
+  "status": "unsupported",
+  "icon": "buff"
+ },
+ {
+  "id": "tongues",
+  "name": {
+   "en": "Tongues",
+   "ja": "タングズ"
+  },
+  "level": 3,
+  "school": "divination",
+  "classes": [
+   "bard",
+   "cleric",
+   "sorcerer",
+   "warlock",
+   "wizard"
+  ],
+  "ritual": false,
+  "concentration": false,
+  "time": "action",
+  "rounds": 600,
+  "effects": [],
+  "status": "roleplay",
+  "use": [
+   "combat"
+  ],
+  "icon": "buff"
+ },
+ {
+  "id": "vampiric_touch",
+  "name": {
+   "en": "Vampiric Touch",
+   "ja": "ヴァンパイアリック・タッチ"
+  },
+  "level": 3,
+  "school": "necromancy",
+  "classes": [
+   "warlock",
+   "wizard"
+  ],
+  "ritual": false,
+  "concentration": true,
+  "time": "action",
+  "rounds": 10,
+  "scale": "slot",
+  "attack": "melee",
+  "target": "enemy",
+  "effects": [
+   {
+    "type": "damage",
+    "dice": "3d6",
+    "damage_type": "necrotic",
+    "by_level": {
+     "3": "3d6",
+     "4": "4d6",
+     "5": "5d6",
+     "6": "6d6",
+     "7": "7d6",
+     "8": "8d6",
+     "9": "9d6"
+    }
+   }
+  ],
+  "status": "ok",
+  "use": [
+   "combat"
+  ],
+  "icon": "necrotic"
+ },
+ {
+  "id": "water_breathing",
+  "name": {
+   "en": "Water Breathing",
+   "ja": "ウォーター・ブリージング"
+  },
+  "level": 3,
+  "school": "transmutation",
+  "classes": [
+   "druid",
+   "ranger",
+   "sorcerer",
+   "wizard"
+  ],
+  "ritual": true,
+  "concentration": false,
+  "time": "action",
+  "rounds": 14400,
+  "effects": [],
+  "status": "unsupported",
+  "use": [
+   "combat"
+  ],
+  "icon": "buff"
+ },
+ {
+  "id": "water_walk",
+  "name": {
+   "en": "Water Walk",
+   "ja": "ウォーター・ウォーク"
+  },
+  "level": 3,
+  "school": "transmutation",
+  "classes": [
+   "cleric",
+   "druid",
+   "ranger",
+   "sorcerer"
+  ],
+  "ritual": true,
+  "concentration": false,
+  "time": "action",
+  "rounds": 600,
+  "effects": [],
+  "status": "unsupported",
+  "use": [
+   "combat"
+  ],
+  "icon": "buff"
+ },
+ {
+  "id": "wind_wall",
+  "name": {
+   "en": "Wind Wall",
+   "ja": "ウィンド・ウォール"
+  },
+  "level": 3,
+  "school": "evocation",
+  "classes": [
+   "druid",
+   "ranger"
+  ],
+  "ritual": false,
+  "concentration": true,
+  "time": "action",
+  "rounds": 10,
+  "scale": "slot",
+  "target": "two_groups",
+  "effects": [
+   {
+    "type": "save",
+    "ability": "str",
+    "fail": [
+     {
+      "type": "damage",
+      "dice": "3d8",
+      "damage_type": "bludgeoning",
+      "by_level": {
+       "3": "3d8"
+      }
+     }
+    ],
+    "half": true
+   }
+  ],
+  "status": "ok",
+  "use": [
+   "combat"
+  ],
+  "icon": "physical"
+ },
+ {
+  "id": "arcane_eye",
+  "name": {
+   "en": "Arcane Eye",
+   "ja": "アーケイン・アイ"
+  },
+  "level": 4,
+  "school": "divination",
+  "classes": [
+   "cleric",
+   "wizard"
+  ],
+  "ritual": false,
+  "concentration": true,
+  "time": "action",
+  "rounds": 600,
+  "effects": [],
+  "status": "unsupported",
+  "use": [
+   "combat"
+  ],
+  "icon": "buff"
+ },
+ {
+  "id": "banishment",
+  "name": {
+   "en": "Banishment",
+   "ja": "バニッシュメント"
+  },
+  "level": 4,
+  "school": "abjuration",
+  "classes": [
+   "cleric",
+   "paladin",
+   "sorcerer",
+   "warlock",
+   "wizard"
+  ],
+  "ritual": false,
+  "concentration": true,
+  "time": "action",
+  "rounds": 10,
+  "effects": [
+   {
+    "type": "save",
+    "ability": "cha",
+    "fail": [
+     {
+      "type": "condition",
+      "condition": "incapacitated",
+      "rounds": 10
+     }
+    ]
+   }
+  ],
+  "status": "ok",
+  "target": "enemy",
+  "note": "よその次元へ送る代わりに、動けなくする(近似)",
+  "use": [
+   "combat"
+  ],
+  "icon": "debuff"
+ },
+ {
+  "id": "black_tentacles",
+  "name": {
+   "en": "Black Tentacles",
+   "ja": "ブラック・テンタクルズ"
+  },
+  "level": 4,
+  "school": "conjuration",
+  "classes": [
+   "wizard"
+  ],
+  "ritual": false,
+  "concentration": true,
+  "time": "action",
+  "rounds": 10,
+  "scale": "slot",
+  "target": "group",
+  "effects": [
+   {
+    "type": "save",
+    "ability": "dex",
+    "fail": [
+     {
+      "type": "damage",
+      "dice": "3d6",
+      "damage_type": "bludgeoning",
+      "by_level": {
+       "4": "3d6"
+      }
+     }
+    ]
+   }
+  ],
+  "status": "ok",
+  "zone": true,
+  "use": [
+   "combat"
+  ],
+  "icon": "physical"
+ },
+ {
+  "id": "blight",
+  "name": {
+   "en": "Blight",
+   "ja": "ブライト"
+  },
+  "level": 4,
+  "school": "necromancy",
+  "classes": [
+   "druid",
+   "sorcerer",
+   "warlock",
+   "wizard"
+  ],
+  "ritual": false,
+  "concentration": false,
+  "time": "action",
+  "rounds": 0,
+  "scale": "slot",
+  "target": "enemy",
+  "effects": [
+   {
+    "type": "save",
+    "ability": "con",
+    "fail": [
+     {
+      "type": "damage",
+      "dice": "8d8",
+      "damage_type": "necrotic",
+      "by_level": {
+       "4": "8d8",
+       "5": "9d8",
+       "6": "10d8",
+       "7": "11d8",
+       "8": "12d8",
+       "9": "13d8"
+      }
+     }
+    ],
+    "half": true
+   }
+  ],
+  "status": "ok",
+  "use": [
+   "combat"
+  ],
+  "icon": "necrotic"
+ },
+ {
+  "id": "compulsion",
+  "name": {
+   "en": "Compulsion",
+   "ja": "コンパルジョン"
+  },
+  "level": 4,
+  "school": "enchantment",
+  "classes": [
+   "bard"
+  ],
+  "ritual": false,
+  "concentration": true,
+  "time": "action",
+  "rounds": 10,
+  "effects": [],
+  "status": "unsupported",
+  "use": [
+   "combat"
+  ],
+  "icon": "buff"
+ },
+ {
+  "id": "confusion",
+  "name": {
+   "en": "Confusion",
+   "ja": "コンフュージョン"
+  },
+  "level": 4,
+  "school": "enchantment",
+  "classes": [
+   "bard",
+   "druid",
+   "sorcerer",
+   "wizard"
+  ],
+  "ritual": false,
+  "concentration": true,
+  "time": "action",
+  "rounds": 10,
+  "effects": [
+   {
+    "type": "save",
+    "ability": "wis",
+    "fail": [
+     {
+      "type": "condition",
+      "condition": "incapacitated",
+      "rounds": 10,
+      "repeat_save": true
+     }
+    ]
+   }
+  ],
+  "status": "ok",
+  "target": "group",
+  "note": "ふらつく行動を、動けない(毎ターンのセーヴで解ける)で近似",
+  "use": [
+   "combat"
+  ],
+  "icon": "debuff"
+ },
+ {
+  "id": "conjure_minor_elementals",
+  "name": {
+   "en": "Conjure Minor Elementals",
+   "ja": "コンジュア・マイナー・エレメンタルズ"
+  },
+  "level": 4,
+  "school": "conjuration",
+  "classes": [
+   "druid",
+   "wizard"
+  ],
+  "ritual": false,
+  "concentration": true,
+  "time": "action",
+  "rounds": 600,
+  "use": [
+   "combat"
+  ],
+  "effects": [],
+  "status": "ok",
+  "target": "self",
+  "icon": "buff",
+  "summon": {
+   "monster": "magma_mephit",
+   "count": 4,
+   "per_level": 1
+  },
+  "note": "マグマ・メフィットを呼ぶ。5版では1分かかるが、戦闘の中で唱えられる"
+ },
+ {
+  "id": "conjure_woodland_beings",
+  "name": {
+   "en": "Conjure Woodland Beings",
+   "ja": "コンジュア・ウッドランド・ビーイングズ"
+  },
+  "level": 4,
+  "school": "conjuration",
+  "classes": [
+   "druid",
+   "ranger"
+  ],
+  "ritual": false,
+  "concentration": true,
+  "time": "action",
+  "rounds": 600,
+  "effects": [],
+  "status": "ok",
+  "target": "self",
+  "use": [
+   "combat"
+  ],
+  "icon": "buff",
+  "summon": {
+   "monster": "satyr",
+   "count": 4,
+   "per_level": 1
+  },
+  "note": "サテュロスを呼ぶ"
+ },
+ {
+  "id": "control_water",
+  "name": {
+   "en": "Control Water",
+   "ja": "コントロール・ウォーター"
+  },
+  "level": 4,
+  "school": "transmutation",
+  "classes": [
+   "cleric",
+   "druid",
+   "wizard"
+  ],
+  "ritual": false,
+  "concentration": true,
+  "time": "action",
+  "rounds": 100,
+  "scale": "slot",
+  "target": "group",
+  "effects": [
+   {
+    "type": "save",
+    "ability": "str",
+    "fail": [
+     {
+      "type": "damage",
+      "dice": "2d8",
+      "damage_type": "bludgeoning",
+      "by_level": {
+       "4": "2d8"
+      }
+     }
+    ],
+    "half": true
+   }
+  ],
+  "status": "ok",
+  "use": [
+   "combat"
+  ],
+  "icon": "physical"
+ },
+ {
+  "id": "death_ward",
+  "name": {
+   "en": "Death Ward",
+   "ja": "デス・ウォード"
+  },
+  "level": 4,
+  "school": "abjuration",
+  "classes": [
+   "cleric",
+   "paladin"
+  ],
+  "ritual": false,
+  "concentration": false,
+  "time": "action",
+  "rounds": 4800,
+  "effects": [],
+  "status": "unsupported",
+  "use": [
+   "combat"
+  ],
+  "icon": "buff"
+ },
+ {
+  "id": "dimension_door",
+  "name": {
+   "en": "Dimension Door",
+   "ja": "ディメンジョン・ドア"
+  },
+  "level": 4,
+  "school": "conjuration",
+  "classes": [
+   "bard",
+   "sorcerer",
+   "warlock",
+   "wizard"
+  ],
+  "ritual": false,
+  "concentration": false,
+  "time": "action",
+  "rounds": 0,
+  "scale": "slot",
+  "target": "enemy",
+  "effects": [
+   {
+    "type": "damage",
+    "dice": "4d6",
+    "damage_type": "force",
+    "by_level": {
+     "4": "4d6"
+    }
+   }
+  ],
+  "status": "ok",
+  "use": [
+   "combat"
+  ],
+  "icon": "force"
+ },
+ {
+  "id": "divination",
+  "name": {
+   "en": "Divination",
+   "ja": "ディヴィネイション"
+  },
+  "level": 4,
+  "school": "divination",
+  "classes": [
+   "druid"
+  ],
+  "ritual": true,
+  "concentration": false,
+  "time": "action",
+  "rounds": 0,
+  "effects": [],
+  "status": "roleplay",
+  "use": [
+   "combat"
+  ],
+  "icon": "buff"
+ },
+ {
+  "id": "dominate_beast",
+  "name": {
+   "en": "Dominate Beast",
+   "ja": "ドミネイト・ビースト"
+  },
+  "level": 4,
+  "school": "enchantment",
+  "classes": [
+   "druid",
+   "sorcerer"
+  ],
+  "ritual": false,
+  "concentration": true,
+  "time": "action",
+  "rounds": 10,
+  "effects": [],
+  "status": "unsupported",
+  "use": [
+   "combat"
+  ],
+  "icon": "buff"
+ },
+ {
+  "id": "fabricate",
+  "name": {
+   "en": "Fabricate",
+   "ja": "ファブリケイト"
+  },
+  "level": 4,
+  "school": "transmutation",
+  "classes": [
+   "wizard"
+  ],
+  "ritual": false,
+  "concentration": false,
+  "time": "long",
+  "rounds": 0,
+  "use": [
+   "camp"
+  ],
+  "effects": [],
+  "status": "unsupported",
+  "icon": "buff"
+ },
+ {
+  "id": "faithful_hound",
+  "name": {
+   "en": "Faithful Hound",
+   "ja": "フェイスフル・ハウンド"
+  },
+  "level": 4,
+  "school": "conjuration",
+  "classes": [
+   "wizard"
+  ],
+  "ritual": false,
+  "concentration": false,
+  "time": "action",
+  "rounds": 4800,
+  "scale": "slot",
+  "attack": "melee",
+  "target": "enemy",
+  "effects": [
+   {
+    "type": "damage",
+    "dice": "4d8",
+    "damage_type": "piercing",
+    "by_level": {
+     "4": "4d8"
+    }
+   }
+  ],
+  "status": "ok",
+  "use": [
+   "combat"
+  ],
+  "icon": "physical"
+ },
+ {
+  "id": "fire_shield",
+  "name": {
+   "en": "Fire Shield",
+   "ja": "ファイアー・シールド"
+  },
+  "level": 4,
+  "school": "evocation",
+  "classes": [
+   "wizard"
+  ],
+  "ritual": false,
+  "concentration": false,
+  "time": "action",
+  "rounds": 100,
+  "scale": "slot",
+  "target": "group",
+  "effects": [
+   {
+    "type": "damage",
+    "dice": "2d8",
+    "damage_type": "fire",
+    "by_level": {
+     "4": "2d8"
+    }
+   }
+  ],
+  "status": "ok",
+  "use": [
+   "combat"
+  ],
+  "icon": "fire"
+ },
+ {
+  "id": "freedom_of_movement",
+  "name": {
+   "en": "Freedom of Movement",
+   "ja": "フリーダム・オヴ・ムーヴメント"
+  },
+  "level": 4,
+  "school": "abjuration",
+  "classes": [
+   "bard",
+   "cleric",
+   "druid",
+   "ranger"
+  ],
+  "ritual": false,
+  "concentration": false,
+  "time": "action",
+  "rounds": 600,
+  "effects": [
+   {
+    "type": "immune_condition",
+    "condition": "paralyzed",
+    "rounds": 600
+   },
+   {
+    "type": "immune_condition",
+    "condition": "restrained",
+    "rounds": 600
+   },
+   {
+    "type": "immune_condition",
+    "condition": "grappled",
+    "rounds": 600
+   }
+  ],
+  "status": "ok",
+  "target": "ally",
+  "use": [
+   "combat"
+  ],
+  "icon": "buff"
+ },
+ {
+  "id": "giant_insect",
+  "name": {
+   "en": "Giant Insect",
+   "ja": "ジャイアント・インセクト"
+  },
+  "level": 4,
+  "school": "transmutation",
+  "classes": [
+   "druid"
+  ],
+  "ritual": false,
+  "concentration": true,
+  "time": "action",
+  "rounds": 100,
+  "effects": [],
+  "status": "ok",
+  "target": "self",
+  "use": [
+   "combat"
+  ],
+  "icon": "buff",
+  "summon": {
+   "monster": "giant_spider",
+   "count": 3,
+   "per_level": 0
+  },
+  "note": "大蜘蛛を3体呼ぶ(虫を大きくする代わり)"
+ },
+ {
+  "id": "greater_invisibility",
+  "name": {
+   "en": "Greater Invisibility",
+   "ja": "グレーター・インヴィジビリティ"
+  },
+  "level": 4,
+  "school": "illusion",
+  "classes": [
+   "bard",
+   "sorcerer",
+   "wizard"
+  ],
+  "ritual": false,
+  "concentration": true,
+  "time": "action",
+  "rounds": 10,
+  "effects": [
+   {
+    "type": "condition",
+    "condition": "invisible",
+    "rounds": 10
+   }
+  ],
+  "status": "ok",
+  "target": "ally",
+  "use": [
+   "combat"
+  ],
+  "icon": "buff"
+ },
+ {
+  "id": "guardian_of_faith",
+  "name": {
+   "en": "Guardian of Faith",
+   "ja": "ガーディアン・オヴ・フェイス"
+  },
+  "level": 4,
+  "school": "conjuration",
+  "classes": [
+   "cleric"
+  ],
+  "ritual": false,
+  "concentration": false,
+  "time": "action",
+  "rounds": 4800,
+  "scale": "slot",
+  "target": "group",
+  "effects": [
+   {
+    "type": "save",
+    "ability": "dex",
+    "fail": [
+     {
+      "type": "damage",
+      "dice": "20",
+      "damage_type": "radiant",
+      "by_level": {
+       "4": "20"
+      }
+     }
+    ],
+    "half": true
+   }
+  ],
+  "status": "ok",
+  "use": [
+   "combat"
+  ],
+  "icon": "radiant"
+ },
+ {
+  "id": "hallucinatory_terrain",
+  "name": {
+   "en": "Hallucinatory Terrain",
+   "ja": "ハルシナトリー・テレイン"
+  },
+  "level": 4,
+  "school": "illusion",
+  "classes": [
+   "bard",
+   "druid",
+   "warlock",
+   "wizard"
+  ],
+  "ritual": false,
+  "concentration": false,
+  "time": "long",
+  "rounds": 14400,
+  "use": [
+   "camp"
+  ],
+  "effects": [],
+  "status": "unsupported",
+  "icon": "buff"
+ },
+ {
+  "id": "ice_storm",
+  "name": {
+   "en": "Ice Storm",
+   "ja": "アイス・ストーム"
+  },
+  "level": 4,
+  "school": "evocation",
+  "classes": [
+   "druid",
+   "sorcerer",
+   "wizard"
+  ],
+  "ritual": false,
+  "concentration": false,
+  "time": "action",
+  "rounds": 0,
+  "scale": "slot",
+  "target": "group",
+  "effects": [
+   {
+    "type": "save",
+    "ability": "dex",
+    "fail": [
+     {
+      "type": "damage",
+      "dice": "2d8",
+      "damage_type": "bludgeoning",
+      "by_level": {
+       "4": "2d8",
+       "5": "3d8",
+       "6": "4d8",
+       "7": "5d8",
+       "8": "6d8",
+       "9": "7d8"
+      }
+     }
+    ],
+    "half": true
+   }
+  ],
+  "status": "ok",
+  "use": [
+   "combat"
+  ],
+  "icon": "physical"
+ },
+ {
+  "id": "locate_creature",
+  "name": {
+   "en": "Locate Creature",
+   "ja": "ロケート・クリーチャー"
+  },
+  "level": 4,
+  "school": "divination",
+  "classes": [
+   "bard",
+   "cleric",
+   "druid",
+   "paladin",
+   "ranger",
+   "wizard"
+  ],
+  "ritual": false,
+  "concentration": true,
+  "time": "action",
+  "rounds": 600,
+  "effects": [],
+  "status": "unsupported",
+  "use": [
+   "combat"
+  ],
+  "icon": "buff"
+ },
+ {
+  "id": "phantasmal_killer",
+  "name": {
+   "en": "Phantasmal Killer",
+   "ja": "ファンタズマル・キラー"
+  },
+  "level": 4,
+  "school": "illusion",
+  "classes": [
+   "wizard"
+  ],
+  "ritual": false,
+  "concentration": true,
+  "time": "action",
+  "rounds": 10,
+  "scale": "slot",
+  "target": "enemy",
+  "effects": [
+   {
+    "type": "save",
+    "ability": "wis",
+    "fail": [
+     {
+      "type": "damage",
+      "dice": "4d10",
+      "damage_type": "psychic",
+      "by_level": {
+       "4": "4d10"
+      }
+     }
+    ]
+   }
+  ],
+  "status": "ok",
+  "use": [
+   "combat"
+  ],
+  "icon": "psychic"
+ },
+ {
+  "id": "polymorph",
+  "name": {
+   "en": "Polymorph",
+   "ja": "ポリモーフ"
+  },
+  "level": 4,
+  "school": "transmutation",
+  "classes": [
+   "bard",
+   "druid",
+   "sorcerer",
+   "wizard"
+  ],
+  "ritual": false,
+  "concentration": true,
+  "time": "action",
+  "rounds": 600,
+  "effects": [
+   {
+    "type": "save",
+    "ability": "wis",
+    "fail": [
+     {
+      "type": "condition",
+      "condition": "incapacitated",
+      "rounds": 600
+     }
+    ]
+   }
+  ],
+  "status": "ok",
+  "target": "enemy",
+  "note": "敵を小さな獣に変える使い方だけ(動けない)",
+  "use": [
+   "combat"
+  ],
+  "icon": "debuff"
+ },
+ {
+  "id": "private_sanctum",
+  "name": {
+   "en": "Private Sanctum",
+   "ja": "プライヴェート・サンクタム"
+  },
+  "level": 4,
+  "school": "abjuration",
+  "classes": [
+   "wizard"
+  ],
+  "ritual": false,
+  "concentration": false,
+  "time": "long",
+  "rounds": 14400,
+  "use": [
+   "camp"
+  ],
+  "effects": [],
+  "status": "unsupported",
+  "icon": "buff"
+ },
+ {
+  "id": "resilient_sphere",
+  "name": {
+   "en": "Resilient Sphere",
+   "ja": "レジリエント・スフィア"
+  },
+  "level": 4,
+  "school": "evocation",
+  "classes": [
+   "wizard"
+  ],
+  "ritual": false,
+  "concentration": true,
+  "time": "action",
+  "rounds": 10,
+  "effects": [],
+  "status": "unsupported",
+  "use": [
+   "combat"
+  ],
+  "icon": "buff"
+ },
+ {
+  "id": "secret_chest",
+  "name": {
+   "en": "Secret Chest",
+   "ja": "シークレット・チェスト"
+  },
+  "level": 4,
+  "school": "conjuration",
+  "classes": [
+   "wizard"
+  ],
+  "ritual": false,
+  "concentration": false,
+  "time": "action",
+  "rounds": 0,
+  "effects": [],
+  "status": "unsupported",
+  "use": [
+   "combat"
+  ],
+  "icon": "buff"
+ },
+ {
+  "id": "stone_shape",
+  "name": {
+   "en": "Stone Shape",
+   "ja": "ストーン・シェイプ"
+  },
+  "level": 4,
+  "school": "transmutation",
+  "classes": [
+   "cleric",
+   "druid",
+   "wizard"
+  ],
+  "ritual": false,
+  "concentration": false,
+  "time": "action",
+  "rounds": 0,
+  "effects": [],
+  "status": "unsupported",
+  "use": [
+   "combat"
+  ],
+  "icon": "buff"
+ },
+ {
+  "id": "stoneskin",
+  "name": {
+   "en": "Stoneskin",
+   "ja": "ストーンスキン"
+  },
+  "level": 4,
+  "school": "abjuration",
+  "classes": [
+   "druid",
+   "ranger",
+   "sorcerer",
+   "wizard"
+  ],
+  "ritual": false,
+  "concentration": true,
+  "time": "action",
+  "rounds": 600,
+  "effects": [
+   {
+    "type": "resist",
+    "damage_type": "slashing",
+    "rounds": 600
+   },
+   {
+    "type": "resist",
+    "damage_type": "piercing",
+    "rounds": 600
+   },
+   {
+    "type": "resist",
+    "damage_type": "bludgeoning",
+    "rounds": 600
+   }
+  ],
+  "status": "ok",
+  "target": "ally",
+  "note": "魔法の武器にも抵抗する(近似)",
+  "use": [
+   "combat"
+  ],
+  "icon": "protect"
+ },
+ {
+  "id": "wall_of_fire",
+  "name": {
+   "en": "Wall of Fire",
+   "ja": "ウォール・オヴ・ファイアー"
+  },
+  "level": 4,
+  "school": "evocation",
+  "classes": [
+   "druid",
+   "sorcerer",
+   "wizard"
+  ],
+  "ritual": false,
+  "concentration": true,
+  "time": "action",
+  "rounds": 10,
+  "scale": "slot",
+  "target": "two_groups",
+  "effects": [
+   {
+    "type": "save",
+    "ability": "dex",
+    "fail": [
+     {
+      "type": "damage",
+      "dice": "5d8",
+      "damage_type": "fire",
+      "by_level": {
+       "4": "5d8"
+      }
+     }
+    ],
+    "half": true
+   }
+  ],
+  "status": "ok",
+  "zone": true,
+  "use": [
+   "combat"
+  ],
+  "icon": "fire"
+ },
+ {
+  "id": "animate_objects",
+  "name": {
+   "en": "Animate Objects",
+   "ja": "アニメイト・オブジェクツ"
+  },
+  "level": 5,
+  "school": "transmutation",
+  "classes": [
+   "bard",
+   "sorcerer",
+   "wizard"
+  ],
+  "ritual": false,
+  "concentration": true,
+  "time": "action",
+  "rounds": 10,
+  "effects": [],
+  "status": "ok",
+  "target": "self",
+  "use": [
+   "combat"
+  ],
+  "icon": "buff",
+  "summon": {
+   "monster": "flying_sword",
+   "count": 6,
+   "per_level": 2
+  },
+  "note": "飛ぶ剣を動かす(上のスロットで2本ずつ増える)"
+ },
+ {
+  "id": "antilife_shell",
+  "name": {
+   "en": "Antilife Shell",
+   "ja": "アンチライフ・シェル"
+  },
+  "level": 5,
+  "school": "abjuration",
+  "classes": [
+   "druid"
+  ],
+  "ritual": false,
+  "concentration": true,
+  "time": "action",
+  "rounds": 600,
+  "effects": [],
+  "status": "unsupported",
+  "use": [
+   "combat"
+  ],
+  "icon": "buff"
+ },
+ {
+  "id": "arcane_hand",
+  "name": {
+   "en": "Arcane Hand",
+   "ja": "アーケイン・ハンド"
+  },
+  "level": 5,
+  "school": "evocation",
+  "classes": [
+   "wizard"
+  ],
+  "ritual": false,
+  "concentration": true,
+  "time": "action",
+  "rounds": 10,
+  "effects": [
+   {
+    "type": "damage",
+    "dice": "4d8",
+    "damage_type": "force",
+    "by_level": {
+     "5": "4d8",
+     "6": "6d8",
+     "7": "8d8",
+     "8": "10d8",
+     "9": "12d8"
+    }
+   }
+  ],
+  "status": "ok",
+  "target": "enemy",
+  "attack": "ranged",
+  "scale": "slot",
+  "note": "握り拳の1回だけ(毎ターンは無し)",
+  "use": [
+   "combat"
+  ],
+  "icon": "force"
+ },
+ {
+  "id": "awaken",
+  "name": {
+   "en": "Awaken",
+   "ja": "アウェイクン"
+  },
+  "level": 5,
+  "school": "transmutation",
+  "classes": [
+   "bard",
+   "druid"
+  ],
+  "ritual": false,
+  "concentration": false,
+  "time": "long",
+  "rounds": 0,
+  "use": [
+   "camp"
+  ],
+  "effects": [],
+  "status": "unsupported",
+  "icon": "buff"
+ },
+ {
+  "id": "cloudkill",
+  "name": {
+   "en": "Cloudkill",
+   "ja": "クラウドキル"
+  },
+  "level": 5,
+  "school": "conjuration",
+  "classes": [
+   "sorcerer",
+   "wizard"
+  ],
+  "ritual": false,
+  "concentration": true,
+  "time": "action",
+  "rounds": 100,
+  "scale": "slot",
+  "target": "group",
+  "effects": [
+   {
+    "type": "save",
+    "ability": "con",
+    "fail": [
+     {
+      "type": "damage",
+      "dice": "5d8",
+      "damage_type": "poison",
+      "by_level": {
+       "5": "5d8",
+       "6": "6d8",
+       "7": "7d8",
+       "8": "8d8",
+       "9": "9d8"
+      }
+     }
+    ],
+    "half": true
+   }
+  ],
+  "status": "ok",
+  "zone": true,
+  "use": [
+   "combat"
+  ],
+  "icon": "poison"
+ },
+ {
+  "id": "commune",
+  "name": {
+   "en": "Commune",
+   "ja": "コミューン"
+  },
+  "level": 5,
+  "school": "divination",
+  "classes": [
+   "cleric"
+  ],
+  "ritual": true,
+  "concentration": false,
+  "time": "long",
+  "rounds": 10,
+  "use": [
+   "camp"
+  ],
+  "effects": [],
+  "status": "roleplay",
+  "icon": "buff"
+ },
+ {
+  "id": "commune_with_nature",
+  "name": {
+   "en": "Commune With Nature",
+   "ja": "コミューン・ウィズ・ネイチャー"
+  },
+  "level": 5,
+  "school": "divination",
+  "classes": [
+   "druid",
+   "ranger"
+  ],
+  "ritual": true,
+  "concentration": false,
+  "time": "long",
+  "rounds": 0,
+  "use": [
+   "camp"
+  ],
+  "effects": [],
+  "status": "roleplay",
+  "icon": "buff"
+ },
+ {
+  "id": "cone_of_cold",
+  "name": {
+   "en": "Cone of Cold",
+   "ja": "コーン・オヴ・コールド"
+  },
+  "level": 5,
+  "school": "evocation",
+  "classes": [
+   "sorcerer",
+   "wizard"
+  ],
+  "ritual": false,
+  "concentration": false,
+  "time": "action",
+  "rounds": 0,
+  "scale": "slot",
+  "target": "group",
+  "effects": [
+   {
+    "type": "save",
+    "ability": "con",
+    "fail": [
+     {
+      "type": "damage",
+      "dice": "8d8",
+      "damage_type": "cold",
+      "by_level": {
+       "5": "8d8",
+       "6": "9d8",
+       "7": "10d8",
+       "8": "11d8",
+       "9": "12d8"
+      }
+     }
+    ],
+    "half": true
+   }
+  ],
+  "status": "ok",
+  "use": [
+   "combat"
+  ],
+  "icon": "cold"
+ },
+ {
+  "id": "conjure_elemental",
+  "name": {
+   "en": "Conjure Elemental",
+   "ja": "コンジュア・エレメンタル"
+  },
+  "level": 5,
+  "school": "conjuration",
+  "classes": [
+   "druid",
+   "wizard"
+  ],
+  "ritual": false,
+  "concentration": true,
+  "time": "action",
+  "rounds": 600,
+  "use": [
+   "combat"
+  ],
+  "effects": [],
+  "status": "ok",
+  "target": "self",
+  "icon": "buff",
+  "summon": {
+   "monster": "fire_elemental",
+   "count": 1,
+   "per_level": 0
+  },
+  "note": "火の精霊を呼ぶ。5版では1分かかるが、戦闘の中で唱えられる"
+ },
+ {
+  "id": "contact_other_plane",
+  "name": {
+   "en": "Contact Other Plane",
+   "ja": "コンタクト・アザー・プレーン"
+  },
+  "level": 5,
+  "school": "divination",
+  "classes": [
+   "warlock",
+   "wizard"
+  ],
+  "ritual": true,
+  "concentration": false,
+  "time": "long",
+  "rounds": 10,
+  "use": [
+   "camp"
+  ],
+  "effects": [],
+  "status": "roleplay",
+  "icon": "buff"
+ },
+ {
+  "id": "contagion",
+  "name": {
+   "en": "Contagion",
+   "ja": "コンテイジョン"
+  },
+  "level": 5,
+  "school": "necromancy",
+  "classes": [
+   "cleric",
+   "druid"
+  ],
+  "ritual": false,
+  "concentration": false,
+  "time": "action",
+  "rounds": 600,
+  "attack": "melee",
+  "effects": [],
+  "status": "unsupported",
+  "use": [
+   "combat"
+  ],
+  "icon": "buff"
+ },
+ {
+  "id": "creation",
+  "name": {
+   "en": "Creation",
+   "ja": "クリエイション"
+  },
+  "level": 5,
+  "school": "illusion",
+  "classes": [
+   "sorcerer",
+   "wizard"
+  ],
+  "ritual": false,
+  "concentration": false,
+  "time": "long",
+  "rounds": 600,
+  "use": [
+   "camp"
+  ],
+  "effects": [],
+  "status": "unsupported",
+  "icon": "buff"
+ },
+ {
+  "id": "dispel_evil_and_good",
+  "name": {
+   "en": "Dispel Evil and Good",
+   "ja": "ディスペル・イーヴル・アンド・グッド"
+  },
+  "level": 5,
+  "school": "abjuration",
+  "classes": [
+   "cleric",
+   "paladin"
+  ],
+  "ritual": false,
+  "concentration": true,
+  "time": "action",
+  "rounds": 10,
+  "effects": [],
+  "status": "unsupported",
+  "use": [
+   "combat"
+  ],
+  "icon": "buff"
+ },
+ {
+  "id": "dominate_person",
+  "name": {
+   "en": "Dominate Person",
+   "ja": "ドミネイト・パーソン"
+  },
+  "level": 5,
+  "school": "enchantment",
+  "classes": [
+   "bard",
+   "sorcerer",
+   "wizard"
+  ],
+  "ritual": false,
+  "concentration": true,
+  "time": "action",
+  "rounds": 10,
+  "effects": [
+   {
+    "type": "save",
+    "ability": "wis",
+    "fail": [
+     {
+      "type": "condition",
+      "condition": "incapacitated",
+      "rounds": 10,
+      "repeat_save": true
+     }
+    ]
+   }
+  ],
+  "status": "ok",
+  "target": "enemy",
+  "only": "humanoid",
+  "note": "味方にする代わりに、動けなくする(毎ターンのセーヴで解ける)",
+  "use": [
+   "combat"
+  ],
+  "icon": "debuff"
+ },
+ {
+  "id": "dream",
+  "name": {
+   "en": "Dream",
+   "ja": "ドリーム"
+  },
+  "level": 5,
+  "school": "illusion",
+  "classes": [
+   "bard",
+   "warlock",
+   "wizard"
+  ],
+  "ritual": false,
+  "concentration": false,
+  "time": "long",
+  "rounds": 4800,
+  "scale": "slot",
+  "target": "enemy",
+  "use": [
+   "camp"
+  ],
+  "effects": [
+   {
+    "type": "save",
+    "ability": "wis",
+    "fail": [
+     {
+      "type": "damage",
+      "dice": "3d6",
+      "damage_type": "psychic",
+      "by_level": {
+       "5": "3d6"
+      }
+     }
+    ]
+   }
+  ],
+  "status": "roleplay",
+  "icon": "psychic"
+ },
+ {
+  "id": "flame_strike",
+  "name": {
+   "en": "Flame Strike",
+   "ja": "フレイム・ストライク"
+  },
+  "level": 5,
+  "school": "evocation",
+  "classes": [
+   "cleric"
+  ],
+  "ritual": false,
+  "concentration": false,
+  "time": "action",
+  "rounds": 0,
+  "scale": "slot",
+  "target": "group",
+  "effects": [
+   {
+    "type": "save",
+    "ability": "dex",
+    "fail": [
+     {
+      "type": "damage",
+      "dice": "4d6",
+      "damage_type": "fire",
+      "by_level": {
+       "5": "4d6",
+       "6": "5d6",
+       "7": "6d6",
+       "8": "7d6",
+       "9": "8d6"
+      }
+     }
+    ],
+    "half": true
+   }
+  ],
+  "status": "ok",
+  "use": [
+   "combat"
+  ],
+  "icon": "fire"
+ },
+ {
+  "id": "geas",
+  "name": {
+   "en": "Geas",
+   "ja": "ギアス"
+  },
+  "level": 5,
+  "school": "enchantment",
+  "classes": [
+   "bard",
+   "cleric",
+   "druid",
+   "paladin",
+   "wizard"
+  ],
+  "ritual": false,
+  "concentration": false,
+  "time": "long",
+  "rounds": 600,
+  "use": [
+   "camp"
+  ],
+  "effects": [],
+  "status": "roleplay",
+  "icon": "buff"
+ },
+ {
+  "id": "greater_restoration",
+  "name": {
+   "en": "Greater Restoration",
+   "ja": "グレーター・レストレーション"
+  },
+  "level": 5,
+  "school": "abjuration",
+  "classes": [
+   "bard",
+   "cleric",
+   "druid"
+  ],
+  "ritual": false,
+  "concentration": false,
+  "time": "action",
+  "rounds": 0,
+  "effects": [
+   {
+    "type": "remove_condition",
+    "condition": "charmed"
+   },
+   {
+    "type": "remove_condition",
+    "condition": "petrified"
+   },
+   {
+    "type": "remove_condition",
+    "condition": "paralyzed"
+   },
+   {
+    "type": "remove_condition",
+    "condition": "poisoned"
+   }
+  ],
+  "status": "ok",
+  "target": "ally",
+  "use": [
+   "combat",
+   "camp"
+  ],
+  "icon": "cure"
+ },
+ {
+  "id": "hallow",
+  "name": {
+   "en": "Hallow",
+   "ja": "ハロウ"
+  },
+  "level": 5,
+  "school": "evocation",
+  "classes": [
+   "cleric"
+  ],
+  "ritual": false,
+  "concentration": false,
+  "time": "long",
+  "rounds": 600,
+  "use": [
+   "camp"
+  ],
+  "effects": [],
+  "status": "unsupported",
+  "icon": "buff"
+ },
+ {
+  "id": "hold_monster",
+  "name": {
+   "en": "Hold Monster",
+   "ja": "ホールド・モンスター"
+  },
+  "level": 5,
+  "school": "enchantment",
+  "classes": [
+   "bard",
+   "sorcerer",
+   "warlock",
+   "wizard"
+  ],
+  "ritual": false,
+  "concentration": true,
+  "time": "action",
+  "rounds": 10,
+  "effects": [
+   {
+    "type": "save",
+    "ability": "wis",
+    "fail": [
+     {
+      "type": "condition",
+      "condition": "paralyzed",
+      "rounds": 10,
+      "repeat_save": true
+     }
+    ]
+   }
+  ],
+  "status": "ok",
+  "target": "enemy",
+  "use": [
+   "combat"
+  ],
+  "icon": "debuff"
+ },
+ {
+  "id": "insect_plague",
+  "name": {
+   "en": "Insect Plague",
+   "ja": "インセクト・プレイグ"
+  },
+  "level": 5,
+  "school": "conjuration",
+  "classes": [
+   "cleric",
+   "druid",
+   "sorcerer"
+  ],
+  "ritual": false,
+  "concentration": true,
+  "time": "action",
+  "rounds": 100,
+  "scale": "slot",
+  "target": "group",
+  "effects": [
+   {
+    "type": "save",
+    "ability": "con",
+    "fail": [
+     {
+      "type": "damage",
+      "dice": "4d10",
+      "damage_type": "piercing",
+      "by_level": {
+       "5": "4d10",
+       "6": "5d10",
+       "7": "6d10",
+       "8": "7d10",
+       "9": "8d10"
+      }
+     }
+    ],
+    "half": true
+   }
+  ],
+  "status": "ok",
+  "zone": true,
+  "use": [
+   "combat"
+  ],
+  "icon": "physical"
+ },
+ {
+  "id": "legend_lore",
+  "name": {
+   "en": "Legend Lore",
+   "ja": "レジェンド・ロア"
+  },
+  "level": 5,
+  "school": "divination",
+  "classes": [
+   "bard",
+   "cleric",
+   "wizard"
+  ],
+  "ritual": false,
+  "concentration": false,
+  "time": "long",
+  "rounds": 0,
+  "use": [
+   "camp"
+  ],
+  "effects": [],
+  "status": "roleplay",
+  "icon": "buff"
+ },
+ {
+  "id": "mass_cure_wounds",
+  "name": {
+   "en": "Mass Cure Wounds",
+   "ja": "マス・キュア・ウーンズ"
+  },
+  "level": 5,
+  "school": "conjuration",
+  "classes": [
+   "bard",
+   "cleric",
+   "druid"
+  ],
+  "ritual": false,
+  "concentration": false,
+  "time": "action",
+  "rounds": 0,
+  "scale": "slot",
+  "use": [
+   "combat",
+   "camp"
+  ],
+  "target": "allies",
+  "effects": [
+   {
+    "type": "heal",
+    "dice": "3d8+MOD",
+    "by_level": {
+     "5": "3d8+MOD",
+     "6": "4d8+MOD",
+     "7": "5d8+MOD",
+     "8": "6d8+MOD",
+     "9": "7d8+MOD"
+    }
+   }
+  ],
+  "status": "ok",
+  "icon": "heal"
+ },
+ {
+  "id": "mislead",
+  "name": {
+   "en": "Mislead",
+   "ja": "ミスリード"
+  },
+  "level": 5,
+  "school": "illusion",
+  "classes": [
+   "bard",
+   "wizard"
+  ],
+  "ritual": false,
+  "concentration": true,
+  "time": "action",
+  "rounds": 600,
+  "effects": [],
+  "status": "unsupported",
+  "use": [
+   "combat"
+  ],
+  "icon": "buff"
+ },
+ {
+  "id": "modify_memory",
+  "name": {
+   "en": "Modify Memory",
+   "ja": "モディファイ・メモリー"
+  },
+  "level": 5,
+  "school": "enchantment",
+  "classes": [
+   "bard",
+   "wizard"
+  ],
+  "ritual": false,
+  "concentration": true,
+  "time": "action",
+  "rounds": 10,
+  "effects": [],
+  "status": "roleplay",
+  "use": [
+   "combat"
+  ],
+  "icon": "buff"
+ },
+ {
+  "id": "passwall",
+  "name": {
+   "en": "Passwall",
+   "ja": "パスウォール"
+  },
+  "level": 5,
+  "school": "transmutation",
+  "classes": [
+   "wizard"
+  ],
+  "ritual": false,
+  "concentration": false,
+  "time": "action",
+  "rounds": 600,
+  "effects": [],
+  "status": "unsupported",
+  "use": [
+   "combat"
+  ],
+  "icon": "buff"
+ },
+ {
+  "id": "planar_binding",
+  "name": {
+   "en": "Planar Binding",
+   "ja": "プレイナー・バインディング"
+  },
+  "level": 5,
+  "school": "abjuration",
+  "classes": [
+   "bard",
+   "cleric",
+   "druid",
+   "wizard"
+  ],
+  "ritual": false,
+  "concentration": false,
+  "time": "long",
+  "rounds": 14400,
+  "use": [
+   "camp"
+  ],
+  "effects": [],
+  "status": "unsupported",
+  "icon": "buff"
+ },
+ {
+  "id": "raise_dead",
+  "name": {
+   "en": "Raise Dead",
+   "ja": "レイズ・デッド"
+  },
+  "level": 5,
+  "school": "necromancy",
+  "classes": [
+   "bard",
+   "cleric",
+   "paladin"
+  ],
+  "ritual": false,
+  "concentration": false,
+  "time": "long",
+  "rounds": 0,
+  "use": [
+   "camp"
+  ],
+  "effects": [
+   {
+    "type": "revive"
+   }
+  ],
+  "status": "ok",
+  "target": "ally",
+  "icon": "revive"
+ },
+ {
+  "id": "reincarnate",
+  "name": {
+   "en": "Reincarnate",
+   "ja": "リインカーネイト"
+  },
+  "level": 5,
+  "school": "transmutation",
+  "classes": [
+   "druid"
+  ],
+  "ritual": false,
+  "concentration": false,
+  "time": "long",
+  "rounds": 0,
+  "use": [
+   "camp"
+  ],
+  "effects": [],
+  "status": "unsupported",
+  "icon": "buff"
+ },
+ {
+  "id": "scrying",
+  "name": {
+   "en": "Scrying",
+   "ja": "スクライイング"
+  },
+  "level": 5,
+  "school": "divination",
+  "classes": [
+   "bard",
+   "cleric",
+   "druid",
+   "warlock",
+   "wizard"
+  ],
+  "ritual": false,
+  "concentration": true,
+  "time": "long",
+  "rounds": 100,
+  "use": [
+   "camp"
+  ],
+  "effects": [],
+  "status": "unsupported",
+  "icon": "buff"
+ },
+ {
+  "id": "seeming",
+  "name": {
+   "en": "Seeming",
+   "ja": "シーミング"
+  },
+  "level": 5,
+  "school": "illusion",
+  "classes": [
+   "bard",
+   "sorcerer",
+   "wizard"
+  ],
+  "ritual": false,
+  "concentration": false,
+  "time": "action",
+  "rounds": 4800,
+  "effects": [],
+  "status": "roleplay",
+  "use": [
+   "combat"
+  ],
+  "icon": "buff"
+ },
+ {
+  "id": "telekinesis",
+  "name": {
+   "en": "Telekinesis",
+   "ja": "テレキネシス"
+  },
+  "level": 5,
+  "school": "transmutation",
+  "classes": [
+   "sorcerer",
+   "wizard"
+  ],
+  "ritual": false,
+  "concentration": true,
+  "time": "action",
+  "rounds": 100,
+  "effects": [],
+  "status": "unsupported",
+  "use": [
+   "combat"
+  ],
+  "icon": "buff"
+ },
+ {
+  "id": "telepathic_bond",
+  "name": {
+   "en": "Telepathic Bond",
+   "ja": "テレパシック・ボンド"
+  },
+  "level": 5,
+  "school": "divination",
+  "classes": [
+   "wizard"
+  ],
+  "ritual": true,
+  "concentration": false,
+  "time": "action",
+  "rounds": 600,
+  "effects": [],
+  "status": "unsupported",
+  "use": [
+   "combat"
+  ],
+  "icon": "buff"
+ },
+ {
+  "id": "teleportation_circle",
+  "name": {
+   "en": "Teleportation Circle",
+   "ja": "テレポーテーション・サークル"
+  },
+  "level": 5,
+  "school": "conjuration",
+  "classes": [
+   "bard",
+   "sorcerer",
+   "wizard"
+  ],
+  "ritual": false,
+  "concentration": false,
+  "time": "long",
+  "rounds": 1,
+  "use": [
+   "camp"
+  ],
+  "effects": [],
+  "status": "unsupported",
+  "icon": "buff"
+ },
+ {
+  "id": "tree_stride",
+  "name": {
+   "en": "Tree Stride",
+   "ja": "トゥリー・ストライド"
+  },
+  "level": 5,
+  "school": "conjuration",
+  "classes": [
+   "druid",
+   "ranger"
+  ],
+  "ritual": false,
+  "concentration": true,
+  "time": "action",
+  "rounds": 10,
+  "effects": [],
+  "status": "unsupported",
+  "use": [
+   "combat"
+  ],
+  "icon": "buff"
+ },
+ {
+  "id": "wall_of_force",
+  "name": {
+   "en": "Wall of Force",
+   "ja": "ウォール・オヴ・フォース"
+  },
+  "level": 5,
+  "school": "evocation",
+  "classes": [
+   "wizard"
+  ],
+  "ritual": false,
+  "concentration": true,
+  "time": "action",
+  "rounds": 100,
+  "effects": [],
+  "status": "unsupported",
+  "use": [
+   "combat"
+  ],
+  "icon": "buff"
+ },
+ {
+  "id": "wall_of_stone",
+  "name": {
+   "en": "Wall of Stone",
+   "ja": "ウォール・オヴ・ストーン"
+  },
+  "level": 5,
+  "school": "evocation",
+  "classes": [
+   "druid",
+   "sorcerer",
+   "wizard"
+  ],
+  "ritual": false,
+  "concentration": true,
+  "time": "action",
+  "rounds": 100,
+  "effects": [],
+  "status": "unsupported",
+  "use": [
+   "combat"
+  ],
+  "icon": "buff"
+ },
+ {
+  "id": "blade_barrier",
+  "name": {
+   "en": "Blade Barrier",
+   "ja": "ブレード・バリアー"
+  },
+  "level": 6,
+  "school": "evocation",
+  "classes": [
+   "cleric"
+  ],
+  "ritual": false,
+  "concentration": true,
+  "time": "action",
+  "rounds": 100,
+  "scale": "slot",
+  "target": "two_groups",
+  "effects": [
+   {
+    "type": "save",
+    "ability": "dex",
+    "fail": [
+     {
+      "type": "damage",
+      "dice": "6d10",
+      "damage_type": "slashing",
+      "by_level": {
+       "6": "6d10"
+      }
+     }
+    ],
+    "half": true
+   }
+  ],
+  "status": "ok",
+  "zone": true,
+  "use": [
+   "combat"
+  ],
+  "icon": "physical"
+ },
+ {
+  "id": "chain_lightning",
+  "name": {
+   "en": "Chain Lightning",
+   "ja": "チェイン・ライトニング"
+  },
+  "level": 6,
+  "school": "evocation",
+  "classes": [
+   "sorcerer",
+   "wizard"
+  ],
+  "ritual": false,
+  "concentration": false,
+  "time": "action",
+  "rounds": 0,
+  "scale": "slot",
+  "target": "enemy",
+  "effects": [
+   {
+    "type": "save",
+    "ability": "dex",
+    "fail": [
+     {
+      "type": "damage",
+      "dice": "10d8",
+      "damage_type": "lightning",
+      "by_level": {
+       "6": "10d8"
+      }
+     }
+    ],
+    "half": true
+   }
+  ],
+  "status": "ok",
+  "use": [
+   "combat"
+  ],
+  "icon": "lightning"
+ },
+ {
+  "id": "circle_of_death",
+  "name": {
+   "en": "Circle of Death",
+   "ja": "サークル・オヴ・デス"
+  },
+  "level": 6,
+  "school": "necromancy",
+  "classes": [
+   "sorcerer",
+   "warlock",
+   "wizard"
+  ],
+  "ritual": false,
+  "concentration": false,
+  "time": "action",
+  "rounds": 0,
+  "scale": "slot",
+  "target": "group",
+  "effects": [
+   {
+    "type": "save",
+    "ability": "con",
+    "fail": [
+     {
+      "type": "damage",
+      "dice": "8d6",
+      "damage_type": "necrotic",
+      "by_level": {
+       "6": "8d6",
+       "7": "10d6",
+       "8": "12d6",
+       "9": "14d6"
+      }
+     }
+    ],
+    "half": true
+   }
+  ],
+  "status": "ok",
+  "use": [
+   "combat"
+  ],
+  "icon": "necrotic"
+ },
+ {
+  "id": "conjure_fey",
+  "name": {
+   "en": "Conjure Fey",
+   "ja": "コンジュア・フェイ"
+  },
+  "level": 6,
+  "school": "conjuration",
+  "classes": [
+   "druid",
+   "warlock"
+  ],
+  "ritual": false,
+  "concentration": true,
+  "time": "action",
+  "rounds": 600,
+  "use": [
+   "combat"
+  ],
+  "effects": [],
+  "status": "ok",
+  "target": "self",
+  "icon": "buff",
+  "summon": {
+   "monster": "green_hag",
+   "count": 1,
+   "per_level": 0
+  },
+  "note": "緑の鬼婆を呼ぶ。5版では1分かかるが、戦闘の中で唱えられる"
+ },
+ {
+  "id": "contingency",
+  "name": {
+   "en": "Contingency",
+   "ja": "コンティンジェンシー"
+  },
+  "level": 6,
+  "school": "evocation",
+  "classes": [
+   "wizard"
+  ],
+  "ritual": false,
+  "concentration": false,
+  "time": "long",
+  "rounds": 600,
+  "use": [
+   "camp"
+  ],
+  "effects": [],
+  "status": "unsupported",
+  "icon": "buff"
+ },
+ {
+  "id": "create_undead",
+  "name": {
+   "en": "Create Undead",
+   "ja": "クリエイト・アンデッド"
+  },
+  "level": 6,
+  "school": "necromancy",
+  "classes": [
+   "cleric",
+   "warlock",
+   "wizard"
+  ],
+  "ritual": false,
+  "concentration": false,
+  "time": "long",
+  "rounds": 0,
+  "use": [
+   "camp"
+  ],
+  "effects": [],
+  "status": "unsupported",
+  "icon": "buff"
+ },
+ {
+  "id": "disintegrate",
+  "name": {
+   "en": "Disintegrate",
+   "ja": "ディスインテグレイト"
+  },
+  "level": 6,
+  "school": "transmutation",
+  "classes": [
+   "sorcerer",
+   "wizard"
+  ],
+  "ritual": false,
+  "concentration": false,
+  "time": "action",
+  "rounds": 0,
+  "scale": "slot",
+  "target": "group",
+  "effects": [
+   {
+    "type": "save",
+    "ability": "dex",
+    "fail": [
+     {
+      "type": "damage",
+      "dice": "10d6+40",
+      "damage_type": "force",
+      "by_level": {
+       "6": "10d6+40"
+      }
+     }
+    ]
+   }
+  ],
+  "status": "ok",
+  "use": [
+   "combat"
+  ],
+  "icon": "force"
+ },
+ {
+  "id": "eyebite",
+  "name": {
+   "en": "Eyebite",
+   "ja": "アイバイト"
+  },
+  "level": 6,
+  "school": "necromancy",
+  "classes": [
+   "bard",
+   "sorcerer",
+   "warlock",
+   "wizard"
+  ],
+  "ritual": false,
+  "concentration": true,
+  "time": "action",
+  "rounds": 10,
+  "effects": [
+   {
+    "type": "save",
+    "ability": "wis",
+    "fail": [
+     {
+      "type": "condition",
+      "condition": "unconscious",
+      "rounds": 10
+     }
+    ]
+   }
+  ],
+  "status": "ok",
+  "target": "enemy",
+  "note": "眠らせる使い方だけ",
+  "use": [
+   "combat"
+  ],
+  "icon": "debuff"
+ },
+ {
+  "id": "find_the_path",
+  "name": {
+   "en": "Find the Path",
+   "ja": "ファインド・ザ・パス"
+  },
+  "level": 6,
+  "school": "divination",
+  "classes": [
+   "bard",
+   "cleric",
+   "druid"
+  ],
+  "ritual": false,
+  "concentration": true,
+  "time": "long",
+  "rounds": 14400,
+  "use": [
+   "camp"
+  ],
+  "effects": [],
+  "status": "unsupported",
+  "icon": "buff"
+ },
+ {
+  "id": "flesh_to_stone",
+  "name": {
+   "en": "Flesh to Stone",
+   "ja": "フレッシュ・トゥ・ストーン"
+  },
+  "level": 6,
+  "school": "transmutation",
+  "classes": [
+   "warlock",
+   "wizard"
+  ],
+  "ritual": false,
+  "concentration": true,
+  "time": "action",
+  "rounds": 10,
+  "effects": [
+   {
+    "type": "save",
+    "ability": "con",
+    "fail": [
+     {
+      "type": "condition",
+      "condition": "petrified",
+      "rounds": 10,
+      "repeat_save": true
+     }
+    ]
+   }
+  ],
+  "status": "ok",
+  "target": "enemy",
+  "note": "3回の失敗を待たず、石化(毎ターンのセーヴで解ける)",
+  "use": [
+   "combat"
+  ],
+  "icon": "debuff"
+ },
+ {
+  "id": "forbiddance",
+  "name": {
+   "en": "Forbiddance",
+   "ja": "フォービダンス"
+  },
+  "level": 6,
+  "school": "abjuration",
+  "classes": [
+   "cleric"
+  ],
+  "ritual": true,
+  "concentration": false,
+  "time": "long",
+  "rounds": 14400,
+  "use": [
+   "camp"
+  ],
+  "effects": [],
+  "status": "unsupported",
+  "icon": "buff"
+ },
+ {
+  "id": "freezing_sphere",
+  "name": {
+   "en": "Freezing Sphere",
+   "ja": "フリージング・スフィア"
+  },
+  "level": 6,
+  "school": "evocation",
+  "classes": [
+   "wizard"
+  ],
+  "ritual": false,
+  "concentration": false,
+  "time": "action",
+  "rounds": 0,
+  "scale": "slot",
+  "target": "group",
+  "effects": [
+   {
+    "type": "save",
+    "ability": "con",
+    "fail": [
+     {
+      "type": "damage",
+      "dice": "10d6",
+      "damage_type": "cold",
+      "by_level": {
+       "6": "10d6"
+      }
+     }
+    ],
+    "half": true
+   }
+  ],
+  "status": "ok",
+  "use": [
+   "combat"
+  ],
+  "icon": "cold"
+ },
+ {
+  "id": "globe_of_invulnerability",
+  "name": {
+   "en": "Globe of Invulnerability",
+   "ja": "グローブ・オヴ・インヴァルナラビリティ"
+  },
+  "level": 6,
+  "school": "abjuration",
+  "classes": [
+   "sorcerer",
+   "wizard"
+  ],
+  "ritual": false,
+  "concentration": true,
+  "time": "action",
+  "rounds": 10,
+  "effects": [],
+  "status": "unsupported",
+  "use": [
+   "combat"
+  ],
+  "icon": "buff"
+ },
+ {
+  "id": "guards_and_wards",
+  "name": {
+   "en": "Guards and Wards",
+   "ja": "ガーズ・アンド・ウォーズ"
+  },
+  "level": 6,
+  "school": "abjuration",
+  "classes": [
+   "bard",
+   "wizard"
+  ],
+  "ritual": false,
+  "concentration": false,
+  "time": "long",
+  "rounds": 14400,
+  "use": [
+   "camp"
+  ],
+  "effects": [],
+  "status": "unsupported",
+  "icon": "buff"
+ },
+ {
+  "id": "harm",
+  "name": {
+   "en": "Harm",
+   "ja": "ハーム"
+  },
+  "level": 6,
+  "school": "necromancy",
+  "classes": [
+   "cleric"
+  ],
+  "ritual": false,
+  "concentration": false,
+  "time": "action",
+  "rounds": 0,
+  "scale": "slot",
+  "target": "enemy",
+  "effects": [
+   {
+    "type": "save",
+    "ability": "con",
+    "fail": [
+     {
+      "type": "damage",
+      "dice": "14d6",
+      "damage_type": "necrotic",
+      "by_level": {
+       "6": "14d6"
+      }
+     }
+    ],
+    "half": true
+   }
+  ],
+  "status": "ok",
+  "use": [
+   "combat"
+  ],
+  "icon": "necrotic"
+ },
+ {
+  "id": "heal",
+  "name": {
+   "en": "Heal",
+   "ja": "ヒール"
+  },
+  "level": 6,
+  "school": "evocation",
+  "classes": [
+   "cleric",
+   "druid"
+  ],
+  "ritual": false,
+  "concentration": false,
+  "time": "action",
+  "rounds": 0,
+  "scale": "slot",
+  "use": [
+   "combat",
+   "camp"
+  ],
+  "target": "ally",
+  "effects": [
+   {
+    "type": "heal",
+    "dice": "70",
+    "by_level": {
+     "6": "70",
+     "7": "80",
+     "8": "90",
+     "9": "100"
+    }
+   }
+  ],
+  "status": "ok",
+  "icon": "heal"
+ },
+ {
+  "id": "heroes_feast",
+  "name": {
+   "en": "Heroes' Feast",
+   "ja": "ヒーローズ・フィースト"
+  },
+  "level": 6,
+  "school": "conjuration",
+  "classes": [
+   "cleric",
+   "druid"
+  ],
+  "ritual": false,
+  "concentration": false,
+  "time": "long",
+  "rounds": 0,
+  "use": [
+   "camp"
+  ],
+  "effects": [],
+  "status": "unsupported",
+  "icon": "buff"
+ },
+ {
+  "id": "instant_summons",
+  "name": {
+   "en": "Instant Summons",
+   "ja": "インスタント・サモンズ"
+  },
+  "level": 6,
+  "school": "conjuration",
+  "classes": [
+   "wizard"
+  ],
+  "ritual": true,
+  "concentration": false,
+  "time": "long",
+  "rounds": 600,
+  "use": [
+   "camp"
+  ],
+  "effects": [],
+  "status": "unsupported",
+  "icon": "buff"
+ },
+ {
+  "id": "irresistible_dance",
+  "name": {
+   "en": "Irresistible Dance",
+   "ja": "イレジスティブル・ダンス"
+  },
+  "level": 6,
+  "school": "enchantment",
+  "classes": [
+   "bard",
+   "wizard"
+  ],
+  "ritual": false,
+  "concentration": true,
+  "time": "action",
+  "rounds": 10,
+  "effects": [
+   {
+    "type": "condition",
+    "condition": "restrained",
+    "rounds": 10,
+    "repeat_save": true,
+    "ability": "wis"
+   }
+  ],
+  "status": "ok",
+  "target": "enemy",
+  "note": "踊りの不利を、拘束(毎ターンのセーヴで解ける)で近似",
+  "use": [
+   "combat"
+  ],
+  "icon": "debuff"
+ },
+ {
+  "id": "magic_jar",
+  "name": {
+   "en": "Magic Jar",
+   "ja": "マジック・ジャー"
+  },
+  "level": 6,
+  "school": "necromancy",
+  "classes": [
+   "wizard"
+  ],
+  "ritual": false,
+  "concentration": false,
+  "time": "long",
+  "rounds": 600,
+  "use": [
+   "camp"
+  ],
+  "effects": [],
+  "status": "unsupported",
+  "icon": "buff"
+ },
+ {
+  "id": "mass_suggestion",
+  "name": {
+   "en": "Mass Suggestion",
+   "ja": "マス・サジェスチョン"
+  },
+  "level": 6,
+  "school": "enchantment",
+  "classes": [
+   "bard",
+   "sorcerer",
+   "warlock",
+   "wizard"
+  ],
+  "ritual": false,
+  "concentration": false,
+  "time": "action",
+  "rounds": 14400,
+  "effects": [],
+  "status": "roleplay",
+  "use": [
+   "combat"
+  ],
+  "icon": "buff"
+ },
+ {
+  "id": "move_earth",
+  "name": {
+   "en": "Move Earth",
+   "ja": "ムーヴ・アース"
+  },
+  "level": 6,
+  "school": "transmutation",
+  "classes": [
+   "druid",
+   "sorcerer",
+   "wizard"
+  ],
+  "ritual": false,
+  "concentration": true,
+  "time": "action",
+  "rounds": 600,
+  "effects": [],
+  "status": "unsupported",
+  "use": [
+   "combat"
+  ],
+  "icon": "buff"
+ },
+ {
+  "id": "planar_ally",
+  "name": {
+   "en": "Planar Ally",
+   "ja": "プレイナー・アライ"
+  },
+  "level": 6,
+  "school": "conjuration",
+  "classes": [
+   "cleric"
+  ],
+  "ritual": false,
+  "concentration": false,
+  "time": "long",
+  "rounds": 0,
+  "use": [
+   "camp"
+  ],
+  "effects": [],
+  "status": "unsupported",
+  "icon": "buff"
+ },
+ {
+  "id": "programmed_illusion",
+  "name": {
+   "en": "Programmed Illusion",
+   "ja": "プログラムド・イリュージョン"
+  },
+  "level": 6,
+  "school": "illusion",
+  "classes": [
+   "bard",
+   "wizard"
+  ],
+  "ritual": false,
+  "concentration": false,
+  "time": "action",
+  "rounds": 600,
+  "effects": [],
+  "status": "roleplay",
+  "use": [
+   "combat"
+  ],
+  "icon": "buff"
+ },
+ {
+  "id": "sunbeam",
+  "name": {
+   "en": "Sunbeam",
+   "ja": "サンビーム"
+  },
+  "level": 6,
+  "school": "evocation",
+  "classes": [
+   "druid",
+   "sorcerer",
+   "wizard"
+  ],
+  "ritual": false,
+  "concentration": true,
+  "time": "action",
+  "rounds": 10,
+  "scale": "slot",
+  "target": "two_groups",
+  "effects": [
+   {
+    "type": "save",
+    "ability": "con",
+    "fail": [
+     {
+      "type": "damage",
+      "dice": "6d8",
+      "damage_type": "radiant",
+      "by_level": {
+       "6": "6d8"
+      }
+     }
+    ],
+    "half": true
+   }
+  ],
+  "status": "ok",
+  "use": [
+   "combat"
+  ],
+  "icon": "radiant"
+ },
+ {
+  "id": "transport_via_plants",
+  "name": {
+   "en": "Transport via Plants",
+   "ja": "トランスポート・ヴィア・プランツ"
+  },
+  "level": 6,
+  "school": "conjuration",
+  "classes": [
+   "druid"
+  ],
+  "ritual": false,
+  "concentration": false,
+  "time": "action",
+  "rounds": 1,
+  "effects": [],
+  "status": "unsupported",
+  "use": [
+   "combat"
+  ],
+  "icon": "buff"
+ },
+ {
+  "id": "true_seeing",
+  "name": {
+   "en": "True Seeing",
+   "ja": "トゥルー・シーイング"
+  },
+  "level": 6,
+  "school": "divination",
+  "classes": [
+   "bard",
+   "cleric",
+   "sorcerer",
+   "warlock",
+   "wizard"
+  ],
+  "ritual": false,
+  "concentration": false,
+  "time": "action",
+  "rounds": 600,
+  "effects": [],
+  "status": "unsupported",
+  "use": [
+   "combat"
+  ],
+  "icon": "buff"
+ },
+ {
+  "id": "wall_of_ice",
+  "name": {
+   "en": "Wall of Ice",
+   "ja": "ウォール・オヴ・アイス"
+  },
+  "level": 6,
+  "school": "evocation",
+  "classes": [
+   "wizard"
+  ],
+  "ritual": false,
+  "concentration": true,
+  "time": "action",
+  "rounds": 100,
+  "scale": "slot",
+  "target": "group",
+  "effects": [
+   {
+    "type": "save",
+    "ability": "dex",
+    "fail": [
+     {
+      "type": "damage",
+      "dice": "10d6",
+      "damage_type": "cold",
+      "by_level": {
+       "6": "10d6",
+       "7": "12d6",
+       "8": "14d6",
+       "9": "16d6"
+      }
+     }
+    ],
+    "half": true
+   }
+  ],
+  "status": "ok",
+  "use": [
+   "combat"
+  ],
+  "icon": "cold"
+ },
+ {
+  "id": "wall_of_thorns",
+  "name": {
+   "en": "Wall of Thorns",
+   "ja": "ウォール・オヴ・ソーンズ"
+  },
+  "level": 6,
+  "school": "conjuration",
+  "classes": [
+   "druid"
+  ],
+  "ritual": false,
+  "concentration": true,
+  "time": "action",
+  "rounds": 100,
+  "scale": "slot",
+  "target": "two_groups",
+  "effects": [
+   {
+    "type": "save",
+    "ability": "dex",
+    "fail": [
+     {
+      "type": "damage",
+      "dice": "7d8",
+      "damage_type": "piercing",
+      "by_level": {
+       "6": "7d8",
+       "7": "8d8",
+       "8": "9d8",
+       "9": "10d8"
+      }
+     }
+    ],
+    "half": true
+   }
+  ],
+  "status": "ok",
+  "zone": true,
+  "use": [
+   "combat"
+  ],
+  "icon": "physical"
+ },
+ {
+  "id": "wind_walk",
+  "name": {
+   "en": "Wind Walk",
+   "ja": "ウィンド・ウォーク"
+  },
+  "level": 6,
+  "school": "transmutation",
+  "classes": [
+   "druid"
+  ],
+  "ritual": false,
+  "concentration": false,
+  "time": "long",
+  "rounds": 4800,
+  "use": [
+   "camp"
+  ],
+  "effects": [],
+  "status": "unsupported",
+  "icon": "buff"
+ },
+ {
+  "id": "word_of_recall",
+  "name": {
+   "en": "Word of Recall",
+   "ja": "ワード・オヴ・リコール"
+  },
+  "level": 6,
+  "school": "conjuration",
+  "classes": [
+   "cleric"
+  ],
+  "ritual": false,
+  "concentration": false,
+  "time": "action",
+  "rounds": 0,
+  "effects": [
+   {
+    "type": "recall"
+   }
+  ],
+  "status": "ok",
+  "target": "self",
+  "use": [
+   "camp"
+  ],
+  "note": "パーティごと町へ帰る",
+  "icon": "teleport"
+ },
+ {
+  "id": "arcane_sword",
+  "name": {
+   "en": "Arcane Sword",
+   "ja": "アーケイン・ソード"
+  },
+  "level": 7,
+  "school": "evocation",
+  "classes": [
+   "bard",
+   "wizard"
+  ],
+  "ritual": false,
+  "concentration": true,
+  "time": "action",
+  "rounds": 10,
+  "scale": "slot",
+  "attack": "melee",
+  "target": "enemy",
+  "effects": [
+   {
+    "type": "damage",
+    "dice": "3d10",
+    "damage_type": "force",
+    "by_level": {
+     "7": "3d10"
+    }
+   }
+  ],
+  "status": "ok",
+  "use": [
+   "combat"
+  ],
+  "icon": "force"
+ },
+ {
+  "id": "conjure_celestial",
+  "name": {
+   "en": "Conjure Celestial",
+   "ja": "コンジュア・セレスチャル"
+  },
+  "level": 7,
+  "school": "conjuration",
+  "classes": [
+   "cleric"
+  ],
+  "ritual": false,
+  "concentration": true,
+  "time": "action",
+  "rounds": 600,
+  "use": [
+   "combat"
+  ],
+  "effects": [],
+  "status": "ok",
+  "target": "self",
+  "icon": "buff",
+  "summon": {
+   "monster": "unicorn",
+   "count": 1,
+   "per_level": 0
+  },
+  "note": "ユニコーンを呼ぶ。5版では1分かかるが、戦闘の中で唱えられる"
+ },
+ {
+  "id": "delayed_blast_fireball",
+  "name": {
+   "en": "Delayed Blast Fireball",
+   "ja": "ディレイド・ブラスト・ファイアーボール"
+  },
+  "level": 7,
+  "school": "evocation",
+  "classes": [
+   "sorcerer",
+   "wizard"
+  ],
+  "ritual": false,
+  "concentration": true,
+  "time": "action",
+  "rounds": 10,
+  "scale": "slot",
+  "target": "group",
+  "effects": [
+   {
+    "type": "save",
+    "ability": "dex",
+    "fail": [
+     {
+      "type": "damage",
+      "dice": "12d6",
+      "damage_type": "fire",
+      "by_level": {
+       "7": "12d6",
+       "8": "13d6",
+       "9": "14d6"
+      }
+     }
+    ],
+    "half": true
+   }
+  ],
+  "status": "ok",
+  "use": [
+   "combat"
+  ],
+  "icon": "fire"
+ },
+ {
+  "id": "divine_word",
+  "name": {
+   "en": "Divine Word",
+   "ja": "ディヴァイン・ワード"
+  },
+  "level": 7,
+  "school": "evocation",
+  "classes": [
+   "cleric"
+  ],
+  "ritual": false,
+  "concentration": false,
+  "time": "bonus",
+  "rounds": 0,
+  "effects": [
+   {
+    "type": "save",
+    "ability": "cha",
+    "fail": [
+     {
+      "type": "kill",
+      "max_hp": 20
+     },
+     {
+      "type": "condition",
+      "condition": "stunned",
+      "rounds": 10,
+      "max_hp": 30
+     },
+     {
+      "type": "condition",
+      "condition": "blinded",
+      "rounds": 10,
+      "max_hp": 40
+     },
+     {
+      "type": "condition",
+      "condition": "deafened",
+      "rounds": 10,
+      "max_hp": 50
+     }
+    ]
+   }
+  ],
+  "status": "ok",
+  "target": "all_enemies",
+  "note": "HP で効き目が変わる(20 以下は消える)",
+  "use": [
+   "combat"
+  ],
+  "icon": "death"
+ },
+ {
+  "id": "etherealness",
+  "name": {
+   "en": "Etherealness",
+   "ja": "イーサリアルネス"
+  },
+  "level": 7,
+  "school": "transmutation",
+  "classes": [
+   "bard",
+   "cleric",
+   "sorcerer",
+   "warlock",
+   "wizard"
+  ],
+  "ritual": false,
+  "concentration": false,
+  "time": "action",
+  "rounds": 4800,
+  "effects": [],
+  "status": "unsupported",
+  "use": [
+   "combat"
+  ],
+  "icon": "buff"
+ },
+ {
+  "id": "finger_of_death",
+  "name": {
+   "en": "Finger of Death",
+   "ja": "フィンガー・オヴ・デス"
+  },
+  "level": 7,
+  "school": "necromancy",
+  "classes": [
+   "sorcerer",
+   "warlock",
+   "wizard"
+  ],
+  "ritual": false,
+  "concentration": false,
+  "time": "action",
+  "rounds": 0,
+  "scale": "slot",
+  "target": "enemy",
+  "effects": [
+   {
+    "type": "save",
+    "ability": "con",
+    "fail": [
+     {
+      "type": "damage",
+      "dice": "7d8+30",
+      "damage_type": "necrotic",
+      "by_level": {
+       "7": "7d8+30"
+      }
+     }
+    ],
+    "half": true
+   }
+  ],
+  "status": "ok",
+  "use": [
+   "combat"
+  ],
+  "icon": "necrotic"
+ },
+ {
+  "id": "fire_storm",
+  "name": {
+   "en": "Fire Storm",
+   "ja": "ファイアー・ストーム"
+  },
+  "level": 7,
+  "school": "evocation",
+  "classes": [
+   "cleric",
+   "druid",
+   "sorcerer"
+  ],
+  "ritual": false,
+  "concentration": false,
+  "time": "action",
+  "rounds": 0,
+  "scale": "slot",
+  "target": "group",
+  "effects": [
+   {
+    "type": "save",
+    "ability": "dex",
+    "fail": [
+     {
+      "type": "damage",
+      "dice": "7d10",
+      "damage_type": "fire",
+      "by_level": {
+       "7": "7d10"
+      }
+     }
+    ],
+    "half": true
+   }
+  ],
+  "status": "ok",
+  "use": [
+   "combat"
+  ],
+  "icon": "fire"
+ },
+ {
+  "id": "forcecage",
+  "name": {
+   "en": "Forcecage",
+   "ja": "フォースケージ"
+  },
+  "level": 7,
+  "school": "evocation",
+  "classes": [
+   "bard",
+   "warlock",
+   "wizard"
+  ],
+  "ritual": false,
+  "concentration": false,
+  "time": "action",
+  "rounds": 600,
+  "effects": [
+   {
+    "type": "save",
+    "ability": "cha",
+    "fail": [
+     {
+      "type": "condition",
+      "condition": "incapacitated",
+      "rounds": 10
+     }
+    ]
+   }
+  ],
+  "status": "ok",
+  "target": "enemy",
+  "note": "閉じ込めを、魅力のセーヴ(失敗で動けない)で近似",
+  "use": [
+   "combat"
+  ],
+  "icon": "debuff"
+ },
+ {
+  "id": "magnificent_mansion",
+  "name": {
+   "en": "Magnificent Mansion",
+   "ja": "マグニフィセント・マンション"
+  },
+  "level": 7,
+  "school": "conjuration",
+  "classes": [
+   "bard",
+   "wizard"
+  ],
+  "ritual": false,
+  "concentration": false,
+  "time": "long",
+  "rounds": 14400,
+  "use": [
+   "camp"
+  ],
+  "effects": [],
+  "status": "unsupported",
+  "icon": "buff"
+ },
+ {
+  "id": "mirage_arcane",
+  "name": {
+   "en": "Mirage Arcane",
+   "ja": "ミラージュ・アーケイン"
+  },
+  "level": 7,
+  "school": "illusion",
+  "classes": [
+   "bard",
+   "druid",
+   "wizard"
+  ],
+  "ritual": false,
+  "concentration": false,
+  "time": "long",
+  "rounds": 600,
+  "use": [
+   "camp"
+  ],
+  "effects": [],
+  "status": "unsupported",
+  "icon": "buff"
+ },
+ {
+  "id": "plane_shift",
+  "name": {
+   "en": "Plane Shift",
+   "ja": "プレーン・シフト"
+  },
+  "level": 7,
+  "school": "conjuration",
+  "classes": [
+   "cleric",
+   "druid",
+   "sorcerer",
+   "warlock",
+   "wizard"
+  ],
+  "ritual": false,
+  "concentration": false,
+  "time": "action",
+  "rounds": 0,
+  "attack": "melee",
+  "effects": [
+   {
+    "type": "save",
+    "ability": "cha",
+    "fail": [
+     {
+      "type": "kill"
+     }
+    ]
+   }
+  ],
+  "status": "ok",
+  "target": "enemy",
+  "note": "敵をよその次元へ送る使い方だけ(戦闘から消える)",
+  "use": [
+   "combat"
+  ],
+  "icon": "death"
+ },
+ {
+  "id": "prismatic_spray",
+  "name": {
+   "en": "Prismatic Spray",
+   "ja": "プリズマティック・スプレー"
+  },
+  "level": 7,
+  "school": "evocation",
+  "classes": [
+   "sorcerer",
+   "wizard"
+  ],
+  "ritual": false,
+  "concentration": false,
+  "time": "action",
+  "rounds": 0,
+  "effects": [
+   {
+    "type": "save",
+    "ability": "dex",
+    "half": true,
+    "fail": [
+     {
+      "type": "damage",
+      "dice": "10d6",
+      "damage_type": "fire"
+     }
+    ]
+   }
+  ],
+  "status": "ok",
+  "target": "group",
+  "note": "色ごとの効果は、10d6 の火のダメージで近似",
+  "use": [
+   "combat"
+  ],
+  "icon": "fire"
+ },
+ {
+  "id": "project_image",
+  "name": {
+   "en": "Project Image",
+   "ja": "プロジェクト・イメージ"
+  },
+  "level": 7,
+  "school": "illusion",
+  "classes": [
+   "bard",
+   "wizard"
+  ],
+  "ritual": false,
+  "concentration": true,
+  "time": "action",
+  "rounds": 14400,
+  "effects": [],
+  "status": "unsupported",
+  "use": [
+   "combat"
+  ],
+  "icon": "buff"
+ },
+ {
+  "id": "regenerate",
+  "name": {
+   "en": "Regenerate",
+   "ja": "リジェネレイト"
+  },
+  "level": 7,
+  "school": "transmutation",
+  "classes": [
+   "bard",
+   "cleric",
+   "druid"
+  ],
+  "ritual": false,
+  "concentration": false,
+  "time": "long",
+  "rounds": 600,
+  "scale": "slot",
+  "use": [
+   "camp"
+  ],
+  "target": "ally",
+  "effects": [
+   {
+    "type": "heal",
+    "dice": "4d8+15",
+    "by_level": {
+     "7": "4d8+15"
+    }
+   }
+  ],
+  "status": "ok",
+  "icon": "heal"
+ },
+ {
+  "id": "resurrection",
+  "name": {
+   "en": "Resurrection",
+   "ja": "リザレクション"
+  },
+  "level": 7,
+  "school": "necromancy",
+  "classes": [
+   "bard",
+   "cleric"
+  ],
+  "ritual": false,
+  "concentration": false,
+  "time": "long",
+  "rounds": 0,
+  "use": [
+   "camp"
+  ],
+  "effects": [
+   {
+    "type": "revive",
+    "allow_ashes": true
+   }
+  ],
+  "status": "ok",
+  "target": "ally",
+  "icon": "revive"
+ },
+ {
+  "id": "reverse_gravity",
+  "name": {
+   "en": "Reverse Gravity",
+   "ja": "リヴァース・グラヴィティ"
+  },
+  "level": 7,
+  "school": "transmutation",
+  "classes": [
+   "druid",
+   "sorcerer",
+   "wizard"
+  ],
+  "ritual": false,
+  "concentration": true,
+  "time": "action",
+  "rounds": 10,
+  "effects": [],
+  "status": "unsupported",
+  "use": [
+   "combat"
+  ],
+  "icon": "buff"
+ },
+ {
+  "id": "sequester",
+  "name": {
+   "en": "Sequester",
+   "ja": "シークエスター"
+  },
+  "level": 7,
+  "school": "transmutation",
+  "classes": [
+   "wizard"
+  ],
+  "ritual": false,
+  "concentration": false,
+  "time": "action",
+  "rounds": 600,
+  "effects": [],
+  "status": "unsupported",
+  "use": [
+   "combat"
+  ],
+  "icon": "buff"
+ },
+ {
+  "id": "simulacrum",
+  "name": {
+   "en": "Simulacrum",
+   "ja": "シミュラクラム"
+  },
+  "level": 7,
+  "school": "illusion",
+  "classes": [
+   "wizard"
+  ],
+  "ritual": false,
+  "concentration": false,
+  "time": "long",
+  "rounds": 600,
+  "use": [
+   "camp"
+  ],
+  "effects": [],
+  "status": "unsupported",
+  "icon": "buff"
+ },
+ {
+  "id": "symbol",
+  "name": {
+   "en": "Symbol",
+   "ja": "シンボル"
+  },
+  "level": 7,
+  "school": "abjuration",
+  "classes": [
+   "bard",
+   "cleric",
+   "wizard"
+  ],
+  "ritual": false,
+  "concentration": false,
+  "time": "long",
+  "rounds": 600,
+  "use": [
+   "camp"
+  ],
+  "effects": [],
+  "status": "unsupported",
+  "icon": "buff"
+ },
+ {
+  "id": "teleport",
+  "name": {
+   "en": "Teleport",
+   "ja": "テレポート"
+  },
+  "level": 7,
+  "school": "conjuration",
+  "classes": [
+   "bard",
+   "sorcerer",
+   "wizard"
+  ],
+  "ritual": false,
+  "concentration": false,
+  "time": "action",
+  "rounds": 0,
+  "effects": [],
+  "status": "unsupported",
+  "use": [
+   "combat"
+  ],
+  "icon": "buff"
+ },
+ {
+  "id": "animal_shapes",
+  "name": {
+   "en": "Animal Shapes",
+   "ja": "アニマル・シェイプス"
+  },
+  "level": 8,
+  "school": "transmutation",
+  "classes": [
+   "druid"
+  ],
+  "ritual": false,
+  "concentration": true,
+  "time": "action",
+  "rounds": 14400,
+  "effects": [],
+  "status": "unsupported",
+  "use": [
+   "combat"
+  ],
+  "icon": "buff"
+ },
+ {
+  "id": "antimagic_field",
+  "name": {
+   "en": "Antimagic Field",
+   "ja": "アンチマジック・フィールド"
+  },
+  "level": 8,
+  "school": "abjuration",
+  "classes": [
+   "cleric",
+   "wizard"
+  ],
+  "ritual": false,
+  "concentration": true,
+  "time": "action",
+  "rounds": 600,
+  "effects": [],
+  "status": "unsupported",
+  "use": [
+   "combat"
+  ],
+  "icon": "buff"
+ },
+ {
+  "id": "antipathy_sympathy",
+  "name": {
+   "en": "Antipathy/Sympathy",
+   "ja": "アンチパシー／シンパシー"
+  },
+  "level": 8,
+  "school": "enchantment",
+  "classes": [
+   "druid",
+   "wizard"
+  ],
+  "ritual": false,
+  "concentration": false,
+  "time": "long",
+  "rounds": 600,
+  "use": [
+   "camp"
+  ],
+  "effects": [],
+  "status": "unsupported",
+  "icon": "buff"
+ },
+ {
+  "id": "clone",
+  "name": {
+   "en": "Clone",
+   "ja": "クローン"
+  },
+  "level": 8,
+  "school": "necromancy",
+  "classes": [
+   "wizard"
+  ],
+  "ritual": false,
+  "concentration": false,
+  "time": "long",
+  "rounds": 0,
+  "use": [
+   "camp"
+  ],
+  "effects": [],
+  "status": "unsupported",
+  "icon": "buff"
+ },
+ {
+  "id": "control_weather",
+  "name": {
+   "en": "Control Weather",
+   "ja": "コントロール・ウェザー"
+  },
+  "level": 8,
+  "school": "transmutation",
+  "classes": [
+   "cleric",
+   "druid",
+   "wizard"
+  ],
+  "ritual": false,
+  "concentration": true,
+  "time": "long",
+  "rounds": 4800,
+  "use": [
+   "camp"
+  ],
+  "effects": [],
+  "status": "unsupported",
+  "icon": "buff"
+ },
+ {
+  "id": "demiplane",
+  "name": {
+   "en": "Demiplane",
+   "ja": "デミプレーン"
+  },
+  "level": 8,
+  "school": "conjuration",
+  "classes": [
+   "warlock",
+   "wizard"
+  ],
+  "ritual": false,
+  "concentration": false,
+  "time": "action",
+  "rounds": 600,
+  "effects": [],
+  "status": "unsupported",
+  "use": [
+   "combat"
+  ],
+  "icon": "buff"
+ },
+ {
+  "id": "dominate_monster",
+  "name": {
+   "en": "Dominate Monster",
+   "ja": "ドミネイト・モンスター"
+  },
+  "level": 8,
+  "school": "enchantment",
+  "classes": [
+   "bard",
+   "sorcerer",
+   "warlock",
+   "wizard"
+  ],
+  "ritual": false,
+  "concentration": true,
+  "time": "action",
+  "rounds": 10,
+  "effects": [
+   {
+    "type": "save",
+    "ability": "wis",
+    "fail": [
+     {
+      "type": "condition",
+      "condition": "incapacitated",
+      "rounds": 10,
+      "repeat_save": true
+     }
+    ]
+   }
+  ],
+  "status": "ok",
+  "target": "enemy",
+  "note": "味方にする代わりに、動けなくする(毎ターンのセーヴで解ける)",
+  "use": [
+   "combat"
+  ],
+  "icon": "debuff"
+ },
+ {
+  "id": "earthquake",
+  "name": {
+   "en": "Earthquake",
+   "ja": "アースクエイク"
+  },
+  "level": 8,
+  "school": "evocation",
+  "classes": [
+   "cleric",
+   "druid",
+   "sorcerer"
+  ],
+  "ritual": false,
+  "concentration": true,
+  "time": "action",
+  "rounds": 10,
+  "effects": [],
+  "status": "unsupported",
+  "use": [
+   "combat"
+  ],
+  "icon": "buff"
+ },
+ {
+  "id": "feeblemind",
+  "name": {
+   "en": "Feeblemind",
+   "ja": "フィーブルマインド"
+  },
+  "level": 8,
+  "school": "enchantment",
+  "classes": [
+   "bard",
+   "druid",
+   "warlock",
+   "wizard"
+  ],
+  "ritual": false,
+  "concentration": false,
+  "time": "action",
+  "rounds": 0,
+  "scale": "slot",
+  "target": "enemy",
+  "effects": [
+   {
+    "type": "save",
+    "ability": "int",
+    "fail": [
+     {
+      "type": "damage",
+      "dice": "4d6",
+      "damage_type": "psychic",
+      "by_level": {
+       "8": "4d6"
+      }
+     }
+    ]
+   }
+  ],
+  "status": "ok",
+  "use": [
+   "combat"
+  ],
+  "icon": "psychic"
+ },
+ {
+  "id": "glibness",
+  "name": {
+   "en": "Glibness",
+   "ja": "グリブネス"
+  },
+  "level": 8,
+  "school": "transmutation",
+  "classes": [
+   "bard",
+   "warlock"
+  ],
+  "ritual": false,
+  "concentration": false,
+  "time": "action",
+  "rounds": 600,
+  "effects": [],
+  "status": "roleplay",
+  "use": [
+   "combat"
+  ],
+  "icon": "buff"
+ },
+ {
+  "id": "holy_aura",
+  "name": {
+   "en": "Holy Aura",
+   "ja": "ホーリー・オーラ"
+  },
+  "level": 8,
+  "school": "abjuration",
+  "classes": [
+   "cleric"
+  ],
+  "ritual": false,
+  "concentration": true,
+  "time": "action",
+  "rounds": 10,
+  "effects": [
+   {
+    "type": "modifier",
+    "stat": "save",
+    "value": 3,
+    "rounds": 10
+   },
+   {
+    "type": "modifier",
+    "stat": "ac",
+    "value": 3,
+    "rounds": 10
+   }
+  ],
+  "status": "ok",
+  "target": "allies",
+  "note": "有利と不利を、セーヴ +3・AC +3 で近似",
+  "use": [
+   "combat"
+  ],
+  "icon": "protect"
+ },
+ {
+  "id": "incendiary_cloud",
+  "name": {
+   "en": "Incendiary Cloud",
+   "ja": "インセンディアリー・クラウド"
+  },
+  "level": 8,
+  "school": "conjuration",
+  "classes": [
+   "sorcerer",
+   "wizard"
+  ],
+  "ritual": false,
+  "concentration": true,
+  "time": "action",
+  "rounds": 10,
+  "scale": "slot",
+  "target": "group",
+  "effects": [
+   {
+    "type": "save",
+    "ability": "dex",
+    "fail": [
+     {
+      "type": "damage",
+      "dice": "10d8",
+      "damage_type": "fire",
+      "by_level": {
+       "8": "10d8"
+      }
+     }
+    ],
+    "half": true
+   }
+  ],
+  "status": "ok",
+  "zone": true,
+  "use": [
+   "combat"
+  ],
+  "icon": "fire"
+ },
+ {
+  "id": "maze",
+  "name": {
+   "en": "Maze",
+   "ja": "メイズ"
+  },
+  "level": 8,
+  "school": "conjuration",
+  "classes": [
+   "wizard"
+  ],
+  "ritual": false,
+  "concentration": true,
+  "time": "action",
+  "rounds": 100,
+  "effects": [
+   {
+    "type": "condition",
+    "condition": "incapacitated",
+    "rounds": 10,
+    "repeat_save": true,
+    "ability": "int",
+    "dc": 20
+   }
+  ],
+  "status": "ok",
+  "target": "enemy",
+  "note": "迷路から出るのは、毎ターンの知力のセーヴ(難易度 20)",
+  "use": [
+   "combat"
+  ],
+  "icon": "debuff"
+ },
+ {
+  "id": "mind_blank",
+  "name": {
+   "en": "Mind Blank",
+   "ja": "マインド・ブランク"
+  },
+  "level": 8,
+  "school": "abjuration",
+  "classes": [
+   "bard",
+   "wizard"
+  ],
+  "ritual": false,
+  "concentration": false,
+  "time": "action",
+  "rounds": 600,
+  "effects": [
+   {
+    "type": "immune_condition",
+    "condition": "charmed",
+    "rounds": 600
+   },
+   {
+    "type": "resist",
+    "damage_type": "psychic",
+    "rounds": 600
+   }
+  ],
+  "status": "ok",
+  "target": "ally",
+  "use": [
+   "combat"
+  ],
+  "icon": "protect"
+ },
+ {
+  "id": "power_word_stun",
+  "name": {
+   "en": "Power Word Stun",
+   "ja": "パワー・ワード・スタン"
+  },
+  "level": 8,
+  "school": "enchantment",
+  "classes": [
+   "bard",
+   "sorcerer",
+   "warlock",
+   "wizard"
+  ],
+  "ritual": false,
+  "concentration": false,
+  "time": "action",
+  "rounds": 0,
+  "effects": [
+   {
+    "type": "condition",
+    "condition": "stunned",
+    "rounds": 10,
+    "max_hp": 150,
+    "repeat_save": true,
+    "ability": "con"
+   }
+  ],
+  "status": "ok",
+  "target": "enemy",
+  "use": [
+   "combat"
+  ],
+  "icon": "debuff"
+ },
+ {
+  "id": "sunburst",
+  "name": {
+   "en": "Sunburst",
+   "ja": "サンバースト"
+  },
+  "level": 8,
+  "school": "evocation",
+  "classes": [
+   "druid",
+   "sorcerer",
+   "wizard"
+  ],
+  "ritual": false,
+  "concentration": false,
+  "time": "action",
+  "rounds": 0,
+  "scale": "slot",
+  "target": "group",
+  "effects": [
+   {
+    "type": "save",
+    "ability": "con",
+    "fail": [
+     {
+      "type": "damage",
+      "dice": "12d6",
+      "damage_type": "radiant",
+      "by_level": {
+       "8": "12d6"
+      }
+     }
+    ],
+    "half": true
+   }
+  ],
+  "status": "ok",
+  "use": [
+   "combat"
+  ],
+  "icon": "radiant"
+ },
+ {
+  "id": "astral_projection",
+  "name": {
+   "en": "Astral Projection",
+   "ja": "アストラル・プロジェクション"
+  },
+  "level": 9,
+  "school": "necromancy",
+  "classes": [
+   "cleric",
+   "warlock",
+   "wizard"
+  ],
+  "ritual": false,
+  "concentration": false,
+  "time": "long",
+  "rounds": 600,
+  "use": [
+   "camp"
+  ],
+  "effects": [],
+  "status": "unsupported",
+  "icon": "buff"
+ },
+ {
+  "id": "foresight",
+  "name": {
+   "en": "Foresight",
+   "ja": "フォーサイト"
+  },
+  "level": 9,
+  "school": "divination",
+  "classes": [
+   "bard",
+   "druid",
+   "warlock",
+   "wizard"
+  ],
+  "ritual": false,
+  "concentration": false,
+  "time": "long",
+  "rounds": 600,
+  "use": [
+   "camp"
+  ],
+  "effects": [
+   {
+    "type": "modifier",
+    "stat": "attack",
+    "value": 5,
+    "rounds": 600
+   },
+   {
+    "type": "modifier",
+    "stat": "ac",
+    "value": 5,
+    "rounds": 600
+   },
+   {
+    "type": "modifier",
+    "stat": "save",
+    "value": 5,
+    "rounds": 600
+   }
+  ],
+  "status": "ok",
+  "icon": "buff",
+  "target": "ally",
+  "note": "有利と不利を、命中・AC・セーヴ +5 で近似"
+ },
+ {
+  "id": "gate",
+  "name": {
+   "en": "Gate",
+   "ja": "ゲート"
+  },
+  "level": 9,
+  "school": "conjuration",
+  "classes": [
+   "cleric",
+   "sorcerer",
+   "wizard"
+  ],
+  "ritual": false,
+  "concentration": true,
+  "time": "action",
+  "rounds": 10,
+  "effects": [],
+  "status": "unsupported",
+  "use": [
+   "combat"
+  ],
+  "icon": "buff"
+ },
+ {
+  "id": "imprisonment",
+  "name": {
+   "en": "Imprisonment",
+   "ja": "インプリズンメント"
+  },
+  "level": 9,
+  "school": "abjuration",
+  "classes": [
+   "warlock",
+   "wizard"
+  ],
+  "ritual": false,
+  "concentration": false,
+  "time": "long",
+  "rounds": 600,
+  "use": [
+   "camp"
+  ],
+  "effects": [],
+  "status": "unsupported",
+  "icon": "buff"
+ },
+ {
+  "id": "mass_heal",
+  "name": {
+   "en": "Mass Heal",
+   "ja": "マス・ヒール"
+  },
+  "level": 9,
+  "school": "conjuration",
+  "classes": [
+   "cleric"
+  ],
+  "ritual": false,
+  "concentration": false,
+  "time": "action",
+  "rounds": 0,
+  "scale": "slot",
+  "use": [
+   "combat",
+   "camp"
+  ],
+  "target": "allies",
+  "effects": [
+   {
+    "type": "heal",
+    "dice": "700",
+    "by_level": {
+     "9": "700"
+    }
+   }
+  ],
+  "status": "ok",
+  "icon": "heal"
+ },
+ {
+  "id": "meteor_swarm",
+  "name": {
+   "en": "Meteor Swarm",
+   "ja": "メテオ・スウォーム"
+  },
+  "level": 9,
+  "school": "evocation",
+  "classes": [
+   "sorcerer",
+   "wizard"
+  ],
+  "ritual": false,
+  "concentration": false,
+  "time": "action",
+  "rounds": 0,
+  "scale": "slot",
+  "target": "all_enemies",
+  "effects": [
+   {
+    "type": "save",
+    "ability": "dex",
+    "half": true,
+    "fail": [
+     {
+      "type": "damage",
+      "dice": "20d6",
+      "damage_type": "fire",
+      "by_level": {
+       "9": "20d6"
+      }
+     },
+     {
+      "type": "damage",
+      "dice": "20d6",
+      "damage_type": "bludgeoning",
+      "by_level": {
+       "9": "20d6"
+      }
+     }
+    ]
+   }
+  ],
+  "status": "ok",
+  "note": "4 つの球で、敵の全部のグループに当たる",
+  "use": [
+   "combat"
+  ],
+  "icon": "fire"
+ },
+ {
+  "id": "power_word_kill",
+  "name": {
+   "en": "Power Word Kill",
+   "ja": "パワー・ワード・キル"
+  },
+  "level": 9,
+  "school": "enchantment",
+  "classes": [
+   "bard",
+   "sorcerer",
+   "warlock",
+   "wizard"
+  ],
+  "ritual": false,
+  "concentration": false,
+  "time": "action",
+  "rounds": 0,
+  "effects": [
+   {
+    "type": "kill",
+    "max_hp": 100
+   }
+  ],
+  "status": "ok",
+  "target": "enemy",
+  "use": [
+   "combat"
+  ],
+  "icon": "death"
+ },
+ {
+  "id": "prismatic_wall",
+  "name": {
+   "en": "Prismatic Wall",
+   "ja": "プリズマティック・ウォール"
+  },
+  "level": 9,
+  "school": "abjuration",
+  "classes": [
+   "wizard"
+  ],
+  "ritual": false,
+  "concentration": false,
+  "time": "action",
+  "rounds": 100,
+  "effects": [],
+  "status": "unsupported",
+  "use": [
+   "combat"
+  ],
+  "icon": "buff"
+ },
+ {
+  "id": "shapechange",
+  "name": {
+   "en": "Shapechange",
+   "ja": "シェイプチェンジ"
+  },
+  "level": 9,
+  "school": "transmutation",
+  "classes": [
+   "druid",
+   "wizard"
+  ],
+  "ritual": false,
+  "concentration": true,
+  "time": "action",
+  "rounds": 600,
+  "effects": [],
+  "status": "unsupported",
+  "use": [
+   "combat"
+  ],
+  "icon": "buff"
+ },
+ {
+  "id": "storm_of_vengeance",
+  "name": {
+   "en": "Storm of Vengeance",
+   "ja": "ストーム・オヴ・ヴェンジェンス"
+  },
+  "level": 9,
+  "school": "conjuration",
+  "classes": [
+   "druid"
+  ],
+  "ritual": false,
+  "concentration": true,
+  "time": "action",
+  "rounds": 10,
+  "scale": "slot",
+  "target": "group",
+  "effects": [
+   {
+    "type": "save",
+    "ability": "con",
+    "fail": [
+     {
+      "type": "damage",
+      "dice": "2d6",
+      "damage_type": "thunder",
+      "by_level": {
+       "9": "2d6"
+      }
+     }
+    ]
+   }
+  ],
+  "status": "ok",
+  "zone": true,
+  "use": [
+   "combat"
+  ],
+  "icon": "thunder"
+ },
+ {
+  "id": "time_stop",
+  "name": {
+   "en": "Time Stop",
+   "ja": "タイム・ストップ"
+  },
+  "level": 9,
+  "school": "transmutation",
+  "classes": [
+   "sorcerer",
+   "wizard"
+  ],
+  "ritual": false,
+  "concentration": false,
+  "time": "action",
+  "rounds": 0,
+  "effects": [],
+  "status": "unsupported",
+  "use": [
+   "combat"
+  ],
+  "icon": "buff"
+ },
+ {
+  "id": "true_polymorph",
+  "name": {
+   "en": "True Polymorph",
+   "ja": "トゥルー・ポリモーフ"
+  },
+  "level": 9,
+  "school": "transmutation",
+  "classes": [
+   "bard",
+   "warlock",
+   "wizard"
+  ],
+  "ritual": false,
+  "concentration": true,
+  "time": "action",
+  "rounds": 600,
+  "effects": [
+   {
+    "type": "save",
+    "ability": "wis",
+    "fail": [
+     {
+      "type": "condition",
+      "condition": "incapacitated",
+      "rounds": 600
+     }
+    ]
+   }
+  ],
+  "status": "ok",
+  "target": "enemy",
+  "note": "敵を小さな獣に変える使い方だけ(動けない)",
+  "use": [
+   "combat"
+  ],
+  "icon": "debuff"
+ },
+ {
+  "id": "true_resurrection",
+  "name": {
+   "en": "True Resurrection",
+   "ja": "トゥルー・リザレクション"
+  },
+  "level": 9,
+  "school": "necromancy",
+  "classes": [
+   "cleric",
+   "druid"
+  ],
+  "ritual": false,
+  "concentration": false,
+  "time": "long",
+  "rounds": 0,
+  "use": [
+   "camp"
+  ],
+  "effects": [
+   {
+    "type": "revive",
+    "allow_ashes": true,
+    "value": 999
+   }
+  ],
+  "status": "ok",
+  "target": "ally",
+  "icon": "revive"
+ },
+ {
+  "id": "weird",
+  "name": {
+   "en": "Weird",
+   "ja": "ウィアード"
+  },
+  "level": 9,
+  "school": "illusion",
+  "classes": [
+   "wizard"
+  ],
+  "ritual": false,
+  "concentration": true,
+  "time": "action",
+  "rounds": 10,
+  "effects": [
+   {
+    "type": "save",
+    "ability": "wis",
+    "fail": [
+     {
+      "type": "damage",
+      "dice": "4d10",
+      "damage_type": "psychic"
+     },
+     {
+      "type": "condition",
+      "condition": "frightened",
+      "rounds": 10,
+      "repeat_save": true
+     }
+    ]
+   }
+  ],
+  "status": "ok",
+  "target": "all_enemies",
+  "note": "毎ターンのダメージは無く、唱えたときに1回",
+  "use": [
+   "combat"
+  ],
+  "icon": "psychic"
+ },
+ {
+  "id": "wish",
+  "name": {
+   "en": "Wish",
+   "ja": "ウィッシュ"
+  },
+  "level": 9,
+  "school": "conjuration",
+  "classes": [
+   "sorcerer",
+   "wizard"
+  ],
+  "ritual": false,
+  "concentration": false,
+  "time": "action",
+  "rounds": 0,
+  "effects": [
+   {
+    "type": "wish"
+   }
+  ],
+  "status": "ok",
+  "target": "self",
+  "use": [
+   "combat"
+  ],
+  "icon": "wish"
+ }
+]

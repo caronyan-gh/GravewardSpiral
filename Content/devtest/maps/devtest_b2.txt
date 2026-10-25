@@ -1,0 +1,16 @@
+floor devtest_b2
+name.ja 試しの階 二
+name.en Trial Floor 2
+size 6 4
+wrap x
+start 2 3 N
+walls
++-+-+-+-+-+-+
+| | | | | | |
++-+-+-+-+-+-+
+             
++-+-+ +-+-+-+
+| | | D   | |
++-+-+ + + +-+
+| | |u|   | |
++-+-+-+-+-+-+

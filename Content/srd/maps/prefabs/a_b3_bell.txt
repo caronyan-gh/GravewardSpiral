@@ -1,0 +1,19 @@
+# 第1部 A の B3: 弔いの鐘。鳴らすと奥の供物の部屋が開く
+floor prefab_a_b3_bell
+size 3 4
+wrap none
+start 1 3 N
+walls
++-+-+-+
+|#| |#|
++-+ +-+
+|#| |#|
++-+L+-+
+|     |
++ + + +
+|     |
++-+-+-+
+mark 1 2 event:a_b3_bell
+mark 1 1 gate:a_bell
+mark 1 0 event:a_b3_offerings
+entrance 1 3 S

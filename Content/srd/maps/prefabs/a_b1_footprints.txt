@@ -1,0 +1,13 @@
+# 第1部 A の B1: 最後の墓守の足跡
+floor prefab_a_b1_footprints
+size 3 2
+wrap none
+start 1 1 N
+walls
++-+-+-+
+|     |
++ + + +
+|     |
++-+-+-+
+mark 1 0 event:a_b1_footprints
+entrance 1 1 S

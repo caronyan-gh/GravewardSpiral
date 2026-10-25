@@ -1,0 +1,7 @@
+{
+  "id": "srd",
+  "name": { "en": "SRD 5.1 base", "ja": "SRD 5.1 標準" },
+  "version": "0.1",
+  "depends": [],
+  "order": 0
+}

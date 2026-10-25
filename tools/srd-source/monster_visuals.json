@@ -1,0 +1,1322 @@
+{
+  "awakened_shrub": {
+    "ja": "腰の高さほどの低木が根を足のように動かして歩く。枝先は爪のように曲がり、葉の奥に小さな光る目が覗く。",
+    "en": "A waist-high shrub walking on root-like legs, twigs bent into claw shapes, two faint glowing eyes peering out from the leaves."
+  },
+  "baboon": {
+    "ja": "犬のような長い鼻面と鋭い牙を持つ茶色の毛並みのヒヒ。四つ足で身構え、歯をむき出して威嚇している。",
+    "en": "A brown-furred baboon with a long dog-like muzzle and bared fangs, crouched on all fours in a threatening posture."
+  },
+  "badger": {
+    "ja": "顔に白黒の縞のある、ずんぐりした小型のアナグマ。短い脚と太い爪で地面を掘るように構える。",
+    "en": "A stocky little badger with a black-and-white striped face, short legs and thick digging claws, hissing defensively."
+  },
+  "bat": {
+    "ja": "革のような黒い翼を広げた小さなコウモリ。耳が大きく、牙を見せて暗闇から飛びかかる。",
+    "en": "A small bat with leathery black wings spread wide, oversized ears and tiny bared fangs, swooping out of the dark."
+  },
+  "cat": {
+    "ja": "背を丸めて毛を逆立てた黒猫。瞳が暗がりで黄色く光り、牙と爪を見せている。",
+    "en": "A black cat with arched back and bristling fur, yellow eyes glowing in the gloom, claws out and hissing."
+  },
+  "commoner": {
+    "ja": "粗末なチュニックと麻のズボンの一般人。農具か棍棒を握り、怯えながらも構えている。",
+    "en": "An ordinary villager in a rough tunic and hemp trousers, clutching a club or farm tool, nervous but ready to fight."
+  },
+  "crab": {
+    "ja": "手のひらほどの赤茶色のカニ。両のハサミを高く掲げて横歩きで威嚇する。",
+    "en": "A palm-sized reddish-brown crab, both pincers raised high, scuttling sideways in a defensive stance."
+  },
+  "deer": {
+    "ja": "枝のような角を持つ茶色の牡鹿。細い脚で身構え、耳を立てて警戒している。",
+    "en": "A brown stag with branching antlers, slender legs tensed and ears raised in alarm, ready to bolt or charge."
+  },
+  "eagle": {
+    "ja": "金褐色の羽と白い頭の大鷲。翼を広げ、鋭いかぎ爪とくちばしを前に突き出す。",
+    "en": "A golden-brown eagle with a pale head, wings spread, hooked beak and sharp talons thrust forward in attack."
+  },
+  "giant_fire_beetle": {
+    "ja": "犬ほどの大きさの黒い甲虫。頭の両脇の腺が赤く燃えるように光り、顎が大きい。",
+    "en": "A dog-sized black beetle with two glowing red glands beside its head casting a fiery light, and large pincer-like mandibles."
+  },
+  "goat": {
+    "ja": "後ろに湾曲した角と粗い灰色の毛のヤギ。頭を下げて突進の構え。",
+    "en": "A shaggy grey goat with curved back-swept horns, head lowered to ram, hooves planted firmly."
+  },
+  "hawk": {
+    "ja": "斑の褐色の羽をもつ小型の鷹。翼を半開きにして鋭い目でにらむ。",
+    "en": "A small hawk with mottled brown plumage, wings half-open, fierce yellow eyes and hooked beak."
+  },
+  "homunculus": {
+    "ja": "手のひらに乗るほどの小さな緑灰色の人型。コウモリの翼、小さな牙、細い手足で宙に浮く。",
+    "en": "A tiny greenish-grey humanoid with bat wings, spindly limbs and needle teeth, hovering in the air like a mischievous familiar."
+  },
+  "hyena": {
+    "ja": "まだら模様の毛に前傾した背中のハイエナ。口を開け、下品な笑いのような表情で威嚇する。",
+    "en": "A spotted hyena with sloping back and powerful jaws, mouth open in a mocking grin, hackles raised."
+  },
+  "jackal": {
+    "ja": "痩せた黄褐色の小型の犬のようなジャッカル。耳を立て、牙をむいて低く構える。",
+    "en": "A lean, sandy-coloured jackal with large pointed ears, crouching low and baring its teeth."
+  },
+  "lemure": {
+    "ja": "溶けたロウのように崩れた人型の悪魔。目鼻のはっきりしない顔、ぶよぶよした桃色の肉体。",
+    "en": "A pitiful fiend like a half-melted humanoid of pinkish wax, features blurred and sagging, shuffling forward mindlessly."
+  },
+  "lizard": {
+    "ja": "緑褐色の鱗の小さなトカゲ。長い尾と広げた指で壁に張り付く。",
+    "en": "A small greenish-brown lizard with a long tail and splayed toes, clinging to a dungeon wall."
+  },
+  "octopus": {
+    "ja": "8本の触手を広げた赤茶色のタコ。大きな目で見つめ、吸盤が並ぶ。",
+    "en": "A reddish-brown octopus with eight suckered tentacles spread wide and large watchful eyes."
+  },
+  "owl": {
+    "ja": "灰褐色の羽の小さなフクロウ。丸い大きな目で見開き、音もなく翼を広げる。",
+    "en": "A small grey-brown owl with huge round eyes, wings silently spread, talons extended."
+  },
+  "quipper": {
+    "ja": "鋭い歯の並ぶ口を開けた、手のひら大の銀赤色の肉食魚。",
+    "en": "A hand-sized piranha-like fish, silver with red belly, mouth gaping with rows of needle teeth."
+  },
+  "rat": {
+    "ja": "黒ずんだ毛の小さなネズミ。長い尾と赤い目、前歯をむいている。",
+    "en": "A small dark-furred rat with red eyes, long bare tail and bared front teeth."
+  },
+  "raven": {
+    "ja": "艶のある漆黒の羽のワタリガラス。太いくちばしと賢そうな目。",
+    "en": "A large glossy black raven with a thick beak and knowing, beady eyes, wings half-spread."
+  },
+  "scorpion": {
+    "ja": "黒い外殻の小さなサソリ。両のハサミを構え、毒針の尾を高く反らす。",
+    "en": "A small black scorpion with raised pincers and a curled stinger tail poised to strike."
+  },
+  "spider": {
+    "ja": "毛深い黒い脚の小さなクモ。複数の目が光り、牙をむく。",
+    "en": "A small hairy black spider with glinting multiple eyes and visible fangs."
+  },
+  "vulture": {
+    "ja": "禿げた赤い頭と黒い羽のハゲワシ。猫背に翼を広げ、腐肉を狙う目つき。",
+    "en": "A hunched vulture with bald red head and ragged black feathers, wings spread, eyeing carrion."
+  },
+  "weasel": {
+    "ja": "細長い茶色の体に白い腹のイタチ。素早く身をくねらせ、小さな牙を見せる。",
+    "en": "A slender brown weasel with a white belly, body twisting mid-pounce, tiny sharp teeth bared."
+  },
+  "bandit": {
+    "ja": "革鎧に頭巾の山賊。使い込んだ曲刀を握り、顔は布で半ば隠している。",
+    "en": "A scruffy bandit in patched leather armour and a hood, lower face masked by a scarf, gripping a worn scimitar."
+  },
+  "blood_hawk": {
+    "ja": "赤褐色の羽と血の色の目を持つ鷹。くちばしが長く鋭い。",
+    "en": "A hawk with rust-red feathers and blood-coloured eyes, long dagger-like beak, diving to attack."
+  },
+  "camel": {
+    "ja": "こぶのある砂色のラクダ。長い首と大きな足、気だるげな顔。",
+    "en": "A sand-coloured humped camel with a long neck, wide padded feet and a bored expression."
+  },
+  "cultist": {
+    "ja": "暗い色のローブにフードの狂信者。胸に不吉な印、短剣を両手で掲げる。",
+    "en": "A hooded cultist in dark robes bearing a sinister symbol, raising a curved dagger in both hands, face in shadow."
+  },
+  "flying_snake": {
+    "ja": "羽毛の翼を持つ細い蛇。鮮やかな緑と赤の鱗で宙を泳ぐ。",
+    "en": "A slender snake with feathered wings, bright green and red scales, undulating through the air."
+  },
+  "giant_crab": {
+    "ja": "人の胴ほどある巨大なカニ。苔のついた甲羅と大きな両のハサミ。",
+    "en": "A crab as big as a man's torso with a moss-encrusted shell and two massive pincers raised."
+  },
+  "giant_rat": {
+    "ja": "犬ほどの大きさの灰茶のネズミ。黄ばんだ前歯と裸の尾。",
+    "en": "A dog-sized grey-brown rat with yellowed front teeth and a long hairless tail."
+  },
+  "giant_rat_diseased": {
+    "ja": "毛が抜け落ち、皮膚にただれのある病んだ巨大ネズミ。目は濁っている。",
+    "en": "A giant rat with patchy fur, sores on its skin and cloudy eyes, drooling and sickly."
+  },
+  "giant_weasel": {
+    "ja": "馬ほどの長さの茶色いイタチ。しなやかな体で低く身構え、牙をむく。",
+    "en": "A weasel as long as a pony, sleek brown fur, low sinuous stance with fangs bared."
+  },
+  "guard": {
+    "ja": "鎖帷子と兜、槍と盾を持つ衛兵。真面目な顔で構える。",
+    "en": "A town guard in chain mail and a steel cap, holding a spear and a round shield, stern and alert."
+  },
+  "kobold": {
+    "ja": "小柄な赤褐色の鱗の竜人。小さな角、粗末な革と槍、ずる賢い目。",
+    "en": "A small reddish-brown scaled reptilian humanoid with little horns, ragged leather and a crude spear, eyes cunning."
+  },
+  "mastiff": {
+    "ja": "太い首とたるんだ顔の大型の番犬。黒い毛並みで牙をむく。",
+    "en": "A large black mastiff with a thick neck and jowly face, teeth bared in a low growl."
+  },
+  "merfolk": {
+    "ja": "上半身は人、下半身は青緑の魚の尾の海の民。三叉の槍と貝の装飾。",
+    "en": "A sea-dweller with a human torso and blue-green fish tail, carrying a trident and wearing shell ornaments."
+  },
+  "mule": {
+    "ja": "長い耳の灰色のラバ。荷を背負い、頑固そうな表情。",
+    "en": "A grey long-eared mule with a stubborn expression, carrying a loaded pack saddle."
+  },
+  "noble": {
+    "ja": "刺繍のある上着にマント、細身の剣を持つ貴族。傲慢な表情。",
+    "en": "A haughty noble in an embroidered doublet and cloak, hand on a slender rapier, chin raised."
+  },
+  "poisonous_snake": {
+    "ja": "褐色と黒のまだら模様の小さな蛇。頭を上げ、牙を見せる。",
+    "en": "A small brown-and-black patterned snake, head raised and fangs exposed in a strike pose."
+  },
+  "pony": {
+    "ja": "ずんぐりした栗毛の小型の馬。たてがみがもじゃもじゃ。",
+    "en": "A stocky chestnut pony with a shaggy mane, sturdy and calm."
+  },
+  "stirge": {
+    "ja": "コウモリの翼と蚊のような長い吸血の口吻を持つ小さな怪物。4本の脚。",
+    "en": "A small winged pest with bat wings, four clawed legs and a long needle-like proboscis for drinking blood."
+  },
+  "tribal_warrior": {
+    "ja": "毛皮と骨の飾り、顔に彩色を施した部族の戦士。槍と皮の盾を持つ。",
+    "en": "A tribal warrior in furs and bone ornaments, face painted, carrying a spear and a hide shield."
+  },
+  "acolyte": {
+    "ja": "白い祭服に聖印を下げた若い信者。メイスを握り、祈る表情。",
+    "en": "A young temple acolyte in white vestments with a holy symbol, gripping a mace, expression devout."
+  },
+  "axe_beak": {
+    "ja": "斧のような太い嘴のダチョウに似た大きな飛べない鳥。長い脚で突進する。",
+    "en": "A tall flightless bird like an ostrich with a heavy axe-shaped beak and powerful running legs."
+  },
+  "blink_dog": {
+    "ja": "黄褐色で短毛の賢そうな犬。青白い光のきらめきに包まれて姿がぼやける。",
+    "en": "A lean tawny dog with intelligent eyes, its outline shimmering with pale blue light as it blinks through space."
+  },
+  "boar": {
+    "ja": "黒い剛毛と湾曲した牙のイノシシ。頭を下げて突撃する。",
+    "en": "A bristly black boar with curved tusks, head lowered in a charge."
+  },
+  "constrictor_snake": {
+    "ja": "太い緑褐色の大蛇。とぐろを巻き、獲物を締め上げようとする。",
+    "en": "A thick olive-brown constrictor snake coiled and rearing, ready to crush its prey."
+  },
+  "draft_horse": {
+    "ja": "がっしりした体の荷引き馬。栗毛に長い脚毛、首輪の馬具。",
+    "en": "A heavy chestnut draft horse with feathered hooves and a thick neck, wearing a harness collar."
+  },
+  "dretch": {
+    "ja": "小柄で腹の膨れた悪魔。灰色の皮膚、長い腕、豚のような顔に小さな角。",
+    "en": "A squat pot-bellied demon with grey hide, dangling arms, piggish face and tiny horns, sullen and ugly."
+  },
+  "drow": {
+    "ja": "黒い肌と白い髪のエルフ。細身の鎖帷子にマント、曲刀と小さな弩。",
+    "en": "A dark-skinned elf with white hair in fine black chain mail and cloak, holding a scimitar and hand crossbow."
+  },
+  "elk": {
+    "ja": "巨大な枝角を持つ茶色の大鹿。胸が厚く、堂々と立つ。",
+    "en": "A large brown elk with a huge spread of antlers and a thick chest, standing proud."
+  },
+  "flying_sword": {
+    "ja": "柄に誰もいないまま宙に浮いて斬りかかる長剣。刃がほのかに光る。",
+    "en": "A longsword floating in the air with no wielder, blade faintly glowing, poised to slash."
+  },
+  "giant_badger": {
+    "ja": "犬より大きなアナグマ。白黒の顔、太い爪で土を掻く。",
+    "en": "A badger bigger than a dog with striped face and thick claws, snarling fiercely."
+  },
+  "giant_bat": {
+    "ja": "翼を広げると人より大きな黒いコウモリ。大きな牙と耳。",
+    "en": "A huge black bat with a wingspan wider than a man, large fangs and ears."
+  },
+  "giant_centipede": {
+    "ja": "腕ほどの長さの赤黒いムカデ。無数の脚と毒の顎。",
+    "en": "A red-black centipede as long as an arm, countless legs and venomous mandibles."
+  },
+  "giant_frog": {
+    "ja": "犬ほどの大きさの緑のカエル。大きな口と長い舌。",
+    "en": "A dog-sized green frog with a wide gaping mouth and bulging eyes."
+  },
+  "giant_lizard": {
+    "ja": "馬ほどの大きさの緑灰色のトカゲ。鋭い爪と長い舌。",
+    "en": "A horse-sized grey-green lizard with sharp claws and a flicking tongue."
+  },
+  "giant_owl": {
+    "ja": "翼を広げると部屋いっぱいの白と灰色のフクロウ。大きな瞳。",
+    "en": "A huge silent owl of white and grey feathers, enormous eyes, wings filling the room."
+  },
+  "giant_poisonous_snake": {
+    "ja": "人の腕ほど太い斑模様の毒蛇。鎌首をもたげ牙を出す。",
+    "en": "A venomous snake as thick as a man's arm, patterned scales, rearing with fangs out."
+  },
+  "giant_wolf_spider": {
+    "ja": "犬ほどの大きさの毛深い褐色のクモ。8つの目が光る。",
+    "en": "A dog-sized hairy brown spider with eight glinting eyes, crouched to leap."
+  },
+  "goblin": {
+    "ja": "小柄で緑色の肌、尖った耳の邪悪な小鬼。ぼろ革鎧と短剣。",
+    "en": "A small green-skinned goblin with pointed ears and a wicked grin, in ragged leather with a crude short sword."
+  },
+  "grimlock": {
+    "ja": "目のない灰色の肌の人型。鼻と口が大きく、骨の棍棒を持つ。",
+    "en": "A grey-skinned eyeless humanoid with a wide nose and mouth, hunched, wielding a bone club."
+  },
+  "panther": {
+    "ja": "黒い毛並みの大型の猫。身を低くして跳びかかる構え。",
+    "en": "A sleek black panther crouched low, muscles coiled to pounce, eyes glowing green."
+  },
+  "pseudodragon": {
+    "ja": "猫ほどの大きさの赤茶色の小さなドラゴン。毒針の尾と賢い目。",
+    "en": "A cat-sized reddish-brown miniature dragon with a barbed tail and clever eyes."
+  },
+  "riding_horse": {
+    "ja": "すらりとした栗毛の乗用馬。鞍をつけている。",
+    "en": "A sleek chestnut riding horse wearing a saddle, alert and ready."
+  },
+  "skeleton": {
+    "ja": "古びた鎧の断片を身につけた人の骸骨。錆びた剣と盾。",
+    "en": "A human skeleton in scraps of ancient armour, holding a rusty sword and a battered shield, eye sockets glowing faintly."
+  },
+  "sprite": {
+    "ja": "トンボの羽を持つ手のひらサイズの妖精。葉の服と小さな剣と弓。",
+    "en": "A palm-sized fey with dragonfly wings, dressed in leaves, carrying a tiny sword and bow."
+  },
+  "steam_mephit": {
+    "ja": "白い蒸気でできた小さな翼のある小鬼。にやりと笑う。",
+    "en": "A small winged imp made of swirling white steam, grinning mischievously."
+  },
+  "swarm_of_bats": {
+    "ja": "無数の黒いコウモリが密集して飛ぶ群れ。闇のうねりのよう。",
+    "en": "A dense swirling cloud of dozens of small black bats, wings and fangs everywhere."
+  },
+  "swarm_of_rats": {
+    "ja": "床を埋め尽くす無数のネズミの群れ。赤い目と長い尾。",
+    "en": "A seething mass of dozens of rats flooding across the floor, red eyes and tails everywhere."
+  },
+  "swarm_of_ravens": {
+    "ja": "黒い羽が嵐のように渦巻くワタリガラスの群れ。",
+    "en": "A whirling storm of black ravens, beaks and wings filling the air."
+  },
+  "violet_fungus": {
+    "ja": "人の背丈ほどの紫色のキノコ。胞子を撒く触手のような枝が伸びる。",
+    "en": "A man-sized purple mushroom with tentacle-like fronds reaching out, spores drifting around it."
+  },
+  "wolf": {
+    "ja": "灰色の毛並みの狼。牙をむき、身を低くして唸る。",
+    "en": "A grey wolf with bared fangs, crouched low and snarling."
+  },
+  "zombie": {
+    "ja": "腐りかけた肉のぼろをまとった歩く死体。濁った目でよろめく。",
+    "en": "A shambling corpse with rotting grey flesh and tattered clothes, cloudy eyes, arms reaching forward."
+  },
+  "ape": {
+    "ja": "黒い毛の大型の類人猿。拳を叩きつけ、牙をむく。",
+    "en": "A large black-furred ape beating its chest, teeth bared."
+  },
+  "black_bear": {
+    "ja": "黒い毛並みの中型の熊。後ろ足で立ち、爪を振り上げる。",
+    "en": "A black bear rearing on its hind legs, claws raised."
+  },
+  "cockatrice": {
+    "ja": "コウモリの翼とトカゲの尾を持つ鶏のような怪物。黄色い目。",
+    "en": "A rooster-like monster with bat wings and a scaly lizard tail, yellow eyes glaring."
+  },
+  "crocodile": {
+    "ja": "緑褐色の鱗に覆われた大きなワニ。水面から顎を開けて襲いかかる。",
+    "en": "A large crocodile with green-brown armoured scales, jaws open wide as it lunges from the water."
+  },
+  "darkmantle": {
+    "ja": "天井に張り付く黒い傘のような怪物。触手を垂らし、岩に擬態する。",
+    "en": "A black umbrella-shaped creature clinging to the ceiling, tentacles dangling, mimicking stone."
+  },
+  "deep_gnome_svirfneblin": {
+    "ja": "灰色の肌と岩のような髪の小柄なノーム。革鎧につるはし。",
+    "en": "A small gnome with grey stony skin and rocky hair, wearing leather armour and holding a pick."
+  },
+  "dust_mephit": {
+    "ja": "砂と塵でできた小さな翼のある小鬼。乾いた笑い。",
+    "en": "A small winged imp made of swirling dust and sand, cackling dryly."
+  },
+  "giant_goat": {
+    "ja": "馬ほどの大きさの長い角の山羊。粗い毛並み。",
+    "en": "A horse-sized goat with long curved horns and shaggy coat, head lowered to charge."
+  },
+  "giant_sea_horse": {
+    "ja": "馬ほどの大きさの青緑のタツノオトシゴ。優雅に泳ぐ。",
+    "en": "A horse-sized blue-green sea horse, curling tail, gliding through water."
+  },
+  "giant_wasp": {
+    "ja": "犬ほどの大きさの黄色と黒のスズメバチ。毒針を構える。",
+    "en": "A dog-sized yellow-and-black wasp with a glistening stinger, wings buzzing."
+  },
+  "gnoll": {
+    "ja": "ハイエナの頭を持つ毛むくじゃらの人型。斑の毛並み、粗末な槍と盾。",
+    "en": "A hyena-headed humanoid with spotted shaggy fur, crude spear and hide shield, grinning savagely."
+  },
+  "gray_ooze": {
+    "ja": "床を這う灰色の粘液。石のように見えるがぬめり光る。",
+    "en": "A puddle of grey slime oozing across the floor, glistening like wet stone."
+  },
+  "hobgoblin": {
+    "ja": "赤茶の肌に黒い髪の屈強なゴブリン兵。鎖帷子と長剣、軍の規律を感じさせる。",
+    "en": "A tall disciplined goblinoid soldier with red-brown skin and dark hair, in chain mail with a longsword and shield."
+  },
+  "ice_mephit": {
+    "ja": "氷の結晶でできた小さな翼のある小鬼。青白い冷気をまとう。",
+    "en": "A small winged imp made of jagged blue-white ice, breathing frost."
+  },
+  "lizardfolk": {
+    "ja": "緑の鱗に長い尾のトカゲ人間。骨の棍と皮の盾。",
+    "en": "A green-scaled reptilian humanoid with a long tail, carrying a bone club and hide shield."
+  },
+  "magma_mephit": {
+    "ja": "溶岩と黒い岩でできた小さな翼のある小鬼。赤く光る。",
+    "en": "A small winged imp of black rock veined with glowing red magma."
+  },
+  "magmin": {
+    "ja": "燃える岩の小さな人型。黒い殻の割れ目から炎が漏れる。",
+    "en": "A small humanoid of blackened rock with flames leaking from cracks, body wreathed in fire."
+  },
+  "orc": {
+    "ja": "灰緑の肌に牙を持つ屈強なオーク。毛皮と粗い鎧、大斧。",
+    "en": "A burly orc with grey-green skin and jutting tusks, in furs and crude armour, swinging a great axe."
+  },
+  "reef_shark": {
+    "ja": "灰色の中型のサメ。白い腹と鋭い歯の列、冷たい黒い目で水中を滑るように迫る。",
+    "en": "A grey reef shark with a white belly and rows of sharp teeth, cruising forward."
+  },
+  "rust_monster": {
+    "ja": "甲虫のような体に2本の羽毛状の触角を持つ怪物。赤錆色の鱗。",
+    "en": "A beetle-like creature with rust-coloured armoured hide and two feathery antennae, tail ending in a paddle."
+  },
+  "sahuagin": {
+    "ja": "鮫のような顔の緑の鱗の魚人。背びれと水かき、三叉槍。",
+    "en": "A shark-faced fish-man with green scales, fins and webbed claws, holding a trident."
+  },
+  "satyr": {
+    "ja": "山羊の脚と角を持つ陽気な半人。笛を持ち、いたずらっぽい笑み。",
+    "en": "A goat-legged horned fey with a mischievous grin, holding pan pipes."
+  },
+  "scout": {
+    "ja": "緑と茶の革鎧にフードの斥候。弓と短剣、森に溶け込む装い。",
+    "en": "A scout in green and brown leathers with a hood, carrying a longbow and short sword."
+  },
+  "shadow": {
+    "ja": "人の形をした黒い影。実体がなく、床から立ち上がる。",
+    "en": "A humanoid shape of pure darkness rising from the floor, featureless and wispy."
+  },
+  "swarm_of_beetles": {
+    "ja": "床を覆う黒い甲虫の群れ。光る甲羅がひしめく。",
+    "en": "A dense carpet of hundreds of black beetles with glinting shells swarming forward."
+  },
+  "swarm_of_centipedes": {
+    "ja": "赤黒いムカデが無数に絡み合ってうごめく群れ。無数の脚と毒の顎が床を覆う。",
+    "en": "A writhing tangle of dozens of red-black centipedes crawling over each other."
+  },
+  "swarm_of_insects": {
+    "ja": "羽音を立てて渦巻く虫の雲。ハエと甲虫が混じる。",
+    "en": "A buzzing cloud of mixed flies, gnats and beetles swirling in the air."
+  },
+  "swarm_of_spiders": {
+    "ja": "無数の小さな黒いクモが波のように押し寄せる群れ。",
+    "en": "A wave of countless small black spiders surging across the floor and walls."
+  },
+  "swarm_of_wasps": {
+    "ja": "黄色と黒のスズメバチが渦巻く怒れる群れ。",
+    "en": "An angry swirling swarm of yellow-and-black wasps."
+  },
+  "thug": {
+    "ja": "傷だらけの大男のならず者。革のベストに棍棒、睨みつける。",
+    "en": "A scarred brute in a leather vest with a heavy club, glaring menacingly."
+  },
+  "warhorse": {
+    "ja": "黒い毛並みのたくましい軍馬。鎧の馬具をつけ、前脚を上げる。",
+    "en": "A powerful black warhorse in barding, rearing with hooves raised."
+  },
+  "warhorse_skeleton": {
+    "ja": "骨だけになった軍馬。錆びた馬具が垂れ下がる。",
+    "en": "The bare skeleton of a warhorse, rusted barding hanging from its ribs, eye sockets glowing."
+  },
+  "worg": {
+    "ja": "狼より大きく邪悪な顔つきの黒灰色の獣。赤い目。",
+    "en": "A huge wolf-like beast with dark grey fur, evil red eyes and a cunning snarl."
+  },
+  "animated_armor": {
+    "ja": "中身のない全身板金鎧がひとりでに動く。兜の隙間は暗く、長剣を構える。",
+    "en": "A full suit of plate armour moving with no one inside, visor dark and empty, raising a longsword."
+  },
+  "brass_dragon_wyrmling": {
+    "ja": "真鍮色の鱗の小さなドラゴン。頭に薄い翼状のひだ、好奇心のある目。",
+    "en": "A small dragon with brass-coloured scales, a flared frill behind its head and curious, friendly eyes."
+  },
+  "brown_bear": {
+    "ja": "茶色の毛の大きな熊。後ろ足で立ち、咆哮する。",
+    "en": "A large brown bear rearing up and roaring, claws spread."
+  },
+  "bugbear": {
+    "ja": "毛むくじゃらで大柄なゴブリン族。熊のような鼻、棘付きのモーニングスター。",
+    "en": "A big hairy goblinoid with a bear-like snout and yellow eyes, wielding a spiked morningstar."
+  },
+  "copper_dragon_wyrmling": {
+    "ja": "銅色の鱗の小さなドラゴン。後ろに伸びる角と悪戯っぽい笑み。",
+    "en": "A small dragon with copper scales, swept-back horns and a playful, sly smile."
+  },
+  "death_dog": {
+    "ja": "2つの頭を持つ毛のない黒い犬。腐臭と牙、赤い目。",
+    "en": "A hairless black hound with two snarling heads, red eyes and mangy hide."
+  },
+  "dire_wolf": {
+    "ja": "馬ほどの大きさの黒い狼。巨大な牙と太い首。",
+    "en": "A horse-sized black wolf with massive fangs and a thick neck, snarling."
+  },
+  "dryad": {
+    "ja": "樹皮のような肌と葉の髪を持つ美しい森の精。木から現れる。",
+    "en": "A beautiful forest spirit with bark-like skin and hair of leaves, stepping out of a tree trunk."
+  },
+  "duergar": {
+    "ja": "灰色の肌と白髪の陰気なドワーフ。鱗鎧と戦斧、険しい目。",
+    "en": "A grim grey-skinned dwarf with white beard in scale armour, holding a war pick and shield."
+  },
+  "ghoul": {
+    "ja": "痩せた灰色の食屍鬼。長い爪と牙、血走った目で飢えている。",
+    "en": "A gaunt grey ghoul with long claws, sharp teeth and hungry bloodshot eyes, hunched over."
+  },
+  "giant_eagle": {
+    "ja": "翼を広げると人の3倍ある巨大な鷲。金色の羽。",
+    "en": "A massive golden eagle with a wingspan three times a man's height, talons ready."
+  },
+  "giant_hyena": {
+    "ja": "馬ほどの大きさのハイエナ。斑の毛と強い顎。",
+    "en": "A horse-sized spotted hyena with crushing jaws, cackling."
+  },
+  "giant_octopus": {
+    "ja": "触手が部屋を覆うほどの巨大なタコ。赤茶の皮膚と大きな目。",
+    "en": "A giant reddish octopus with tentacles sprawling across the room and huge eyes."
+  },
+  "giant_spider": {
+    "ja": "馬ほどの大きさの黒い毛深いクモ。8つの目と滴る毒牙。",
+    "en": "A horse-sized hairy black spider with eight eyes and dripping fangs."
+  },
+  "giant_toad": {
+    "ja": "馬ほどの大きさのいぼだらけの茶色いヒキガエル。",
+    "en": "A horse-sized warty brown toad with a huge mouth and bulging eyes."
+  },
+  "giant_vulture": {
+    "ja": "巨大なハゲワシ。禿げた赤い頭、ぼろぼろの黒い翼。",
+    "en": "A giant vulture with bald red head and ragged black wings, hunched and menacing."
+  },
+  "harpy": {
+    "ja": "女の顔と胴にハゲワシの翼と脚を持つ怪物。汚れた羽と鋭い爪。",
+    "en": "A monster with a woman's face and torso, vulture wings and clawed legs, filthy feathers, singing."
+  },
+  "hippogriff": {
+    "ja": "鷲の頭と翼、前脚に馬の後ろ身を持つ獣。茶色の羽毛と毛並み。",
+    "en": "A beast with the head, wings and foreclaws of an eagle and the hindquarters of a horse, brown feathers and coat."
+  },
+  "imp": {
+    "ja": "赤い肌の小さな悪魔。コウモリの翼、小さな角、毒針の尾。",
+    "en": "A tiny red-skinned devil with bat wings, little horns and a stinging tail, smirking."
+  },
+  "lion": {
+    "ja": "たてがみの立派な雄ライオン。咆哮し、爪を出す。",
+    "en": "A male lion with a full mane, roaring with claws extended."
+  },
+  "quasit": {
+    "ja": "緑色の小さな悪魔。角と棘、ひょろ長い手足、邪悪な笑み。",
+    "en": "A small green demon with horns, spines and spindly limbs, grinning wickedly."
+  },
+  "specter": {
+    "ja": "半透明の青白い亡霊。苦悶の顔で宙に浮く。",
+    "en": "A translucent pale-blue ghost with a tormented face, floating in the air."
+  },
+  "spy": {
+    "ja": "地味な服にフードの密偵。短剣を隠し持ち、影に溶ける。",
+    "en": "A hooded spy in plain dark clothes, dagger half-hidden, melting into the shadows."
+  },
+  "swarm_of_quippers": {
+    "ja": "水中で渦巻く無数の肉食魚の群れ。銀の鱗と歯。",
+    "en": "A churning school of dozens of piranha-like fish, silver scales and snapping teeth."
+  },
+  "tiger": {
+    "ja": "橙と黒の縞の大きな虎。身を低くして忍び寄る。",
+    "en": "A large orange-and-black striped tiger stalking low, eyes fixed on its prey."
+  },
+  "ankheg": {
+    "ja": "馬ほどの大きさの昆虫のような怪物。茶色の甲殻、大きな顎、土から現れる。",
+    "en": "A horse-sized insectoid burrower with brown chitin, huge mandibles and many legs, bursting from the ground."
+  },
+  "awakened_tree": {
+    "ja": "巨大な木が根を足にして歩く。幹に顔のような洞、枝が腕。",
+    "en": "A huge tree walking on its roots, a face-like hollow in the trunk, branches as arms."
+  },
+  "azer": {
+    "ja": "炎の髪と髭を持つ銅色の肌のドワーフ。鎧とハンマー。",
+    "en": "A dwarf-like being with bronze skin and hair and beard of living flame, in armour with a warhammer."
+  },
+  "bandit_captain": {
+    "ja": "革と鎖の鎧に羽飾りの帽子の山賊頭。曲刀と短剣の二刀流。",
+    "en": "A swaggering bandit leader in studded leather and a feathered hat, fighting with scimitar and dagger."
+  },
+  "berserker": {
+    "ja": "毛皮をまとい上半身裸の狂戦士。大斧を振り上げ、怒りの形相。",
+    "en": "A bare-chested berserker in furs, face twisted with rage, raising a great axe."
+  },
+  "black_dragon_wyrmling": {
+    "ja": "黒い鱗の小さなドラゴン。前に曲がった角、酸の滴る口。",
+    "en": "A small dragon with black scales, forward-curving horns and acid dripping from its jaws."
+  },
+  "bronze_dragon_wyrmling": {
+    "ja": "青銅色の鱗の小さなドラゴン。ひれのような耳と海辺の雰囲気。",
+    "en": "A small dragon with bronze scales, fin-like ears and webbed claws, with a seafaring look."
+  },
+  "centaur": {
+    "ja": "上半身は人、下半身は馬の戦士。弓と槍、栗毛の馬体。",
+    "en": "A warrior with a human torso on a chestnut horse body, carrying a longbow and spear."
+  },
+  "cult_fanatic": {
+    "ja": "暗いローブに血の印の狂信者指導者。目を見開き、短剣と聖印を掲げる。",
+    "en": "A wild-eyed cult leader in dark robes marked with blood symbols, raising a dagger and unholy symbol."
+  },
+  "druid": {
+    "ja": "緑のローブに木の杖の自然の司祭。葉と動物の骨の飾り。",
+    "en": "A nature priest in green robes with a wooden staff, adorned with leaves and animal bones."
+  },
+  "ettercap": {
+    "ja": "クモの特徴を持つ灰紫の人型。大きな牙、爪、糸を吐く。",
+    "en": "A hunched purple-grey humanoid with spider-like features, large fangs, claws and spinnerets."
+  },
+  "gargoyle": {
+    "ja": "石でできた翼のある悪魔像。角と爪、灰色の体が動き出す。",
+    "en": "A winged stone demon statue come to life, grey body with horns and claws."
+  },
+  "gelatinous_cube": {
+    "ja": "部屋の通路いっぱいの透明なゼリーの立方体。中に骨や剣が浮かぶ。",
+    "en": "A transparent cube of jelly filling the corridor, bones and a sword suspended inside it."
+  },
+  "ghast": {
+    "ja": "グールより大きく腐臭を放つ食屍鬼。灰緑の肌、長い爪。",
+    "en": "A larger, fouler ghoul with grey-green skin, long claws and a stench, snarling."
+  },
+  "giant_boar": {
+    "ja": "馬ほどの大きさの黒いイノシシ。巨大な牙。",
+    "en": "A horse-sized black boar with enormous curved tusks, charging."
+  },
+  "giant_constrictor_snake": {
+    "ja": "部屋を埋める巨大な大蛇。緑褐色の鱗、とぐろで獲物を締める。",
+    "en": "A colossal olive-green constrictor snake coiling around the room, crushing its prey."
+  },
+  "giant_elk": {
+    "ja": "象ほどの大きさの大鹿。巨大な枝角、堂々たる姿。",
+    "en": "An elephant-sized elk with gigantic antlers, standing majestically."
+  },
+  "gibbering_mouther": {
+    "ja": "無数の目と口がうごめく肉の塊。涎を垂らし、わめく。",
+    "en": "A shapeless mound of flesh covered in dozens of eyes and gibbering mouths, drooling."
+  },
+  "green_dragon_wyrmling": {
+    "ja": "緑の鱗の小さなドラゴン。頭にひだ飾り、毒の霧を吐く。",
+    "en": "A small dragon with green scales, a crest of frills on its head, breathing a wisp of poison gas."
+  },
+  "grick": {
+    "ja": "ミミズのような灰色の体にくちばしと4本の触手。岩に紛れる。",
+    "en": "A grey worm-like creature with a snapping beak surrounded by four tentacles, blending into rock."
+  },
+  "griffon": {
+    "ja": "鷲の頭と翼にライオンの体。金茶の毛並みと羽。",
+    "en": "A beast with an eagle's head and wings on a lion's body, golden-brown feathers and fur."
+  },
+  "hunter_shark": {
+    "ja": "灰色の大型のサメ。鋭い歯の列と冷たい黒い目、背びれを立てて獲物を追う。",
+    "en": "A large grey hunting shark with rows of teeth and cold black eyes."
+  },
+  "merrow": {
+    "ja": "巨大で醜い魚人。緑の鱗と牙、水かきの爪、海藻の飾りをつけ、錆びた銛を構える。",
+    "en": "A huge ugly ogre-like sea creature with green scales, fangs and a harpoon."
+  },
+  "mimic": {
+    "ja": "宝箱が口を開けて牙と舌をのぞかせる。箱の縁に歯が並ぶ。",
+    "en": "A treasure chest with a gaping toothy mouth and long sticky tongue, lid becoming jaws."
+  },
+  "minotaur_skeleton": {
+    "ja": "牛の頭蓋骨を持つ巨大な骸骨。大斧を構える。",
+    "en": "A huge skeleton with a horned bull skull, gripping a great axe."
+  },
+  "ochre_jelly": {
+    "ja": "黄土色の粘液が床を這う。酸で石を溶かす。",
+    "en": "A pool of ochre-yellow slime oozing across the floor, sizzling with acid."
+  },
+  "ogre": {
+    "ja": "醜い顔の巨人。毛皮の腰布、太い腕で巨大な木の棍棒を振り上げ、よだれを垂らす。",
+    "en": "A hulking ogre with an ugly face, wearing a fur loincloth and swinging a huge club."
+  },
+  "ogre_zombie": {
+    "ja": "腐ったオーガの死体。皮膚が剥がれ、よろめく。",
+    "en": "A rotting ogre corpse with peeling skin and vacant eyes, lumbering forward."
+  },
+  "pegasus": {
+    "ja": "白い翼を持つ白馬。気高い姿で翼を広げる。",
+    "en": "A white winged horse with feathered wings spread, noble and radiant."
+  },
+  "plesiosaurus": {
+    "ja": "長い首とひれを持つ水棲の恐竜。灰青の皮膚。",
+    "en": "A long-necked marine reptile with four flippers and grey-blue skin."
+  },
+  "polar_bear": {
+    "ja": "白い毛の巨大な熊。氷の上で後ろ足で立ち、黒い鼻と爪を見せて咆哮する。",
+    "en": "A huge white polar bear roaring on the ice."
+  },
+  "priest": {
+    "ja": "豪華な祭服に聖印の高位司祭。メイスを持ち、威厳のある顔。",
+    "en": "A senior priest in rich vestments with a holy symbol, holding a mace, dignified."
+  },
+  "rhinoceros": {
+    "ja": "灰色の厚い皮と大きな角のサイ。頭を下げて突進。",
+    "en": "A grey rhinoceros with thick hide and a large horn, charging head down."
+  },
+  "rug_of_smothering": {
+    "ja": "ひとりでに宙に浮いて襲う刺繍の絨毯。人を包み込もうとする。",
+    "en": "An ornate patterned rug rising off the floor by itself, curling to smother its victim."
+  },
+  "saber_toothed_tiger": {
+    "ja": "長く湾曲した牙を持つ大型の虎。黄褐色の毛並みに太い前脚、身を低くして忍び寄る。",
+    "en": "A huge tawny tiger with long curved sabre fangs, prowling."
+  },
+  "sea_hag": {
+    "ja": "海藻の髪と鱗だらけの醜い老婆。ぬめる緑の肌。",
+    "en": "A hideous hag with seaweed hair, slimy green skin and fish-like scales."
+  },
+  "silver_dragon_wyrmling": {
+    "ja": "銀の鱗の小さなドラゴン。優美なひだと輝く目。",
+    "en": "A small dragon with gleaming silver scales, graceful frills and bright eyes."
+  },
+  "swarm_of_poisonous_snakes": {
+    "ja": "絡み合う無数の毒蛇の群れ。まだら模様と牙。",
+    "en": "A writhing tangle of dozens of patterned venomous snakes, fangs bared."
+  },
+  "wererat_human": {
+    "ja": "痩せて鼻の尖った人間。ぼろ服に短剣、ネズミのような目。",
+    "en": "A thin human with a pointed nose and beady eyes, in ragged clothes with a dagger, rat-like features."
+  },
+  "wererat_hybrid": {
+    "ja": "人とネズミの中間の姿。毛皮、長い尾、牙、ぼろ服に短剣。",
+    "en": "A human-sized rat-man hybrid with fur, long tail and fangs, in ragged clothes, holding a dagger."
+  },
+  "wererat_rat": {
+    "ja": "人ほどの大きさの巨大なネズミ。赤い目と知性のある顔。",
+    "en": "A giant rat the size of a man, red eyes glinting with intelligence."
+  },
+  "white_dragon_wyrmling": {
+    "ja": "白い鱗の小さなドラゴン。一本角と冷気の息。",
+    "en": "A small dragon with white scales, a single crest horn, breathing frost."
+  },
+  "will_o_wisp": {
+    "ja": "宙に浮く青白い光の玉。ゆらゆらと揺れ、中にかすかな苦悶の顔が浮かぶ。",
+    "en": "A floating ball of pale blue-white light with a faint ghostly face inside."
+  },
+  "basilisk": {
+    "ja": "8本脚の緑灰色のトカゲ。石化の目で睨む。",
+    "en": "An eight-legged grey-green lizard with spiny ridges and petrifying glowing eyes."
+  },
+  "bearded_devil": {
+    "ja": "赤い肌にうねる蛇のような髭の悪魔。ギザギザのグレイブ。",
+    "en": "A red-skinned devil with a beard of writhing tendrils, wielding a saw-toothed glaive."
+  },
+  "blue_dragon_wyrmling": {
+    "ja": "青い鱗の小さなドラゴン。鼻先に一本角、稲妻を帯びる。",
+    "en": "A small dragon with blue scales, a single horn on its snout, crackling with lightning."
+  },
+  "doppelganger": {
+    "ja": "灰色の肌と白い目、髪のない人型。表情のない顔で変身しかけている。",
+    "en": "A grey-skinned hairless humanoid with blank white eyes, face mid-shift into another form."
+  },
+  "giant_scorpion": {
+    "ja": "馬ほどの大きさの黒いサソリ。巨大なハサミと毒針。",
+    "en": "A horse-sized black scorpion with huge pincers and a curled stinger."
+  },
+  "gold_dragon_wyrmling": {
+    "ja": "黄金の鱗の小さなドラゴン。顎にひげと優雅な角。",
+    "en": "A small dragon with golden scales, whisker-like tendrils on its chin and elegant horns."
+  },
+  "green_hag": {
+    "ja": "緑の肌、長い爪、黒い髪の醜い魔女。ぼろの服。",
+    "en": "A hideous hag with green skin, long black claws, stringy hair and tattered rags."
+  },
+  "hell_hound": {
+    "ja": "黒い毛と赤い目の地獄の犬。口から炎を漏らす。",
+    "en": "A black hound with glowing red eyes, flames licking from its jaws."
+  },
+  "killer_whale": {
+    "ja": "白黒の模様のシャチ。大きく口を開けて歯を見せ、水しぶきを上げて迫る。",
+    "en": "A black-and-white orca, mouth open showing teeth, surging forward."
+  },
+  "knight": {
+    "ja": "板金鎧に紋章の盾、長剣を構える騎士。マントをなびかせる。",
+    "en": "A knight in full plate armour with a heraldic shield and longsword, cloak flowing."
+  },
+  "manticore": {
+    "ja": "人の顔を持つライオンの体、コウモリの翼、棘の尾。",
+    "en": "A lion-bodied monster with a human-like face, bat wings and a tail of hurling spikes."
+  },
+  "minotaur": {
+    "ja": "牛の頭を持つ巨大な人型。大斧、黒い毛、鼻輪。",
+    "en": "A huge bull-headed humanoid with dark fur and a nose ring, swinging a great axe."
+  },
+  "mummy": {
+    "ja": "包帯に巻かれた乾いた死体。空洞の目で腕を伸ばす。",
+    "en": "A withered corpse wrapped in tattered bandages, hollow eyes glowing, arms outstretched."
+  },
+  "nightmare": {
+    "ja": "炎のたてがみと蹄を持つ黒い馬。目が燃える。",
+    "en": "A black horse with mane, tail and hooves of fire, eyes burning red."
+  },
+  "owlbear": {
+    "ja": "フクロウの頭と熊の体。茶色の毛と羽、鋭い爪とくちばし。",
+    "en": "A bear-bodied beast with an owl's head, brown feathers and fur, hooked beak and claws."
+  },
+  "phase_spider": {
+    "ja": "青白い巨大なクモ。半透明に揺らぎ、次元を越える。",
+    "en": "A giant pale blue-white spider, body shimmering and half-translucent as it phases."
+  },
+  "veteran": {
+    "ja": "傷だらけの歴戦の兵。板金の胸当て、長剣と短剣。",
+    "en": "A grizzled scarred soldier in a plate breastplate, longsword and short sword at the ready."
+  },
+  "werewolf_human": {
+    "ja": "毛深く眉の濃い人間。鎖帷子に剣、狼のような黄色い目。",
+    "en": "A hairy heavy-browed human in chain mail with a sword, eyes a wolfish yellow."
+  },
+  "werewolf_hybrid": {
+    "ja": "人と狼の中間の姿。灰色の毛、狼の頭、爪と牙、裂けた服。",
+    "en": "A towering wolf-man hybrid with grey fur, wolf head, claws and fangs, clothes torn."
+  },
+  "werewolf_wolf": {
+    "ja": "人ほどの大きさの灰色の狼。知性ある黄色い目。",
+    "en": "A large grey wolf with cunning yellow eyes, snarling."
+  },
+  "wight": {
+    "ja": "鎧をまとった蒼白い死体の戦士。赤く光る目、長剣。",
+    "en": "A pale undead warrior in old armour, red glowing eyes, wielding a longsword."
+  },
+  "winter_wolf": {
+    "ja": "白い毛の巨大な狼。青く光る目と白い息、牙をむいて雪の中に立つ。",
+    "en": "A huge white-furred wolf with ice-blue eyes, breathing frost."
+  },
+  "black_pudding": {
+    "ja": "黒い粘液の塊が床と壁を這う。酸で金属を溶かす。",
+    "en": "A heaving mass of black slime creeping over floor and wall, dissolving metal with acid."
+  },
+  "chuul": {
+    "ja": "巨大なザリガニのような怪物。緑黒の甲殻、ハサミ、顔の触手。",
+    "en": "A giant lobster-like monster with green-black shell, huge pincers and tentacles around its mouth."
+  },
+  "couatl": {
+    "ja": "虹色の羽の翼を持つ美しい蛇。鱗が輝き、神々しい光に包まれて空を舞う。",
+    "en": "A feathered serpent with rainbow-coloured wings, glowing with holy light."
+  },
+  "elephant": {
+    "ja": "灰色の巨大な象。長い象牙と鼻を振り上げ、耳を広げて威嚇する。",
+    "en": "A huge grey elephant with long tusks and raised trunk."
+  },
+  "ettin": {
+    "ja": "2つの頭を持つ巨人。汚れた毛皮、両手にモーニングスターと斧。",
+    "en": "A two-headed giant in filthy furs, one hand with a morningstar, the other a battle axe."
+  },
+  "ghost": {
+    "ja": "半透明の白い亡霊。古い服で宙に浮き、悲しげな顔。",
+    "en": "A translucent white ghost in old-fashioned clothes floating in the air, face sorrowful."
+  },
+  "lamia": {
+    "ja": "上半身は美女、下半身はライオンの怪物。金の装飾。",
+    "en": "A beautiful woman's torso on a lion's body, adorned with gold jewellery."
+  },
+  "red_dragon_wyrmling": {
+    "ja": "赤い鱗の小さなドラゴン。黒い角と炎の息。",
+    "en": "A small dragon with red scales, black horns and a puff of flame."
+  },
+  "succubus_incubus": {
+    "ja": "コウモリの翼と小さな角を持つ美しい悪魔。黒い衣装、誘惑的な笑み。",
+    "en": "A beautiful fiend with bat wings, small horns and a tail, in dark alluring attire, smiling seductively."
+  },
+  "wereboar_boar": {
+    "ja": "人ほどの大きさの黒いイノシシ。知性ある目。",
+    "en": "A large black boar with curved tusks and intelligent eyes."
+  },
+  "wereboar_human": {
+    "ja": "ずんぐりした毛深い人間。革鎧に戦斧、小さな目。",
+    "en": "A stocky bristly human in hide armour with a battle axe, small beady eyes."
+  },
+  "wereboar_hybrid": {
+    "ja": "人とイノシシの中間の姿。剛毛、牙、裂けた革鎧。",
+    "en": "A boar-man hybrid with bristly hide, tusks and torn hide armour, wielding an axe."
+  },
+  "weretiger_human": {
+    "ja": "しなやかな体つきの人間。縞の入れ墨、曲刀と弓。",
+    "en": "A lithe human with striped tattoos, carrying a scimitar and longbow, eyes amber."
+  },
+  "weretiger_hybrid": {
+    "ja": "人と虎の中間の姿。橙と黒の縞の毛、爪と牙。",
+    "en": "A tiger-man hybrid with orange-and-black striped fur, claws and fangs, muscular."
+  },
+  "weretiger_tiger": {
+    "ja": "人ほどの大きさの橙と黒の縞の虎。知性ある琥珀の目で獲物を見据える。",
+    "en": "A large tiger with knowing amber eyes, stalking."
+  },
+  "air_elemental": {
+    "ja": "渦巻く風と塵でできた人型の精霊。輪郭が揺らぐ。",
+    "en": "A humanoid shape of swirling wind and dust, outline constantly shifting."
+  },
+  "barbed_devil": {
+    "ja": "全身に棘の生えた赤黒い悪魔。かぎ爪と尾、燃える目。",
+    "en": "A red-black devil covered in barbed spines, with hooked claws, tail and burning eyes."
+  },
+  "bulette": {
+    "ja": "サメの頭を持つ装甲の土中獣。灰青の甲殻、巨大な爪。",
+    "en": "A shark-headed land beast with grey-blue armoured plates and huge digging claws, bursting from earth."
+  },
+  "earth_elemental": {
+    "ja": "岩と土でできた巨大な人型の精霊。重々しく歩く。",
+    "en": "A massive humanoid of rock and earth, slow and heavy, eyes like glowing stones."
+  },
+  "fire_elemental": {
+    "ja": "炎そのものが人型になった精霊。揺らめく輪郭。",
+    "en": "A humanoid shape of living flame, body flickering and trailing fire."
+  },
+  "flesh_golem": {
+    "ja": "継ぎ接ぎの死体でできた巨人。縫い目と留め金、虚ろな目。",
+    "en": "A hulking golem of stitched-together corpse parts, bolts and scars, vacant eyes."
+  },
+  "giant_crocodile": {
+    "ja": "部屋いっぱいの巨大なワニ。緑黒の鱗と巨大な顎。",
+    "en": "A colossal green-black crocodile with gaping jaws filling the room."
+  },
+  "giant_shark": {
+    "ja": "部屋を埋めるほど巨大な灰色のサメ。黒い目と無数の歯が並ぶ巨大な口。",
+    "en": "A gigantic grey shark with black eyes and countless teeth."
+  },
+  "gladiator": {
+    "ja": "片腕の鎧と兜、三叉槍と網を持つ闘士。筋肉質。",
+    "en": "A muscular gladiator in a helmet and one-armed armour, holding a trident and net."
+  },
+  "gorgon": {
+    "ja": "全身を鉄の鱗板に覆われた雄牛。鼻から緑の霧を吹き、角を下げて突進する。",
+    "en": "A bull covered in iron plates, snorting green petrifying vapour."
+  },
+  "half_red_dragon_veteran": {
+    "ja": "赤い鱗と角のある人型の戦士。板金鎧と長剣、炎の息。",
+    "en": "A veteran warrior with red dragon scales and horns, in plate armour with a longsword, breathing fire."
+  },
+  "hill_giant": {
+    "ja": "肥えて醜い巨人。毛皮の腰布と汚れた体、木の幹の棍棒を引きずる。",
+    "en": "A fat ugly giant in a fur loincloth, carrying a tree-trunk club."
+  },
+  "night_hag": {
+    "ja": "青黒い肌と角、黄色い目の魔女。ぼろの黒衣。",
+    "en": "A hag with blue-black skin, small horns and yellow eyes, in tattered black robes."
+  },
+  "otyugh": {
+    "ja": "3本脚の肉塊。2本の触手と目のついた柄、大きな口。",
+    "en": "A bloated three-legged mass with two tentacles, an eye stalk and a huge toothy mouth, in filth."
+  },
+  "roper": {
+    "ja": "鍾乳石に擬態した岩の怪物。一つ目と大口、6本の触手。",
+    "en": "A rocky stalagmite-shaped monster with one eye, a wide fanged mouth and six long tendrils."
+  },
+  "salamander": {
+    "ja": "上半身は炎の人型、下半身は蛇。燃える槍を持つ。",
+    "en": "A fiery humanoid torso on a serpent body, wielding a burning spear."
+  },
+  "shambling_mound": {
+    "ja": "腐った植物と泥の塊が歩く。蔓と根が絡む。",
+    "en": "A walking heap of rotting vegetation and mud, vines and roots dangling."
+  },
+  "triceratops": {
+    "ja": "3本の角と骨の襟飾りを持つ恐竜。灰緑の厚い皮膚で頭を下げて突進する。",
+    "en": "A three-horned dinosaur with a bony frill and grey-green hide, charging."
+  },
+  "troll": {
+    "ja": "緑の皮膚、長い鼻と腕のひょろ長い巨人。爪と牙。",
+    "en": "A lanky green troll with a long nose, dangling arms, claws and jagged teeth."
+  },
+  "unicorn": {
+    "ja": "額に螺旋の一本角を持つ白馬。たてがみが流れ、神々しい光をまとう。",
+    "en": "A white horse with a single spiralling horn, glowing with holy light."
+  },
+  "vampire_spawn": {
+    "ja": "蒼白い肌と赤い目の吸血鬼。牙と爪、黒い服。",
+    "en": "A pale vampire with red eyes, fangs and claws, in dark clothing, snarling."
+  },
+  "water_elemental": {
+    "ja": "波と泡が渦を巻いて人型になった精霊。輪郭が絶えず流れ動く。",
+    "en": "A humanoid shape of churning water and foam, surging forward."
+  },
+  "werebear_bear": {
+    "ja": "巨大な茶色の熊。知性ある穏やかな目で後ろ足で立ち上がる。",
+    "en": "A huge brown bear with wise, knowing eyes, rearing up."
+  },
+  "werebear_human": {
+    "ja": "大柄で毛深い人間。毛皮の服と大斧、穏やかな目。",
+    "en": "A large hairy human in furs with a great axe, eyes calm and intelligent."
+  },
+  "werebear_hybrid": {
+    "ja": "人と熊の中間の姿。茶色の毛に覆われた巨体、鋭い爪と大斧を持つ。",
+    "en": "A bear-man hybrid with brown fur, claws and a great axe, towering and powerful."
+  },
+  "wraith": {
+    "ja": "黒いローブの影のような亡霊。赤い目、腕が闇に溶ける。",
+    "en": "A shadowy wraith in a black tattered robe, red eyes, arms dissolving into darkness."
+  },
+  "xorn": {
+    "ja": "3本の腕と3つの目、頭の上に口がある岩の怪物。",
+    "en": "A squat rocky creature with three arms, three eyes and a huge mouth on top of its body."
+  },
+  "chimera": {
+    "ja": "ライオン、山羊、赤い竜の3つの頭を持つ怪物。竜の翼。",
+    "en": "A three-headed beast with lion, goat and red dragon heads, dragon wings and a lion's body."
+  },
+  "drider": {
+    "ja": "上半身はドロウ、下半身は巨大なクモ。黒い肌と白髪。",
+    "en": "A dark elf torso on a giant black spider body, white hair, wielding a sword."
+  },
+  "invisible_stalker": {
+    "ja": "姿が見えず、風の歪みとして輪郭がかすかに見える人型。",
+    "en": "An invisible humanoid revealed only as a faint distortion of air, like a shimmering outline."
+  },
+  "mage": {
+    "ja": "ローブに杖の魔術師。手に魔法の光、本と小物。",
+    "en": "A robed wizard with a staff, a glowing spell in one hand, spellbook at the hip."
+  },
+  "mammoth": {
+    "ja": "長い茶色の毛と巨大に湾曲した牙のマンモス。鼻を上げて咆哮する。",
+    "en": "A shaggy brown mammoth with huge curved tusks."
+  },
+  "medusa": {
+    "ja": "髪が蛇の女。鱗の肌、石化の目、弓と短剣。",
+    "en": "A woman with living snakes for hair, scaled skin and petrifying eyes, holding a bow."
+  },
+  "vrock": {
+    "ja": "ハゲワシの頭と翼を持つ大型の悪魔。灰色の羽、爪。",
+    "en": "A large vulture-headed demon with grey feathered wings and clawed talons, screeching."
+  },
+  "wyvern": {
+    "ja": "2本脚と翼、毒針の尾を持つ茶色のドラゴン。",
+    "en": "A brown two-legged dragon with large wings and a venomous stinger tail."
+  },
+  "young_brass_dragon": {
+    "ja": "馬より大きな真鍮色のドラゴン。頭の広いひだ。",
+    "en": "A young brass dragon larger than a horse, with a broad head frill and gleaming scales."
+  },
+  "young_white_dragon": {
+    "ja": "馬より大きな白いドラゴン。冷気の息と一本角。",
+    "en": "A young white dragon larger than a horse, breathing frost, with a single crest horn."
+  },
+  "giant_ape": {
+    "ja": "家ほどの大きさの黒い巨大猿。胸を叩き、牙をむいて吠える。",
+    "en": "A house-sized black ape beating its chest and roaring."
+  },
+  "oni": {
+    "ja": "青い肌と角の鬼。鎧とグレイブ、牙の笑み。",
+    "en": "A blue-skinned ogre-like oni with horns and fangs, in armour wielding a glaive."
+  },
+  "shield_guardian": {
+    "ja": "石と鉄の人型構造体。胸に紋章、守るように立つ。",
+    "en": "A towering stone-and-iron construct with a sigil on its chest, standing guard."
+  },
+  "stone_giant": {
+    "ja": "灰色の滑らかな肌の巨人。岩を持ち上げる。",
+    "en": "A giant with smooth grey stone-like skin, lifting a boulder to throw."
+  },
+  "young_black_dragon": {
+    "ja": "馬より大きな黒いドラゴン。酸の息と曲がった角。",
+    "en": "A young black dragon larger than a horse, acid dripping, with forward-curved horns."
+  },
+  "young_copper_dragon": {
+    "ja": "馬より大きな銅色のドラゴン。悪戯っぽい顔。",
+    "en": "A young copper dragon larger than a horse, with a sly playful expression."
+  },
+  "assassin": {
+    "ja": "黒い衣装に覆面の暗殺者。毒塗りの短剣と吹き矢。",
+    "en": "A masked assassin in black, holding a poisoned dagger and a hand crossbow."
+  },
+  "chain_devil": {
+    "ja": "鎖に巻かれた悪魔。棘の鎖が生きているように動く。",
+    "en": "A devil wrapped in barbed chains that writhe and lash like living things."
+  },
+  "cloaker": {
+    "ja": "黒いマントのように見える怪物。裏に牙と赤い目、尾。",
+    "en": "A creature like a black cloak with a toothy mouth, red eyes and a whip tail underneath."
+  },
+  "frost_giant": {
+    "ja": "青白い肌と白い髭の巨人。毛皮の鎧に角飾りの兜、大斧を構える。",
+    "en": "A pale blue-skinned giant with a white beard, in furs, wielding a great axe."
+  },
+  "hezrou": {
+    "ja": "ヒキガエルのような巨大な悪魔。緑の皮膚、棘と牙。",
+    "en": "A huge toad-like demon with green warty skin, spines and fangs."
+  },
+  "hydra": {
+    "ja": "5つの頭を持つ巨大な蛇竜。緑の鱗、首がうねり、それぞれが牙をむく。",
+    "en": "A huge serpent-like dragon with five snapping heads and green scales."
+  },
+  "spirit_naga": {
+    "ja": "人のような顔を持つ巨大な蛇。紫の鱗と牙、魔力を帯びた目。",
+    "en": "A giant snake with a human-like face, purple scales and fangs."
+  },
+  "tyrannosaurus_rex": {
+    "ja": "巨大な肉食恐竜。小さな前脚と巨大な顎、灰緑の皮膚で咆哮する。",
+    "en": "A huge tyrannosaur with tiny arms and massive jaws, roaring."
+  },
+  "young_bronze_dragon": {
+    "ja": "馬より大きな青銅のドラゴン。ひれのような耳と翼。",
+    "en": "A young bronze dragon larger than a horse, with fin-like ears and webbed wings."
+  },
+  "young_green_dragon": {
+    "ja": "馬より大きな緑のドラゴン。頭のひだと毒の霧。",
+    "en": "A young green dragon larger than a horse, with head frills and poison breath."
+  },
+  "bone_devil": {
+    "ja": "骨のように痩せた悪魔。サソリの尾、白い骨の体。",
+    "en": "A gaunt skeletal devil with bone-white body and a scorpion stinger tail."
+  },
+  "clay_golem": {
+    "ja": "粘土でできた巨大な人型。荒い顔と太い腕。",
+    "en": "A huge humanoid of rough brown clay with a crude face and thick arms."
+  },
+  "cloud_giant": {
+    "ja": "青白い肌の優雅な巨人。豪華な衣装と大剣。",
+    "en": "An elegant pale-blue giant in fine clothing, wielding a great sword."
+  },
+  "fire_giant": {
+    "ja": "黒い肌と燃えるような赤髭の巨人。鉄の鎧と巨大な剣、炉のような熱気。",
+    "en": "A giant with coal-black skin and flame-red beard, in iron armour with a great sword."
+  },
+  "glabrezu": {
+    "ja": "4本腕の巨大な悪魔。2本はハサミ、山羊の角。",
+    "en": "A huge four-armed demon with two pincer arms, goat horns and a snarling face."
+  },
+  "treant": {
+    "ja": "巨大な歩く老木。樹皮に顔、腕のような太い枝、根で地面を踏みしめる。",
+    "en": "A gigantic ancient tree with a face in its bark, branches as arms, walking on roots."
+  },
+  "young_blue_dragon": {
+    "ja": "馬より大きな青いドラゴン。鼻先の一本角と稲妻。",
+    "en": "A young blue dragon larger than a horse, with a snout horn and crackling lightning."
+  },
+  "young_silver_dragon": {
+    "ja": "馬より大きな銀のドラゴン。優美なひだと輝く鱗、気高い目。",
+    "en": "A young silver dragon larger than a horse, graceful with gleaming scales."
+  },
+  "aboleth": {
+    "ja": "4本の触手と3つの目を持つ巨大な魚のような怪物。緑の粘液。",
+    "en": "A huge eel-like aberration with four tentacles and three red eyes, covered in green slime."
+  },
+  "deva": {
+    "ja": "白い翼の天使。銀の鎧とメイス、神々しい光。",
+    "en": "A white-winged angel in silver armour with a mace, glowing with holy light."
+  },
+  "guardian_naga": {
+    "ja": "人の顔を持つ巨大な蛇。金緑の鱗と気高い目。",
+    "en": "A giant snake with a human-like face, green-gold scales and noble eyes."
+  },
+  "stone_golem": {
+    "ja": "石像のような巨大な人型。彫刻の顔と太い腕、灰色の石の体が動く。",
+    "en": "A massive statue-like humanoid of carved grey stone, animated."
+  },
+  "young_gold_dragon": {
+    "ja": "馬より大きな黄金のドラゴン。顎のひげと翼。",
+    "en": "A young gold dragon larger than a horse, with chin tendrils and wide wings."
+  },
+  "young_red_dragon": {
+    "ja": "馬より大きな赤いドラゴン。炎の息と黒い角。",
+    "en": "A young red dragon larger than a horse, breathing fire, with black horns."
+  },
+  "behir": {
+    "ja": "12本の脚を持つ青い蛇竜。長い体に角と稲妻の息。",
+    "en": "A long serpentine blue monster with twelve legs and crackling lightning breath."
+  },
+  "djinni": {
+    "ja": "青い肌の巨大な風の精。渦巻く下半身、金の装飾。",
+    "en": "A huge blue-skinned genie with a lower body of swirling wind and gold jewellery."
+  },
+  "efreeti": {
+    "ja": "赤い肌と炎に包まれた巨大な精。角と黒い髭、大きな曲刀を持つ。",
+    "en": "A huge red-skinned genie wreathed in flame, with horns and a great scimitar."
+  },
+  "gynosphinx": {
+    "ja": "女の顔を持つライオンの体、鷲の翼。穏やかで賢そうな目。",
+    "en": "A lion-bodied sphinx with a woman's face and eagle wings, serene and wise."
+  },
+  "horned_devil": {
+    "ja": "大きな角と翼の赤い悪魔。燃える鎖とフォーク。",
+    "en": "A huge red devil with large horns and bat wings, wielding a burning fork and chain."
+  },
+  "remorhaz": {
+    "ja": "巨大なムカデのような怪物。青白い背中が熱で赤く光る。",
+    "en": "A huge centipede-like monster with blue-white armour and a back glowing red-hot."
+  },
+  "roc": {
+    "ja": "山のように巨大な鷲。翼が空を覆い、木の幹ほどの爪。",
+    "en": "A colossal eagle, wings blotting out the sky, talons like tree trunks."
+  },
+  "archmage": {
+    "ja": "豪華なローブと杖の大魔術師。魔法の光を帯びる。",
+    "en": "An archmage in ornate robes with a staff, crackling with arcane light."
+  },
+  "erinyes": {
+    "ja": "黒い翼の美しい女悪魔。鎧と長剣、炎の縄。",
+    "en": "A beautiful winged devil in black armour with a longsword and a flaming rope."
+  },
+  "adult_brass_dragon": {
+    "ja": "家ほどの大きさの真鍮のドラゴン。巨大なひだ。",
+    "en": "An adult brass dragon as big as a house, with a wide head frill and gleaming scales."
+  },
+  "adult_white_dragon": {
+    "ja": "家ほどの大きさの白いドラゴン。一本角、氷の息と冷たい目。",
+    "en": "An adult white dragon as big as a house, breathing frost, with a single crest horn."
+  },
+  "nalfeshnee": {
+    "ja": "イノシシの頭と小さな翼を持つ肥満した悪魔。牙と病的な光。",
+    "en": "A bloated boar-headed demon with tiny wings and tusks, glowing with sickly light."
+  },
+  "rakshasa": {
+    "ja": "虎の頭と逆向きの手を持つ悪魔。豪華な衣装。",
+    "en": "A tiger-headed fiend with backwards hands, in opulent silk robes, smiling cruelly."
+  },
+  "storm_giant": {
+    "ja": "紫の肌と白髪の巨人。鎧と大剣、体に稲妻をまとう。",
+    "en": "A violet-skinned giant with white hair, in armour with a great sword, lightning crackling."
+  },
+  "vampire_bat": {
+    "ja": "赤い目の巨大なコウモリ。人の気配を残す。",
+    "en": "A huge bat with red eyes and a faintly human face, vampire in bat form."
+  },
+  "vampire_vampire": {
+    "ja": "蒼白い肌と赤い目の貴族の吸血鬼。黒いマントと牙。",
+    "en": "An aristocratic vampire with pale skin, red eyes and fangs, in a black cloak."
+  },
+  "adult_black_dragon": {
+    "ja": "家ほどの大きさの黒いドラゴン。前に曲がった角、酸の滴る顎。",
+    "en": "An adult black dragon as big as a house, acid dripping, with forward-curved horns."
+  },
+  "adult_copper_dragon": {
+    "ja": "家ほどの大きさの銅のドラゴン。悪戯っぽい顔。",
+    "en": "An adult copper dragon as big as a house, with a sly playful expression."
+  },
+  "ice_devil": {
+    "ja": "昆虫のような青白い悪魔。複眼とハサミ、氷の槍を持つ。",
+    "en": "An insect-like blue-white devil with compound eyes and an ice spear."
+  },
+  "adult_bronze_dragon": {
+    "ja": "家ほどの大きさの青銅のドラゴン。ひれのような耳。",
+    "en": "An adult bronze dragon as big as a house, with fin-like ears and webbed wings."
+  },
+  "adult_green_dragon": {
+    "ja": "家ほどの大きさの緑のドラゴン。頭のひだと毒の霧の息。",
+    "en": "An adult green dragon as big as a house, with head frills and poison breath."
+  },
+  "mummy_lord": {
+    "ja": "黄金の装飾の包帯を巻いた王。冠と杖、光る目で威圧する。",
+    "en": "A bandaged undead king with gold ornaments, a crown and staff, eyes glowing."
+  },
+  "purple_worm": {
+    "ja": "トンネルを掘る巨大な紫の虫。円形の口に牙。",
+    "en": "A colossal purple worm with a circular maw full of teeth, bursting through rock."
+  },
+  "adult_blue_dragon": {
+    "ja": "家ほどの大きさの青いドラゴン。鼻先の一本角と稲妻の息。",
+    "en": "An adult blue dragon as big as a house, with a snout horn and crackling lightning."
+  },
+  "adult_silver_dragon": {
+    "ja": "家ほどの大きさの銀のドラゴン。優美な姿。",
+    "en": "An adult silver dragon as big as a house, graceful with gleaming scales."
+  },
+  "iron_golem": {
+    "ja": "鉄でできた巨大な人型。大剣を持ち、目が燃えるように光る。",
+    "en": "A massive humanoid of dark iron with a great sword and glowing eyes."
+  },
+  "marilith": {
+    "ja": "6本腕の女悪魔。蛇の下半身で、6本の剣を同時に構える。",
+    "en": "A six-armed female demon with a serpent lower body, each hand holding a sword."
+  },
+  "planetar": {
+    "ja": "緑の肌と白い翼の天使。大剣と神々しい光。",
+    "en": "A green-skinned angel with white wings and a great sword, radiating holy light."
+  },
+  "adult_gold_dragon": {
+    "ja": "家ほどの大きさの黄金のドラゴン。顎のひげ。",
+    "en": "An adult gold dragon as big as a house, with chin tendrils and wide wings."
+  },
+  "adult_red_dragon": {
+    "ja": "家ほどの大きさの赤いドラゴン。黒い角と炎の息。",
+    "en": "An adult red dragon as big as a house, breathing fire, with black horns."
+  },
+  "androsphinx": {
+    "ja": "男の顔を持つライオンの体、鷲の翼。威厳のある顔。",
+    "en": "A lion-bodied sphinx with a man's face and eagle wings, stern and regal."
+  },
+  "dragon_turtle": {
+    "ja": "亀の甲羅とひれを持つ巨大な竜。蒸気の息を吐く。",
+    "en": "A colossal dragon with a turtle's shell and flippers, breathing scalding steam."
+  },
+  "balor": {
+    "ja": "炎の翼と角の巨大な悪魔。燃える剣と鞭、全身が炎に包まれる。",
+    "en": "A towering demon with flaming wings and horns, wielding a burning sword and whip."
+  },
+  "ancient_brass_dragon": {
+    "ja": "山のように巨大な真鍮のドラゴン。巨大なひだ。",
+    "en": "An ancient brass dragon as big as a hill, with a vast head frill and worn gleaming scales."
+  },
+  "ancient_white_dragon": {
+    "ja": "山のように巨大な白いドラゴン。一本角、氷の息、古傷のある鱗。",
+    "en": "An ancient white dragon as big as a hill, breathing frost, with a single crest horn."
+  },
+  "pit_fiend": {
+    "ja": "赤い鱗と翼の巨大な悪魔の君主。炎のメイス。",
+    "en": "A huge red-scaled archdevil with bat wings and horns, wielding a flaming mace."
+  },
+  "ancient_black_dragon": {
+    "ja": "山のように巨大な黒いドラゴン。曲がった角、酸の滴る顎。",
+    "en": "An ancient black dragon as big as a hill, acid dripping, with forward-curved horns."
+  },
+  "ancient_copper_dragon": {
+    "ja": "山のように巨大な銅のドラゴン。悪戯っぽい顔。",
+    "en": "An ancient copper dragon as big as a hill, with a sly playful expression."
+  },
+  "lich": {
+    "ja": "ローブの骸骨の魔術師。冠と杖、燃える目。",
+    "en": "A skeletal sorcerer in tattered robes with a crown and staff, eyes burning with cold light."
+  },
+  "solar": {
+    "ja": "6枚の翼の天使。黄金の鎧と大剣、太陽のような光。",
+    "en": "A six-winged angel in golden armour with a great sword, shining like the sun."
+  },
+  "ancient_bronze_dragon": {
+    "ja": "山のように巨大な青銅のドラゴン。ひれのような耳。",
+    "en": "An ancient bronze dragon as big as a hill, with fin-like ears and webbed wings."
+  },
+  "ancient_green_dragon": {
+    "ja": "山のように巨大な緑のドラゴン。頭のひだと毒の霧の息。",
+    "en": "An ancient green dragon as big as a hill, with head frills and poison breath."
+  },
+  "ancient_blue_dragon": {
+    "ja": "山のように巨大な青いドラゴン。鼻先の一本角と稲妻の息。",
+    "en": "An ancient blue dragon as big as a hill, with a snout horn and crackling lightning."
+  },
+  "ancient_silver_dragon": {
+    "ja": "山のように巨大な銀のドラゴン。優美な姿。",
+    "en": "An ancient silver dragon as big as a hill, graceful with gleaming scales."
+  },
+  "kraken": {
+    "ja": "海を覆う巨大なイカの怪物。無数の触手と巨大な目。",
+    "en": "A colossal squid-like sea monster with countless tentacles and enormous eyes."
+  },
+  "ancient_gold_dragon": {
+    "ja": "山のように巨大な黄金のドラゴン。顎のひげ。",
+    "en": "An ancient gold dragon as big as a hill, with chin tendrils and wide wings."
+  },
+  "ancient_red_dragon": {
+    "ja": "山のように巨大な赤いドラゴン。黒い角と炎の息、古傷のある鱗。",
+    "en": "An ancient red dragon as big as a hill, breathing fire, with black horns."
+  },
+  "tarrasque": {
+    "ja": "山のように巨大な甲殻の怪物。角と棘、巨大な顎。",
+    "en": "A mountain-sized armoured monster with horns, spines and a gigantic maw."
+  }
+}

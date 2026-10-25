@@ -1,0 +1,35 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <OutputType>WinExe</OutputType>
+    <TargetFramework>net10.0</TargetFramework>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <Nullable>enable</Nullable>
+    <AssemblyName>GravewardSpiral</AssemblyName>
+    <RootNamespace>GravewardSpiral.Game</RootNamespace>
+    <RollForward>Major</RollForward>
+    <TieredPGO>true</TieredPGO>
+    <ApplicationIcon>Icon.ico</ApplicationIcon>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\GravewardSpiral.Core\GravewardSpiral.Core.csproj" />
+  </ItemGroup>
+
+  <!-- 窓のアイコン(MonoGame DesktopGL は埋め込みの Icon.bmp を窓に使う)。exe のアイコンは ApplicationIcon の Icon.ico -->
+  <ItemGroup>
+    <EmbeddedResource Include="Icon.bmp" LogicalName="Icon.bmp" />
+    <None Remove="Icon.ico" />
+  </ItemGroup>
+
+  <!-- コンテンツパックと同梱フォントは、そのまま出力フォルダにコピーする(MonoGame の Content Pipeline は使わない) -->
+  <ItemGroup>
+    <None Include="..\..\Content\**\*" LinkBase="Content" CopyToOutputDirectory="PreserveNewest" />
+  </ItemGroup>
+  <ItemGroup>
+    <PackageReference Include="FontStashSharp.MonoGame" Version="1.6.2" />
+    <PackageReference Include="MonoGame.Framework.DesktopGL" Version="3.8.6" />
+    <PackageReference Include="NLayer" Version="3.0.0" />
+  </ItemGroup>
+
+</Project>

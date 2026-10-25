@@ -1,0 +1,255 @@
+using System.Text.Json;
+using System.Text.Json.Serialization;
+
+namespace GravewardSpiral.Core.Content;
+
+/// <summary>
+/// コンテンツパックを読み合わせたもの。
+/// パックは Content/&lt;パック&gt;/ のフォルダで、manifest.json と、データの JSON(1ファイル = 1つの集まり、中身は id を持つ物の配列)、
+/// text/&lt;言語&gt;.json(画面の文言)を持つ。依存する順に読み、同じ集まりの同じ id は後から読んだ方で丸ごと置き換える。
+/// "disabled": true の物は、それまでに読んだ同じ id の物ごと外す。
+/// </summary>
+public sealed class ContentLibrary
+{
+    public const string ManifestFile = "manifest.json";
+
+    public static readonly JsonSerializerOptions JsonOptions = new()
+    {
+        PropertyNamingPolicy = JsonNamingPolicy.SnakeCaseLower,
+        PropertyNameCaseInsensitive = true,
+        ReadCommentHandling = JsonCommentHandling.Skip,
+        AllowTrailingCommas = true,
+        Converters = { new JsonStringEnumConverter(JsonNamingPolicy.SnakeCaseLower) },
+    };
+
+    private readonly Dictionary<string, Dictionary<string, ContentItem>> _collections = new(StringComparer.Ordinal);
+    private readonly Dictionary<string, Dictionary<string, string>> _texts = new(StringComparer.OrdinalIgnoreCase);
+
+    public List<PackManifest> Packs { get; } = [];
+
+    /// <summary>読み込みで見つかった問題。1つでもあれば、ゲームは一覧を出して止まる。</summary>
+    public List<string> Problems { get; } = [];
+
+    public bool IsValid => Problems.Count == 0;
+
+    /// <summary>
+    /// contentRoot の直下のパック(標準のパック)と、extraPackDirs のパック(選んだシナリオ)を読む。
+    /// 直下にあっても kind が scenario のパックは、選ばれたときだけ読む。
+    /// </summary>
+    public static ContentLibrary Load(string contentRoot, params string[] extraPackDirs)
+    {
+        var lib = new ContentLibrary();
+        if (!Directory.Exists(contentRoot))
+        {
+            lib.Problems.Add($"コンテンツのフォルダがありません: {contentRoot}");
+            return lib;
+        }
+
+        var manifests = new List<PackManifest>();
+        foreach (var dir in Directory.EnumerateDirectories(contentRoot).Order(StringComparer.Ordinal))
+        {
+            var m = ReadManifest(dir, out var error);
+            if (error != null) lib.Problems.Add($"{Rel(contentRoot, Path.Combine(dir, ManifestFile))}: {error}");
+            if (m != null && m.Kind != ScenarioCatalog.Kind) manifests.Add(m);   // fonts など、パックでないフォルダは m が null
+        }
+        foreach (var dir in extraPackDirs)
+        {
+            var m = ReadManifest(dir, out var error);
+            if (m != null) manifests.Add(m);
+            else lib.Problems.Add($"{dir}: {error ?? "manifest.json がありません"}");
+        }
+
+        foreach (var m in lib.OrderByDependencies(manifests))
+        {
+            lib.Packs.Add(m);
+            lib.LoadPack(contentRoot, m);
+        }
+        return lib;
+    }
+
+    /// <summary>フォルダの manifest.json を読む。無ければ null(error も null)、読めなければ null と理由。</summary>
+    public static PackManifest? ReadManifest(string dir, out string? error)
+    {
+        error = null;
+        string path = Path.Combine(dir, ManifestFile);
+        if (!File.Exists(path)) return null;
+        try
+        {
+            var m = JsonSerializer.Deserialize<PackManifest>(File.ReadAllText(path), JsonOptions) ?? throw new JsonException("空です");
+            if (string.IsNullOrWhiteSpace(m.Id)) throw new JsonException("id がありません");
+            m.Directory = dir;
+            return m;
+        }
+        catch (JsonException ex)
+        {
+            error = $"読めません: {ex.Message}";
+            return null;
+        }
+    }
+
+    /// <summary>選んでいるシナリオ(標準のパックだけなら null)。</summary>
+    public PackManifest? Scenario => Packs.LastOrDefault(p => p.Kind == ScenarioCatalog.Kind);
+
+    private List<PackManifest> OrderByDependencies(List<PackManifest> manifests)
+    {
+        var byId = new Dictionary<string, PackManifest>(StringComparer.Ordinal);
+        foreach (var m in manifests)
+        {
+            if (!byId.TryAdd(m.Id, m)) Problems.Add($"パックの id '{m.Id}' が2つあります");
+        }
+        var ordered = new List<PackManifest>();
+        var state = new Dictionary<string, int>(StringComparer.Ordinal);   // 1 = 調べている途中, 2 = 済み
+        void Visit(PackManifest m)
+        {
+            if (state.TryGetValue(m.Id, out var s))
+            {
+                if (s == 1) Problems.Add($"パック '{m.Id}' の依存が輪になっています");
+                return;
+            }
+            state[m.Id] = 1;
+            foreach (var dep in m.Depends)
+            {
+                if (byId.TryGetValue(dep, out var d)) Visit(d);
+                else Problems.Add($"パック '{m.Id}' が依存するパック '{dep}' がありません");
+            }
+            state[m.Id] = 2;
+            ordered.Add(m);
+        }
+        foreach (var m in byId.Values.OrderBy(m => m.Order).ThenBy(m => m.Id, StringComparer.Ordinal)) Visit(m);
+        return ordered;
+    }
+
+    private void LoadPack(string contentRoot, PackManifest pack)
+    {
+        foreach (var file in Directory.EnumerateFiles(pack.Directory, "*.json").Order(StringComparer.Ordinal))
+        {
+            string name = Path.GetFileNameWithoutExtension(file);
+            if (Path.GetFileName(file) == ManifestFile) continue;
+            LoadCollection(contentRoot, pack, name, file);
+        }
+
+        string textDir = Path.Combine(pack.Directory, "text");
+        if (Directory.Exists(textDir))
+        {
+            foreach (var file in Directory.EnumerateFiles(textDir, "*.json").Order(StringComparer.Ordinal))
+            {
+                try
+                {
+                    var texts = JsonSerializer.Deserialize<Dictionary<string, string>>(File.ReadAllText(file), JsonOptions) ?? [];
+                    string lang = Path.GetFileNameWithoutExtension(file);
+                    if (!_texts.TryGetValue(lang, out var merged)) _texts[lang] = merged = new(StringComparer.Ordinal);
+                    foreach (var (k, v) in texts) merged[k] = v;
+                }
+                catch (JsonException ex)
+                {
+                    Problems.Add($"{Rel(contentRoot, file)}: 読めません: {ex.Message}");
+                }
+            }
+        }
+    }
+
+    private void LoadCollection(string contentRoot, PackManifest pack, string collection, string file)
+    {
+        JsonDocument doc;
+        try
+        {
+            doc = JsonDocument.Parse(File.ReadAllText(file), new JsonDocumentOptions { CommentHandling = JsonCommentHandling.Skip, AllowTrailingCommas = true });
+        }
+        catch (JsonException ex)
+        {
+            Problems.Add($"{Rel(contentRoot, file)}: 読めません: {ex.Message}");
+            return;
+        }
+        if (doc.RootElement.ValueKind != JsonValueKind.Array)
+        {
+            Problems.Add($"{Rel(contentRoot, file)}: 中身は配列にしてください([{{\"id\": ...}}, ...])");
+            return;
+        }
+
+        if (!_collections.TryGetValue(collection, out var items)) _collections[collection] = items = new(StringComparer.Ordinal);
+        var seenInPack = new HashSet<string>(StringComparer.Ordinal);
+        int index = 0;
+        foreach (var element in doc.RootElement.EnumerateArray())
+        {
+            index++;
+            if (element.ValueKind != JsonValueKind.Object
+                || !element.TryGetProperty("id", out var idProp) || idProp.ValueKind != JsonValueKind.String
+                || string.IsNullOrWhiteSpace(idProp.GetString()))
+            {
+                Problems.Add($"{Rel(contentRoot, file)}: {index} 番目に id がありません");
+                continue;
+            }
+            string id = idProp.GetString()!;
+            if (!seenInPack.Add(id))
+            {
+                Problems.Add($"{Rel(contentRoot, file)}: id '{id}' が2回あります");
+                continue;
+            }
+            bool disabled = element.TryGetProperty("disabled", out var dis) && dis.ValueKind == JsonValueKind.True;
+            if (disabled) items.Remove(id);
+            else items[id] = new ContentItem(collection, id, element.Clone(), pack);
+        }
+    }
+
+    private static string Rel(string root, string path) => Path.GetRelativePath(root, path).Replace('\\', '/');
+
+    public IReadOnlyCollection<ContentItem> All(string collection) =>
+        _collections.TryGetValue(collection, out var items) ? items.Values : [];
+
+    public ContentItem? Find(string collection, string id) =>
+        _collections.TryGetValue(collection, out var items) && items.TryGetValue(id, out var item) ? item : null;
+
+    public bool Has(string collection, string id) => Find(collection, id) != null;
+
+    /// <summary>参照切れを問題として記録する(読み込みのあとの検査で使う)。</summary>
+    public void RequireReference(ContentItem from, string field, string targetCollection, string? targetId)
+    {
+        if (targetId == null) return;
+        if (!Has(targetCollection, targetId))
+            Problems.Add($"{from.Pack.Id}/{from.Collection}.json の '{from.Id}' の {field}: {targetCollection} に '{targetId}' がありません");
+    }
+
+    /// <summary>文言のある言語(パックの text/&lt;言語&gt;.json)。日本語・英語を先に、あとは名前の順。</summary>
+    public IReadOnlyList<string> Languages => _texts.Keys
+        .OrderBy(l => l == "ja" ? 0 : l == "en" ? 1 : 2).ThenBy(l => l, StringComparer.OrdinalIgnoreCase).ToList();
+
+    public IReadOnlyDictionary<string, string> Texts(string language) =>
+        _texts.TryGetValue(language, out var t) ? t : new Dictionary<string, string>();
+}
+
+public sealed class PackManifest
+{
+    public string Id { get; set; } = "";
+    public LocalizedText? Name { get; set; }
+    public string Version { get; set; } = "0";
+    public List<string> Depends { get; set; } = [];
+
+    /// <summary>依存の無いパックどうしの読む順番(小さい方が先)。</summary>
+    public int Order { get; set; }
+
+    /// <summary>パックの種類。"scenario" なら、新しいゲームで選ぶシナリオ(選んだときだけ読む)。省くと標準のパック。</summary>
+    public string? Kind { get; set; }
+
+    /// <summary>シナリオの作者と説明(選ぶ画面に出す)。</summary>
+    public string? Author { get; set; }
+    public LocalizedText? Description { get; set; }
+
+    /// <summary>シナリオの推奨レベル [最小, 最大](選ぶ画面に出す)。</summary>
+    public List<int> Levels { get; set; } = [];
+
+    /// <summary>クランを連れて入れるか(シナリオ)。</summary>
+    public bool AllowImport { get; set; } = true;
+
+    [JsonIgnore]
+    public string Directory { get; set; } = "";
+}
+
+/// <summary>パックの中の物1つ。中身は JSON のまま持ち、使う側が型に読み直す。</summary>
+public sealed record ContentItem(string Collection, string Id, JsonElement Data, PackManifest Pack)
+{
+    public T As<T>() => Data.Deserialize<T>(ContentLibrary.JsonOptions)
+                        ?? throw new JsonException($"{Collection} の '{Id}' が読めません");
+
+    /// <summary>パックのフォルダからの相対パスを、実際のパスにする。</summary>
+    public string ResolvePath(string relative) => Path.GetFullPath(Path.Combine(Pack.Directory, relative));
+}

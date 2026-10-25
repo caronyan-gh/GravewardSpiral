@@ -1,0 +1,20 @@
+[
+  {
+    "id": "default",
+    "rate": 0.04,
+    "room_chance": 0.35,
+    "cooldown": 8,
+    "rest_checks": 6,
+    "first_level": 1,
+    "last_level": 5,
+    "difficulty": {
+      "easy": 3,
+      "medium": 4,
+      "hard": 2,
+      "deadly": 0.3
+    },
+    "max_groups": 4,
+    "extra_group_chance": 0.45,
+    "min_xp_fraction": 0.08
+  }
+]

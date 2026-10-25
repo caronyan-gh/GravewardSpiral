@@ -1,0 +1,19 @@
+# 第1部 A の B5: 封じの扉。墓守の角灯で開き、奥に最後の墓守の魂がいる
+floor prefab_a_b5_seal
+size 3 4
+wrap none
+start 1 3 N
+walls
++-+-+-+
+|#| |#|
++-+ +-+
+|#| |#|
++-+L+-+
+|     |
++ + + +
+|     |
++-+-+-+
+mark 1 2 event:a_b5_seal
+mark 1 1 gate:a_seal
+mark 1 0 event:a_b5_master
+entrance 1 3 S

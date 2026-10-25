@@ -1,0 +1,19 @@
+# 封印の扉。(1,2) で三つの紋章をはめると、北の錠 (1,2)→(1,1) が開き、奥 (1,0) に宝がある
+floor prefab_sealed_vault
+size 3 4
+wrap none
+start 1 3 N
+walls
++-+-+-+
+|#| |#|
++-+ +-+
+|#| |#|
++-+L+-+
+|     |
++ + + +
+|     |
++-+-+-+
+mark 1 2 event:sealed_vault
+mark 1 1 gate:sealed
+mark 1 0 event:sealed_hoard
+entrance 1 3 S

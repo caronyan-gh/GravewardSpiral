@@ -1,0 +1,12 @@
+[
+  { "id": "acolyte", "name": { "en": "Acolyte", "ja": "侍祭" }, "skills": ["insight", "religion"], "description": { "en": "Raised in service to a temple.", "ja": "神殿に仕えて育った。" } },
+  { "id": "soldier", "name": { "en": "Soldier", "ja": "兵士" }, "skills": ["athletics", "intimidation"], "description": { "en": "Fought in a war.", "ja": "戦に出ていた。" } },
+  { "id": "scholar", "name": { "en": "Scholar", "ja": "学者" }, "skills": ["arcana", "history"], "description": { "en": "Spent years among books.", "ja": "長く書物とともに過ごした。" } },
+  { "id": "thief", "name": { "en": "Thief", "ja": "盗人" }, "skills": ["sleight_of_hand", "stealth"], "description": { "en": "Lived by stealing.", "ja": "盗みで暮らしていた。" } },
+  { "id": "hunter", "name": { "en": "Hunter", "ja": "狩人" }, "skills": ["survival", "perception"], "description": { "en": "Hunted in the forests.", "ja": "森で獣を狩っていた。" } },
+  { "id": "healer", "name": { "en": "Healer", "ja": "薬師" }, "skills": ["medicine", "nature"], "description": { "en": "Treated the sick.", "ja": "病人の手当てをしていた。" } },
+  { "id": "entertainer", "name": { "en": "Entertainer", "ja": "芸人" }, "skills": ["acrobatics", "performance"], "description": { "en": "Performed for crowds.", "ja": "人前で芸を見せていた。" } },
+  { "id": "noble", "name": { "en": "Noble", "ja": "貴族" }, "skills": ["history", "persuasion"], "description": { "en": "Born to privilege.", "ja": "名家に生まれた。" } },
+  { "id": "grave_digger", "name": { "en": "Grave Digger", "ja": "墓掘り" }, "skills": ["investigation", "religion"], "description": { "en": "Dug graves at the edge of the spiral.", "ja": "螺旋のふちで墓を掘っていた。" } },
+  { "id": "swindler", "name": { "en": "Swindler", "ja": "詐欺師" }, "skills": ["deception", "insight"], "description": { "en": "Lived by lies.", "ja": "嘘で食べていた。" } }
+]

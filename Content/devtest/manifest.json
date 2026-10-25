@@ -1,0 +1,7 @@
+{
+  "id": "devtest",
+  "name": { "en": "Developer test content", "ja": "開発用の試しのデータ" },
+  "version": "0.1",
+  "depends": ["srd"],
+  "order": 100
+}

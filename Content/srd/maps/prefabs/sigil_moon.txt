@@ -1,0 +1,13 @@
+# 紋章の祠(moon)。番人を倒すと紋章が手に入る。三つそろえると封印の扉が開く
+floor prefab_sigil_moon
+size 3 2
+wrap none
+start 1 1 N
+walls
++-+-+-+
+|     |
++ + + +
+|     |
++-+-+-+
+mark 1 0 event:sigil_shrine_moon
+entrance 1 1 S

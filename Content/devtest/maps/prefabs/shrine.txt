@@ -1,0 +1,15 @@
+# はめ込みの試し: 柱のある小さな祠(西と東に入口)
+floor prefab_shrine
+size 3 3
+wrap none
+start 0 0 N
+walls
++-+-+-+
+|     |
++ +-+ +
+| |#| |
++ +-+ +
+|     |
++-+-+-+
+entrance 0 1 W
+entrance 2 1 E

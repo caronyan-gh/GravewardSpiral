@@ -1,0 +1,106 @@
+[
+  {
+    "id": "shack",
+    "level": 1,
+    "name": {
+      "en": "Ramshackle Hut",
+      "ja": "ぼろ小屋"
+    },
+    "description": {
+      "en": "A leaky hut at the edge of town. At least there is a chest to keep things in.",
+      "ja": "町はずれの、雨漏りのする小屋。物をしまっておく箱だけはある。"
+    },
+    "cost": 0,
+    "storage_slots": 12,
+    "facilities": []
+  },
+  {
+    "id": "cottage",
+    "level": 2,
+    "name": {
+      "en": "Small House",
+      "ja": "小さな家"
+    },
+    "description": {
+      "en": "A proper roof and a few straw beds. You can sleep here for free.",
+      "ja": "ちゃんとした屋根と、わらの寝床がいくつか。ただで眠れる。"
+    },
+    "cost": 2000,
+    "storage_slots": 24,
+    "facilities": [
+      "bed"
+    ]
+  },
+  {
+    "id": "manor",
+    "level": 3,
+    "name": {
+      "en": "Stone Manor",
+      "ja": "石造りの館"
+    },
+    "description": {
+      "en": "Soft beds and a small library of lore. The shop charges half to appraise for a clan with books like these.",
+      "ja": "柔らかい寝床と、伝承の本の並ぶ書庫。これだけの本があるクランには、店も鑑定を半値でする。"
+    },
+    "cost": 10000,
+    "storage_slots": 40,
+    "facilities": [
+      "bed",
+      "bed_full",
+      "library"
+    ],
+    "materials": {
+      "obsidian_cornerstone": 3
+    }
+  },
+  {
+    "id": "keep",
+    "level": 4,
+    "name": {
+      "en": "Keep",
+      "ja": "砦"
+    },
+    "description": {
+      "en": "Thick walls and a chapel of its own. The temple asks only half from a clan that keeps a chapel.",
+      "ja": "厚い壁と、自前の礼拝堂。礼拝堂を持つクランには、寺院も半分の寄進で応じる。"
+    },
+    "cost": 50000,
+    "storage_slots": 60,
+    "facilities": [
+      "bed",
+      "bed_full",
+      "library",
+      "chapel"
+    ],
+    "materials": {
+      "consecrated_bell": 1
+    }
+  },
+  {
+    "id": "castle",
+    "level": 5,
+    "name": {
+      "en": "Castle Hall",
+      "ja": "城館"
+    },
+    "description": {
+      "en": "A great hall where adventurers gather. More can join the clan roster. From here on, only the storehouse can grow.",
+      "ja": "冒険者の集まる大広間。名簿に載せられる人数が増える。ここから先は、倉庫だけを広げられる。"
+    },
+    "cost": 200000,
+    "storage_slots": 100,
+    "facilities": [
+      "bed",
+      "bed_full",
+      "library",
+      "chapel",
+      "hall"
+    ],
+    "expand_slots": 20,
+    "expand_cost": 20000,
+    "expand_cost_step": 10000,
+    "materials": {
+      "ancient_dragon_scale": 3
+    }
+  }
+]

@@ -1,0 +1,192 @@
+[
+  {
+    "id": "default",
+    "default_floors": 6,
+    "default_width": 20,
+    "default_height": 20,
+    "min_size": 8,
+    "max_size": 64,
+    "max_floors": 99,
+    "room_size": [
+      2,
+      5
+    ],
+    "room_density": 0.25,
+    "loop_chance": 0.08,
+    "dead_end_fill": 0.5,
+    "door_chance": 0.7,
+    "secret_door_chance": 0.12,
+    "one_way": {
+      "min_depth": 0.2,
+      "count": [
+        0,
+        2
+      ]
+    },
+    "dark": {
+      "min_depth": 0.1,
+      "count": [
+        0,
+        2
+      ],
+      "size": [
+        4,
+        12
+      ]
+    },
+    "fog": {
+      "min_depth": 0.2,
+      "count": [
+        0,
+        2
+      ],
+      "size": [
+        5,
+        14
+      ]
+    },
+    "anti_magic": {
+      "min_depth": 0.4,
+      "count": [
+        0,
+        1
+      ],
+      "size": [
+        4,
+        10
+      ]
+    },
+    "dark_fog_overlap_min_depth": 0.6,
+    "spinners": {
+      "min_depth": 0.1,
+      "count": [
+        0,
+        3
+      ]
+    },
+    "spinner_in_dark_min_depth": 0.5,
+    "teleporters": {
+      "min_depth": 0.2,
+      "count": [
+        0,
+        2
+      ]
+    },
+    "teleport_room_chance": 0.3,
+    "pits": {
+      "min_depth": 0.1,
+      "count": [
+        0,
+        3
+      ]
+    },
+    "chutes": {
+      "min_depth": 0.3,
+      "count": [
+        0,
+        1
+      ]
+    },
+    "wrap_chance": 0.15,
+    "wrap_min_depth": 0.3,
+    "prefabs": [
+      {
+        "file": "maps/prefabs/boss_lair.txt",
+        "min_depth": 1.0,
+        "max_depth": 1.0,
+        "chance": 1.0
+      },
+      {
+        "file": "maps/prefabs/lever_room.txt",
+        "min_depth": 0.1,
+        "max_depth": 0.9,
+        "chance": 0.25
+      },
+      {
+        "file": "maps/prefabs/riddle_door.txt",
+        "min_depth": 0.2,
+        "max_depth": 0.9,
+        "chance": 0.15
+      },
+      {
+        "file": "maps/prefabs/twin_room.txt",
+        "min_depth": 0.2,
+        "max_depth": 0.6,
+        "once": true
+      },
+      {
+        "file": "maps/prefabs/sigil_sun.txt",
+        "min_depth": 0.15,
+        "max_depth": 0.4,
+        "once": true
+      },
+      {
+        "file": "maps/prefabs/sigil_moon.txt",
+        "min_depth": 0.3,
+        "max_depth": 0.6,
+        "once": true
+      },
+      {
+        "file": "maps/prefabs/sigil_star.txt",
+        "min_depth": 0.45,
+        "max_depth": 0.75,
+        "once": true
+      },
+      {
+        "file": "maps/prefabs/sealed_vault.txt",
+        "min_depth": 0.6,
+        "max_depth": 0.95,
+        "once": true
+      },
+      {
+        "file": "maps/prefabs/a_b1_footprints.txt",
+        "min_depth": 0,
+        "max_depth": 0.15,
+        "once": true
+      },
+      {
+        "file": "maps/prefabs/a_b2_remains.txt",
+        "min_depth": 0.15,
+        "max_depth": 0.35,
+        "once": true
+      },
+      {
+        "file": "maps/prefabs/a_b3_bell.txt",
+        "min_depth": 0.35,
+        "max_depth": 0.55,
+        "once": true
+      },
+      {
+        "file": "maps/prefabs/a_b4_stele.txt",
+        "min_depth": 0.55,
+        "max_depth": 0.75,
+        "once": true
+      },
+      {
+        "file": "maps/prefabs/a_b5_seal.txt",
+        "min_depth": 0.75,
+        "max_depth": 0.95,
+        "once": true
+      }
+    ],
+    "max_attempts": 30,
+    "locks": {
+      "min_depth": 0.15,
+      "count": [
+        0,
+        1
+      ]
+    },
+    "elevator_every": 4,
+    "elevator_min_floors": 6,
+    "events_per_floor": [
+      1,
+      3
+    ],
+    "chains_per_dungeon": [
+      1,
+      3
+    ],
+    "quest_chains_min": 1
+  }
+]

@@ -1,0 +1,23 @@
+[
+  {
+    "id": "devtest",
+    "name": {
+      "en": "Trial Maze",
+      "ja": "試しの迷宮"
+    },
+    "floors": [
+      "maps/devtest_b1.txt",
+      "maps/devtest_b2.txt"
+    ]
+  },
+  {
+    "id": "devtest_events",
+    "name": {
+      "en": "Gimmick Gallery",
+      "ja": "仕掛けの見本"
+    },
+    "floors": [
+      "maps/devtest_events.txt"
+    ]
+  }
+]

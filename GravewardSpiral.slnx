@@ -1,0 +1,13 @@
+<Solution>
+  <Folder Name="/src/">
+    <Project Path="src/GravewardSpiral.Core/GravewardSpiral.Core.csproj" />
+    <Project Path="src/GravewardSpiral.Game/GravewardSpiral.Game.csproj" />
+  </Folder>
+  <Folder Name="/tests/">
+    <Project Path="tests/GravewardSpiral.Tests/GravewardSpiral.Tests.csproj" />
+  </Folder>
+  <Folder Name="/tools/">
+    <Project Path="tools/GravewardSpiral.MapCheck/GravewardSpiral.MapCheck.csproj" />
+    <Project Path="tools/GravewardSpiral.Sim/GravewardSpiral.Sim.csproj" />
+  </Folder>
+</Solution>

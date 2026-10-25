@@ -1,0 +1,20 @@
+[
+  { "id": "acrobatics", "ability": "dex", "name": { "en": "Acrobatics", "ja": "軽業" } },
+  { "id": "animal_handling", "ability": "wis", "name": { "en": "Animal Handling", "ja": "動物の扱い" } },
+  { "id": "arcana", "ability": "int", "name": { "en": "Arcana", "ja": "魔法学" } },
+  { "id": "athletics", "ability": "str", "name": { "en": "Athletics", "ja": "運動" } },
+  { "id": "deception", "ability": "cha", "name": { "en": "Deception", "ja": "ぺてん" } },
+  { "id": "history", "ability": "int", "name": { "en": "History", "ja": "歴史" } },
+  { "id": "insight", "ability": "wis", "name": { "en": "Insight", "ja": "看破" } },
+  { "id": "intimidation", "ability": "cha", "name": { "en": "Intimidation", "ja": "威圧" } },
+  { "id": "investigation", "ability": "int", "name": { "en": "Investigation", "ja": "捜査" } },
+  { "id": "medicine", "ability": "wis", "name": { "en": "Medicine", "ja": "医術" } },
+  { "id": "nature", "ability": "int", "name": { "en": "Nature", "ja": "自然" } },
+  { "id": "perception", "ability": "wis", "name": { "en": "Perception", "ja": "知覚" } },
+  { "id": "performance", "ability": "cha", "name": { "en": "Performance", "ja": "芸能" } },
+  { "id": "persuasion", "ability": "cha", "name": { "en": "Persuasion", "ja": "説得" } },
+  { "id": "religion", "ability": "int", "name": { "en": "Religion", "ja": "宗教" } },
+  { "id": "sleight_of_hand", "ability": "dex", "name": { "en": "Sleight of Hand", "ja": "手先の早業" } },
+  { "id": "stealth", "ability": "dex", "name": { "en": "Stealth", "ja": "隠密" } },
+  { "id": "survival", "ability": "wis", "name": { "en": "Survival", "ja": "生存" } }
+]

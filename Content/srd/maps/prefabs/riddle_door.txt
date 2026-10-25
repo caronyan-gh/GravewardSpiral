@@ -1,0 +1,19 @@
+# 謎かけの扉。(1,2) で扉の顔に答えると、北の錠 (1,2)→(1,1) が開き、奥 (1,0) に宝がある
+floor prefab_riddle_door
+size 3 4
+wrap none
+start 1 3 N
+walls
++-+-+-+
+|#| |#|
++-+ +-+
+|#| |#|
++-+L+-+
+|     |
++ + + +
+|     |
++-+-+-+
+mark 1 2 event:riddle_door
+mark 1 1 gate:riddle
+mark 1 0 event:vault
+entrance 1 3 S

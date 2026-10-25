@@ -1,0 +1,66 @@
+[
+  {
+    "id": "default",
+    "chest_chance": 0.35,
+    "room_chest_chance": 0.7,
+    "trap_chance_first": 0.3,
+    "trap_chance_last": 0.85,
+    "gold_per_level": 20,
+    "min_items": 1,
+    "max_items": 2,
+    "bonus_chance": 0.5,
+    "cursed_chance": 0.08,
+    "rarity": [
+      {
+        "depth": 0.0,
+        "weights": {
+          "mundane": 50,
+          "common": 40,
+          "uncommon": 10
+        }
+      },
+      {
+        "depth": 0.4,
+        "weights": {
+          "mundane": 30,
+          "common": 40,
+          "uncommon": 27,
+          "rare": 3
+        }
+      },
+      {
+        "depth": 0.8,
+        "weights": {
+          "mundane": 15,
+          "common": 35,
+          "uncommon": 40,
+          "rare": 10
+        }
+      }
+    ],
+    "level_rarity": [
+      {
+        "level": 11,
+        "weights": {
+          "rare": 10,
+          "very_rare": 6
+        }
+      },
+      {
+        "level": 17,
+        "weights": {
+          "rare": 15,
+          "very_rare": 12,
+          "legendary": 3
+        }
+      }
+    ],
+    "materials": [
+      {
+        "item": "obsidian_cornerstone",
+        "min_depth": 0.4,
+        "chance": 0.12
+      }
+    ]
+  }
+]

@@ -1,0 +1,477 @@
+[
+ {
+  "id": "gravekeepers_pick",
+  "kind": "weapon",
+  "base": "war_pick",
+  "rarity": "rare",
+  "drop_only": true,
+  "random_affixes": 1,
+  "bonus": 1,
+  "price": 3000,
+  "name": {
+   "en": "Gravekeeper's Pick",
+   "ja": "墓守のつるはし"
+  },
+  "on_hit": [
+   {
+    "type": "damage",
+    "dice": "2d6",
+    "damage_type": "radiant",
+    "only": "undead"
+   }
+  ],
+  "description": {
+   "en": "A pick that dug a thousand graves. It knows what should stay buried.",
+   "ja": "千の墓を掘ったつるはし。眠るべき者を知っている。"
+  }
+ },
+ {
+  "id": "bone_reaver",
+  "kind": "weapon",
+  "base": "greataxe",
+  "rarity": "rare",
+  "drop_only": true,
+  "random_affixes": 1,
+  "bonus": 1,
+  "price": 3500,
+  "name": {
+   "en": "Bone Reaver",
+   "ja": "骨喰らい"
+  },
+  "on_hit": [
+   {
+    "type": "damage",
+    "dice": "1d8",
+    "damage_type": "necrotic"
+   }
+  ],
+  "description": {
+   "en": "Its edge is notched with old bone. It drinks what it cuts.",
+   "ja": "刃こぼれに古い骨が詰まった斧。斬ったものを啜る。"
+  }
+ },
+ {
+  "id": "whisperblade",
+  "kind": "weapon",
+  "base": "dagger",
+  "rarity": "rare",
+  "drop_only": true,
+  "random_affixes": 1,
+  "bonus": 1,
+  "price": 3000,
+  "name": {
+   "en": "Whisperblade",
+   "ja": "囁きの刃"
+  },
+  "on_hit": [
+   {
+    "type": "save",
+    "ability": "con",
+    "dc": 13,
+    "fail": [
+     {
+      "type": "condition",
+      "condition": "poisoned",
+      "rounds": 3
+     }
+    ]
+   }
+  ],
+  "passive": [
+   {
+    "type": "modifier",
+    "stat": "stealth",
+    "value": 3
+   }
+  ],
+  "description": {
+   "en": "A thief's dagger that never made a sound.",
+   "ja": "一度も音を立てなかった盗賊の短剣。"
+  }
+ },
+ {
+  "id": "mindsplitter",
+  "kind": "weapon",
+  "base": "warhammer",
+  "rarity": "rare",
+  "drop_only": true,
+  "random_affixes": 1,
+  "bonus": 1,
+  "price": 3500,
+  "name": {
+   "en": "Mindsplitter",
+   "ja": "心割り"
+  },
+  "on_hit": [
+   {
+    "type": "damage",
+    "dice": "1d8",
+    "damage_type": "psychic"
+   }
+  ],
+  "description": {
+   "en": "Each blow rings inside the skull, not on it.",
+   "ja": "打つたびに、頭の外ではなく内で響く鎚。"
+  }
+ },
+ {
+  "id": "wyrmfang",
+  "kind": "weapon",
+  "base": "spear",
+  "rarity": "very_rare",
+  "drop_only": true,
+  "random_affixes": 1,
+  "bonus": 2,
+  "price": 12000,
+  "name": {
+   "en": "Wyrmfang",
+   "ja": "竜牙の槍"
+  },
+  "on_hit": [
+   {
+    "type": "damage",
+    "dice": "3d6",
+    "damage_type": "piercing",
+    "only": "dragon"
+   }
+  ],
+  "description": {
+   "en": "Tipped with a dragon's own tooth. It remembers how to find the heart.",
+   "ja": "竜の牙を穂先にした槍。心臓の場所を覚えている。"
+  }
+ },
+ {
+  "id": "hellbrand",
+  "kind": "weapon",
+  "base": "longsword",
+  "rarity": "very_rare",
+  "drop_only": true,
+  "random_affixes": 1,
+  "bonus": 2,
+  "price": 14000,
+  "name": {
+   "en": "Hellbrand",
+   "ja": "獄炎の剣"
+  },
+  "on_hit": [
+   {
+    "type": "damage",
+    "dice": "2d6",
+    "damage_type": "fire"
+   }
+  ],
+  "description": {
+   "en": "Forged in a fiend's furnace and stolen back.",
+   "ja": "悪魔の炉で打たれ、奪い返された剣。"
+  }
+ },
+ {
+  "id": "stormcaller",
+  "kind": "weapon",
+  "base": "longbow",
+  "rarity": "very_rare",
+  "drop_only": true,
+  "random_affixes": 1,
+  "bonus": 2,
+  "price": 12000,
+  "name": {
+   "en": "Stormcaller",
+   "ja": "嵐呼びの弓"
+  },
+  "on_hit": [
+   {
+    "type": "damage",
+    "dice": "1d10",
+    "damage_type": "lightning"
+   }
+  ],
+  "description": {
+   "en": "The string hums before a storm.",
+   "ja": "嵐の前には弦が鳴る。"
+  }
+ },
+ {
+  "id": "bloodthirst",
+  "kind": "weapon",
+  "base": "longsword",
+  "rarity": "legendary",
+  "drop_only": true,
+  "random_affixes": 2,
+  "bonus": 3,
+  "price": 60000,
+  "name": {
+   "en": "Bloodthirst",
+   "ja": "妖刀・血吸い"
+  },
+  "on_hit": [
+   {
+    "type": "damage",
+    "dice": "2d6",
+    "damage_type": "necrotic"
+   }
+  ],
+  "description": {
+   "en": "A cursed blade that was never cursed. It is simply hungry.",
+   "ja": "呪われていない妖刀。ただ、腹を空かせている。"
+  }
+ },
+ {
+  "id": "coffin_lid",
+  "kind": "shield",
+  "base": "shield",
+  "rarity": "rare",
+  "drop_only": true,
+  "random_affixes": 1,
+  "bonus": 1,
+  "price": 3000,
+  "name": {
+   "en": "Coffin Lid",
+   "ja": "棺の蓋"
+  },
+  "passive": [
+   {
+    "type": "resist",
+    "damage_type": "necrotic"
+   }
+  ],
+  "description": {
+   "en": "Someone pried it off from the inside.",
+   "ja": "誰かが内側からこじ開けた蓋。"
+  }
+ },
+ {
+  "id": "shadowweave",
+  "kind": "armor",
+  "base": "studded_leather",
+  "rarity": "rare",
+  "drop_only": true,
+  "random_affixes": 1,
+  "bonus": 1,
+  "price": 4000,
+  "name": {
+   "en": "Shadowweave",
+   "ja": "影織りの革鎧"
+  },
+  "passive": [
+   {
+    "type": "modifier",
+    "stat": "stealth",
+    "value": 5
+   }
+  ],
+  "description": {
+   "en": "Woven with thread spun in the dark.",
+   "ja": "闇の中で紡いだ糸で縫った鎧。"
+  }
+ },
+ {
+  "id": "dragonscale_mail",
+  "kind": "armor",
+  "base": "scale_mail",
+  "rarity": "very_rare",
+  "drop_only": true,
+  "random_affixes": 1,
+  "bonus": 2,
+  "price": 15000,
+  "name": {
+   "en": "Dragonscale Mail",
+   "ja": "竜鱗の鎧"
+  },
+  "passive": [
+   {
+    "type": "resist",
+    "damage_type": "fire"
+   },
+   {
+    "type": "immune_condition",
+    "condition": "frightened"
+   }
+  ],
+  "description": {
+   "en": "Scales that have already survived a dragon's death.",
+   "ja": "竜の死をくぐり抜けた鱗。"
+  }
+ },
+ {
+  "id": "spiral_ward",
+  "kind": "armor",
+  "base": "plate_armor",
+  "rarity": "very_rare",
+  "drop_only": true,
+  "random_affixes": 2,
+  "bonus": 2,
+  "price": 25000,
+  "name": {
+   "en": "Ward of the Spiral",
+   "ja": "螺旋の守り"
+  },
+  "passive": [
+   {
+    "type": "immune_condition",
+    "condition": "charmed"
+   },
+   {
+    "type": "immune_condition",
+    "condition": "frightened"
+   }
+  ],
+  "description": {
+   "en": "Plate etched with the spiral of the deep graves.",
+   "ja": "深い墓の螺旋を刻んだ板金鎧。"
+  }
+ },
+ {
+  "id": "ninth_grave_ring",
+  "kind": "accessory",
+  "slot": "ring",
+  "rarity": "rare",
+  "drop_only": true,
+  "attunement": true,
+  "price": 4000,
+  "name": {
+   "en": "Ring of the Ninth Grave",
+   "ja": "九つ目の墓の指輪"
+  },
+  "passive": [
+   {
+    "type": "modifier",
+    "stat": "ac",
+    "value": 1
+   },
+   {
+    "type": "modifier",
+    "stat": "save",
+    "value": 2
+   }
+  ],
+  "description": {
+   "en": "Taken from a grave that should not have been there.",
+   "ja": "あるはずのない九つ目の墓から出た指輪。"
+  }
+ },
+ {
+  "id": "vigil_amulet",
+  "kind": "accessory",
+  "slot": "neck",
+  "rarity": "rare",
+  "drop_only": true,
+  "attunement": true,
+  "price": 4000,
+  "name": {
+   "en": "Amulet of the Vigil",
+   "ja": "不寝番の首飾り"
+  },
+  "passive": [
+   {
+    "type": "immune_condition",
+    "condition": "frightened"
+   },
+   {
+    "type": "immune_condition",
+    "condition": "charmed"
+   },
+   {
+    "type": "modifier",
+    "stat": "save",
+    "value": 1
+   }
+  ],
+  "description": {
+   "en": "Worn by those who watch over the dead through the night.",
+   "ja": "夜通し死者を見守る者が着けた首飾り。"
+  }
+ },
+ {
+  "id": "giantsbane_gauntlets",
+  "kind": "accessory",
+  "slot": "hands",
+  "rarity": "very_rare",
+  "drop_only": true,
+  "attunement": true,
+  "price": 12000,
+  "name": {
+   "en": "Giantsbane Gauntlets",
+   "ja": "巨人砕きの籠手"
+  },
+  "passive": [
+   {
+    "type": "set_ability",
+    "ability": "str",
+    "value": 21
+   }
+  ],
+  "description": {
+   "en": "Pried from a giant's hands, still too large.",
+   "ja": "巨人の手から外した籠手。まだ少し大きい。"
+  }
+ },
+ {
+  "id": "rat_kings_keyring",
+  "kind": "accessory",
+  "slot": "waist",
+  "rarity": "uncommon",
+  "drop_only": true,
+  "price": 800,
+  "name": {
+   "en": "Rat King's Keyring",
+   "ja": "鼠の王の鍵束"
+  },
+  "passive": [
+   {
+    "type": "modifier",
+    "stat": "disarm",
+    "value": 5
+   }
+  ],
+  "description": {
+   "en": "A ring of stolen keys and bent picks. +5 to picking locks and disarming traps.",
+   "ja": "盗んだ鍵と曲がった針金の束。鍵開けと罠外しに +5。"
+  }
+ },
+ {
+  "id": "fleet_boots",
+  "kind": "accessory",
+  "slot": "feet",
+  "rarity": "uncommon",
+  "drop_only": true,
+  "price": 800,
+  "name": {
+   "en": "Fleet Boots",
+   "ja": "逃げ足の長靴"
+  },
+  "passive": [
+   {
+    "type": "modifier",
+    "stat": "flee",
+    "value": 5
+   }
+  ],
+  "description": {
+   "en": "Worn-out boots that never once stood their ground. +5 to fleeing.",
+   "ja": "一度も踏みとどまったことのない、すり減った長靴。逃げるときに +5。"
+  }
+ },
+ {
+  "id": "sentry_necklace",
+  "kind": "accessory",
+  "slot": "neck",
+  "rarity": "uncommon",
+  "drop_only": true,
+  "price": 800,
+  "name": {
+   "en": "Sentry's Necklace",
+   "ja": "見張りの首飾り"
+  },
+  "passive": [
+   {
+    "type": "modifier",
+    "stat": "perception",
+    "value": 5
+   }
+  ],
+  "description": {
+   "en": "A sentry's charm that wakes the wearer at the faintest sound. +5 to Perception (harder to surprise).",
+   "ja": "かすかな音でも目を覚ます、見張り番のお守り。知覚に +5(不意を打たれにくい)。"
+  }
+ }
+]

@@ -1,0 +1,19 @@
+# 第1部 A の B4: 歴代墓守の石碑。最初の墓守の名で開く
+floor prefab_a_b4_stele
+size 3 4
+wrap none
+start 1 3 N
+walls
++-+-+-+
+|#| |#|
++-+ +-+
+|#| |#|
++-+L+-+
+|     |
++ + + +
+|     |
++-+-+-+
+mark 1 2 event:a_b4_stele
+mark 1 1 gate:a_stele
+mark 1 0 event:a_b4_relic
+entrance 1 3 S

@@ -1,0 +1,6641 @@
+[
+ {
+  "id": "battleaxe",
+  "name": {
+   "en": "Battleaxe",
+   "ja": "バトルアックス"
+  },
+  "price": 10,
+  "kind": "weapon",
+  "category": "martial",
+  "damage": "1d8",
+  "damage_type": "slashing",
+  "versatile_damage": "1d10",
+  "properties": [
+   "versatile"
+  ]
+ },
+ {
+  "id": "blowgun",
+  "name": {
+   "en": "Blowgun",
+   "ja": "吹き矢"
+  },
+  "price": 10,
+  "kind": "weapon",
+  "category": "martial",
+  "ranged": true,
+  "damage": "1",
+  "damage_type": "piercing",
+  "properties": [
+   "ammunition",
+   "loading"
+  ]
+ },
+ {
+  "id": "club",
+  "name": {
+   "en": "Club",
+   "ja": "棍棒"
+  },
+  "price": 0.1,
+  "kind": "weapon",
+  "category": "simple",
+  "damage": "1d4",
+  "damage_type": "bludgeoning",
+  "properties": [
+   "light"
+  ]
+ },
+ {
+  "id": "dagger",
+  "name": {
+   "en": "Dagger",
+   "ja": "ダガー"
+  },
+  "price": 2,
+  "kind": "weapon",
+  "category": "simple",
+  "damage": "1d4",
+  "damage_type": "piercing",
+  "properties": [
+   "finesse",
+   "light",
+   "thrown"
+  ],
+  "stack": 10
+ },
+ {
+  "id": "dart",
+  "name": {
+   "en": "Dart",
+   "ja": "ダーツ"
+  },
+  "price": 0.05,
+  "kind": "weapon",
+  "category": "simple",
+  "ranged": true,
+  "damage": "1d4",
+  "damage_type": "piercing",
+  "properties": [
+   "finesse",
+   "thrown"
+  ],
+  "stack": 10
+ },
+ {
+  "id": "flail",
+  "name": {
+   "en": "Flail",
+   "ja": "フレイル"
+  },
+  "price": 10,
+  "kind": "weapon",
+  "category": "martial",
+  "damage": "1d8",
+  "damage_type": "bludgeoning",
+  "properties": []
+ },
+ {
+  "id": "glaive",
+  "name": {
+   "en": "Glaive",
+   "ja": "グレイヴ"
+  },
+  "price": 20,
+  "kind": "weapon",
+  "category": "martial",
+  "damage": "1d10",
+  "damage_type": "slashing",
+  "properties": [
+   "heavy",
+   "reach",
+   "two_handed"
+  ]
+ },
+ {
+  "id": "greataxe",
+  "name": {
+   "en": "Greataxe",
+   "ja": "グレートアックス"
+  },
+  "price": 30,
+  "kind": "weapon",
+  "category": "martial",
+  "damage": "1d12",
+  "damage_type": "slashing",
+  "properties": [
+   "heavy",
+   "two_handed"
+  ]
+ },
+ {
+  "id": "greatclub",
+  "name": {
+   "en": "Greatclub",
+   "ja": "大棍棒"
+  },
+  "price": 0.2,
+  "kind": "weapon",
+  "category": "simple",
+  "damage": "1d8",
+  "damage_type": "bludgeoning",
+  "properties": [
+   "two_handed"
+  ]
+ },
+ {
+  "id": "greatsword",
+  "name": {
+   "en": "Greatsword",
+   "ja": "グレートソード"
+  },
+  "price": 50,
+  "kind": "weapon",
+  "category": "martial",
+  "damage": "2d6",
+  "damage_type": "slashing",
+  "properties": [
+   "heavy",
+   "two_handed"
+  ]
+ },
+ {
+  "id": "halberd",
+  "name": {
+   "en": "Halberd",
+   "ja": "ハルバード"
+  },
+  "price": 20,
+  "kind": "weapon",
+  "category": "martial",
+  "damage": "1d10",
+  "damage_type": "slashing",
+  "properties": [
+   "heavy",
+   "reach",
+   "two_handed"
+  ]
+ },
+ {
+  "id": "hand_crossbow",
+  "name": {
+   "en": "Crossbow, hand",
+   "ja": "ハンド・クロスボウ"
+  },
+  "price": 75,
+  "kind": "weapon",
+  "category": "martial",
+  "ranged": true,
+  "damage": "1d6",
+  "damage_type": "piercing",
+  "properties": [
+   "ammunition",
+   "light",
+   "loading"
+  ]
+ },
+ {
+  "id": "handaxe",
+  "name": {
+   "en": "Handaxe",
+   "ja": "ハンドアックス"
+  },
+  "price": 5,
+  "kind": "weapon",
+  "category": "simple",
+  "damage": "1d6",
+  "damage_type": "slashing",
+  "properties": [
+   "light",
+   "thrown"
+  ],
+  "stack": 10
+ },
+ {
+  "id": "heavy_crossbow",
+  "name": {
+   "en": "Crossbow, heavy",
+   "ja": "ヘビー・クロスボウ"
+  },
+  "price": 50,
+  "kind": "weapon",
+  "category": "martial",
+  "ranged": true,
+  "damage": "1d10",
+  "damage_type": "piercing",
+  "properties": [
+   "ammunition",
+   "heavy",
+   "loading",
+   "two_handed"
+  ]
+ },
+ {
+  "id": "javelin",
+  "name": {
+   "en": "Javelin",
+   "ja": "ジャベリン"
+  },
+  "price": 0.5,
+  "kind": "weapon",
+  "category": "simple",
+  "damage": "1d6",
+  "damage_type": "piercing",
+  "properties": [
+   "thrown"
+  ],
+  "stack": 10
+ },
+ {
+  "id": "lance",
+  "name": {
+   "en": "Lance",
+   "ja": "ランス"
+  },
+  "price": 10,
+  "kind": "weapon",
+  "category": "martial",
+  "damage": "1d12",
+  "damage_type": "piercing",
+  "properties": [
+   "reach",
+   "special"
+  ]
+ },
+ {
+  "id": "light_crossbow",
+  "name": {
+   "en": "Crossbow, light",
+   "ja": "ライト・クロスボウ"
+  },
+  "price": 25,
+  "kind": "weapon",
+  "category": "simple",
+  "ranged": true,
+  "damage": "1d8",
+  "damage_type": "piercing",
+  "properties": [
+   "ammunition",
+   "loading",
+   "two_handed"
+  ]
+ },
+ {
+  "id": "light_hammer",
+  "name": {
+   "en": "Light hammer",
+   "ja": "ライト・ハンマー"
+  },
+  "price": 2,
+  "kind": "weapon",
+  "category": "simple",
+  "damage": "1d4",
+  "damage_type": "bludgeoning",
+  "properties": [
+   "light",
+   "thrown"
+  ],
+  "stack": 10
+ },
+ {
+  "id": "longbow",
+  "name": {
+   "en": "Longbow",
+   "ja": "ロングボウ"
+  },
+  "price": 50,
+  "kind": "weapon",
+  "category": "martial",
+  "ranged": true,
+  "damage": "1d8",
+  "damage_type": "piercing",
+  "properties": [
+   "ammunition",
+   "heavy",
+   "two_handed"
+  ]
+ },
+ {
+  "id": "longsword",
+  "name": {
+   "en": "Longsword",
+   "ja": "ロングソード"
+  },
+  "price": 15,
+  "kind": "weapon",
+  "category": "martial",
+  "damage": "1d8",
+  "damage_type": "slashing",
+  "versatile_damage": "1d10",
+  "properties": [
+   "versatile"
+  ]
+ },
+ {
+  "id": "mace",
+  "name": {
+   "en": "Mace",
+   "ja": "メイス"
+  },
+  "price": 5,
+  "kind": "weapon",
+  "category": "simple",
+  "damage": "1d6",
+  "damage_type": "bludgeoning",
+  "properties": []
+ },
+ {
+  "id": "maul",
+  "name": {
+   "en": "Maul",
+   "ja": "モール"
+  },
+  "price": 10,
+  "kind": "weapon",
+  "category": "martial",
+  "damage": "2d6",
+  "damage_type": "bludgeoning",
+  "properties": [
+   "heavy",
+   "two_handed"
+  ]
+ },
+ {
+  "id": "morningstar",
+  "name": {
+   "en": "Morningstar",
+   "ja": "モーニングスター"
+  },
+  "price": 15,
+  "kind": "weapon",
+  "category": "martial",
+  "damage": "1d8",
+  "damage_type": "piercing",
+  "properties": []
+ },
+ {
+  "id": "pike",
+  "name": {
+   "en": "Pike",
+   "ja": "パイク"
+  },
+  "price": 5,
+  "kind": "weapon",
+  "category": "martial",
+  "damage": "1d10",
+  "damage_type": "piercing",
+  "properties": [
+   "heavy",
+   "reach",
+   "two_handed"
+  ]
+ },
+ {
+  "id": "quarterstaff",
+  "name": {
+   "en": "Quarterstaff",
+   "ja": "クォータースタッフ"
+  },
+  "price": 0.2,
+  "kind": "weapon",
+  "category": "simple",
+  "damage": "1d6",
+  "damage_type": "bludgeoning",
+  "versatile_damage": "1d8",
+  "properties": [
+   "versatile"
+  ]
+ },
+ {
+  "id": "rapier",
+  "name": {
+   "en": "Rapier",
+   "ja": "レイピア"
+  },
+  "price": 25,
+  "kind": "weapon",
+  "category": "martial",
+  "damage": "1d8",
+  "damage_type": "piercing",
+  "properties": [
+   "finesse"
+  ]
+ },
+ {
+  "id": "scimitar",
+  "name": {
+   "en": "Scimitar",
+   "ja": "シミター"
+  },
+  "price": 25,
+  "kind": "weapon",
+  "category": "martial",
+  "damage": "1d6",
+  "damage_type": "slashing",
+  "properties": [
+   "finesse",
+   "light"
+  ]
+ },
+ {
+  "id": "shortbow",
+  "name": {
+   "en": "Shortbow",
+   "ja": "ショートボウ"
+  },
+  "price": 25,
+  "kind": "weapon",
+  "category": "simple",
+  "ranged": true,
+  "damage": "1d6",
+  "damage_type": "piercing",
+  "properties": [
+   "ammunition",
+   "two_handed"
+  ]
+ },
+ {
+  "id": "shortsword",
+  "name": {
+   "en": "Shortsword",
+   "ja": "ショートソード"
+  },
+  "price": 10,
+  "kind": "weapon",
+  "category": "martial",
+  "damage": "1d6",
+  "damage_type": "piercing",
+  "properties": [
+   "finesse",
+   "light"
+  ]
+ },
+ {
+  "id": "sickle",
+  "name": {
+   "en": "Sickle",
+   "ja": "シックル"
+  },
+  "price": 1,
+  "kind": "weapon",
+  "category": "simple",
+  "damage": "1d4",
+  "damage_type": "slashing",
+  "properties": [
+   "light"
+  ]
+ },
+ {
+  "id": "sling",
+  "name": {
+   "en": "Sling",
+   "ja": "スリング"
+  },
+  "price": 0.1,
+  "kind": "weapon",
+  "category": "simple",
+  "ranged": true,
+  "damage": "1d4",
+  "damage_type": "bludgeoning",
+  "properties": [
+   "ammunition"
+  ]
+ },
+ {
+  "id": "spear",
+  "name": {
+   "en": "Spear",
+   "ja": "スピア"
+  },
+  "price": 1,
+  "kind": "weapon",
+  "category": "simple",
+  "damage": "1d6",
+  "damage_type": "piercing",
+  "versatile_damage": "1d8",
+  "properties": [
+   "thrown",
+   "versatile"
+  ],
+  "stack": 10
+ },
+ {
+  "id": "trident",
+  "name": {
+   "en": "Trident",
+   "ja": "トライデント"
+  },
+  "price": 5,
+  "kind": "weapon",
+  "category": "martial",
+  "damage": "1d6",
+  "damage_type": "piercing",
+  "versatile_damage": "1d8",
+  "properties": [
+   "thrown",
+   "versatile"
+  ],
+  "stack": 10
+ },
+ {
+  "id": "war_pick",
+  "name": {
+   "en": "War pick",
+   "ja": "ウォーピック"
+  },
+  "price": 5,
+  "kind": "weapon",
+  "category": "martial",
+  "damage": "1d8",
+  "damage_type": "piercing",
+  "properties": []
+ },
+ {
+  "id": "warhammer",
+  "name": {
+   "en": "Warhammer",
+   "ja": "ウォーハンマー"
+  },
+  "price": 15,
+  "kind": "weapon",
+  "category": "martial",
+  "damage": "1d8",
+  "damage_type": "bludgeoning",
+  "versatile_damage": "1d10",
+  "properties": [
+   "versatile"
+  ]
+ },
+ {
+  "id": "whip",
+  "name": {
+   "en": "Whip",
+   "ja": "ウィップ"
+  },
+  "price": 2,
+  "kind": "weapon",
+  "category": "martial",
+  "damage": "1d4",
+  "damage_type": "slashing",
+  "properties": [
+   "finesse",
+   "reach"
+  ]
+ },
+ {
+  "id": "berserker_axe",
+  "kind": "weapon",
+  "name": {
+   "en": "Berserker Axe",
+   "ja": "バーサーカー・アックス"
+  },
+  "description": {
+   "en": "A +1 greataxe. Cursed: once wielded it cannot be put down.",
+   "ja": "+1 のグレートアックス。呪われていて、持つと手放せない。"
+  },
+  "rarity": "rare",
+  "price": 1500,
+  "base": "greataxe",
+  "bonus": 1,
+  "attunement": true,
+  "cursed": true,
+  "note": "SRD の「レベルぶん最大 HP が増える」「狂戦士になる」は表せないので、+1 の呪われた斧として扱う。",
+  "looks_like": {
+   "id": "greataxe",
+   "bonus": 1
+  }
+ },
+ {
+  "id": "bloodthirst",
+  "kind": "weapon",
+  "base": "longsword",
+  "rarity": "legendary",
+  "drop_only": true,
+  "random_affixes": 2,
+  "bonus": 3,
+  "price": 60000,
+  "name": {
+   "en": "Bloodthirst",
+   "ja": "妖刀・血吸い"
+  },
+  "on_hit": [
+   {
+    "type": "damage",
+    "dice": "2d6",
+    "damage_type": "necrotic"
+   }
+  ],
+  "description": {
+   "en": "A cursed blade that was never cursed. It is simply hungry.",
+   "ja": "呪われていない妖刀。ただ、腹を空かせている。"
+  }
+ },
+ {
+  "id": "bone_reaver",
+  "kind": "weapon",
+  "base": "greataxe",
+  "rarity": "rare",
+  "drop_only": true,
+  "random_affixes": 1,
+  "bonus": 1,
+  "price": 3500,
+  "name": {
+   "en": "Bone Reaver",
+   "ja": "骨喰らい"
+  },
+  "on_hit": [
+   {
+    "type": "damage",
+    "dice": "1d8",
+    "damage_type": "necrotic"
+   }
+  ],
+  "description": {
+   "en": "Its edge is notched with old bone. It drinks what it cuts.",
+   "ja": "刃こぼれに古い骨が詰まった斧。斬ったものを啜る。"
+  }
+ },
+ {
+  "id": "cursed_longsword_of_misfortune",
+  "kind": "weapon",
+  "name": {
+   "en": "Longsword of Misfortune",
+   "ja": "不運のロングソード"
+  },
+  "description": {
+   "en": "A cursed -2 longsword. Looks fine until you draw it; then it cannot be dropped.",
+   "ja": "呪われた -2 のロングソード。握るまでは立派に見えるが、握ると手放せない。"
+  },
+  "rarity": "common",
+  "price": 60,
+  "base": "longsword",
+  "bonus": -2,
+  "cursed": true,
+  "looks_like": {
+   "id": "longsword",
+   "bonus": 1
+  }
+ },
+ {
+  "id": "dagger_of_venom",
+  "kind": "weapon",
+  "name": {
+   "en": "Dagger of Venom",
+   "ja": "ダガー・オヴ・ヴェノム"
+  },
+  "description": {
+   "en": "A +1 dagger. On a hit the target saves against poison or takes 2d10 poison damage and is poisoned.",
+   "ja": "+1 のダガー。当たると相手は耐久力のセーヴ(DC 15)をし、失敗すると 2d10 の毒ダメージを受けて毒状態になる。"
+  },
+  "rarity": "rare",
+  "price": 1500,
+  "base": "dagger",
+  "bonus": 1,
+  "on_hit": [
+   {
+    "type": "save",
+    "ability": "con",
+    "dc": 15,
+    "fail": [
+     {
+      "type": "damage",
+      "dice": "2d10",
+      "damage_type": "poison"
+     },
+     {
+      "type": "condition",
+      "condition": "poisoned",
+      "rounds": 10
+     }
+    ]
+   }
+  ],
+  "note": "SRD では毒を塗るのは 1 日 1 回だが、毎回の命中で効くように簡略化。"
+ },
+ {
+  "id": "defender",
+  "kind": "weapon",
+  "name": {
+   "en": "Defender",
+   "ja": "ディフェンダー"
+  },
+  "description": {
+   "en": "A +2 longsword that also grants +1 AC while wielded.",
+   "ja": "+2 のロングソード。持っているあいだ AC にも +1。"
+  },
+  "rarity": "legendary",
+  "price": 60000,
+  "base": "longsword",
+  "bonus": 2,
+  "attunement": true,
+  "passive": [
+   {
+    "type": "modifier",
+    "stat": "ac",
+    "value": 1
+   }
+  ],
+  "note": "SRD の「+3 のうち好きなぶんを AC に回す」を、+2 と AC +1 に固定。"
+ },
+ {
+  "id": "dragon_slayer",
+  "kind": "weapon",
+  "name": {
+   "en": "Dragon Slayer",
+   "ja": "ドラゴン・スレイヤー"
+  },
+  "description": {
+   "en": "A +1 longsword that deals an extra 3d6 damage to dragons.",
+   "ja": "+1 のロングソード。竜に当たると 3d6 の追加ダメージ。"
+  },
+  "rarity": "rare",
+  "price": 1500,
+  "base": "longsword",
+  "bonus": 1,
+  "on_hit": [
+   {
+    "type": "damage",
+    "dice": "3d6",
+    "damage_type": "slashing",
+    "only": "dragon"
+   }
+  ]
+ },
+ {
+  "id": "dwarven_thrower",
+  "kind": "weapon",
+  "name": {
+   "en": "Dwarven Thrower",
+   "ja": "ドワーヴン・スロワー"
+  },
+  "description": {
+   "en": "A +3 warhammer that can be thrown and flies back to your hand. Deals an extra 2d8 to giants.",
+   "ja": "+3 のウォーハンマー。投げられて、投げても手元に戻ってくる。巨人には 2d8 のダメージを足す。"
+  },
+  "rarity": "very_rare",
+  "price": 12000,
+  "base": "warhammer",
+  "bonus": 3,
+  "attunement": true,
+  "note": "SRD の「ドワーフだけ同調できる」は省いた。投げたときだけの追加ダメージは、巨人への追加ダメージにまとめた。",
+  "properties": [
+   "versatile",
+   "thrown",
+   "returning"
+  ],
+  "on_hit": [
+   {
+    "type": "damage",
+    "dice": "2d8",
+    "damage_type": "bludgeoning",
+    "only": "giant"
+   }
+  ]
+ },
+ {
+  "id": "flame_tongue",
+  "kind": "weapon",
+  "name": {
+   "en": "Flame Tongue",
+   "ja": "フレイム・タン"
+  },
+  "description": {
+   "en": "A longsword wreathed in fire. Deals an extra 2d6 fire damage on every hit.",
+   "ja": "炎をまとうロングソード。当たるたびに 2d6 の火のダメージを足す。"
+  },
+  "rarity": "rare",
+  "price": 1500,
+  "base": "longsword",
+  "attunement": true,
+  "on_hit": [
+   {
+    "type": "damage",
+    "dice": "2d6",
+    "damage_type": "fire"
+   }
+  ]
+ },
+ {
+  "id": "frost_brand",
+  "kind": "weapon",
+  "name": {
+   "en": "Frost Brand",
+   "ja": "フロスト・ブランド"
+  },
+  "description": {
+   "en": "A longsword of ice. Extra 1d6 cold damage on hit, and the wielder resists fire.",
+   "ja": "氷のロングソード。当たると 1d6 の冷気のダメージを足し、持っているあいだ火に抵抗を得る。"
+  },
+  "rarity": "very_rare",
+  "price": 12000,
+  "base": "longsword",
+  "attunement": true,
+  "on_hit": [
+   {
+    "type": "damage",
+    "dice": "1d6",
+    "damage_type": "cold"
+   }
+  ],
+  "passive": [
+   {
+    "type": "resist",
+    "damage_type": "fire"
+   }
+  ]
+ },
+ {
+  "id": "giant_slayer",
+  "kind": "weapon",
+  "name": {
+   "en": "Giant Slayer",
+   "ja": "ジャイアント・スレイヤー"
+  },
+  "description": {
+   "en": "A +1 longsword that deals an extra 2d6 damage to giants.",
+   "ja": "+1 のロングソード。巨人に当たると 2d6 の追加ダメージ。"
+  },
+  "rarity": "rare",
+  "price": 1500,
+  "base": "longsword",
+  "bonus": 1,
+  "on_hit": [
+   {
+    "type": "damage",
+    "dice": "2d6",
+    "damage_type": "slashing",
+    "only": "giant"
+   }
+  ],
+  "note": "SRD の「巨人を転ばせる」セーヴは省いた。"
+ },
+ {
+  "id": "gravekeepers_pick",
+  "kind": "weapon",
+  "base": "war_pick",
+  "rarity": "rare",
+  "drop_only": true,
+  "random_affixes": 1,
+  "bonus": 1,
+  "price": 3000,
+  "name": {
+   "en": "Gravekeeper's Pick",
+   "ja": "墓守のつるはし"
+  },
+  "on_hit": [
+   {
+    "type": "damage",
+    "dice": "2d6",
+    "damage_type": "radiant",
+    "only": "undead"
+   }
+  ],
+  "description": {
+   "en": "A pick that dug a thousand graves. It knows what should stay buried.",
+   "ja": "千の墓を掘ったつるはし。眠るべき者を知っている。"
+  }
+ },
+ {
+  "id": "hammer_of_thunderbolts",
+  "kind": "weapon",
+  "name": {
+   "en": "Hammer of Thunderbolts",
+   "ja": "ハンマー・オヴ・サンダーボルツ"
+  },
+  "description": {
+   "en": "A +1 maul that adds 2d6 thunder damage on every hit and 3d6 more against giants.",
+   "ja": "+1 のモール。当たるたびに 2d6 の雷鳴のダメージを足し、巨人にはさらに 3d6。"
+  },
+  "rarity": "legendary",
+  "price": 60000,
+  "base": "maul",
+  "bonus": 1,
+  "attunement": true,
+  "on_hit": [
+   {
+    "type": "damage",
+    "dice": "2d6",
+    "damage_type": "thunder"
+   },
+   {
+    "type": "damage",
+    "dice": "3d6",
+    "damage_type": "thunder",
+    "only": "giant"
+   }
+  ],
+  "note": "SRD の「巨人の力の帯と鬼の力の籠手が要る」「20 で巨人を倒す」は表せないので、雷鳴の追加ダメージに置き換えた。"
+ },
+ {
+  "id": "hellbrand",
+  "kind": "weapon",
+  "base": "longsword",
+  "rarity": "very_rare",
+  "drop_only": true,
+  "random_affixes": 1,
+  "bonus": 2,
+  "price": 14000,
+  "name": {
+   "en": "Hellbrand",
+   "ja": "獄炎の剣"
+  },
+  "on_hit": [
+   {
+    "type": "damage",
+    "dice": "2d6",
+    "damage_type": "fire"
+   }
+  ],
+  "description": {
+   "en": "Forged in a fiend's furnace and stolen back.",
+   "ja": "悪魔の炉で打たれ、奪い返された剣。"
+  }
+ },
+ {
+  "id": "holy_avenger",
+  "kind": "weapon",
+  "name": {
+   "en": "Holy Avenger",
+   "ja": "ホーリー・アヴェンジャー"
+  },
+  "description": {
+   "en": "A +3 longsword. Extra 2d10 radiant damage to fiends and undead, and +2 to the wielder's saves.",
+   "ja": "+3 のロングソード。魔物と不死の者に当たると 2d10 の光輝の追加ダメージ。持っているあいだセーヴに +2。"
+  },
+  "rarity": "legendary",
+  "price": 60000,
+  "base": "longsword",
+  "bonus": 3,
+  "attunement": true,
+  "on_hit": [
+   {
+    "type": "damage",
+    "dice": "2d10",
+    "damage_type": "radiant",
+    "only": "fiend"
+   },
+   {
+    "type": "damage",
+    "dice": "2d10",
+    "damage_type": "radiant",
+    "only": "undead"
+   }
+  ],
+  "passive": [
+   {
+    "type": "modifier",
+    "stat": "save",
+    "value": 2
+   }
+  ],
+  "note": "SRD では同調できるのはパラディンだけ。味方にも及ぶ呪文へのセーヴの有利は、持ち主のセーヴ +2 に簡略化。"
+ },
+ {
+  "id": "javelin_of_lightning",
+  "kind": "weapon",
+  "name": {
+   "en": "Javelin of Lightning",
+   "ja": "ジャヴェリン・オヴ・ライトニング"
+  },
+  "description": {
+   "en": "A javelin that can turn into a bolt of lightning once per rest: enemies save or take 4d6 lightning damage.",
+   "ja": "1 回だけ雷に変えて投げられる投げ槍。敵の一群は敏捷力のセーヴ(DC 13)をし、失敗すると 4d6 の雷のダメージ(成功で半分)。"
+  },
+  "rarity": "uncommon",
+  "price": 300,
+  "base": "javelin",
+  "charges": 1,
+  "use_target": "group",
+  "use": [
+   {
+    "type": "save",
+    "ability": "dex",
+    "dc": 13,
+    "fail": [
+     {
+      "type": "damage",
+      "dice": "4d6",
+      "damage_type": "lightning"
+     }
+    ],
+    "half": true
+   }
+  ]
+ },
+ {
+  "id": "luck_blade",
+  "kind": "weapon",
+  "name": {
+   "en": "Luck Blade",
+   "ja": "ラック・ブレード"
+  },
+  "description": {
+   "en": "A +1 longsword that grants +1 to saving throws.",
+   "ja": "+1 のロングソード。持っているあいだセーヴに +1。"
+  },
+  "rarity": "legendary",
+  "price": 60000,
+  "base": "longsword",
+  "bonus": 1,
+  "attunement": true,
+  "passive": [
+   {
+    "type": "modifier",
+    "stat": "save",
+    "value": 1
+   }
+  ],
+  "note": "SRD の「振り直し」と「ウィッシュ」は省いた。"
+ },
+ {
+  "id": "mace_of_disruption",
+  "kind": "weapon",
+  "name": {
+   "en": "Mace of Disruption",
+   "ja": "メイス・オヴ・ディスラプション"
+  },
+  "description": {
+   "en": "Deals 2d6 extra radiant damage to fiends and undead; a weakened one (25 HP or less) must save or be destroyed.",
+   "ja": "魔物と不死の者に当たると 2d6 の光輝の追加ダメージ。HP が 25 以下なら知恵のセーヴ(DC 15)に失敗すると滅びる。"
+  },
+  "rarity": "rare",
+  "price": 1500,
+  "base": "mace",
+  "attunement": true,
+  "on_hit": [
+   {
+    "type": "damage",
+    "dice": "2d6",
+    "damage_type": "radiant",
+    "only": "fiend"
+   },
+   {
+    "type": "damage",
+    "dice": "2d6",
+    "damage_type": "radiant",
+    "only": "undead"
+   },
+   {
+    "type": "save",
+    "ability": "wis",
+    "dc": 15,
+    "fail": [
+     {
+      "type": "kill",
+      "max_hp": 25,
+      "only": "undead"
+     },
+     {
+      "type": "kill",
+      "max_hp": 25,
+      "only": "fiend"
+     }
+    ]
+   }
+  ]
+ },
+ {
+  "id": "mace_of_smiting",
+  "kind": "weapon",
+  "name": {
+   "en": "Mace of Smiting",
+   "ja": "メイス・オヴ・スマイティング"
+  },
+  "description": {
+   "en": "A +1 mace that deals an extra 2d6 damage to constructs.",
+   "ja": "+1 のメイス。動く像に当たると 2d6 の追加ダメージ。"
+  },
+  "rarity": "rare",
+  "price": 1500,
+  "base": "mace",
+  "bonus": 1,
+  "on_hit": [
+   {
+    "type": "damage",
+    "dice": "2d6",
+    "damage_type": "bludgeoning",
+    "only": "construct"
+   }
+  ],
+  "note": "SRD の「動く像には +3」「20 で倒す」を、追加ダメージに簡略化。"
+ },
+ {
+  "id": "mace_of_terror",
+  "kind": "weapon",
+  "name": {
+   "en": "Mace of Terror",
+   "ja": "メイス・オヴ・テラー"
+  },
+  "description": {
+   "en": "A mace that can release a wave of terror (3 charges): enemies save or are frightened.",
+   "ja": "恐怖の波を放てるメイス(3 回)。敵の一群は知恵のセーヴ(DC 15)に失敗すると 1 分のあいだ恐怖状態。"
+  },
+  "rarity": "rare",
+  "price": 1500,
+  "base": "mace",
+  "attunement": true,
+  "charges": 3,
+  "use_target": "group",
+  "use": [
+   {
+    "type": "save",
+    "ability": "wis",
+    "dc": 15,
+    "fail": [
+     {
+      "type": "condition",
+      "condition": "frightened",
+      "repeat_save": true,
+      "rounds": 10
+     }
+    ]
+   }
+  ]
+ },
+ {
+  "id": "mindsplitter",
+  "kind": "weapon",
+  "base": "warhammer",
+  "rarity": "rare",
+  "drop_only": true,
+  "random_affixes": 1,
+  "bonus": 1,
+  "price": 3500,
+  "name": {
+   "en": "Mindsplitter",
+   "ja": "心割り"
+  },
+  "on_hit": [
+   {
+    "type": "damage",
+    "dice": "1d8",
+    "damage_type": "psychic"
+   }
+  ],
+  "description": {
+   "en": "Each blow rings inside the skull, not on it.",
+   "ja": "打つたびに、頭の外ではなく内で響く鎚。"
+  }
+ },
+ {
+  "id": "nine_lives_stealer",
+  "kind": "weapon",
+  "name": {
+   "en": "Nine Lives Stealer",
+   "ja": "ナイン・ライヴズ・スティーラー"
+  },
+  "description": {
+   "en": "A +2 longsword. A badly wounded target (20 HP or less) hit by it must save or die.",
+   "ja": "+2 のロングソード。当たった相手の HP が 20 以下なら、耐久力のセーヴ(DC 15)に失敗すると即死。"
+  },
+  "rarity": "very_rare",
+  "price": 12000,
+  "base": "longsword",
+  "bonus": 2,
+  "attunement": true,
+  "on_hit": [
+   {
+    "type": "save",
+    "ability": "con",
+    "dc": 15,
+    "fail": [
+     {
+      "type": "kill",
+      "max_hp": 20
+     }
+    ]
+   }
+  ],
+  "note": "SRD の「クリティカルで、HP 100 未満の相手」を「毎回の命中で、HP 20 以下」に。回数(9 回)は数えない。"
+ },
+ {
+  "id": "oathbow",
+  "kind": "weapon",
+  "name": {
+   "en": "Oathbow",
+   "ja": "オースボウ"
+  },
+  "description": {
+   "en": "A +2 longbow that deals an extra 1d6 piercing damage on every hit.",
+   "ja": "+2 のロングボウ。当たるたびに 1d6 の刺突の追加ダメージ。"
+  },
+  "rarity": "very_rare",
+  "price": 12000,
+  "base": "longbow",
+  "bonus": 2,
+  "attunement": true,
+  "on_hit": [
+   {
+    "type": "damage",
+    "dice": "1d6",
+    "damage_type": "piercing"
+   }
+  ],
+  "note": "SRD の「誓いの敵」は表せないので、+2 と追加ダメージに簡略化。"
+ },
+ {
+  "id": "oathkeeper",
+  "kind": "weapon",
+  "base": "longsword",
+  "rarity": "very_rare",
+  "drop_only": true,
+  "bonus": 2,
+  "price": 14000,
+  "name": {
+   "en": "Oathkeeper",
+   "ja": "誓い守り"
+  },
+  "on_hit": [
+   {
+    "type": "damage",
+    "dice": "1d8",
+    "damage_type": "radiant"
+   }
+  ],
+  "passive": [
+   {
+    "type": "modifier",
+    "stat": "save",
+    "value": 1
+   }
+  ],
+  "description": {
+   "en": "Given back by a spirit whose oath you helped keep.",
+   "ja": "誓いを果たす手助けをした霊から、返された剣。"
+  }
+ },
+ {
+  "id": "returning_dagger",
+  "kind": "weapon",
+  "name": {
+   "en": "Returning Dagger",
+   "ja": "帰還のダガー"
+  },
+  "description": {
+   "en": "A +1 dagger that flies back to the thrower's hand.",
+   "ja": "+1 のダガー。投げても、投げた人の手元に戻ってくる。"
+  },
+  "rarity": "rare",
+  "price": 4000,
+  "base": "dagger",
+  "bonus": 1,
+  "properties": [
+   "finesse",
+   "light",
+   "thrown",
+   "returning"
+  ],
+  "note": "オリジナル(SRD に無い)。投げ放題は、これを引いた人だけの楽しみ"
+ },
+ {
+  "id": "rod_of_lordly_might",
+  "kind": "weapon",
+  "name": {
+   "en": "Rod of Lordly Might",
+   "ja": "ロッド・オヴ・ロードリー・マイト"
+  },
+  "description": {
+   "en": "A rod that fights as a +3 mace and deals an extra 2d6 fire damage on hit.",
+   "ja": "+3 のメイスとして戦えるロッド。当たると 2d6 の火の追加ダメージ。"
+  },
+  "rarity": "legendary",
+  "price": 60000,
+  "base": "mace",
+  "bonus": 3,
+  "attunement": true,
+  "on_hit": [
+   {
+    "type": "damage",
+    "dice": "2d6",
+    "damage_type": "fire"
+   }
+  ],
+  "note": "SRD の 6 つのボタン(炎の剣、戦斧、槍など)は、+3 のメイスに火の追加ダメージとしてまとめた。"
+ },
+ {
+  "id": "scimitar_of_speed",
+  "kind": "weapon",
+  "name": {
+   "en": "Scimitar of Speed",
+   "ja": "シミター・オヴ・スピード"
+  },
+  "description": {
+   "en": "A +2 scimitar.",
+   "ja": "+2 のシミター。"
+  },
+  "rarity": "very_rare",
+  "price": 12000,
+  "base": "scimitar",
+  "bonus": 2,
+  "attunement": true,
+  "note": "SRD の「ボーナスアクションで追加の攻撃」は省いた。"
+ },
+ {
+  "id": "staff_of_charming",
+  "kind": "weapon",
+  "name": {
+   "en": "Staff of Charming",
+   "ja": "スタッフ・オヴ・チャーミング"
+  },
+  "description": {
+   "en": "A quarterstaff that casts Command (10 charges).",
+   "ja": "コマンドを唱えられるクォータースタッフ(10 回)。"
+  },
+  "rarity": "rare",
+  "price": 1500,
+  "base": "quarterstaff",
+  "attunement": true,
+  "only": "caster",
+  "charges": 10,
+  "use_spell": "command",
+  "use_slot": 1,
+  "note": "SRD のチャーム・パーソンとコンプリヘンド・ランゲージズは省いた。"
+ },
+ {
+  "id": "staff_of_fire",
+  "kind": "weapon",
+  "name": {
+   "en": "Staff of Fire",
+   "ja": "スタッフ・オヴ・ファイアー"
+  },
+  "description": {
+   "en": "A quarterstaff that casts Fireball (5 charges) and grants fire resistance.",
+   "ja": "ファイアーボールを唱えられるクォータースタッフ(5 回)。持っているあいだ火に抵抗。"
+  },
+  "rarity": "very_rare",
+  "price": 12000,
+  "base": "quarterstaff",
+  "attunement": true,
+  "only": "caster",
+  "charges": 5,
+  "use_spell": "fireball",
+  "use_slot": 3,
+  "passive": [
+   {
+    "type": "resist",
+    "damage_type": "fire"
+   }
+  ],
+  "note": "SRD の 10 チャージ(ファイアーボールは 3 チャージ)を 5 回に。バーニング・ハンズとウォール・オヴ・ファイアーは省いた。"
+ },
+ {
+  "id": "staff_of_frost",
+  "kind": "weapon",
+  "name": {
+   "en": "Staff of Frost",
+   "ja": "スタッフ・オヴ・フロスト"
+  },
+  "description": {
+   "en": "A quarterstaff that casts Cone of Cold (3 charges) and grants cold resistance.",
+   "ja": "コーン・オヴ・コールドを唱えられるクォータースタッフ(3 回)。持っているあいだ冷気に抵抗。"
+  },
+  "rarity": "very_rare",
+  "price": 12000,
+  "base": "quarterstaff",
+  "attunement": true,
+  "only": "caster",
+  "charges": 3,
+  "use_spell": "cone_of_cold",
+  "use_slot": 5,
+  "passive": [
+   {
+    "type": "resist",
+    "damage_type": "cold"
+   }
+  ],
+  "note": "SRD の 10 チャージ(コーン・オヴ・コールドは 5 チャージ)を 3 回に。アイス・ストームとウォール・オヴ・アイスは省いた。"
+ },
+ {
+  "id": "staff_of_healing",
+  "kind": "weapon",
+  "name": {
+   "en": "Staff of Healing",
+   "ja": "スタッフ・オヴ・ヒーリング"
+  },
+  "description": {
+   "en": "A quarterstaff that casts Cure Wounds at 3rd level (10 charges).",
+   "ja": "キュア・ウーンズ(3 レベル)を唱えられるクォータースタッフ(10 回)。"
+  },
+  "rarity": "rare",
+  "price": 1500,
+  "base": "quarterstaff",
+  "attunement": true,
+  "only": "caster",
+  "charges": 10,
+  "use_spell": "cure_wounds",
+  "use_slot": 3,
+  "note": "SRD のレッサー・レストレーションとマス・キュア・ウーンズは省いた。"
+ },
+ {
+  "id": "staff_of_power",
+  "kind": "weapon",
+  "name": {
+   "en": "Staff of Power",
+   "ja": "スタッフ・オヴ・パワー"
+  },
+  "description": {
+   "en": "A +2 quarterstaff. +2 AC and saves while held; casts Fireball at 5th level (4 charges).",
+   "ja": "+2 のクォータースタッフ。持っているあいだ AC とセーヴに +2。ファイアーボール(5 レベル)を唱えられる(4 回)。"
+  },
+  "rarity": "very_rare",
+  "price": 12000,
+  "base": "quarterstaff",
+  "bonus": 2,
+  "attunement": true,
+  "only": "caster",
+  "charges": 4,
+  "use_spell": "fireball",
+  "use_slot": 5,
+  "passive": [
+   {
+    "type": "modifier",
+    "stat": "ac",
+    "value": 2
+   },
+   {
+    "type": "modifier",
+    "stat": "save",
+    "value": 2
+   }
+  ],
+  "note": "SRD の 20 チャージ(5 レベルの呪文は 5 チャージ)を 4 回に。他の呪文と「杖を砕く」は省いた。"
+ },
+ {
+  "id": "staff_of_striking",
+  "kind": "weapon",
+  "name": {
+   "en": "Staff of Striking",
+   "ja": "スタッフ・オヴ・ストライキング"
+  },
+  "description": {
+   "en": "A +3 quarterstaff that deals an extra 1d6 force damage on every hit.",
+   "ja": "+3 のクォータースタッフ。当たるたびに 1d6 の力場の追加ダメージ。"
+  },
+  "rarity": "very_rare",
+  "price": 12000,
+  "base": "quarterstaff",
+  "bonus": 3,
+  "attunement": true,
+  "on_hit": [
+   {
+    "type": "damage",
+    "dice": "1d6",
+    "damage_type": "force"
+   }
+  ],
+  "note": "SRD の「チャージを使って 1d6 ずつ、3 つまで」を、毎回 1d6 に簡略化。"
+ },
+ {
+  "id": "staff_of_swarming_insects",
+  "kind": "weapon",
+  "name": {
+   "en": "Staff of Swarming Insects",
+   "ja": "スタッフ・オヴ・スウォーミング・インセクツ"
+  },
+  "description": {
+   "en": "A quarterstaff that casts Insect Plague (2 charges).",
+   "ja": "インセクト・プレイグを唱えられるクォータースタッフ(2 回)。"
+  },
+  "rarity": "very_rare",
+  "price": 12000,
+  "base": "quarterstaff",
+  "attunement": true,
+  "only": "caster",
+  "charges": 2,
+  "use_spell": "insect_plague",
+  "use_slot": 5,
+  "note": "SRD の 10 チャージ(インセクト・プレイグは 5 チャージ)を 2 回に。ジャイアント・インセクトは省いた。"
+ },
+ {
+  "id": "staff_of_the_magi",
+  "kind": "weapon",
+  "name": {
+   "en": "Staff of the Magi",
+   "ja": "スタッフ・オヴ・ザ・メイジャイ"
+  },
+  "description": {
+   "en": "A +2 quarterstaff. +2 to saves while held; casts Fireball at 7th level (7 charges).",
+   "ja": "+2 のクォータースタッフ。持っているあいだセーヴに +2。ファイアーボール(7 レベル)を唱えられる(7 回)。"
+  },
+  "rarity": "legendary",
+  "price": 60000,
+  "base": "quarterstaff",
+  "bonus": 2,
+  "attunement": true,
+  "only": "caster",
+  "charges": 7,
+  "use_spell": "fireball",
+  "use_slot": 7,
+  "passive": [
+   {
+    "type": "modifier",
+    "stat": "save",
+    "value": 2
+   }
+  ],
+  "note": "SRD の 50 チャージ(7 レベルの呪文は 7 チャージ)を 7 回に。呪文の吸収と他の呪文は省いた。"
+ },
+ {
+  "id": "staff_of_the_woodlands",
+  "kind": "weapon",
+  "name": {
+   "en": "Staff of the Woodlands",
+   "ja": "スタッフ・オヴ・ザ・ウッドランズ"
+  },
+  "description": {
+   "en": "A +2 quarterstaff that casts Barkskin (5 charges).",
+   "ja": "+2 のクォータースタッフ。バークスキンを唱えられる(5 回)。"
+  },
+  "rarity": "rare",
+  "price": 1500,
+  "base": "quarterstaff",
+  "bonus": 2,
+  "attunement": true,
+  "only": "caster",
+  "charges": 5,
+  "use_spell": "barkskin",
+  "use_slot": 2,
+  "note": "SRD ではドルイドだけ同調できる。ウォール・オヴ・ソーンズなど他の呪文は省いた。"
+ },
+ {
+  "id": "staff_of_thunder_and_lightning",
+  "kind": "weapon",
+  "name": {
+   "en": "Staff of Thunder and Lightning",
+   "ja": "スタッフ・オヴ・サンダー・アンド・ライトニング"
+  },
+  "description": {
+   "en": "A +2 quarterstaff. Extra 1d6 lightning damage on hit; casts Lightning Bolt at 5th level once per rest.",
+   "ja": "+2 のクォータースタッフ。当たると 1d6 の雷の追加ダメージ。ライトニング・ボルト(5 レベル)を 1 回唱えられる。"
+  },
+  "rarity": "very_rare",
+  "price": 12000,
+  "base": "quarterstaff",
+  "bonus": 2,
+  "attunement": true,
+  "on_hit": [
+   {
+    "type": "damage",
+    "dice": "1d6",
+    "damage_type": "lightning"
+   }
+  ],
+  "charges": 1,
+  "use_spell": "lightning_bolt",
+  "use_slot": 5,
+  "note": "SRD の雷鳴(朦朧)、雷と雷鳴の組み合わせは省いた。"
+ },
+ {
+  "id": "staff_of_withering",
+  "kind": "weapon",
+  "name": {
+   "en": "Staff of Withering",
+   "ja": "スタッフ・オヴ・ウィザリング"
+  },
+  "description": {
+   "en": "A quarterstaff that deals an extra 2d10 necrotic damage on every hit.",
+   "ja": "当たるたびに 2d10 の死霊の追加ダメージを足すクォータースタッフ。"
+  },
+  "rarity": "rare",
+  "price": 1500,
+  "base": "quarterstaff",
+  "attunement": true,
+  "only": "caster",
+  "on_hit": [
+   {
+    "type": "damage",
+    "dice": "2d10",
+    "damage_type": "necrotic"
+   }
+  ],
+  "note": "SRD の「チャージを使って」「筋力と耐久力の判定に不利」を、毎回の追加ダメージに簡略化。"
+ },
+ {
+  "id": "stormcaller",
+  "kind": "weapon",
+  "base": "longbow",
+  "rarity": "very_rare",
+  "drop_only": true,
+  "random_affixes": 1,
+  "bonus": 2,
+  "price": 12000,
+  "name": {
+   "en": "Stormcaller",
+   "ja": "嵐呼びの弓"
+  },
+  "on_hit": [
+   {
+    "type": "damage",
+    "dice": "1d10",
+    "damage_type": "lightning"
+   }
+  ],
+  "description": {
+   "en": "The string hums before a storm.",
+   "ja": "嵐の前には弦が鳴る。"
+  }
+ },
+ {
+  "id": "sun_blade",
+  "kind": "weapon",
+  "name": {
+   "en": "Sun Blade",
+   "ja": "サン・ブレード"
+  },
+  "description": {
+   "en": "A +2 longsword of pure radiance. Deals radiant damage, plus 1d8 extra against undead.",
+   "ja": "光の刃のロングソード(+2)。光輝のダメージを与え、不死の者には 1d8 の追加ダメージ。"
+  },
+  "rarity": "rare",
+  "price": 1500,
+  "base": "longsword",
+  "bonus": 2,
+  "attunement": true,
+  "damage_type": "radiant",
+  "on_hit": [
+   {
+    "type": "damage",
+    "dice": "1d8",
+    "damage_type": "radiant",
+    "only": "undead"
+   }
+  ]
+ },
+ {
+  "id": "sword_of_life_stealing",
+  "kind": "weapon",
+  "name": {
+   "en": "Sword of Life Stealing",
+   "ja": "ソード・オヴ・ライフ・スティーリング"
+  },
+  "description": {
+   "en": "A longsword that deals an extra 1d6 necrotic damage on every hit.",
+   "ja": "当たるたびに 1d6 の死霊の追加ダメージを足すロングソード。"
+  },
+  "rarity": "rare",
+  "price": 1500,
+  "base": "longsword",
+  "attunement": true,
+  "on_hit": [
+   {
+    "type": "damage",
+    "dice": "1d6",
+    "damage_type": "necrotic"
+   }
+  ],
+  "note": "SRD の「クリティカルで 3d6 と一時的 HP」を、毎回 1d6 に簡略化。"
+ },
+ {
+  "id": "sword_of_sharpness",
+  "kind": "weapon",
+  "name": {
+   "en": "Sword of Sharpness",
+   "ja": "ソード・オヴ・シャープネス"
+  },
+  "description": {
+   "en": "A +1 longsword that deals an extra 2d6 slashing damage on every hit.",
+   "ja": "+1 のロングソード。当たるたびに 2d6 の斬撃の追加ダメージ。"
+  },
+  "rarity": "very_rare",
+  "price": 12000,
+  "base": "longsword",
+  "bonus": 1,
+  "attunement": true,
+  "on_hit": [
+   {
+    "type": "damage",
+    "dice": "2d6",
+    "damage_type": "slashing"
+   }
+  ],
+  "note": "SRD の「クリティカルで 4d6 と手足の切断」を、毎回 2d6 に簡略化。"
+ },
+ {
+  "id": "sword_of_wounding",
+  "kind": "weapon",
+  "name": {
+   "en": "Sword of Wounding",
+   "ja": "ソード・オヴ・ウーンディング"
+  },
+  "description": {
+   "en": "A longsword that deals an extra 1d4 necrotic damage on every hit.",
+   "ja": "当たるたびに 1d4 の死霊の追加ダメージを足すロングソード。"
+  },
+  "rarity": "rare",
+  "price": 1500,
+  "base": "longsword",
+  "attunement": true,
+  "on_hit": [
+   {
+    "type": "damage",
+    "dice": "1d4",
+    "damage_type": "necrotic"
+   }
+  ],
+  "note": "SRD の「傷が毎ターン 1d4 ずつ出血する」「回復できない」を、追加ダメージに簡略化。"
+ },
+ {
+  "id": "vicious_weapon",
+  "kind": "weapon",
+  "name": {
+   "en": "Vicious Longsword",
+   "ja": "ヴィシャス・ロングソード"
+  },
+  "description": {
+   "en": "A longsword that deals an extra 1d6 slashing damage on every hit.",
+   "ja": "当たるたびに 1d6 の斬撃の追加ダメージを足すロングソード。"
+  },
+  "rarity": "rare",
+  "price": 1500,
+  "base": "longsword",
+  "on_hit": [
+   {
+    "type": "damage",
+    "dice": "1d6",
+    "damage_type": "slashing"
+   }
+  ],
+  "note": "SRD の「どの武器でも」「クリティカルで 2d6」を、ロングソードの毎回 1d6 に簡略化。"
+ },
+ {
+  "id": "vorpal_sword",
+  "kind": "weapon",
+  "name": {
+   "en": "Vorpal Sword",
+   "ja": "ヴォーパル・ソード"
+  },
+  "description": {
+   "en": "A +3 greatsword. A target hit while at 50 HP or less must save or be beheaded.",
+   "ja": "+3 のグレートソード。当たった相手の HP が 50 以下なら、耐久力のセーヴ(DC 17)に失敗すると首が飛ぶ。"
+  },
+  "rarity": "legendary",
+  "price": 60000,
+  "base": "greatsword",
+  "bonus": 3,
+  "attunement": true,
+  "on_hit": [
+   {
+    "type": "save",
+    "ability": "con",
+    "dc": 17,
+    "fail": [
+     {
+      "type": "kill",
+      "max_hp": 50
+     }
+    ]
+   }
+  ],
+  "note": "SRD の「20 で首を刎ねる」を、HP 50 以下の相手へのセーヴに置き換えた。"
+ },
+ {
+  "id": "whisperblade",
+  "kind": "weapon",
+  "base": "dagger",
+  "rarity": "rare",
+  "drop_only": true,
+  "random_affixes": 1,
+  "bonus": 1,
+  "price": 3000,
+  "name": {
+   "en": "Whisperblade",
+   "ja": "囁きの刃"
+  },
+  "on_hit": [
+   {
+    "type": "save",
+    "ability": "con",
+    "dc": 13,
+    "fail": [
+     {
+      "type": "condition",
+      "condition": "poisoned",
+      "rounds": 3
+     }
+    ]
+   }
+  ],
+  "passive": [
+   {
+    "type": "modifier",
+    "stat": "stealth",
+    "value": 3
+   }
+  ],
+  "description": {
+   "en": "A thief's dagger that never made a sound.",
+   "ja": "一度も音を立てなかった盗賊の短剣。"
+  }
+ },
+ {
+  "id": "whispering_bow",
+  "kind": "weapon",
+  "base": "shortbow",
+  "rarity": "rare",
+  "drop_only": true,
+  "bonus": 1,
+  "price": 5000,
+  "name": {
+   "en": "Whispering Bow",
+   "ja": "囁きの弓"
+  },
+  "on_hit": [
+   {
+    "type": "damage",
+    "dice": "1d6",
+    "damage_type": "psychic"
+   }
+  ],
+  "passive": [
+   {
+    "type": "modifier",
+    "stat": "stealth",
+    "value": 2
+   }
+  ],
+  "description": {
+   "en": "Its arrows tell the target what it fears most.",
+   "ja": "この弓の矢は、相手のいちばん恐れるものを囁いて飛ぶ。"
+  }
+ },
+ {
+  "id": "wyrmfang",
+  "kind": "weapon",
+  "base": "spear",
+  "rarity": "very_rare",
+  "drop_only": true,
+  "random_affixes": 1,
+  "bonus": 2,
+  "price": 12000,
+  "name": {
+   "en": "Wyrmfang",
+   "ja": "竜牙の槍"
+  },
+  "on_hit": [
+   {
+    "type": "damage",
+    "dice": "3d6",
+    "damage_type": "piercing",
+    "only": "dragon"
+   }
+  ],
+  "description": {
+   "en": "Tipped with a dragon's own tooth. It remembers how to find the heart.",
+   "ja": "竜の牙を穂先にした槍。心臓の場所を覚えている。"
+  }
+ },
+ {
+  "id": "breastplate",
+  "name": {
+   "en": "Breastplate",
+   "ja": "ブレストプレート"
+  },
+  "price": 400,
+  "kind": "armor",
+  "armor_type": "medium",
+  "armor_class": 14,
+  "dex_cap": 2
+ },
+ {
+  "id": "chain_mail",
+  "name": {
+   "en": "Chain Mail",
+   "ja": "チェイン・メイル"
+  },
+  "price": 75,
+  "kind": "armor",
+  "armor_type": "heavy",
+  "armor_class": 16,
+  "dex_cap": 0,
+  "strength_required": 13,
+  "stealth_disadvantage": true
+ },
+ {
+  "id": "chain_shirt",
+  "name": {
+   "en": "Chain Shirt",
+   "ja": "チェイン・シャツ"
+  },
+  "price": 50,
+  "kind": "armor",
+  "armor_type": "medium",
+  "armor_class": 13,
+  "dex_cap": 2
+ },
+ {
+  "id": "half_plate_armor",
+  "name": {
+   "en": "Half Plate Armor",
+   "ja": "ハーフプレート"
+  },
+  "price": 750,
+  "kind": "armor",
+  "armor_type": "medium",
+  "armor_class": 15,
+  "dex_cap": 2,
+  "stealth_disadvantage": true
+ },
+ {
+  "id": "hide_armor",
+  "name": {
+   "en": "Hide Armor",
+   "ja": "ハイド・アーマー"
+  },
+  "price": 10,
+  "kind": "armor",
+  "armor_type": "medium",
+  "armor_class": 12,
+  "dex_cap": 2
+ },
+ {
+  "id": "leather_armor",
+  "name": {
+   "en": "Leather Armor",
+   "ja": "レザー・アーマー"
+  },
+  "price": 10,
+  "kind": "armor",
+  "armor_type": "light",
+  "armor_class": 11
+ },
+ {
+  "id": "padded_armor",
+  "name": {
+   "en": "Padded Armor",
+   "ja": "パデッド・アーマー"
+  },
+  "price": 5,
+  "kind": "armor",
+  "armor_type": "light",
+  "armor_class": 11,
+  "stealth_disadvantage": true
+ },
+ {
+  "id": "plate_armor",
+  "name": {
+   "en": "Plate Armor",
+   "ja": "プレート・アーマー"
+  },
+  "price": 1500,
+  "kind": "armor",
+  "armor_type": "heavy",
+  "armor_class": 18,
+  "dex_cap": 0,
+  "strength_required": 15,
+  "stealth_disadvantage": true
+ },
+ {
+  "id": "ring_mail",
+  "name": {
+   "en": "Ring Mail",
+   "ja": "リング・メイル"
+  },
+  "price": 30,
+  "kind": "armor",
+  "armor_type": "heavy",
+  "armor_class": 14,
+  "dex_cap": 0,
+  "stealth_disadvantage": true
+ },
+ {
+  "id": "scale_mail",
+  "name": {
+   "en": "Scale Mail",
+   "ja": "スケイル・メイル"
+  },
+  "price": 50,
+  "kind": "armor",
+  "armor_type": "medium",
+  "armor_class": 14,
+  "dex_cap": 2,
+  "stealth_disadvantage": true
+ },
+ {
+  "id": "splint_armor",
+  "name": {
+   "en": "Splint Armor",
+   "ja": "スプリント・アーマー"
+  },
+  "price": 200,
+  "kind": "armor",
+  "armor_type": "heavy",
+  "armor_class": 17,
+  "dex_cap": 0,
+  "strength_required": 15,
+  "stealth_disadvantage": true
+ },
+ {
+  "id": "studded_leather",
+  "name": {
+   "en": "Studded Leather Armor",
+   "ja": "スタデッド・レザー"
+  },
+  "price": 45,
+  "kind": "armor",
+  "armor_type": "light",
+  "armor_class": 12
+ },
+ {
+  "id": "armor_of_invulnerability",
+  "kind": "armor",
+  "name": {
+   "en": "Armor of Invulnerability",
+   "ja": "アーマー・オヴ・インヴァルナラビリティ"
+  },
+  "description": {
+   "en": "Plate armor that grants resistance to bludgeoning, piercing and slashing damage.",
+   "ja": "殴打・刺突・斬撃のダメージに抵抗を得るプレート・アーマー。"
+  },
+  "rarity": "legendary",
+  "price": 60000,
+  "base": "plate_armor",
+  "attunement": true,
+  "passive": [
+   {
+    "type": "resist",
+    "damage_type": "bludgeoning"
+   },
+   {
+    "type": "resist",
+    "damage_type": "piercing"
+   },
+   {
+    "type": "resist",
+    "damage_type": "slashing"
+   }
+  ],
+  "note": "SRD の「魔法でないダメージ」の区別と、10 分の完全耐性は省いた。"
+ },
+ {
+  "id": "armor_of_resistance_acid",
+  "kind": "armor",
+  "name": {
+   "en": "Armor of Acid Resistance",
+   "ja": "酸耐性の鎧"
+  },
+  "description": {
+   "en": "A breastplate that grants resistance to acid damage.",
+   "ja": "酸のダメージに抵抗を得るブレストプレート。"
+  },
+  "rarity": "rare",
+  "price": 1500,
+  "base": "breastplate",
+  "attunement": true,
+  "passive": [
+   {
+    "type": "resist",
+    "damage_type": "acid"
+   }
+  ],
+  "note": "SRD では鎧の種類は任意。ブレストプレートに固定した。"
+ },
+ {
+  "id": "armor_of_resistance_cold",
+  "kind": "armor",
+  "name": {
+   "en": "Armor of Cold Resistance",
+   "ja": "冷気耐性の鎧"
+  },
+  "description": {
+   "en": "A breastplate that grants resistance to cold damage.",
+   "ja": "冷気のダメージに抵抗を得るブレストプレート。"
+  },
+  "rarity": "rare",
+  "price": 1500,
+  "base": "breastplate",
+  "attunement": true,
+  "passive": [
+   {
+    "type": "resist",
+    "damage_type": "cold"
+   }
+  ],
+  "note": "SRD では鎧の種類は任意。ブレストプレートに固定した。"
+ },
+ {
+  "id": "armor_of_resistance_fire",
+  "kind": "armor",
+  "name": {
+   "en": "Armor of Fire Resistance",
+   "ja": "火耐性の鎧"
+  },
+  "description": {
+   "en": "A breastplate that grants resistance to fire damage.",
+   "ja": "火のダメージに抵抗を得るブレストプレート。"
+  },
+  "rarity": "rare",
+  "price": 1500,
+  "base": "breastplate",
+  "attunement": true,
+  "passive": [
+   {
+    "type": "resist",
+    "damage_type": "fire"
+   }
+  ],
+  "note": "SRD では鎧の種類は任意。ブレストプレートに固定した。"
+ },
+ {
+  "id": "armor_of_resistance_force",
+  "kind": "armor",
+  "name": {
+   "en": "Armor of Force Resistance",
+   "ja": "力場耐性の鎧"
+  },
+  "description": {
+   "en": "A breastplate that grants resistance to force damage.",
+   "ja": "力場のダメージに抵抗を得るブレストプレート。"
+  },
+  "rarity": "rare",
+  "price": 1500,
+  "base": "breastplate",
+  "attunement": true,
+  "passive": [
+   {
+    "type": "resist",
+    "damage_type": "force"
+   }
+  ],
+  "note": "SRD では鎧の種類は任意。ブレストプレートに固定した。"
+ },
+ {
+  "id": "armor_of_resistance_lightning",
+  "kind": "armor",
+  "name": {
+   "en": "Armor of Lightning Resistance",
+   "ja": "雷耐性の鎧"
+  },
+  "description": {
+   "en": "A breastplate that grants resistance to lightning damage.",
+   "ja": "雷のダメージに抵抗を得るブレストプレート。"
+  },
+  "rarity": "rare",
+  "price": 1500,
+  "base": "breastplate",
+  "attunement": true,
+  "passive": [
+   {
+    "type": "resist",
+    "damage_type": "lightning"
+   }
+  ],
+  "note": "SRD では鎧の種類は任意。ブレストプレートに固定した。"
+ },
+ {
+  "id": "armor_of_resistance_necrotic",
+  "kind": "armor",
+  "name": {
+   "en": "Armor of Necrotic Resistance",
+   "ja": "死霊耐性の鎧"
+  },
+  "description": {
+   "en": "A breastplate that grants resistance to necrotic damage.",
+   "ja": "死霊のダメージに抵抗を得るブレストプレート。"
+  },
+  "rarity": "rare",
+  "price": 1500,
+  "base": "breastplate",
+  "attunement": true,
+  "passive": [
+   {
+    "type": "resist",
+    "damage_type": "necrotic"
+   }
+  ],
+  "note": "SRD では鎧の種類は任意。ブレストプレートに固定した。"
+ },
+ {
+  "id": "armor_of_resistance_poison",
+  "kind": "armor",
+  "name": {
+   "en": "Armor of Poison Resistance",
+   "ja": "毒耐性の鎧"
+  },
+  "description": {
+   "en": "A breastplate that grants resistance to poison damage.",
+   "ja": "毒のダメージに抵抗を得るブレストプレート。"
+  },
+  "rarity": "rare",
+  "price": 1500,
+  "base": "breastplate",
+  "attunement": true,
+  "passive": [
+   {
+    "type": "resist",
+    "damage_type": "poison"
+   }
+  ],
+  "note": "SRD では鎧の種類は任意。ブレストプレートに固定した。"
+ },
+ {
+  "id": "armor_of_resistance_psychic",
+  "kind": "armor",
+  "name": {
+   "en": "Armor of Psychic Resistance",
+   "ja": "精神耐性の鎧"
+  },
+  "description": {
+   "en": "A breastplate that grants resistance to psychic damage.",
+   "ja": "精神のダメージに抵抗を得るブレストプレート。"
+  },
+  "rarity": "rare",
+  "price": 1500,
+  "base": "breastplate",
+  "attunement": true,
+  "passive": [
+   {
+    "type": "resist",
+    "damage_type": "psychic"
+   }
+  ],
+  "note": "SRD では鎧の種類は任意。ブレストプレートに固定した。"
+ },
+ {
+  "id": "armor_of_resistance_radiant",
+  "kind": "armor",
+  "name": {
+   "en": "Armor of Radiant Resistance",
+   "ja": "光輝耐性の鎧"
+  },
+  "description": {
+   "en": "A breastplate that grants resistance to radiant damage.",
+   "ja": "光輝のダメージに抵抗を得るブレストプレート。"
+  },
+  "rarity": "rare",
+  "price": 1500,
+  "base": "breastplate",
+  "attunement": true,
+  "passive": [
+   {
+    "type": "resist",
+    "damage_type": "radiant"
+   }
+  ],
+  "note": "SRD では鎧の種類は任意。ブレストプレートに固定した。"
+ },
+ {
+  "id": "armor_of_resistance_thunder",
+  "kind": "armor",
+  "name": {
+   "en": "Armor of Thunder Resistance",
+   "ja": "雷鳴耐性の鎧"
+  },
+  "description": {
+   "en": "A breastplate that grants resistance to thunder damage.",
+   "ja": "雷鳴のダメージに抵抗を得るブレストプレート。"
+  },
+  "rarity": "rare",
+  "price": 1500,
+  "base": "breastplate",
+  "attunement": true,
+  "passive": [
+   {
+    "type": "resist",
+    "damage_type": "thunder"
+   }
+  ],
+  "note": "SRD では鎧の種類は任意。ブレストプレートに固定した。"
+ },
+ {
+  "id": "armor_of_vulnerability",
+  "kind": "armor",
+  "name": {
+   "en": "Armor of Vulnerability",
+   "ja": "アーマー・オヴ・ヴァルナラビリティ"
+  },
+  "description": {
+   "en": "Cursed plate armor: resists bludgeoning but is vulnerable to piercing and slashing. Cannot be removed.",
+   "ja": "呪われたプレート・アーマー。殴打に抵抗を得るが、刺突と斬撃に脆弱になる。外せない。"
+  },
+  "rarity": "rare",
+  "price": 1500,
+  "base": "plate_armor",
+  "attunement": true,
+  "cursed": true,
+  "passive": [
+   {
+    "type": "resist",
+    "damage_type": "bludgeoning"
+   },
+   {
+    "type": "vulnerable",
+    "damage_type": "piercing"
+   },
+   {
+    "type": "vulnerable",
+    "damage_type": "slashing"
+   }
+  ],
+  "looks_like": {
+   "id": "plate_armor",
+   "bonus": 1
+  }
+ },
+ {
+  "id": "cursed_chain_mail_of_rust",
+  "kind": "armor",
+  "name": {
+   "en": "Rusting Chain Mail",
+   "ja": "錆びつく鎖帷子"
+  },
+  "description": {
+   "en": "Cursed -1 chain mail that draws lightning (vulnerable). Cannot be removed.",
+   "ja": "呪われた -1 のチェイン・メイル。雷を呼び込んで脆弱になる。脱げない。"
+  },
+  "rarity": "common",
+  "price": 60,
+  "base": "chain_mail",
+  "bonus": -1,
+  "cursed": true,
+  "passive": [
+   {
+    "type": "vulnerable",
+    "damage_type": "lightning"
+   }
+  ],
+  "looks_like": {
+   "id": "chain_mail",
+   "bonus": 1
+  }
+ },
+ {
+  "id": "demon_armor",
+  "kind": "armor",
+  "name": {
+   "en": "Demon Armor",
+   "ja": "デーモン・アーマー"
+  },
+  "description": {
+   "en": "Cursed +1 plate armor. Saving throws suffer -1 while worn, and it cannot be removed.",
+   "ja": "呪われた +1 のプレート・アーマー。着ているあいだセーヴに -1 で、外せない。"
+  },
+  "rarity": "very_rare",
+  "price": 12000,
+  "base": "plate_armor",
+  "bonus": 1,
+  "attunement": true,
+  "cursed": true,
+  "passive": [
+   {
+    "type": "modifier",
+    "stat": "save",
+    "value": -1
+   }
+  ],
+  "note": "SRD の「悪魔へのセーヴに不利」をセーヴ -1 に、鉤爪の籠手は省いた。",
+  "looks_like": {
+   "id": "plate_armor",
+   "bonus": 1
+  }
+ },
+ {
+  "id": "dragon_scale_mail_black",
+  "kind": "armor",
+  "name": {
+   "en": "Black Dragon Scale Mail",
+   "ja": "黒竜鱗の鎧"
+  },
+  "description": {
+   "en": "+1 scale mail made from a black dragon. +1 to saves and resistance to acid damage.",
+   "ja": "黒竜の鱗で作った +1 のスケイル・メイル。セーヴに +1 で、酸のダメージに抵抗。"
+  },
+  "rarity": "very_rare",
+  "price": 12000,
+  "base": "scale_mail",
+  "bonus": 1,
+  "attunement": true,
+  "passive": [
+   {
+    "type": "modifier",
+    "stat": "save",
+    "value": 1
+   },
+   {
+    "type": "resist",
+    "damage_type": "acid"
+   }
+  ],
+  "note": "SRD の「竜へのセーヴに有利」を全部のセーヴ +1 に。竜を探す力は省いた。"
+ },
+ {
+  "id": "dragon_scale_mail_blue",
+  "kind": "armor",
+  "name": {
+   "en": "Blue Dragon Scale Mail",
+   "ja": "青竜鱗の鎧"
+  },
+  "description": {
+   "en": "+1 scale mail made from a blue dragon. +1 to saves and resistance to lightning damage.",
+   "ja": "青竜の鱗で作った +1 のスケイル・メイル。セーヴに +1 で、雷のダメージに抵抗。"
+  },
+  "rarity": "very_rare",
+  "price": 12000,
+  "base": "scale_mail",
+  "bonus": 1,
+  "attunement": true,
+  "passive": [
+   {
+    "type": "modifier",
+    "stat": "save",
+    "value": 1
+   },
+   {
+    "type": "resist",
+    "damage_type": "lightning"
+   }
+  ],
+  "note": "SRD の「竜へのセーヴに有利」を全部のセーヴ +1 に。竜を探す力は省いた。"
+ },
+ {
+  "id": "dragon_scale_mail_brass",
+  "kind": "armor",
+  "name": {
+   "en": "Brass Dragon Scale Mail",
+   "ja": "真鍮竜鱗の鎧"
+  },
+  "description": {
+   "en": "+1 scale mail made from a brass dragon. +1 to saves and resistance to fire damage.",
+   "ja": "真鍮竜の鱗で作った +1 のスケイル・メイル。セーヴに +1 で、火のダメージに抵抗。"
+  },
+  "rarity": "very_rare",
+  "price": 12000,
+  "base": "scale_mail",
+  "bonus": 1,
+  "attunement": true,
+  "passive": [
+   {
+    "type": "modifier",
+    "stat": "save",
+    "value": 1
+   },
+   {
+    "type": "resist",
+    "damage_type": "fire"
+   }
+  ],
+  "note": "SRD の「竜へのセーヴに有利」を全部のセーヴ +1 に。竜を探す力は省いた。"
+ },
+ {
+  "id": "dragon_scale_mail_bronze",
+  "kind": "armor",
+  "name": {
+   "en": "Bronze Dragon Scale Mail",
+   "ja": "青銅竜鱗の鎧"
+  },
+  "description": {
+   "en": "+1 scale mail made from a bronze dragon. +1 to saves and resistance to lightning damage.",
+   "ja": "青銅竜の鱗で作った +1 のスケイル・メイル。セーヴに +1 で、雷のダメージに抵抗。"
+  },
+  "rarity": "very_rare",
+  "price": 12000,
+  "base": "scale_mail",
+  "bonus": 1,
+  "attunement": true,
+  "passive": [
+   {
+    "type": "modifier",
+    "stat": "save",
+    "value": 1
+   },
+   {
+    "type": "resist",
+    "damage_type": "lightning"
+   }
+  ],
+  "note": "SRD の「竜へのセーヴに有利」を全部のセーヴ +1 に。竜を探す力は省いた。"
+ },
+ {
+  "id": "dragon_scale_mail_copper",
+  "kind": "armor",
+  "name": {
+   "en": "Copper Dragon Scale Mail",
+   "ja": "銅竜鱗の鎧"
+  },
+  "description": {
+   "en": "+1 scale mail made from a copper dragon. +1 to saves and resistance to acid damage.",
+   "ja": "銅竜の鱗で作った +1 のスケイル・メイル。セーヴに +1 で、酸のダメージに抵抗。"
+  },
+  "rarity": "very_rare",
+  "price": 12000,
+  "base": "scale_mail",
+  "bonus": 1,
+  "attunement": true,
+  "passive": [
+   {
+    "type": "modifier",
+    "stat": "save",
+    "value": 1
+   },
+   {
+    "type": "resist",
+    "damage_type": "acid"
+   }
+  ],
+  "note": "SRD の「竜へのセーヴに有利」を全部のセーヴ +1 に。竜を探す力は省いた。"
+ },
+ {
+  "id": "dragon_scale_mail_gold",
+  "kind": "armor",
+  "name": {
+   "en": "Gold Dragon Scale Mail",
+   "ja": "金竜鱗の鎧"
+  },
+  "description": {
+   "en": "+1 scale mail made from a gold dragon. +1 to saves and resistance to fire damage.",
+   "ja": "金竜の鱗で作った +1 のスケイル・メイル。セーヴに +1 で、火のダメージに抵抗。"
+  },
+  "rarity": "very_rare",
+  "price": 12000,
+  "base": "scale_mail",
+  "bonus": 1,
+  "attunement": true,
+  "passive": [
+   {
+    "type": "modifier",
+    "stat": "save",
+    "value": 1
+   },
+   {
+    "type": "resist",
+    "damage_type": "fire"
+   }
+  ],
+  "note": "SRD の「竜へのセーヴに有利」を全部のセーヴ +1 に。竜を探す力は省いた。"
+ },
+ {
+  "id": "dragon_scale_mail_green",
+  "kind": "armor",
+  "name": {
+   "en": "Green Dragon Scale Mail",
+   "ja": "緑竜鱗の鎧"
+  },
+  "description": {
+   "en": "+1 scale mail made from a green dragon. +1 to saves and resistance to poison damage.",
+   "ja": "緑竜の鱗で作った +1 のスケイル・メイル。セーヴに +1 で、毒のダメージに抵抗。"
+  },
+  "rarity": "very_rare",
+  "price": 12000,
+  "base": "scale_mail",
+  "bonus": 1,
+  "attunement": true,
+  "passive": [
+   {
+    "type": "modifier",
+    "stat": "save",
+    "value": 1
+   },
+   {
+    "type": "resist",
+    "damage_type": "poison"
+   }
+  ],
+  "note": "SRD の「竜へのセーヴに有利」を全部のセーヴ +1 に。竜を探す力は省いた。"
+ },
+ {
+  "id": "dragon_scale_mail_red",
+  "kind": "armor",
+  "name": {
+   "en": "Red Dragon Scale Mail",
+   "ja": "赤竜鱗の鎧"
+  },
+  "description": {
+   "en": "+1 scale mail made from a red dragon. +1 to saves and resistance to fire damage.",
+   "ja": "赤竜の鱗で作った +1 のスケイル・メイル。セーヴに +1 で、火のダメージに抵抗。"
+  },
+  "rarity": "very_rare",
+  "price": 12000,
+  "base": "scale_mail",
+  "bonus": 1,
+  "attunement": true,
+  "passive": [
+   {
+    "type": "modifier",
+    "stat": "save",
+    "value": 1
+   },
+   {
+    "type": "resist",
+    "damage_type": "fire"
+   }
+  ],
+  "note": "SRD の「竜へのセーヴに有利」を全部のセーヴ +1 に。竜を探す力は省いた。"
+ },
+ {
+  "id": "dragon_scale_mail_silver",
+  "kind": "armor",
+  "name": {
+   "en": "Silver Dragon Scale Mail",
+   "ja": "銀竜鱗の鎧"
+  },
+  "description": {
+   "en": "+1 scale mail made from a silver dragon. +1 to saves and resistance to cold damage.",
+   "ja": "銀竜の鱗で作った +1 のスケイル・メイル。セーヴに +1 で、冷気のダメージに抵抗。"
+  },
+  "rarity": "very_rare",
+  "price": 12000,
+  "base": "scale_mail",
+  "bonus": 1,
+  "attunement": true,
+  "passive": [
+   {
+    "type": "modifier",
+    "stat": "save",
+    "value": 1
+   },
+   {
+    "type": "resist",
+    "damage_type": "cold"
+   }
+  ],
+  "note": "SRD の「竜へのセーヴに有利」を全部のセーヴ +1 に。竜を探す力は省いた。"
+ },
+ {
+  "id": "dragon_scale_mail_white",
+  "kind": "armor",
+  "name": {
+   "en": "White Dragon Scale Mail",
+   "ja": "白竜鱗の鎧"
+  },
+  "description": {
+   "en": "+1 scale mail made from a white dragon. +1 to saves and resistance to cold damage.",
+   "ja": "白竜の鱗で作った +1 のスケイル・メイル。セーヴに +1 で、冷気のダメージに抵抗。"
+  },
+  "rarity": "very_rare",
+  "price": 12000,
+  "base": "scale_mail",
+  "bonus": 1,
+  "attunement": true,
+  "passive": [
+   {
+    "type": "modifier",
+    "stat": "save",
+    "value": 1
+   },
+   {
+    "type": "resist",
+    "damage_type": "cold"
+   }
+  ],
+  "note": "SRD の「竜へのセーヴに有利」を全部のセーヴ +1 に。竜を探す力は省いた。"
+ },
+ {
+  "id": "dragonscale_mail",
+  "kind": "armor",
+  "base": "scale_mail",
+  "rarity": "very_rare",
+  "drop_only": true,
+  "random_affixes": 1,
+  "bonus": 2,
+  "price": 15000,
+  "name": {
+   "en": "Dragonscale Mail",
+   "ja": "竜鱗の鎧"
+  },
+  "passive": [
+   {
+    "type": "resist",
+    "damage_type": "fire"
+   },
+   {
+    "type": "immune_condition",
+    "condition": "frightened"
+   }
+  ],
+  "description": {
+   "en": "Scales that have already survived a dragon's death.",
+   "ja": "竜の死をくぐり抜けた鱗。"
+  }
+ },
+ {
+  "id": "dwarven_plate",
+  "kind": "armor",
+  "name": {
+   "en": "Dwarven Plate",
+   "ja": "ドワーヴン・プレート"
+  },
+  "description": {
+   "en": "+2 plate armor.",
+   "ja": "+2 のプレート・アーマー。"
+  },
+  "rarity": "very_rare",
+  "price": 12000,
+  "base": "plate_armor",
+  "bonus": 2
+ },
+ {
+  "id": "elven_chain",
+  "kind": "armor",
+  "name": {
+   "en": "Elven Chain",
+   "ja": "エルヴン・チェイン"
+  },
+  "description": {
+   "en": "+1 chain shirt.",
+   "ja": "+1 のチェイン・シャツ。"
+  },
+  "rarity": "rare",
+  "price": 1500,
+  "base": "chain_shirt",
+  "bonus": 1,
+  "note": "SRD の「習熟がなくても着られる」は省いた。"
+ },
+ {
+  "id": "glamoured_studded_leather",
+  "kind": "armor",
+  "name": {
+   "en": "Glamoured Studded Leather",
+   "ja": "グラマード・スタデッド・レザー"
+  },
+  "description": {
+   "en": "+1 studded leather armor.",
+   "ja": "+1 のスタデッド・レザー。"
+  },
+  "rarity": "rare",
+  "price": 1500,
+  "base": "studded_leather",
+  "bonus": 1,
+  "note": "SRD の「見た目を変える」は省いた。"
+ },
+ {
+  "id": "mithral_armor",
+  "kind": "armor",
+  "name": {
+   "en": "Mithral Half Plate",
+   "ja": "ミスラルのハーフ・プレート"
+  },
+  "description": {
+   "en": "Half plate so light that it does not hinder stealth.",
+   "ja": "軽くて隠密の邪魔にならないハーフ・プレート。"
+  },
+  "rarity": "uncommon",
+  "price": 300,
+  "base": "half_plate_armor",
+  "passive": [
+   {
+    "type": "modifier",
+    "stat": "stealth",
+    "value": 5
+   }
+  ],
+  "note": "SRD の「隠密の不利が無い」を隠密 +5 で表した。鎧の種類はハーフ・プレートに固定。"
+ },
+ {
+  "id": "shadowweave",
+  "kind": "armor",
+  "base": "studded_leather",
+  "rarity": "rare",
+  "drop_only": true,
+  "random_affixes": 1,
+  "bonus": 1,
+  "price": 4000,
+  "name": {
+   "en": "Shadowweave",
+   "ja": "影織りの革鎧"
+  },
+  "passive": [
+   {
+    "type": "modifier",
+    "stat": "stealth",
+    "value": 5
+   }
+  ],
+  "description": {
+   "en": "Woven with thread spun in the dark.",
+   "ja": "闇の中で紡いだ糸で縫った鎧。"
+  }
+ },
+ {
+  "id": "spiral_ward",
+  "kind": "armor",
+  "base": "plate_armor",
+  "rarity": "very_rare",
+  "drop_only": true,
+  "random_affixes": 2,
+  "bonus": 2,
+  "price": 25000,
+  "name": {
+   "en": "Ward of the Spiral",
+   "ja": "螺旋の守り"
+  },
+  "passive": [
+   {
+    "type": "immune_condition",
+    "condition": "charmed"
+   },
+   {
+    "type": "immune_condition",
+    "condition": "frightened"
+   }
+  ],
+  "description": {
+   "en": "Plate etched with the spiral of the deep graves.",
+   "ja": "深い墓の螺旋を刻んだ板金鎧。"
+  }
+ },
+ {
+  "id": "starmetal_mail",
+  "kind": "armor",
+  "base": "plate_armor",
+  "rarity": "legendary",
+  "drop_only": true,
+  "bonus": 3,
+  "price": 60000,
+  "name": {
+   "en": "Starmetal Plate",
+   "ja": "星鉄の鎧"
+  },
+  "passive": [
+   {
+    "type": "resist",
+    "damage_type": "lightning"
+   },
+   {
+    "type": "resist",
+    "damage_type": "cold"
+   }
+  ],
+  "description": {
+   "en": "Forged from a stone that fell from the sky into the deepest floor.",
+   "ja": "最下層に落ちてきた空の石から鍛えた鎧。"
+  }
+ },
+ {
+  "id": "shield",
+  "name": {
+   "en": "Shield",
+   "ja": "シールド"
+  },
+  "price": 10,
+  "kind": "shield",
+  "armor_class": 2
+ },
+ {
+  "id": "arrow_catching_shield",
+  "kind": "shield",
+  "name": {
+   "en": "Arrow-Catching Shield",
+   "ja": "アロー・キャッチング・シールド"
+  },
+  "description": {
+   "en": "A +1 shield.",
+   "ja": "+1 の盾。"
+  },
+  "rarity": "rare",
+  "price": 1500,
+  "base": "shield",
+  "bonus": 1,
+  "attunement": true,
+  "note": "SRD の「遠隔攻撃に対して AC +2」「味方への矢を引き受ける」を、AC +1 に簡略化。"
+ },
+ {
+  "id": "coffin_lid",
+  "kind": "shield",
+  "base": "shield",
+  "rarity": "rare",
+  "drop_only": true,
+  "random_affixes": 1,
+  "bonus": 1,
+  "price": 3000,
+  "name": {
+   "en": "Coffin Lid",
+   "ja": "棺の蓋"
+  },
+  "passive": [
+   {
+    "type": "resist",
+    "damage_type": "necrotic"
+   }
+  ],
+  "description": {
+   "en": "Someone pried it off from the inside.",
+   "ja": "誰かが内側からこじ開けた蓋。"
+  }
+ },
+ {
+  "id": "mirror_shield",
+  "kind": "shield",
+  "base": "shield",
+  "rarity": "very_rare",
+  "drop_only": true,
+  "bonus": 1,
+  "price": 12000,
+  "name": {
+   "en": "Mirror Shield",
+   "ja": "鏡の盾"
+  },
+  "passive": [
+   {
+    "type": "resist",
+    "damage_type": "psychic"
+   },
+   {
+    "type": "immune_condition",
+    "condition": "charmed"
+   }
+  ],
+  "description": {
+   "en": "Polished until it shows the truth. Whatever looks into it sees itself.",
+   "ja": "真実が映るまで磨き上げた盾。覗いた者は、自分を見る。"
+  }
+ },
+ {
+  "id": "shield_of_missile_attraction",
+  "kind": "shield",
+  "name": {
+   "en": "Shield of Missile Attraction",
+   "ja": "シールド・オヴ・ミサイル・アトラクション"
+  },
+  "description": {
+   "en": "A cursed shield that grants resistance to piercing damage but cannot be put down.",
+   "ja": "呪われた盾。刺突のダメージに抵抗を得るが、手放せない。"
+  },
+  "rarity": "rare",
+  "price": 1500,
+  "base": "shield",
+  "attunement": true,
+  "cursed": true,
+  "passive": [
+   {
+    "type": "resist",
+    "damage_type": "piercing"
+   }
+  ],
+  "note": "SRD の「遠隔攻撃のダメージに抵抗」を刺突への抵抗に、「矢を引き寄せる」呪いは「外せない」だけに簡略化。",
+  "looks_like": {
+   "id": "arrow_catching_shield"
+  }
+ },
+ {
+  "id": "spellguard_shield",
+  "kind": "shield",
+  "name": {
+   "en": "Spellguard Shield",
+   "ja": "スペルガード・シールド"
+  },
+  "description": {
+   "en": "A shield that grants +2 to saving throws.",
+   "ja": "セーヴに +2 を得る盾。"
+  },
+  "rarity": "very_rare",
+  "price": 12000,
+  "base": "shield",
+  "attunement": true,
+  "passive": [
+   {
+    "type": "modifier",
+    "stat": "save",
+    "value": 2
+   }
+  ],
+  "note": "SRD の「呪文へのセーヴに有利、呪文の攻撃に不利」をセーヴ +2 に簡略化。"
+ },
+ {
+  "id": "amulet_of_health",
+  "kind": "accessory",
+  "name": {
+   "en": "Amulet of Health",
+   "ja": "アミュレット・オヴ・ヘルス"
+  },
+  "description": {
+   "en": "Constitution becomes 19 while worn.",
+   "ja": "着けているあいだ耐久力が 19 になる(元の方が高ければそのまま)。"
+  },
+  "rarity": "rare",
+  "price": 1500,
+  "slot": "neck",
+  "attunement": true,
+  "passive": [
+   {
+    "type": "set_ability",
+    "ability": "con",
+    "value": 19
+   }
+  ]
+ },
+ {
+  "id": "belt_of_giant_strength_cloud",
+  "kind": "accessory",
+  "name": {
+   "en": "Belt of Cloud Giant Strength",
+   "ja": "雲の巨人の力の帯"
+  },
+  "description": {
+   "en": "Strength becomes 27 while worn.",
+   "ja": "着けているあいだ筋力が 27 になる(元の方が高ければそのまま)。"
+  },
+  "rarity": "legendary",
+  "price": 60000,
+  "slot": "waist",
+  "attunement": true,
+  "passive": [
+   {
+    "type": "set_ability",
+    "ability": "str",
+    "value": 27
+   }
+  ]
+ },
+ {
+  "id": "belt_of_giant_strength_fire",
+  "kind": "accessory",
+  "name": {
+   "en": "Belt of Fire Giant Strength",
+   "ja": "炎の巨人の力の帯"
+  },
+  "description": {
+   "en": "Strength becomes 25 while worn.",
+   "ja": "着けているあいだ筋力が 25 になる(元の方が高ければそのまま)。"
+  },
+  "rarity": "very_rare",
+  "price": 12000,
+  "slot": "waist",
+  "attunement": true,
+  "passive": [
+   {
+    "type": "set_ability",
+    "ability": "str",
+    "value": 25
+   }
+  ]
+ },
+ {
+  "id": "belt_of_giant_strength_frost",
+  "kind": "accessory",
+  "name": {
+   "en": "Belt of Frost Giant Strength",
+   "ja": "霜の巨人の力の帯"
+  },
+  "description": {
+   "en": "Strength becomes 23 while worn.",
+   "ja": "着けているあいだ筋力が 23 になる(元の方が高ければそのまま)。"
+  },
+  "rarity": "very_rare",
+  "price": 12000,
+  "slot": "waist",
+  "attunement": true,
+  "passive": [
+   {
+    "type": "set_ability",
+    "ability": "str",
+    "value": 23
+   }
+  ]
+ },
+ {
+  "id": "belt_of_giant_strength_hill",
+  "kind": "accessory",
+  "name": {
+   "en": "Belt of Hill Giant Strength",
+   "ja": "丘の巨人の力の帯"
+  },
+  "description": {
+   "en": "Strength becomes 21 while worn.",
+   "ja": "着けているあいだ筋力が 21 になる(元の方が高ければそのまま)。"
+  },
+  "rarity": "rare",
+  "price": 1500,
+  "slot": "waist",
+  "attunement": true,
+  "passive": [
+   {
+    "type": "set_ability",
+    "ability": "str",
+    "value": 21
+   }
+  ]
+ },
+ {
+  "id": "belt_of_giant_strength_stone",
+  "kind": "accessory",
+  "name": {
+   "en": "Belt of Stone Giant Strength",
+   "ja": "石の巨人の力の帯"
+  },
+  "description": {
+   "en": "Strength becomes 23 while worn.",
+   "ja": "着けているあいだ筋力が 23 になる(元の方が高ければそのまま)。"
+  },
+  "rarity": "very_rare",
+  "price": 12000,
+  "slot": "waist",
+  "attunement": true,
+  "passive": [
+   {
+    "type": "set_ability",
+    "ability": "str",
+    "value": 23
+   }
+  ]
+ },
+ {
+  "id": "belt_of_giant_strength_storm",
+  "kind": "accessory",
+  "name": {
+   "en": "Belt of Storm Giant Strength",
+   "ja": "嵐の巨人の力の帯"
+  },
+  "description": {
+   "en": "Strength becomes 29 while worn.",
+   "ja": "着けているあいだ筋力が 29 になる(元の方が高ければそのまま)。"
+  },
+  "rarity": "legendary",
+  "price": 60000,
+  "slot": "waist",
+  "attunement": true,
+  "passive": [
+   {
+    "type": "set_ability",
+    "ability": "str",
+    "value": 29
+   }
+  ]
+ },
+ {
+  "id": "bone_dice_charm",
+  "kind": "accessory",
+  "slot": "ring",
+  "rarity": "rare",
+  "drop_only": true,
+  "attunement": true,
+  "price": 3500,
+  "name": {
+   "en": "Bone Dice Ring",
+   "ja": "骨賽の指輪"
+  },
+  "passive": [
+   {
+    "type": "modifier",
+    "stat": "attack",
+    "value": 1
+   },
+   {
+    "type": "modifier",
+    "stat": "damage",
+    "value": 1
+   }
+  ],
+  "description": {
+   "en": "Two tiny dice of bone set in iron. They always land well for the wearer. Mostly.",
+   "ja": "鉄の台に、骨の小さな賽が二つ。持ち主には、だいたい良い目が出る。"
+  }
+ },
+ {
+  "id": "boots_of_elvenkind",
+  "kind": "accessory",
+  "name": {
+   "en": "Boots of Elvenkind",
+   "ja": "ブーツ・オヴ・エルヴンカインド"
+  },
+  "description": {
+   "en": "Silent boots: +5 to stealth.",
+   "ja": "足音を消す靴。隠密に +5。"
+  },
+  "rarity": "uncommon",
+  "price": 300,
+  "slot": "feet",
+  "passive": [
+   {
+    "type": "modifier",
+    "stat": "stealth",
+    "value": 5
+   }
+  ],
+  "note": "SRD の「隠密に有利」を +5 で表した。"
+ },
+ {
+  "id": "boots_of_the_winterlands",
+  "kind": "accessory",
+  "name": {
+   "en": "Boots of the Winterlands",
+   "ja": "ブーツ・オヴ・ザ・ウィンターランズ"
+  },
+  "description": {
+   "en": "Fur boots that grant cold resistance.",
+   "ja": "冷気のダメージに抵抗を得る毛皮の靴。"
+  },
+  "rarity": "uncommon",
+  "price": 300,
+  "slot": "feet",
+  "attunement": true,
+  "passive": [
+   {
+    "type": "resist",
+    "damage_type": "cold"
+   }
+  ]
+ },
+ {
+  "id": "bracers_of_archery",
+  "kind": "accessory",
+  "name": {
+   "en": "Bracers of Archery",
+   "ja": "ブレイサーズ・オヴ・アーチェリー"
+  },
+  "description": {
+   "en": "+2 damage while worn.",
+   "ja": "着けているあいだダメージに +2。"
+  },
+  "rarity": "uncommon",
+  "price": 300,
+  "slot": "hands",
+  "attunement": true,
+  "passive": [
+   {
+    "type": "modifier",
+    "stat": "damage",
+    "value": 2
+   }
+  ],
+  "note": "SRD では弓の遠隔攻撃だけ。全部の攻撃に簡略化。"
+ },
+ {
+  "id": "bracers_of_defense",
+  "kind": "accessory",
+  "name": {
+   "en": "Bracers of Defense",
+   "ja": "ブレイサーズ・オヴ・ディフェンス"
+  },
+  "description": {
+   "en": "+2 AC while worn.",
+   "ja": "着けているあいだ AC に +2。"
+  },
+  "rarity": "rare",
+  "price": 1500,
+  "slot": "hands",
+  "attunement": true,
+  "passive": [
+   {
+    "type": "modifier",
+    "stat": "ac",
+    "value": 2
+   }
+  ],
+  "note": "SRD では鎧も盾も着けていないときだけ。"
+ },
+ {
+  "id": "brooch_of_shielding",
+  "kind": "accessory",
+  "name": {
+   "en": "Brooch of Shielding",
+   "ja": "ブローチ・オヴ・シールディング"
+  },
+  "description": {
+   "en": "Grants resistance to force damage.",
+   "ja": "力場のダメージに抵抗を得る。"
+  },
+  "rarity": "uncommon",
+  "price": 300,
+  "slot": "neck",
+  "attunement": true,
+  "passive": [
+   {
+    "type": "resist",
+    "damage_type": "force"
+   }
+  ],
+  "note": "SRD の「マジック・ミサイルに完全耐性」は抵抗に含めた。"
+ },
+ {
+  "id": "cinder_heart",
+  "kind": "accessory",
+  "slot": "neck",
+  "rarity": "very_rare",
+  "drop_only": true,
+  "attunement": true,
+  "price": 9000,
+  "name": {
+   "en": "Cinder Heart",
+   "ja": "燠火の心臓"
+  },
+  "passive": [
+   {
+    "type": "resist",
+    "damage_type": "fire"
+   },
+   {
+    "type": "modifier",
+    "stat": "damage",
+    "value": 2
+   }
+  ],
+  "description": {
+   "en": "A stone that is still warm from a fire elemental's chest.",
+   "ja": "火の精霊の胸から取り出した、まだ温かい石。"
+  }
+ },
+ {
+  "id": "circlet_of_blasting",
+  "kind": "accessory",
+  "name": {
+   "en": "Circlet of Blasting",
+   "ja": "サークレット・オヴ・ブラスティング"
+  },
+  "description": {
+   "en": "Casts Scorching Ray once per rest.",
+   "ja": "スコーチング・レイを 1 回唱えられる。"
+  },
+  "rarity": "uncommon",
+  "price": 300,
+  "slot": "head",
+  "charges": 1,
+  "use_spell": "scorching_ray",
+  "use_slot": 2
+ },
+ {
+  "id": "cloak_of_arachnida",
+  "kind": "accessory",
+  "name": {
+   "en": "Cloak of Arachnida",
+   "ja": "クローク・オヴ・アラクニダ"
+  },
+  "description": {
+   "en": "Grants poison resistance and casts Web once per rest.",
+   "ja": "毒のダメージに抵抗を得る。ウェブを 1 回唱えられる。"
+  },
+  "rarity": "very_rare",
+  "price": 12000,
+  "slot": "cloak",
+  "attunement": true,
+  "passive": [
+   {
+    "type": "resist",
+    "damage_type": "poison"
+   }
+  ],
+  "charges": 1,
+  "use_spell": "web",
+  "use_slot": 2,
+  "note": "SRD の壁を登る力と、蜘蛛の糸の拘束への耐性は省いた。"
+ },
+ {
+  "id": "cloak_of_displacement",
+  "kind": "accessory",
+  "name": {
+   "en": "Cloak of Displacement",
+   "ja": "クローク・オヴ・ディスプレイスメント"
+  },
+  "description": {
+   "en": "Makes you hard to hit: +2 AC.",
+   "ja": "姿がずれて見え、当てにくくなる。AC に +2。"
+  },
+  "rarity": "rare",
+  "price": 1500,
+  "slot": "cloak",
+  "attunement": true,
+  "passive": [
+   {
+    "type": "modifier",
+    "stat": "ac",
+    "value": 2
+   }
+  ],
+  "note": "SRD の「攻撃に不利(ダメージを受けると次のターンまで止まる)」を AC +2 に簡略化。"
+ },
+ {
+  "id": "cloak_of_elvenkind",
+  "kind": "accessory",
+  "name": {
+   "en": "Cloak of Elvenkind",
+   "ja": "クローク・オヴ・エルヴンカインド"
+  },
+  "description": {
+   "en": "+5 to stealth while worn.",
+   "ja": "着けているあいだ隠密に +5。"
+  },
+  "rarity": "uncommon",
+  "price": 300,
+  "slot": "cloak",
+  "attunement": true,
+  "passive": [
+   {
+    "type": "modifier",
+    "stat": "stealth",
+    "value": 5
+   }
+  ],
+  "note": "SRD の「隠密に有利」を +5 で表した。"
+ },
+ {
+  "id": "cloak_of_protection",
+  "kind": "accessory",
+  "name": {
+   "en": "Cloak of Protection",
+   "ja": "クローク・オヴ・プロテクション"
+  },
+  "description": {
+   "en": "+1 AC and +1 to saving throws.",
+   "ja": "AC とセーヴに +1。"
+  },
+  "rarity": "uncommon",
+  "price": 300,
+  "slot": "cloak",
+  "attunement": true,
+  "passive": [
+   {
+    "type": "modifier",
+    "stat": "ac",
+    "value": 1
+   },
+   {
+    "type": "modifier",
+    "stat": "save",
+    "value": 1
+   }
+  ]
+ },
+ {
+  "id": "cloak_of_the_bat",
+  "kind": "accessory",
+  "name": {
+   "en": "Cloak of the Bat",
+   "ja": "クローク・オヴ・ザ・バット"
+  },
+  "description": {
+   "en": "+5 to stealth while worn.",
+   "ja": "着けているあいだ隠密に +5。"
+  },
+  "rarity": "rare",
+  "price": 1500,
+  "slot": "cloak",
+  "attunement": true,
+  "passive": [
+   {
+    "type": "modifier",
+    "stat": "stealth",
+    "value": 5
+   }
+  ],
+  "note": "SRD の飛行と蝙蝠への変身は省いた。"
+ },
+ {
+  "id": "clockwork_gauntlets",
+  "kind": "accessory",
+  "slot": "hands",
+  "rarity": "very_rare",
+  "drop_only": true,
+  "attunement": true,
+  "price": 10000,
+  "name": {
+   "en": "Clockwork Gauntlets",
+   "ja": "からくりの籠手"
+  },
+  "passive": [
+   {
+    "type": "set_ability",
+    "ability": "str",
+    "value": 19
+   }
+  ],
+  "description": {
+   "en": "Gears tick inside. They grip harder than you do.",
+   "ja": "中で歯車が鳴る。あなたより強く握る。"
+  }
+ },
+ {
+  "id": "crown_of_the_last_king",
+  "kind": "accessory",
+  "slot": "head",
+  "rarity": "legendary",
+  "drop_only": true,
+  "attunement": true,
+  "price": 40000,
+  "name": {
+   "en": "Crown of the Last King",
+   "ja": "最後の王の冠"
+  },
+  "passive": [
+   {
+    "type": "modifier",
+    "stat": "save",
+    "value": 2
+   },
+   {
+    "type": "set_ability",
+    "ability": "cha",
+    "value": 20
+   },
+   {
+    "type": "immune_condition",
+    "condition": "charmed"
+   }
+  ],
+  "description": {
+   "en": "No kingdom answers to it now. The dead still bow.",
+   "ja": "もう従う国は無い。それでも死者は頭を下げる。"
+  }
+ },
+ {
+  "id": "cursed_amulet_of_frailty",
+  "kind": "accessory",
+  "name": {
+   "en": "Amulet of Frailty",
+   "ja": "虚弱のアミュレット"
+  },
+  "description": {
+   "en": "A cursed amulet: -2 to damage and vulnerable to necrotic damage. Cannot be removed.",
+   "ja": "呪われたアミュレット。ダメージに -2 で、死霊のダメージに脆弱になる。外せない。"
+  },
+  "rarity": "common",
+  "price": 60,
+  "slot": "neck",
+  "cursed": true,
+  "passive": [
+   {
+    "type": "modifier",
+    "stat": "damage",
+    "value": -2
+   },
+   {
+    "type": "vulnerable",
+    "damage_type": "necrotic"
+   }
+  ],
+  "looks_like": {
+   "id": "amulet_of_health"
+  }
+ },
+ {
+  "id": "cursed_boots_of_stumbling",
+  "kind": "accessory",
+  "name": {
+   "en": "Boots of Stumbling",
+   "ja": "つまずきの靴"
+  },
+  "description": {
+   "en": "Cursed boots: -5 to stealth and -1 AC. Cannot be removed.",
+   "ja": "呪われた靴。隠密に -5、AC に -1。外せない。"
+  },
+  "rarity": "common",
+  "price": 60,
+  "slot": "feet",
+  "cursed": true,
+  "passive": [
+   {
+    "type": "modifier",
+    "stat": "stealth",
+    "value": -5
+   },
+   {
+    "type": "modifier",
+    "stat": "ac",
+    "value": -1
+   }
+  ],
+  "looks_like": {
+   "id": "boots_of_elvenkind"
+  }
+ },
+ {
+  "id": "cursed_cloak_of_the_moth",
+  "kind": "accessory",
+  "name": {
+   "en": "Cloak of the Moth",
+   "ja": "蛾のマント"
+  },
+  "description": {
+   "en": "A cursed cloak: -1 AC and vulnerable to fire. Cannot be removed.",
+   "ja": "呪われたマント。AC に -1 で、火に脆弱になる。外せない。"
+  },
+  "rarity": "common",
+  "price": 60,
+  "slot": "cloak",
+  "cursed": true,
+  "passive": [
+   {
+    "type": "modifier",
+    "stat": "ac",
+    "value": -1
+   },
+   {
+    "type": "vulnerable",
+    "damage_type": "fire"
+   }
+  ],
+  "looks_like": {
+   "id": "cloak_of_protection"
+  }
+ },
+ {
+  "id": "cursed_helm_of_dread",
+  "kind": "accessory",
+  "name": {
+   "en": "Helm of Dread",
+   "ja": "怯えの兜"
+  },
+  "description": {
+   "en": "A cursed helm: -2 to attack rolls and vulnerable to psychic damage. Cannot be removed.",
+   "ja": "呪われた兜。命中に -2 で、精神のダメージに脆弱になる。外せない。"
+  },
+  "rarity": "common",
+  "price": 60,
+  "slot": "head",
+  "cursed": true,
+  "passive": [
+   {
+    "type": "modifier",
+    "stat": "attack",
+    "value": -2
+   },
+   {
+    "type": "vulnerable",
+    "damage_type": "psychic"
+   }
+  ],
+  "looks_like": {
+   "id": "headband_of_intellect"
+  }
+ },
+ {
+  "id": "cursed_ring_of_weakness",
+  "kind": "accessory",
+  "name": {
+   "en": "Ring of Weakness",
+   "ja": "衰弱の指輪"
+  },
+  "description": {
+   "en": "A cursed ring: -2 to saving throws. Cannot be removed.",
+   "ja": "呪われた指輪。セーヴに -2。外せない。"
+  },
+  "rarity": "common",
+  "price": 60,
+  "slot": "ring",
+  "cursed": true,
+  "passive": [
+   {
+    "type": "modifier",
+    "stat": "save",
+    "value": -2
+   }
+  ],
+  "looks_like": {
+   "id": "ring_of_protection"
+  }
+ },
+ {
+  "id": "dancing_dead_boots",
+  "kind": "accessory",
+  "slot": "feet",
+  "rarity": "rare",
+  "drop_only": true,
+  "attunement": true,
+  "price": 4500,
+  "name": {
+   "en": "Boots of the Dancing Dead",
+   "ja": "踊る死者の靴"
+  },
+  "passive": [
+   {
+    "type": "modifier",
+    "stat": "ac",
+    "value": 2
+   }
+  ],
+  "description": {
+   "en": "They never stop wanting to dance. It makes you hard to hit.",
+   "ja": "いつも踊りたがっている靴。おかげで、当たりにくい。"
+  }
+ },
+ {
+  "id": "ferrymans_coin",
+  "kind": "accessory",
+  "slot": "neck",
+  "rarity": "rare",
+  "drop_only": true,
+  "attunement": true,
+  "price": 4000,
+  "name": {
+   "en": "Ferryman's Coin",
+   "ja": "渡し守の銀貨"
+  },
+  "passive": [
+   {
+    "type": "modifier",
+    "stat": "save",
+    "value": 2
+   },
+   {
+    "type": "immune_condition",
+    "condition": "frightened"
+   }
+  ],
+  "description": {
+   "en": "A coin for a crossing that was never paid. Worn on a cord, it keeps the dark at arm's length.",
+   "ja": "払われなかった渡し賃の銀貨。紐に通して首にかけると、闇が少し遠のく。"
+  }
+ },
+ {
+  "id": "fleet_boots",
+  "kind": "accessory",
+  "slot": "feet",
+  "rarity": "uncommon",
+  "drop_only": true,
+  "price": 800,
+  "name": {
+   "en": "Fleet Boots",
+   "ja": "逃げ足の長靴"
+  },
+  "passive": [
+   {
+    "type": "modifier",
+    "stat": "flee",
+    "value": 5
+   }
+  ],
+  "description": {
+   "en": "Worn-out boots that never once stood their ground. +5 to fleeing.",
+   "ja": "一度も踏みとどまったことのない、すり減った長靴。逃げるときに +5。"
+  }
+ },
+ {
+  "id": "gauntlets_of_ogre_power",
+  "kind": "accessory",
+  "name": {
+   "en": "Gauntlets of Ogre Power",
+   "ja": "ガントレット・オヴ・オーガ・パワー"
+  },
+  "description": {
+   "en": "Strength becomes 19 while worn.",
+   "ja": "着けているあいだ筋力が 19 になる(元の方が高ければそのまま)。"
+  },
+  "rarity": "uncommon",
+  "price": 300,
+  "slot": "hands",
+  "attunement": true,
+  "passive": [
+   {
+    "type": "set_ability",
+    "ability": "str",
+    "value": 19
+   }
+  ]
+ },
+ {
+  "id": "giantsbane_gauntlets",
+  "kind": "accessory",
+  "slot": "hands",
+  "rarity": "very_rare",
+  "drop_only": true,
+  "attunement": true,
+  "price": 12000,
+  "name": {
+   "en": "Giantsbane Gauntlets",
+   "ja": "巨人砕きの籠手"
+  },
+  "passive": [
+   {
+    "type": "set_ability",
+    "ability": "str",
+    "value": 21
+   }
+  ],
+  "description": {
+   "en": "Pried from a giant's hands, still too large.",
+   "ja": "巨人の手から外した籠手。まだ少し大きい。"
+  }
+ },
+ {
+  "id": "headband_of_intellect",
+  "kind": "accessory",
+  "name": {
+   "en": "Headband of Intellect",
+   "ja": "ヘッドバンド・オヴ・インテレクト"
+  },
+  "description": {
+   "en": "Intelligence becomes 19 while worn.",
+   "ja": "着けているあいだ知力が 19 になる(元の方が高ければそのまま)。"
+  },
+  "rarity": "uncommon",
+  "price": 300,
+  "slot": "head",
+  "attunement": true,
+  "passive": [
+   {
+    "type": "set_ability",
+    "ability": "int",
+    "value": 19
+   }
+  ]
+ },
+ {
+  "id": "helm_of_brilliance",
+  "kind": "accessory",
+  "name": {
+   "en": "Helm of Brilliance",
+   "ja": "ヘルム・オヴ・ブリリアンス"
+  },
+  "description": {
+   "en": "A gem-studded helm. Grants fire resistance and casts Fireball (3 charges).",
+   "ja": "宝石をちりばめた兜。火のダメージに抵抗を得て、ファイアーボールを唱えられる(3 回)。"
+  },
+  "rarity": "very_rare",
+  "price": 12000,
+  "slot": "head",
+  "attunement": true,
+  "passive": [
+   {
+    "type": "resist",
+    "damage_type": "fire"
+   }
+  ],
+  "charges": 3,
+  "use_spell": "fireball",
+  "use_slot": 3,
+  "note": "SRD では宝石を使い切ると魔力を失うが、ここでは回数が戻る。他の呪文と不死の者への光は省いた。"
+ },
+ {
+  "id": "ioun_stone_of_protection",
+  "kind": "accessory",
+  "name": {
+   "en": "Ioun Stone of Protection",
+   "ja": "アイオウン・ストーン(守り)"
+  },
+  "description": {
+   "en": "A stone that orbits your head and grants +1 AC.",
+   "ja": "頭のまわりを回る石。AC に +1。"
+  },
+  "rarity": "rare",
+  "price": 1500,
+  "slot": "head",
+  "attunement": true,
+  "passive": [
+   {
+    "type": "modifier",
+    "stat": "ac",
+    "value": 1
+   }
+  ],
+  "note": "頭の装備として扱う(兜とは同時に着けられない)。"
+ },
+ {
+  "id": "mantle_of_spell_resistance",
+  "kind": "accessory",
+  "name": {
+   "en": "Mantle of Spell Resistance",
+   "ja": "マントル・オヴ・スペル・レジスタンス"
+  },
+  "description": {
+   "en": "+2 to saving throws.",
+   "ja": "セーヴに +2。"
+  },
+  "rarity": "rare",
+  "price": 1500,
+  "slot": "cloak",
+  "attunement": true,
+  "passive": [
+   {
+    "type": "modifier",
+    "stat": "save",
+    "value": 2
+   }
+  ],
+  "note": "SRD の「呪文へのセーヴに有利」をセーヴ +2 に簡略化。"
+ },
+ {
+  "id": "necklace_of_adaptation",
+  "kind": "accessory",
+  "name": {
+   "en": "Necklace of Adaptation",
+   "ja": "ネックレス・オヴ・アダプテーション"
+  },
+  "description": {
+   "en": "Lets you breathe anything: resistance to poison damage.",
+   "ja": "どんな空気でも息ができる。毒のダメージに抵抗。"
+  },
+  "rarity": "uncommon",
+  "price": 300,
+  "slot": "neck",
+  "attunement": true,
+  "passive": [
+   {
+    "type": "resist",
+    "damage_type": "poison"
+   }
+  ],
+  "note": "SRD の「ガスや息へのセーヴに有利」を毒への抵抗に簡略化。"
+ },
+ {
+  "id": "necklace_of_prayer_beads",
+  "kind": "accessory",
+  "name": {
+   "en": "Necklace of Prayer Beads",
+   "ja": "ネックレス・オヴ・プレイヤー・ビーズ"
+  },
+  "description": {
+   "en": "Casts Cure Wounds at 2nd level (3 charges).",
+   "ja": "キュア・ウーンズ(2 レベル)を唱えられる(3 回)。"
+  },
+  "rarity": "rare",
+  "price": 1500,
+  "slot": "neck",
+  "attunement": true,
+  "only": "caster",
+  "charges": 3,
+  "use_spell": "cure_wounds",
+  "use_slot": 2,
+  "note": "SRD の他の珠(ブレス、レッサー・レストレーションなど)は省いた。"
+ },
+ {
+  "id": "ninth_grave_ring",
+  "kind": "accessory",
+  "slot": "ring",
+  "rarity": "rare",
+  "drop_only": true,
+  "attunement": true,
+  "price": 4000,
+  "name": {
+   "en": "Ring of the Ninth Grave",
+   "ja": "九つ目の墓の指輪"
+  },
+  "passive": [
+   {
+    "type": "modifier",
+    "stat": "ac",
+    "value": 1
+   },
+   {
+    "type": "modifier",
+    "stat": "save",
+    "value": 2
+   }
+  ],
+  "description": {
+   "en": "Taken from a grave that should not have been there.",
+   "ja": "あるはずのない九つ目の墓から出た指輪。"
+  }
+ },
+ {
+  "id": "periapt_of_proof_against_poison",
+  "kind": "accessory",
+  "name": {
+   "en": "Periapt of Proof against Poison",
+   "ja": "ペリアプト・オヴ・プルーフ・アゲンスト・ポイズン"
+  },
+  "description": {
+   "en": "Immune to the poisoned condition and resistant to poison damage.",
+   "ja": "毒状態にならず、毒のダメージに抵抗を得る。"
+  },
+  "rarity": "rare",
+  "price": 1500,
+  "slot": "neck",
+  "passive": [
+   {
+    "type": "immune_condition",
+    "condition": "poisoned"
+   },
+   {
+    "type": "resist",
+    "damage_type": "poison"
+   }
+  ],
+  "note": "SRD の毒ダメージへの完全耐性を抵抗に。"
+ },
+ {
+  "id": "rat_kings_keyring",
+  "kind": "accessory",
+  "slot": "waist",
+  "rarity": "uncommon",
+  "drop_only": true,
+  "price": 800,
+  "name": {
+   "en": "Rat King's Keyring",
+   "ja": "鼠の王の鍵束"
+  },
+  "passive": [
+   {
+    "type": "modifier",
+    "stat": "disarm",
+    "value": 5
+   }
+  ],
+  "description": {
+   "en": "A ring of stolen keys and bent picks. +5 to picking locks and disarming traps.",
+   "ja": "盗んだ鍵と曲がった針金の束。鍵開けと罠外しに +5。"
+  }
+ },
+ {
+  "id": "ring_of_evasion",
+  "kind": "accessory",
+  "name": {
+   "en": "Ring of Evasion",
+   "ja": "リング・オヴ・イヴェイジョン"
+  },
+  "description": {
+   "en": "+2 to saving throws.",
+   "ja": "セーヴに +2。"
+  },
+  "rarity": "rare",
+  "price": 1500,
+  "slot": "ring",
+  "attunement": true,
+  "passive": [
+   {
+    "type": "modifier",
+    "stat": "save",
+    "value": 2
+   }
+  ],
+  "note": "SRD の「敏捷力のセーヴの失敗を 3 回まで成功にする」を、セーヴ +2 に簡略化。"
+ },
+ {
+  "id": "ring_of_free_action",
+  "kind": "accessory",
+  "name": {
+   "en": "Ring of Free Action",
+   "ja": "リング・オヴ・フリー・アクション"
+  },
+  "description": {
+   "en": "Cannot be paralyzed or restrained.",
+   "ja": "麻痺と拘束の状態にならない。"
+  },
+  "rarity": "rare",
+  "price": 1500,
+  "slot": "ring",
+  "attunement": true,
+  "passive": [
+   {
+    "type": "immune_condition",
+    "condition": "paralyzed"
+   },
+   {
+    "type": "immune_condition",
+    "condition": "restrained"
+   }
+  ]
+ },
+ {
+  "id": "ring_of_invisibility",
+  "kind": "accessory",
+  "name": {
+   "en": "Ring of Invisibility",
+   "ja": "リング・オヴ・インヴィジビリティ"
+  },
+  "description": {
+   "en": "Turns the wearer invisible for 1 hour (3 charges).",
+   "ja": "着けている人を 1 時間のあいだ透明にする(3 回)。"
+  },
+  "rarity": "legendary",
+  "price": 60000,
+  "slot": "ring",
+  "attunement": true,
+  "charges": 3,
+  "use_target": "self",
+  "use": [
+   {
+    "type": "condition",
+    "condition": "invisible",
+    "rounds": 600
+   }
+  ],
+  "note": "SRD では何度でも。回数に。"
+ },
+ {
+  "id": "ring_of_protection",
+  "kind": "accessory",
+  "name": {
+   "en": "Ring of Protection",
+   "ja": "守りの指輪"
+  },
+  "description": {
+   "en": "+1 AC and +1 to saving throws.",
+   "ja": "AC とセーヴに +1。"
+  },
+  "rarity": "rare",
+  "price": 1500,
+  "slot": "ring",
+  "attunement": true,
+  "passive": [
+   {
+    "type": "modifier",
+    "stat": "ac",
+    "value": 1
+   },
+   {
+    "type": "modifier",
+    "stat": "save",
+    "value": 1
+   }
+  ]
+ },
+ {
+  "id": "ring_of_resistance_acid",
+  "kind": "accessory",
+  "name": {
+   "en": "Ring of Acid Resistance",
+   "ja": "酸耐性の指輪"
+  },
+  "description": {
+   "en": "Grants resistance to acid damage.",
+   "ja": "酸のダメージに抵抗を得る。"
+  },
+  "rarity": "rare",
+  "price": 1500,
+  "slot": "ring",
+  "attunement": true,
+  "passive": [
+   {
+    "type": "resist",
+    "damage_type": "acid"
+   }
+  ]
+ },
+ {
+  "id": "ring_of_resistance_cold",
+  "kind": "accessory",
+  "name": {
+   "en": "Ring of Cold Resistance",
+   "ja": "冷気耐性の指輪"
+  },
+  "description": {
+   "en": "Grants resistance to cold damage.",
+   "ja": "冷気のダメージに抵抗を得る。"
+  },
+  "rarity": "rare",
+  "price": 1500,
+  "slot": "ring",
+  "attunement": true,
+  "passive": [
+   {
+    "type": "resist",
+    "damage_type": "cold"
+   }
+  ]
+ },
+ {
+  "id": "ring_of_resistance_fire",
+  "kind": "accessory",
+  "name": {
+   "en": "Ring of Fire Resistance",
+   "ja": "火耐性の指輪"
+  },
+  "description": {
+   "en": "Grants resistance to fire damage.",
+   "ja": "火のダメージに抵抗を得る。"
+  },
+  "rarity": "rare",
+  "price": 1500,
+  "slot": "ring",
+  "attunement": true,
+  "passive": [
+   {
+    "type": "resist",
+    "damage_type": "fire"
+   }
+  ]
+ },
+ {
+  "id": "ring_of_resistance_force",
+  "kind": "accessory",
+  "name": {
+   "en": "Ring of Force Resistance",
+   "ja": "力場耐性の指輪"
+  },
+  "description": {
+   "en": "Grants resistance to force damage.",
+   "ja": "力場のダメージに抵抗を得る。"
+  },
+  "rarity": "rare",
+  "price": 1500,
+  "slot": "ring",
+  "attunement": true,
+  "passive": [
+   {
+    "type": "resist",
+    "damage_type": "force"
+   }
+  ]
+ },
+ {
+  "id": "ring_of_resistance_lightning",
+  "kind": "accessory",
+  "name": {
+   "en": "Ring of Lightning Resistance",
+   "ja": "雷耐性の指輪"
+  },
+  "description": {
+   "en": "Grants resistance to lightning damage.",
+   "ja": "雷のダメージに抵抗を得る。"
+  },
+  "rarity": "rare",
+  "price": 1500,
+  "slot": "ring",
+  "attunement": true,
+  "passive": [
+   {
+    "type": "resist",
+    "damage_type": "lightning"
+   }
+  ]
+ },
+ {
+  "id": "ring_of_resistance_necrotic",
+  "kind": "accessory",
+  "name": {
+   "en": "Ring of Necrotic Resistance",
+   "ja": "死霊耐性の指輪"
+  },
+  "description": {
+   "en": "Grants resistance to necrotic damage.",
+   "ja": "死霊のダメージに抵抗を得る。"
+  },
+  "rarity": "rare",
+  "price": 1500,
+  "slot": "ring",
+  "attunement": true,
+  "passive": [
+   {
+    "type": "resist",
+    "damage_type": "necrotic"
+   }
+  ]
+ },
+ {
+  "id": "ring_of_resistance_poison",
+  "kind": "accessory",
+  "name": {
+   "en": "Ring of Poison Resistance",
+   "ja": "毒耐性の指輪"
+  },
+  "description": {
+   "en": "Grants resistance to poison damage.",
+   "ja": "毒のダメージに抵抗を得る。"
+  },
+  "rarity": "rare",
+  "price": 1500,
+  "slot": "ring",
+  "attunement": true,
+  "passive": [
+   {
+    "type": "resist",
+    "damage_type": "poison"
+   }
+  ]
+ },
+ {
+  "id": "ring_of_resistance_psychic",
+  "kind": "accessory",
+  "name": {
+   "en": "Ring of Psychic Resistance",
+   "ja": "精神耐性の指輪"
+  },
+  "description": {
+   "en": "Grants resistance to psychic damage.",
+   "ja": "精神のダメージに抵抗を得る。"
+  },
+  "rarity": "rare",
+  "price": 1500,
+  "slot": "ring",
+  "attunement": true,
+  "passive": [
+   {
+    "type": "resist",
+    "damage_type": "psychic"
+   }
+  ]
+ },
+ {
+  "id": "ring_of_resistance_radiant",
+  "kind": "accessory",
+  "name": {
+   "en": "Ring of Radiant Resistance",
+   "ja": "光輝耐性の指輪"
+  },
+  "description": {
+   "en": "Grants resistance to radiant damage.",
+   "ja": "光輝のダメージに抵抗を得る。"
+  },
+  "rarity": "rare",
+  "price": 1500,
+  "slot": "ring",
+  "attunement": true,
+  "passive": [
+   {
+    "type": "resist",
+    "damage_type": "radiant"
+   }
+  ]
+ },
+ {
+  "id": "ring_of_resistance_thunder",
+  "kind": "accessory",
+  "name": {
+   "en": "Ring of Thunder Resistance",
+   "ja": "雷鳴耐性の指輪"
+  },
+  "description": {
+   "en": "Grants resistance to thunder damage.",
+   "ja": "雷鳴のダメージに抵抗を得る。"
+  },
+  "rarity": "rare",
+  "price": 1500,
+  "slot": "ring",
+  "attunement": true,
+  "passive": [
+   {
+    "type": "resist",
+    "damage_type": "thunder"
+   }
+  ]
+ },
+ {
+  "id": "ring_of_shooting_stars",
+  "kind": "accessory",
+  "name": {
+   "en": "Ring of Shooting Stars",
+   "ja": "リング・オヴ・シューティング・スターズ"
+  },
+  "description": {
+   "en": "Casts Faerie Fire (6 charges).",
+   "ja": "フェアリー・ファイアーを唱えられる(6 回)。"
+  },
+  "rarity": "very_rare",
+  "price": 12000,
+  "slot": "ring",
+  "attunement": true,
+  "charges": 6,
+  "use_spell": "faerie_fire",
+  "use_slot": 1,
+  "note": "SRD の球電と流星は省いた。"
+ },
+ {
+  "id": "ring_of_spell_turning",
+  "kind": "accessory",
+  "name": {
+   "en": "Ring of Spell Turning",
+   "ja": "リング・オヴ・スペル・ターニング"
+  },
+  "description": {
+   "en": "+3 to saving throws.",
+   "ja": "セーヴに +3。"
+  },
+  "rarity": "legendary",
+  "price": 60000,
+  "slot": "ring",
+  "attunement": true,
+  "passive": [
+   {
+    "type": "modifier",
+    "stat": "save",
+    "value": 3
+   }
+  ],
+  "note": "SRD の「呪文へのセーヴに有利、20 で呪文を跳ね返す」をセーヴ +3 に簡略化。"
+ },
+ {
+  "id": "ring_of_the_ram",
+  "kind": "accessory",
+  "name": {
+   "en": "Ring of the Ram",
+   "ja": "リング・オヴ・ザ・ラム"
+  },
+  "description": {
+   "en": "Fires a spectral ram at one enemy for 2d10 force damage (3 charges).",
+   "ja": "幻の雄羊の頭を放ち、敵 1 体に 2d10 の力場のダメージ(3 回)。"
+  },
+  "rarity": "rare",
+  "price": 1500,
+  "slot": "ring",
+  "attunement": true,
+  "charges": 3,
+  "use_target": "enemy",
+  "use": [
+   {
+    "type": "damage",
+    "dice": "2d10",
+    "damage_type": "force"
+   }
+  ],
+  "note": "SRD の攻撃ロール(+7)と、複数チャージでの強化、押しのけは省いた。"
+ },
+ {
+  "id": "ring_of_three_wishes",
+  "kind": "accessory",
+  "name": {
+   "en": "Ring of Three Wishes",
+   "ja": "リング・オヴ・スリー・ウィッシズ"
+  },
+  "description": {
+   "en": "Grants a Wish (3 charges).",
+   "ja": "ウィッシュを使える(3 回)。"
+  },
+  "rarity": "legendary",
+  "price": 100000,
+  "slot": "ring",
+  "charges": 3,
+  "use_target": "self",
+  "use": [
+   {
+    "type": "wish"
+   }
+  ],
+  "note": "SRD では使い切ると魔力を失うが、エンジンでは回数が戻る(要検討)。"
+ },
+ {
+  "id": "ring_of_warmth",
+  "kind": "accessory",
+  "name": {
+   "en": "Ring of Warmth",
+   "ja": "リング・オヴ・ウォームス"
+  },
+  "description": {
+   "en": "Grants resistance to cold damage.",
+   "ja": "冷気のダメージに抵抗を得る。"
+  },
+  "rarity": "uncommon",
+  "price": 300,
+  "slot": "ring",
+  "attunement": true,
+  "passive": [
+   {
+    "type": "resist",
+    "damage_type": "cold"
+   }
+  ]
+ },
+ {
+  "id": "robe_of_scintillating_colors",
+  "kind": "accessory",
+  "name": {
+   "en": "Robe of Scintillating Colors",
+   "ja": "ローブ・オヴ・シンティレイティング・カラーズ"
+  },
+  "description": {
+   "en": "Dazzles enemies: they save or are stunned for a round (3 charges).",
+   "ja": "まばゆい色で敵の一群を惑わす。知恵のセーヴ(DC 15)に失敗すると 1 ラウンド朦朧状態(3 回)。"
+  },
+  "rarity": "very_rare",
+  "price": 12000,
+  "slot": "cloak",
+  "attunement": true,
+  "charges": 3,
+  "use_target": "group",
+  "use": [
+   {
+    "type": "save",
+    "ability": "wis",
+    "dc": 15,
+    "fail": [
+     {
+      "type": "condition",
+      "condition": "stunned",
+      "rounds": 1
+     }
+    ]
+   }
+  ]
+ },
+ {
+  "id": "robe_of_stars",
+  "kind": "accessory",
+  "name": {
+   "en": "Robe of Stars",
+   "ja": "ローブ・オヴ・スターズ"
+  },
+  "description": {
+   "en": "+1 to saves; casts Magic Missile at 5th level (6 charges).",
+   "ja": "セーヴに +1。マジック・ミサイル(5 レベル)を唱えられる(6 回)。"
+  },
+  "rarity": "very_rare",
+  "price": 12000,
+  "slot": "cloak",
+  "attunement": true,
+  "passive": [
+   {
+    "type": "modifier",
+    "stat": "save",
+    "value": 1
+   }
+  ],
+  "charges": 6,
+  "use_spell": "magic_missile",
+  "use_slot": 5,
+  "note": "SRD のアストラル界への移動は省いた。"
+ },
+ {
+  "id": "robe_of_the_archmagi",
+  "kind": "accessory",
+  "name": {
+   "en": "Robe of the Archmagi",
+   "ja": "ローブ・オヴ・ジ・アークメイジャイ"
+  },
+  "description": {
+   "en": "The archmage's robe: +2 AC and +2 to saves.",
+   "ja": "大魔術師のローブ。AC とセーヴに +2。"
+  },
+  "rarity": "legendary",
+  "price": 60000,
+  "slot": "cloak",
+  "attunement": true,
+  "only": "caster",
+  "passive": [
+   {
+    "type": "modifier",
+    "stat": "ac",
+    "value": 2
+   },
+   {
+    "type": "modifier",
+    "stat": "save",
+    "value": 2
+   }
+  ],
+  "note": "SRD の「基本 AC 15」「呪文へのセーヴに有利」「呪文の難易度 +2」を AC +2 とセーヴ +2 に簡略化。"
+ },
+ {
+  "id": "scarab_of_protection",
+  "kind": "accessory",
+  "name": {
+   "en": "Scarab of Protection",
+   "ja": "スカラブ・オヴ・プロテクション"
+  },
+  "description": {
+   "en": "+2 to saves and resistance to necrotic damage.",
+   "ja": "セーヴに +2 で、死霊のダメージに抵抗。"
+  },
+  "rarity": "legendary",
+  "price": 60000,
+  "slot": "neck",
+  "attunement": true,
+  "passive": [
+   {
+    "type": "modifier",
+    "stat": "save",
+    "value": 2
+   },
+   {
+    "type": "resist",
+    "damage_type": "necrotic"
+   }
+  ],
+  "note": "SRD の「呪文へのセーヴに有利」「死霊術と不死の者の効果を 12 回打ち消す」を簡略化。"
+ },
+ {
+  "id": "sentry_necklace",
+  "kind": "accessory",
+  "slot": "neck",
+  "rarity": "uncommon",
+  "drop_only": true,
+  "price": 800,
+  "name": {
+   "en": "Sentry's Necklace",
+   "ja": "見張りの首飾り"
+  },
+  "passive": [
+   {
+    "type": "modifier",
+    "stat": "perception",
+    "value": 5
+   }
+  ],
+  "description": {
+   "en": "A sentry's charm that wakes the wearer at the faintest sound. +5 to Perception (harder to surprise).",
+   "ja": "かすかな音でも目を覚ます、見張り番のお守り。知覚に +5(不意を打たれにくい)。"
+  }
+ },
+ {
+  "id": "sphinx_eye_ring",
+  "kind": "accessory",
+  "slot": "ring",
+  "rarity": "very_rare",
+  "drop_only": true,
+  "attunement": true,
+  "price": 9000,
+  "name": {
+   "en": "Riddler's Eye Ring",
+   "ja": "謎守りの目の指輪"
+  },
+  "passive": [
+   {
+    "type": "immune_condition",
+    "condition": "blinded"
+   },
+   {
+    "type": "modifier",
+    "stat": "attack",
+    "value": 1
+   }
+  ],
+  "description": {
+   "en": "A ring with an open eye. It saw the answer before you did.",
+   "ja": "目の開いた指輪。答えは、あなたより先に見えていた。"
+  }
+ },
+ {
+  "id": "stone_of_good_luck",
+  "kind": "accessory",
+  "name": {
+   "en": "Stone of Good Luck (Luckstone)",
+   "ja": "幸運の石"
+  },
+  "description": {
+   "en": "A lucky agate carried on your belt: +1 to saving throws.",
+   "ja": "帯に下げる幸運の瑪瑙。セーヴに +1。"
+  },
+  "rarity": "uncommon",
+  "price": 300,
+  "slot": "waist",
+  "attunement": true,
+  "passive": [
+   {
+    "type": "modifier",
+    "stat": "save",
+    "value": 1
+   }
+  ],
+  "note": "SRD の能力値判定 +1 は省いた。帯の場所に着ける。"
+ },
+ {
+  "id": "vigil_amulet",
+  "kind": "accessory",
+  "slot": "neck",
+  "rarity": "rare",
+  "drop_only": true,
+  "attunement": true,
+  "price": 4000,
+  "name": {
+   "en": "Amulet of the Vigil",
+   "ja": "不寝番の首飾り"
+  },
+  "passive": [
+   {
+    "type": "immune_condition",
+    "condition": "frightened"
+   },
+   {
+    "type": "immune_condition",
+    "condition": "charmed"
+   },
+   {
+    "type": "modifier",
+    "stat": "save",
+    "value": 1
+   }
+  ],
+  "description": {
+   "en": "Worn by those who watch over the dead through the night.",
+   "ja": "夜通し死者を見守る者が着けた首飾り。"
+  }
+ },
+ {
+  "id": "wand_of_the_war_mage_1",
+  "kind": "accessory",
+  "name": {
+   "en": "Wand of the War Mage +1",
+   "ja": "ワンド・オヴ・ザ・ウォー・メイジ +1"
+  },
+  "description": {
+   "en": "+1 to attack rolls while held.",
+   "ja": "持っているあいだ命中に +1。"
+  },
+  "rarity": "uncommon",
+  "price": 300,
+  "slot": "hands",
+  "attunement": true,
+  "only": "caster",
+  "passive": [
+   {
+    "type": "modifier",
+    "stat": "attack",
+    "value": 1
+   }
+  ],
+  "note": "SRD では呪文の攻撃だけ。手の装備として扱う。"
+ },
+ {
+  "id": "wand_of_the_war_mage_2",
+  "kind": "accessory",
+  "name": {
+   "en": "Wand of the War Mage +2",
+   "ja": "ワンド・オヴ・ザ・ウォー・メイジ +2"
+  },
+  "description": {
+   "en": "+2 to attack rolls while held.",
+   "ja": "持っているあいだ命中に +2。"
+  },
+  "rarity": "rare",
+  "price": 1500,
+  "slot": "hands",
+  "attunement": true,
+  "only": "caster",
+  "passive": [
+   {
+    "type": "modifier",
+    "stat": "attack",
+    "value": 2
+   }
+  ],
+  "note": "SRD では呪文の攻撃だけ。手の装備として扱う。"
+ },
+ {
+  "id": "wand_of_the_war_mage_3",
+  "kind": "accessory",
+  "name": {
+   "en": "Wand of the War Mage +3",
+   "ja": "ワンド・オヴ・ザ・ウォー・メイジ +3"
+  },
+  "description": {
+   "en": "+3 to attack rolls while held.",
+   "ja": "持っているあいだ命中に +3。"
+  },
+  "rarity": "very_rare",
+  "price": 12000,
+  "slot": "hands",
+  "attunement": true,
+  "only": "caster",
+  "passive": [
+   {
+    "type": "modifier",
+    "stat": "attack",
+    "value": 3
+   }
+  ],
+  "note": "SRD では呪文の攻撃だけ。手の装備として扱う。"
+ },
+ {
+  "id": "widows_veil",
+  "kind": "accessory",
+  "slot": "cloak",
+  "rarity": "rare",
+  "drop_only": true,
+  "attunement": true,
+  "price": 4000,
+  "name": {
+   "en": "Widow's Veil",
+   "ja": "未亡人の喪の帳"
+  },
+  "passive": [
+   {
+    "type": "modifier",
+    "stat": "ac",
+    "value": 1
+   },
+   {
+    "type": "resist",
+    "damage_type": "necrotic"
+   }
+  ],
+  "description": {
+   "en": "Black lace that grief has made stronger than mail.",
+   "ja": "悲しみが鎖帷子より固く編んだ、黒いレースの外套。"
+  }
+ },
+ {
+  "id": "backpack",
+  "kind": "backpack",
+  "name": {
+   "en": "Backpack",
+   "ja": "背負い袋"
+  },
+  "slots": 10,
+  "price": 500,
+  "description": {
+   "en": "A sturdy backpack. Holds 10 items.",
+   "ja": "丈夫な背負い袋。10 個入る。"
+  }
+ },
+ {
+  "id": "sack",
+  "kind": "backpack",
+  "name": {
+   "en": "Sack",
+   "ja": "布袋"
+  },
+  "slots": 6,
+  "price": 0.01,
+  "description": {
+   "en": "A plain sack. Holds 6 items.",
+   "ja": "ただの布の袋。6 個入る。"
+  }
+ },
+ {
+  "id": "shoulder_bag",
+  "kind": "backpack",
+  "name": {
+   "en": "Shoulder Bag",
+   "ja": "肩掛け鞄"
+  },
+  "slots": 8,
+  "price": 150,
+  "description": {
+   "en": "A leather bag worn over the shoulder. Holds 8 items.",
+   "ja": "肩に掛ける革の鞄。8 個入る。"
+  }
+ },
+ {
+  "id": "bag_of_holding",
+  "kind": "backpack",
+  "name": {
+   "en": "Bag of Holding",
+   "ja": "バッグ・オヴ・ホールディング"
+  },
+  "description": {
+   "en": "A bag far larger inside. Holds 20 items.",
+   "ja": "中が外より広い袋。20 個入る。"
+  },
+  "rarity": "uncommon",
+  "price": 2000,
+  "slots": 20
+ },
+ {
+  "id": "dimension_bag",
+  "kind": "backpack",
+  "name": {
+   "en": "Dimension Bag",
+   "ja": "ディメンジョン・バッグ"
+  },
+  "description": {
+   "en": "A bag whose inside is a little wider than it should be. Holds 15 items.",
+   "ja": "中が少しだけ広い袋。15 個入る。"
+  },
+  "rarity": "common",
+  "price": 1000,
+  "slots": 15,
+  "note": "オリジナル(SRD に無い)。背負い袋とバッグ・オヴ・ホールディングのあいだ"
+ },
+ {
+  "id": "handy_haversack",
+  "kind": "backpack",
+  "name": {
+   "en": "Handy Haversack",
+   "ja": "ハンディ・ハヴァサック"
+  },
+  "description": {
+   "en": "A backpack with extradimensional pouches. Holds 25 items.",
+   "ja": "異次元のポケットがついた背負い袋。25 個入る。"
+  },
+  "rarity": "rare",
+  "price": 4000,
+  "slots": 25
+ },
+ {
+  "id": "portable_hole",
+  "kind": "backpack",
+  "name": {
+   "en": "Portable Hole",
+   "ja": "ポータブル・ホール"
+  },
+  "description": {
+   "en": "A folded hole into another space. Holds 30 items.",
+   "ja": "折りたためる異次元の穴。30 個入る。"
+  },
+  "rarity": "rare",
+  "price": 8000,
+  "slots": 30
+ },
+ {
+  "id": "antitoxin",
+  "kind": "consumable",
+  "name": {
+   "en": "Antitoxin",
+   "ja": "解毒剤"
+  },
+  "price": 50,
+  "stack": 10,
+  "use": [
+   {
+    "type": "remove_condition",
+    "condition": "poisoned"
+   }
+  ],
+  "use_target": "ally",
+  "description": {
+   "en": "Cures poison.",
+   "ja": "毒を消す。"
+  }
+ },
+ {
+  "id": "bead_of_force",
+  "kind": "consumable",
+  "name": {
+   "en": "Bead of Force",
+   "ja": "ビード・オヴ・フォース"
+  },
+  "description": {
+   "en": "Explodes on impact: enemies save or take 5d4 force damage.",
+   "ja": "投げると爆ぜる。敵の一群は敏捷力のセーヴ(DC 15)に失敗すると 5d4 の力場のダメージ(成功で半分)。"
+  },
+  "rarity": "rare",
+  "price": 600,
+  "stack": 10,
+  "use_target": "group",
+  "use": [
+   {
+    "type": "save",
+    "ability": "dex",
+    "dc": 15,
+    "fail": [
+     {
+      "type": "damage",
+      "dice": "5d4",
+      "damage_type": "force"
+     }
+    ],
+    "half": true
+   }
+  ],
+  "note": "SRD の力場の球に閉じ込める効果は省いた。"
+ },
+ {
+  "id": "dust_of_disappearance",
+  "kind": "consumable",
+  "name": {
+   "en": "Dust of Disappearance",
+   "ja": "消え去りの粉"
+  },
+  "description": {
+   "en": "Throw it: the whole party turns invisible for about 5 minutes.",
+   "ja": "撒くと仲間全員が 5 分ほど透明になる。"
+  },
+  "rarity": "uncommon",
+  "price": 300,
+  "stack": 10,
+  "use_target": "allies",
+  "use": [
+   {
+    "type": "condition",
+    "condition": "invisible",
+    "rounds": 50
+   }
+  ],
+  "note": "SRD の 2d4 分を 50 ラウンドに固定。"
+ },
+ {
+  "id": "dust_of_sneezing_and_choking",
+  "kind": "consumable",
+  "name": {
+   "en": "Dust of Sneezing and Choking",
+   "ja": "くしゃみと窒息の粉"
+  },
+  "description": {
+   "en": "Throw it at enemies: they save or are incapacitated, sneezing.",
+   "ja": "敵の一群に撒く。耐久力のセーヴ(DC 15)に失敗するとくしゃみで無力状態。"
+  },
+  "rarity": "uncommon",
+  "price": 300,
+  "stack": 10,
+  "use_target": "group",
+  "use": [
+   {
+    "type": "save",
+    "ability": "con",
+    "dc": 15,
+    "fail": [
+     {
+      "type": "condition",
+      "condition": "incapacitated",
+      "repeat_save": true,
+      "rounds": 10
+     }
+    ]
+   }
+  ],
+  "note": "SRD では自分も巻き込む。敵に投げるものとして扱う。"
+ },
+ {
+  "id": "necklace_of_fireballs",
+  "kind": "consumable",
+  "name": {
+   "en": "Necklace of Fireballs (bead)",
+   "ja": "ネックレス・オヴ・ファイアーボールズ(珠)"
+  },
+  "description": {
+   "en": "A bead torn from the necklace detonates as a Fireball.",
+   "ja": "首飾りからちぎった珠。投げるとファイアーボールとして爆ぜる。"
+  },
+  "rarity": "rare",
+  "price": 600,
+  "stack": 10,
+  "use_spell": "fireball",
+  "use_slot": 3,
+  "note": "首飾り 1 本ぶんの珠(1d6+3 個)を、1 個ずつの消耗品として扱う。"
+ },
+ {
+  "id": "oil_of_sharpness",
+  "kind": "consumable",
+  "name": {
+   "en": "Oil of Sharpness",
+   "ja": "鋭さの油"
+  },
+  "description": {
+   "en": "Coat a weapon: +3 to attack and damage for 1 hour.",
+   "ja": "武器に塗ると 1 時間のあいだ命中とダメージに +3。"
+  },
+  "rarity": "very_rare",
+  "price": 6000,
+  "stack": 10,
+  "use_target": "ally",
+  "use": [
+   {
+    "type": "modifier",
+    "stat": "attack",
+    "value": 3,
+    "rounds": 600
+   },
+   {
+    "type": "modifier",
+    "stat": "damage",
+    "value": 3,
+    "rounds": 600
+   }
+  ]
+ },
+ {
+  "id": "potion_of_giant_strength_cloud",
+  "kind": "consumable",
+  "name": {
+   "en": "Potion of Cloud Giant Strength",
+   "ja": "雲の巨人の力の水薬"
+  },
+  "description": {
+   "en": "Strength becomes 27 for 1 hour.",
+   "ja": "1 時間のあいだ筋力が 27 になる(元の方が高ければそのまま)。"
+  },
+  "rarity": "very_rare",
+  "price": 8000,
+  "stack": 10,
+  "use_target": "ally",
+  "use": [
+   {
+    "type": "set_ability",
+    "ability": "str",
+    "value": 27,
+    "rounds": 600
+   }
+  ],
+  "note": "使ったときの set_ability は rounds のあいだだけ効く(エンジン側で対応が要る)。"
+ },
+ {
+  "id": "potion_of_giant_strength_fire",
+  "kind": "consumable",
+  "name": {
+   "en": "Potion of Fire Giant Strength",
+   "ja": "炎の巨人の力の水薬"
+  },
+  "description": {
+   "en": "Strength becomes 25 for 1 hour.",
+   "ja": "1 時間のあいだ筋力が 25 になる(元の方が高ければそのまま)。"
+  },
+  "rarity": "rare",
+  "price": 1500,
+  "stack": 10,
+  "use_target": "ally",
+  "use": [
+   {
+    "type": "set_ability",
+    "ability": "str",
+    "value": 25,
+    "rounds": 600
+   }
+  ],
+  "note": "使ったときの set_ability は rounds のあいだだけ効く(エンジン側で対応が要る)。"
+ },
+ {
+  "id": "potion_of_giant_strength_frost",
+  "kind": "consumable",
+  "name": {
+   "en": "Potion of Frost Giant Strength",
+   "ja": "霜の巨人の力の水薬"
+  },
+  "description": {
+   "en": "Strength becomes 23 for 1 hour.",
+   "ja": "1 時間のあいだ筋力が 23 になる(元の方が高ければそのまま)。"
+  },
+  "rarity": "rare",
+  "price": 800,
+  "stack": 10,
+  "use_target": "ally",
+  "use": [
+   {
+    "type": "set_ability",
+    "ability": "str",
+    "value": 23,
+    "rounds": 600
+   }
+  ],
+  "note": "使ったときの set_ability は rounds のあいだだけ効く(エンジン側で対応が要る)。"
+ },
+ {
+  "id": "potion_of_giant_strength_hill",
+  "kind": "consumable",
+  "name": {
+   "en": "Potion of Hill Giant Strength",
+   "ja": "丘の巨人の力の水薬"
+  },
+  "description": {
+   "en": "Strength becomes 21 for 1 hour.",
+   "ja": "1 時間のあいだ筋力が 21 になる(元の方が高ければそのまま)。"
+  },
+  "rarity": "uncommon",
+  "price": 300,
+  "stack": 10,
+  "use_target": "ally",
+  "use": [
+   {
+    "type": "set_ability",
+    "ability": "str",
+    "value": 21,
+    "rounds": 600
+   }
+  ],
+  "note": "使ったときの set_ability は rounds のあいだだけ効く(エンジン側で対応が要る)。"
+ },
+ {
+  "id": "potion_of_giant_strength_stone",
+  "kind": "consumable",
+  "name": {
+   "en": "Potion of Stone Giant Strength",
+   "ja": "石の巨人の力の水薬"
+  },
+  "description": {
+   "en": "Strength becomes 23 for 1 hour.",
+   "ja": "1 時間のあいだ筋力が 23 になる(元の方が高ければそのまま)。"
+  },
+  "rarity": "rare",
+  "price": 800,
+  "stack": 10,
+  "use_target": "ally",
+  "use": [
+   {
+    "type": "set_ability",
+    "ability": "str",
+    "value": 23,
+    "rounds": 600
+   }
+  ],
+  "note": "使ったときの set_ability は rounds のあいだだけ効く(エンジン側で対応が要る)。"
+ },
+ {
+  "id": "potion_of_giant_strength_storm",
+  "kind": "consumable",
+  "name": {
+   "en": "Potion of Storm Giant Strength",
+   "ja": "嵐の巨人の力の水薬"
+  },
+  "description": {
+   "en": "Strength becomes 29 for 1 hour.",
+   "ja": "1 時間のあいだ筋力が 29 になる(元の方が高ければそのまま)。"
+  },
+  "rarity": "legendary",
+  "price": 60000,
+  "stack": 10,
+  "use_target": "ally",
+  "use": [
+   {
+    "type": "set_ability",
+    "ability": "str",
+    "value": 29,
+    "rounds": 600
+   }
+  ],
+  "note": "使ったときの set_ability は rounds のあいだだけ効く(エンジン側で対応が要る)。"
+ },
+ {
+  "id": "potion_of_healing",
+  "kind": "consumable",
+  "name": {
+   "en": "Potion of Healing",
+   "ja": "回復の水薬"
+  },
+  "rarity": "common",
+  "price": 50,
+  "stack": 10,
+  "use": [
+   {
+    "type": "heal",
+    "dice": "2d4+2"
+   }
+  ],
+  "use_target": "ally",
+  "description": {
+   "en": "Regain 2d4+2 HP.",
+   "ja": "飲むと HP が 2d4+2 戻る。"
+  }
+ },
+ {
+  "id": "potion_of_healing_greater",
+  "kind": "consumable",
+  "name": {
+   "en": "Potion of Greater Healing",
+   "ja": "上回復の水薬"
+  },
+  "description": {
+   "en": "Regain 4d4+4 HP.",
+   "ja": "飲むと HP が 4d4+4 戻る。"
+  },
+  "rarity": "uncommon",
+  "price": 150,
+  "stack": 10,
+  "use_target": "ally",
+  "use": [
+   {
+    "type": "heal",
+    "dice": "4d4+4"
+   }
+  ]
+ },
+ {
+  "id": "potion_of_healing_superior",
+  "kind": "consumable",
+  "name": {
+   "en": "Potion of Superior Healing",
+   "ja": "特上回復の水薬"
+  },
+  "description": {
+   "en": "Regain 8d4+8 HP.",
+   "ja": "飲むと HP が 8d4+8 戻る。"
+  },
+  "rarity": "rare",
+  "price": 600,
+  "stack": 10,
+  "use_target": "ally",
+  "use": [
+   {
+    "type": "heal",
+    "dice": "8d4+8"
+   }
+  ]
+ },
+ {
+  "id": "potion_of_healing_supreme",
+  "kind": "consumable",
+  "name": {
+   "en": "Potion of Supreme Healing",
+   "ja": "極上回復の水薬"
+  },
+  "description": {
+   "en": "Regain 10d4+20 HP.",
+   "ja": "飲むと HP が 10d4+20 戻る。"
+  },
+  "rarity": "very_rare",
+  "price": 6000,
+  "stack": 10,
+  "use_target": "ally",
+  "use": [
+   {
+    "type": "heal",
+    "dice": "10d4+20"
+   }
+  ]
+ },
+ {
+  "id": "potion_of_heroism",
+  "kind": "consumable",
+  "name": {
+   "en": "Potion of Heroism",
+   "ja": "勇者の水薬"
+  },
+  "description": {
+   "en": "10 temporary HP, and +1d4 to attacks and saves for 1 hour.",
+   "ja": "一時的な HP 10 を得て、1 時間のあいだ命中とセーヴに +1d4。"
+  },
+  "rarity": "rare",
+  "price": 600,
+  "stack": 10,
+  "use_target": "ally",
+  "use": [
+   {
+    "type": "temp_hp",
+    "dice": "10"
+   },
+   {
+    "type": "modifier",
+    "stat": "attack",
+    "dice": "1d4",
+    "rounds": 600
+   },
+   {
+    "type": "modifier",
+    "stat": "save",
+    "dice": "1d4",
+    "rounds": 600
+   }
+  ]
+ },
+ {
+  "id": "potion_of_invisibility",
+  "kind": "consumable",
+  "name": {
+   "en": "Potion of Invisibility",
+   "ja": "透明の水薬"
+  },
+  "description": {
+   "en": "Become invisible for 1 hour.",
+   "ja": "1 時間のあいだ透明になる。"
+  },
+  "rarity": "very_rare",
+  "price": 6000,
+  "stack": 10,
+  "use_target": "ally",
+  "use": [
+   {
+    "type": "condition",
+    "condition": "invisible",
+    "rounds": 600
+   }
+  ]
+ },
+ {
+  "id": "potion_of_poison",
+  "kind": "consumable",
+  "name": {
+   "en": "Potion of Poison",
+   "ja": "毒の水薬"
+  },
+  "description": {
+   "en": "Looks like a healing potion, but deals 3d6 poison damage and poisons the drinker.",
+   "ja": "回復の水薬に見えるが毒。飲むと 3d6 の毒のダメージを受け、耐久力のセーヴ(DC 13)に失敗すると毒状態になる。"
+  },
+  "rarity": "uncommon",
+  "price": 120,
+  "stack": 10,
+  "use_target": "ally",
+  "use": [
+   {
+    "type": "damage",
+    "dice": "3d6",
+    "damage_type": "poison"
+   },
+   {
+    "type": "save",
+    "ability": "con",
+    "dc": 13,
+    "fail": [
+     {
+      "type": "condition",
+      "condition": "poisoned",
+      "repeat_save": true,
+      "rounds": 10
+     }
+    ]
+   }
+  ],
+  "note": "SRD の「毎ターン 3d6 ずつ」は省いた。未鑑定だと回復の水薬と見分けがつかない罠として置く。"
+ },
+ {
+  "id": "potion_of_resistance_acid",
+  "kind": "consumable",
+  "name": {
+   "en": "Potion of Acid Resistance",
+   "ja": "酸耐性の水薬"
+  },
+  "description": {
+   "en": "Resistance to acid damage for 1 hour.",
+   "ja": "1 時間のあいだ酸のダメージに抵抗を得る。"
+  },
+  "rarity": "uncommon",
+  "price": 200,
+  "stack": 10,
+  "use_target": "ally",
+  "use": [
+   {
+    "type": "resist",
+    "damage_type": "acid",
+    "rounds": 600
+   }
+  ],
+  "note": "使ったときの resist は rounds のあいだだけ効く(エンジン側で対応が要る)。"
+ },
+ {
+  "id": "potion_of_resistance_cold",
+  "kind": "consumable",
+  "name": {
+   "en": "Potion of Cold Resistance",
+   "ja": "冷気耐性の水薬"
+  },
+  "description": {
+   "en": "Resistance to cold damage for 1 hour.",
+   "ja": "1 時間のあいだ冷気のダメージに抵抗を得る。"
+  },
+  "rarity": "uncommon",
+  "price": 200,
+  "stack": 10,
+  "use_target": "ally",
+  "use": [
+   {
+    "type": "resist",
+    "damage_type": "cold",
+    "rounds": 600
+   }
+  ],
+  "note": "使ったときの resist は rounds のあいだだけ効く(エンジン側で対応が要る)。"
+ },
+ {
+  "id": "potion_of_resistance_fire",
+  "kind": "consumable",
+  "name": {
+   "en": "Potion of Fire Resistance",
+   "ja": "火耐性の水薬"
+  },
+  "description": {
+   "en": "Resistance to fire damage for 1 hour.",
+   "ja": "1 時間のあいだ火のダメージに抵抗を得る。"
+  },
+  "rarity": "uncommon",
+  "price": 200,
+  "stack": 10,
+  "use_target": "ally",
+  "use": [
+   {
+    "type": "resist",
+    "damage_type": "fire",
+    "rounds": 600
+   }
+  ],
+  "note": "使ったときの resist は rounds のあいだだけ効く(エンジン側で対応が要る)。"
+ },
+ {
+  "id": "potion_of_resistance_force",
+  "kind": "consumable",
+  "name": {
+   "en": "Potion of Force Resistance",
+   "ja": "力場耐性の水薬"
+  },
+  "description": {
+   "en": "Resistance to force damage for 1 hour.",
+   "ja": "1 時間のあいだ力場のダメージに抵抗を得る。"
+  },
+  "rarity": "uncommon",
+  "price": 200,
+  "stack": 10,
+  "use_target": "ally",
+  "use": [
+   {
+    "type": "resist",
+    "damage_type": "force",
+    "rounds": 600
+   }
+  ],
+  "note": "使ったときの resist は rounds のあいだだけ効く(エンジン側で対応が要る)。"
+ },
+ {
+  "id": "potion_of_resistance_lightning",
+  "kind": "consumable",
+  "name": {
+   "en": "Potion of Lightning Resistance",
+   "ja": "雷耐性の水薬"
+  },
+  "description": {
+   "en": "Resistance to lightning damage for 1 hour.",
+   "ja": "1 時間のあいだ雷のダメージに抵抗を得る。"
+  },
+  "rarity": "uncommon",
+  "price": 200,
+  "stack": 10,
+  "use_target": "ally",
+  "use": [
+   {
+    "type": "resist",
+    "damage_type": "lightning",
+    "rounds": 600
+   }
+  ],
+  "note": "使ったときの resist は rounds のあいだだけ効く(エンジン側で対応が要る)。"
+ },
+ {
+  "id": "potion_of_resistance_necrotic",
+  "kind": "consumable",
+  "name": {
+   "en": "Potion of Necrotic Resistance",
+   "ja": "死霊耐性の水薬"
+  },
+  "description": {
+   "en": "Resistance to necrotic damage for 1 hour.",
+   "ja": "1 時間のあいだ死霊のダメージに抵抗を得る。"
+  },
+  "rarity": "uncommon",
+  "price": 200,
+  "stack": 10,
+  "use_target": "ally",
+  "use": [
+   {
+    "type": "resist",
+    "damage_type": "necrotic",
+    "rounds": 600
+   }
+  ],
+  "note": "使ったときの resist は rounds のあいだだけ効く(エンジン側で対応が要る)。"
+ },
+ {
+  "id": "potion_of_resistance_poison",
+  "kind": "consumable",
+  "name": {
+   "en": "Potion of Poison Resistance",
+   "ja": "毒耐性の水薬"
+  },
+  "description": {
+   "en": "Resistance to poison damage for 1 hour.",
+   "ja": "1 時間のあいだ毒のダメージに抵抗を得る。"
+  },
+  "rarity": "uncommon",
+  "price": 200,
+  "stack": 10,
+  "use_target": "ally",
+  "use": [
+   {
+    "type": "resist",
+    "damage_type": "poison",
+    "rounds": 600
+   }
+  ],
+  "note": "使ったときの resist は rounds のあいだだけ効く(エンジン側で対応が要る)。"
+ },
+ {
+  "id": "potion_of_resistance_psychic",
+  "kind": "consumable",
+  "name": {
+   "en": "Potion of Psychic Resistance",
+   "ja": "精神耐性の水薬"
+  },
+  "description": {
+   "en": "Resistance to psychic damage for 1 hour.",
+   "ja": "1 時間のあいだ精神のダメージに抵抗を得る。"
+  },
+  "rarity": "uncommon",
+  "price": 200,
+  "stack": 10,
+  "use_target": "ally",
+  "use": [
+   {
+    "type": "resist",
+    "damage_type": "psychic",
+    "rounds": 600
+   }
+  ],
+  "note": "使ったときの resist は rounds のあいだだけ効く(エンジン側で対応が要る)。"
+ },
+ {
+  "id": "potion_of_resistance_radiant",
+  "kind": "consumable",
+  "name": {
+   "en": "Potion of Radiant Resistance",
+   "ja": "光輝耐性の水薬"
+  },
+  "description": {
+   "en": "Resistance to radiant damage for 1 hour.",
+   "ja": "1 時間のあいだ光輝のダメージに抵抗を得る。"
+  },
+  "rarity": "uncommon",
+  "price": 200,
+  "stack": 10,
+  "use_target": "ally",
+  "use": [
+   {
+    "type": "resist",
+    "damage_type": "radiant",
+    "rounds": 600
+   }
+  ],
+  "note": "使ったときの resist は rounds のあいだだけ効く(エンジン側で対応が要る)。"
+ },
+ {
+  "id": "potion_of_resistance_thunder",
+  "kind": "consumable",
+  "name": {
+   "en": "Potion of Thunder Resistance",
+   "ja": "雷鳴耐性の水薬"
+  },
+  "description": {
+   "en": "Resistance to thunder damage for 1 hour.",
+   "ja": "1 時間のあいだ雷鳴のダメージに抵抗を得る。"
+  },
+  "rarity": "uncommon",
+  "price": 200,
+  "stack": 10,
+  "use_target": "ally",
+  "use": [
+   {
+    "type": "resist",
+    "damage_type": "thunder",
+    "rounds": 600
+   }
+  ],
+  "note": "使ったときの resist は rounds のあいだだけ効く(エンジン側で対応が要る)。"
+ },
+ {
+  "id": "potion_of_speed",
+  "kind": "consumable",
+  "name": {
+   "en": "Potion of Speed",
+   "ja": "俊足の水薬"
+  },
+  "description": {
+   "en": "Haste for 1 minute: +2 AC.",
+   "ja": "1 分のあいだヘイストの効果。AC に +2。"
+  },
+  "rarity": "very_rare",
+  "price": 6000,
+  "stack": 10,
+  "use_target": "ally",
+  "use": [
+   {
+    "type": "modifier",
+    "stat": "ac",
+    "value": 2,
+    "rounds": 10
+   }
+  ],
+  "note": "SRD のヘイスト(速度 2 倍、追加の行動)のうち、AC +2 だけを表した。"
+ },
+ {
+  "id": "restorative_ointment",
+  "kind": "consumable",
+  "name": {
+   "en": "Restorative Ointment",
+   "ja": "癒しの軟膏"
+  },
+  "description": {
+   "en": "Heals 2d8+2 HP and cures poison.",
+   "ja": "HP が 2d8+2 戻り、毒を消す。"
+  },
+  "rarity": "uncommon",
+  "price": 200,
+  "stack": 5,
+  "use_target": "ally",
+  "use": [
+   {
+    "type": "heal",
+    "dice": "2d8+2"
+   },
+   {
+    "type": "remove_condition",
+    "condition": "poisoned"
+   }
+  ],
+  "note": "SRD の瓶(1d4+1 回分)を、1 回ずつの消耗品として扱う。病気の治療は省いた。"
+ },
+ {
+  "id": "scroll_acid_arrow",
+  "kind": "consumable",
+  "name": {
+   "en": "Spell Scroll: Acid Arrow",
+   "ja": "アシッド・アローの巻物"
+  },
+  "description": {
+   "en": "Read it to cast Acid Arrow (level 2). Crumbles after use.",
+   "ja": "読むとアシッド・アロー(レベル 2)を唱える。使うと消える。"
+  },
+  "rarity": "uncommon",
+  "price": 150,
+  "stack": 5,
+  "use_spell": "acid_arrow",
+  "use_slot": 2
+ },
+ {
+  "id": "scroll_aid",
+  "kind": "consumable",
+  "name": {
+   "en": "Spell Scroll: Aid",
+   "ja": "エイドの巻物"
+  },
+  "description": {
+   "en": "Read it to cast Aid (level 2). Crumbles after use.",
+   "ja": "読むとエイド(レベル 2)を唱える。使うと消える。"
+  },
+  "rarity": "uncommon",
+  "price": 150,
+  "stack": 5,
+  "use_spell": "aid",
+  "use_slot": 2
+ },
+ {
+  "id": "scroll_bless",
+  "kind": "consumable",
+  "name": {
+   "en": "Spell Scroll: Bless",
+   "ja": "ブレスの巻物"
+  },
+  "description": {
+   "en": "Read it to cast Bless (level 1). Crumbles after use.",
+   "ja": "読むとブレス(レベル 1)を唱える。使うと消える。"
+  },
+  "rarity": "common",
+  "price": 50,
+  "stack": 5,
+  "use_spell": "bless",
+  "use_slot": 1
+ },
+ {
+  "id": "scroll_blight",
+  "kind": "consumable",
+  "name": {
+   "en": "Spell Scroll: Blight",
+   "ja": "ブライトの巻物"
+  },
+  "description": {
+   "en": "Read it to cast Blight (level 4). Crumbles after use.",
+   "ja": "読むとブライト(レベル 4)を唱える。使うと消える。"
+  },
+  "rarity": "rare",
+  "price": 800,
+  "stack": 5,
+  "use_spell": "blight",
+  "use_slot": 4
+ },
+ {
+  "id": "scroll_burning_hands",
+  "kind": "consumable",
+  "name": {
+   "en": "Spell Scroll: Burning Hands",
+   "ja": "バーニング・ハンズの巻物"
+  },
+  "description": {
+   "en": "Read it to cast Burning Hands (level 1). Crumbles after use.",
+   "ja": "読むとバーニング・ハンズ(レベル 1)を唱える。使うと消える。"
+  },
+  "rarity": "common",
+  "price": 50,
+  "stack": 5,
+  "use_spell": "burning_hands",
+  "use_slot": 1
+ },
+ {
+  "id": "scroll_cone_of_cold",
+  "kind": "consumable",
+  "name": {
+   "en": "Spell Scroll: Cone of Cold",
+   "ja": "コーン・オヴ・コールドの巻物"
+  },
+  "description": {
+   "en": "Read it to cast Cone of Cold (level 5). Crumbles after use.",
+   "ja": "読むとコーン・オヴ・コールド(レベル 5)を唱える。使うと消える。"
+  },
+  "rarity": "rare",
+  "price": 1500,
+  "stack": 5,
+  "use_spell": "cone_of_cold",
+  "use_slot": 5
+ },
+ {
+  "id": "scroll_cure_wounds",
+  "kind": "consumable",
+  "name": {
+   "en": "Spell Scroll: Cure Wounds",
+   "ja": "キュア・ウーンズの巻物"
+  },
+  "description": {
+   "en": "Read it to cast Cure Wounds (level 1). Crumbles after use.",
+   "ja": "読むとキュア・ウーンズ(レベル 1)を唱える。使うと消える。"
+  },
+  "rarity": "common",
+  "price": 50,
+  "stack": 5,
+  "use_spell": "cure_wounds",
+  "use_slot": 1
+ },
+ {
+  "id": "scroll_fear",
+  "kind": "consumable",
+  "name": {
+   "en": "Spell Scroll: Fear",
+   "ja": "フィアーの巻物"
+  },
+  "description": {
+   "en": "Read it to cast Fear (level 3). Crumbles after use.",
+   "ja": "読むとフィアー(レベル 3)を唱える。使うと消える。"
+  },
+  "rarity": "uncommon",
+  "price": 300,
+  "stack": 5,
+  "use_spell": "fear",
+  "use_slot": 3
+ },
+ {
+  "id": "scroll_fireball",
+  "kind": "consumable",
+  "name": {
+   "en": "Spell Scroll: Fireball",
+   "ja": "ファイアーボールの巻物"
+  },
+  "description": {
+   "en": "Read it to cast Fireball (level 3). Crumbles after use.",
+   "ja": "読むとファイアーボール(レベル 3)を唱える。使うと消える。"
+  },
+  "rarity": "uncommon",
+  "price": 300,
+  "stack": 5,
+  "use_spell": "fireball",
+  "use_slot": 3
+ },
+ {
+  "id": "scroll_flame_strike",
+  "kind": "consumable",
+  "name": {
+   "en": "Spell Scroll: Flame Strike",
+   "ja": "フレイム・ストライクの巻物"
+  },
+  "description": {
+   "en": "Read it to cast Flame Strike (level 5). Crumbles after use.",
+   "ja": "読むとフレイム・ストライク(レベル 5)を唱える。使うと消える。"
+  },
+  "rarity": "rare",
+  "price": 1500,
+  "stack": 5,
+  "use_spell": "flame_strike",
+  "use_slot": 5
+ },
+ {
+  "id": "scroll_greater_restoration",
+  "kind": "consumable",
+  "name": {
+   "en": "Spell Scroll: Greater Restoration",
+   "ja": "グレーター・レストレーションの巻物"
+  },
+  "description": {
+   "en": "Read it to cast Greater Restoration (level 5). Crumbles after use.",
+   "ja": "読むとグレーター・レストレーション(レベル 5)を唱える。使うと消える。"
+  },
+  "rarity": "rare",
+  "price": 1500,
+  "stack": 5,
+  "use_spell": "greater_restoration",
+  "use_slot": 5
+ },
+ {
+  "id": "scroll_hold_person",
+  "kind": "consumable",
+  "name": {
+   "en": "Spell Scroll: Hold Person",
+   "ja": "ホールド・パーソンの巻物"
+  },
+  "description": {
+   "en": "Read it to cast Hold Person (level 2). Crumbles after use.",
+   "ja": "読むとホールド・パーソン(レベル 2)を唱える。使うと消える。"
+  },
+  "rarity": "uncommon",
+  "price": 150,
+  "stack": 5,
+  "use_spell": "hold_person",
+  "use_slot": 2
+ },
+ {
+  "id": "scroll_ice_storm",
+  "kind": "consumable",
+  "name": {
+   "en": "Spell Scroll: Ice Storm",
+   "ja": "アイス・ストームの巻物"
+  },
+  "description": {
+   "en": "Read it to cast Ice Storm (level 4). Crumbles after use.",
+   "ja": "読むとアイス・ストーム(レベル 4)を唱える。使うと消える。"
+  },
+  "rarity": "rare",
+  "price": 800,
+  "stack": 5,
+  "use_spell": "ice_storm",
+  "use_slot": 4
+ },
+ {
+  "id": "scroll_lesser_restoration",
+  "kind": "consumable",
+  "name": {
+   "en": "Spell Scroll: Lesser Restoration",
+   "ja": "レッサー・レストレーションの巻物"
+  },
+  "description": {
+   "en": "Read it to cast Lesser Restoration (level 2). Crumbles after use.",
+   "ja": "読むとレッサー・レストレーション(レベル 2)を唱える。使うと消える。"
+  },
+  "rarity": "uncommon",
+  "price": 150,
+  "stack": 5,
+  "use_spell": "lesser_restoration",
+  "use_slot": 2
+ },
+ {
+  "id": "scroll_lightning_bolt",
+  "kind": "consumable",
+  "name": {
+   "en": "Spell Scroll: Lightning Bolt",
+   "ja": "ライトニング・ボルトの巻物"
+  },
+  "description": {
+   "en": "Read it to cast Lightning Bolt (level 3). Crumbles after use.",
+   "ja": "読むとライトニング・ボルト(レベル 3)を唱える。使うと消える。"
+  },
+  "rarity": "uncommon",
+  "price": 300,
+  "stack": 5,
+  "use_spell": "lightning_bolt",
+  "use_slot": 3
+ },
+ {
+  "id": "scroll_magic_missile",
+  "kind": "consumable",
+  "name": {
+   "en": "Spell Scroll: Magic Missile",
+   "ja": "マジック・ミサイルの巻物"
+  },
+  "description": {
+   "en": "Read it to cast Magic Missile (level 1). Crumbles after use.",
+   "ja": "読むとマジック・ミサイル(レベル 1)を唱える。使うと消える。"
+  },
+  "rarity": "common",
+  "price": 50,
+  "stack": 5,
+  "use_spell": "magic_missile",
+  "use_slot": 1
+ },
+ {
+  "id": "scroll_mass_cure_wounds",
+  "kind": "consumable",
+  "name": {
+   "en": "Spell Scroll: Mass Cure Wounds",
+   "ja": "マス・キュア・ウーンズの巻物"
+  },
+  "description": {
+   "en": "Read it to cast Mass Cure Wounds (level 5). Crumbles after use.",
+   "ja": "読むとマス・キュア・ウーンズ(レベル 5)を唱える。使うと消える。"
+  },
+  "rarity": "rare",
+  "price": 1500,
+  "stack": 5,
+  "use_spell": "mass_cure_wounds",
+  "use_slot": 5
+ },
+ {
+  "id": "scroll_mass_healing_word",
+  "kind": "consumable",
+  "name": {
+   "en": "Spell Scroll: Mass Healing Word",
+   "ja": "マス・ヒーリング・ワードの巻物"
+  },
+  "description": {
+   "en": "Read it to cast Mass Healing Word (level 3). Crumbles after use.",
+   "ja": "読むとマス・ヒーリング・ワード(レベル 3)を唱える。使うと消える。"
+  },
+  "rarity": "uncommon",
+  "price": 300,
+  "stack": 5,
+  "use_spell": "mass_healing_word",
+  "use_slot": 3
+ },
+ {
+  "id": "scroll_scorching_ray",
+  "kind": "consumable",
+  "name": {
+   "en": "Spell Scroll: Scorching Ray",
+   "ja": "スコーチング・レイの巻物"
+  },
+  "description": {
+   "en": "Read it to cast Scorching Ray (level 2). Crumbles after use.",
+   "ja": "読むとスコーチング・レイ(レベル 2)を唱える。使うと消える。"
+  },
+  "rarity": "uncommon",
+  "price": 150,
+  "stack": 5,
+  "use_spell": "scorching_ray",
+  "use_slot": 2
+ },
+ {
+  "id": "scroll_shield_of_faith",
+  "kind": "consumable",
+  "name": {
+   "en": "Spell Scroll: Shield of Faith",
+   "ja": "シールド・オヴ・フェイスの巻物"
+  },
+  "description": {
+   "en": "Read it to cast Shield of Faith (level 1). Crumbles after use.",
+   "ja": "読むとシールド・オヴ・フェイス(レベル 1)を唱える。使うと消える。"
+  },
+  "rarity": "common",
+  "price": 50,
+  "stack": 5,
+  "use_spell": "shield_of_faith",
+  "use_slot": 1
+ },
+ {
+  "id": "scroll_sleep",
+  "kind": "consumable",
+  "name": {
+   "en": "Spell Scroll: Sleep",
+   "ja": "スリープの巻物"
+  },
+  "description": {
+   "en": "Read it to cast Sleep (level 1). Crumbles after use.",
+   "ja": "読むとスリープ(レベル 1)を唱える。使うと消える。"
+  },
+  "rarity": "common",
+  "price": 50,
+  "stack": 5,
+  "use_spell": "sleep",
+  "use_slot": 1
+ },
+ {
+  "id": "scroll_web",
+  "kind": "consumable",
+  "name": {
+   "en": "Spell Scroll: Web",
+   "ja": "ウェブの巻物"
+  },
+  "description": {
+   "en": "Read it to cast Web (level 2). Crumbles after use.",
+   "ja": "読むとウェブ(レベル 2)を唱える。使うと消える。"
+  },
+  "rarity": "uncommon",
+  "price": 150,
+  "stack": 5,
+  "use_spell": "web",
+  "use_slot": 2
+ },
+ {
+  "id": "ancient_dragon_scale",
+  "kind": "gear",
+  "name": {
+   "en": "Ancient Dragon Scale",
+   "ja": "古竜の鱗"
+  },
+  "stack": 10,
+  "price": 1000,
+  "description": {
+   "en": "A scale shed by a mighty dragon. Needed to raise the castle hall.",
+   "ja": "強い竜の鱗。城館を建てるのに要る。"
+  }
+ },
+ {
+  "id": "consecrated_bell",
+  "kind": "gear",
+  "name": {
+   "en": "Consecrated Bell",
+   "ja": "聖別された鐘"
+  },
+  "stack": 10,
+  "price": 500,
+  "description": {
+   "en": "A small bell that once warded a crypt. Undead sometimes carry it. Needed for the keep's chapel.",
+   "ja": "かつて墓所を守った小さな鐘。アンデッドが持っていることがある。砦の礼拝堂に要る。"
+  }
+ },
+ {
+  "id": "obsidian_cornerstone",
+  "kind": "gear",
+  "name": {
+   "en": "Obsidian Cornerstone",
+   "ja": "黒曜の礎石"
+  },
+  "stack": 10,
+  "price": 200,
+  "description": {
+   "en": "A black foundation stone from the deep tombs. Needed to rebuild the clan house as a stone manor.",
+   "ja": "深い墓所の黒い礎石。クランハウスを石造りの館に建て直すのに要る。"
+  }
+ },
+ {
+  "id": "thieves_tools",
+  "kind": "gear",
+  "name": {
+   "en": "Thieves' Tools",
+   "ja": "盗賊道具"
+  },
+  "price": 25,
+  "description": {
+   "en": "Used to disarm chest traps. Proficient characters add their proficiency bonus.",
+   "ja": "宝箱の罠を外すときに使う。習熟があれば判定に足せる。"
+  }
+ },
+ {
+  "id": "gem_of_brightness",
+  "kind": "gear",
+  "name": {
+   "en": "Gem of Brightness",
+   "ja": "ジェム・オヴ・ブライトネス"
+  },
+  "description": {
+   "en": "Flashes at one enemy (10 charges): save or be blinded.",
+   "ja": "敵 1 体に光を放つ(10 回)。耐久力のセーヴ(DC 15)に失敗すると 1 分のあいだ盲目状態。"
+  },
+  "rarity": "uncommon",
+  "price": 300,
+  "charges": 10,
+  "use_target": "enemy",
+  "use": [
+   {
+    "type": "save",
+    "ability": "con",
+    "dc": 15,
+    "fail": [
+     {
+      "type": "condition",
+      "condition": "blinded",
+      "repeat_save": true,
+      "rounds": 10
+     }
+    ]
+   }
+  ],
+  "note": "SRD の 50 チャージを 10 回に。明かりと円錐の光は省いた。"
+ },
+ {
+  "id": "horn_of_blasting",
+  "kind": "gear",
+  "name": {
+   "en": "Horn of Blasting",
+   "ja": "ホーン・オヴ・ブラスティング"
+  },
+  "description": {
+   "en": "Blow it once per rest: enemies save or take 5d6 thunder damage and are deafened.",
+   "ja": "吹くと(1 回)敵の一群は耐久力のセーヴ(DC 15)をし、失敗すると 5d6 の雷鳴のダメージ(成功で半分)と聴覚喪失。"
+  },
+  "rarity": "rare",
+  "price": 1500,
+  "charges": 1,
+  "use_target": "group",
+  "use": [
+   {
+    "type": "save",
+    "ability": "con",
+    "dc": 15,
+    "fail": [
+     {
+      "type": "damage",
+      "dice": "5d6",
+      "damage_type": "thunder"
+     },
+     {
+      "type": "condition",
+      "condition": "deafened",
+      "rounds": 10
+     }
+    ],
+    "half": true
+   }
+  ],
+  "note": "SRD の「使うたびに 20% で爆発する」は省いた。"
+ },
+ {
+  "id": "iron_bands_of_binding",
+  "kind": "gear",
+  "name": {
+   "en": "Iron Bands of Binding",
+   "ja": "アイアン・バンズ・オヴ・バインディング"
+  },
+  "description": {
+   "en": "Throw once per rest at one enemy: save or be bound (escape DC 20).",
+   "ja": "敵 1 体に投げる(1 回)。敏捷力のセーヴ(DC 15)に失敗すると縛られて拘束状態(抜ける難易度 20)。"
+  },
+  "rarity": "rare",
+  "price": 1500,
+  "charges": 1,
+  "use_target": "enemy",
+  "use": [
+   {
+    "type": "save",
+    "ability": "dex",
+    "dc": 15,
+    "fail": [
+     {
+      "type": "condition",
+      "condition": "restrained",
+      "escape_dc": 20
+     }
+    ]
+   }
+  ],
+  "note": "SRD の攻撃ロールをセーヴに置き換えた。"
+ },
+ {
+  "id": "pipes_of_haunting",
+  "kind": "gear",
+  "name": {
+   "en": "Pipes of Haunting",
+   "ja": "パイプス・オヴ・ホーンティング"
+  },
+  "description": {
+   "en": "Play them (3 charges): enemies save or are frightened.",
+   "ja": "吹く(3 回)と敵の一群は知恵のセーヴ(DC 15)に失敗すると 1 分のあいだ恐怖状態。"
+  },
+  "rarity": "uncommon",
+  "price": 300,
+  "charges": 3,
+  "use_target": "group",
+  "use": [
+   {
+    "type": "save",
+    "ability": "wis",
+    "dc": 15,
+    "fail": [
+     {
+      "type": "condition",
+      "condition": "frightened",
+      "repeat_save": true,
+      "rounds": 10
+     }
+    ]
+   }
+  ]
+ },
+ {
+  "id": "rope_of_entanglement",
+  "kind": "gear",
+  "name": {
+   "en": "Rope of Entanglement",
+   "ja": "ロープ・オヴ・エンタングルメント"
+  },
+  "description": {
+   "en": "Hurls itself at one enemy (5 charges): save or be restrained.",
+   "ja": "敵 1 体に飛びつく(5 回)。敏捷力のセーヴ(DC 15)に失敗すると拘束状態。"
+  },
+  "rarity": "rare",
+  "price": 1500,
+  "charges": 5,
+  "use_target": "enemy",
+  "use": [
+   {
+    "type": "save",
+    "ability": "dex",
+    "dc": 15,
+    "fail": [
+     {
+      "type": "condition",
+      "condition": "restrained",
+      "escape_dc": 15,
+      "rounds": 10
+     }
+    ]
+   }
+  ],
+  "note": "SRD では何度でも使える。5 回に。"
+ },
+ {
+  "id": "wand_of_binding",
+  "kind": "gear",
+  "name": {
+   "en": "Wand of Binding",
+   "ja": "ワンド・オヴ・バインディング"
+  },
+  "description": {
+   "en": "Casts Hold Monster (3 charges).",
+   "ja": "ホールド・モンスターを唱えられる(3 回)。"
+  },
+  "rarity": "rare",
+  "price": 1500,
+  "attunement": true,
+  "only": "caster",
+  "charges": 3,
+  "use_spell": "hold_monster",
+  "use_slot": 5,
+  "note": "SRD の 7 チャージ(ホールド・モンスターは 5 チャージ)を 3 回に。ホールド・パーソンと「拘束から抜ける」は省いた。"
+ },
+ {
+  "id": "wand_of_fear",
+  "kind": "gear",
+  "name": {
+   "en": "Wand of Fear",
+   "ja": "ワンド・オヴ・フィアー"
+  },
+  "description": {
+   "en": "Casts Fear (3 charges).",
+   "ja": "フィアーを唱えられる(3 回)。"
+  },
+  "rarity": "rare",
+  "price": 1500,
+  "attunement": true,
+  "charges": 3,
+  "use_spell": "fear",
+  "use_slot": 3,
+  "note": "SRD の 7 チャージ(フィアーは 3 チャージ)を 3 回に。コマンドは省いた。"
+ },
+ {
+  "id": "wand_of_fireballs",
+  "kind": "gear",
+  "name": {
+   "en": "Wand of Fireballs",
+   "ja": "ワンド・オヴ・ファイアーボールズ"
+  },
+  "description": {
+   "en": "Casts Fireball (7 charges).",
+   "ja": "ファイアーボールを唱えられる(7 回)。"
+  },
+  "rarity": "rare",
+  "price": 1500,
+  "attunement": true,
+  "only": "caster",
+  "charges": 7,
+  "use_spell": "fireball",
+  "use_slot": 3
+ },
+ {
+  "id": "wand_of_lightning_bolts",
+  "kind": "gear",
+  "name": {
+   "en": "Wand of Lightning Bolts",
+   "ja": "ワンド・オヴ・ライトニング・ボルツ"
+  },
+  "description": {
+   "en": "Casts Lightning Bolt (7 charges).",
+   "ja": "ライトニング・ボルトを唱えられる(7 回)。"
+  },
+  "rarity": "rare",
+  "price": 1500,
+  "attunement": true,
+  "only": "caster",
+  "charges": 7,
+  "use_spell": "lightning_bolt",
+  "use_slot": 3
+ },
+ {
+  "id": "wand_of_magic_missiles",
+  "kind": "gear",
+  "name": {
+   "en": "Wand of Magic Missiles",
+   "ja": "ワンド・オヴ・マジック・ミサイルズ"
+  },
+  "description": {
+   "en": "Casts Magic Missile (7 charges).",
+   "ja": "マジック・ミサイルを唱えられる(7 回)。"
+  },
+  "rarity": "uncommon",
+  "price": 300,
+  "charges": 7,
+  "use_spell": "magic_missile",
+  "use_slot": 1
+ },
+ {
+  "id": "wand_of_paralysis",
+  "kind": "gear",
+  "name": {
+   "en": "Wand of Paralysis",
+   "ja": "ワンド・オヴ・パラリシス"
+  },
+  "description": {
+   "en": "A blue ray paralyzes one enemy (7 charges) unless it saves.",
+   "ja": "青い光線で敵 1 体を麻痺させる(7 回)。耐久力のセーヴ(DC 15)に失敗すると 1 分のあいだ麻痺状態。"
+  },
+  "rarity": "rare",
+  "price": 1500,
+  "attunement": true,
+  "only": "caster",
+  "charges": 7,
+  "use_target": "enemy",
+  "use": [
+   {
+    "type": "save",
+    "ability": "con",
+    "dc": 15,
+    "fail": [
+     {
+      "type": "condition",
+      "condition": "paralyzed",
+      "repeat_save": true,
+      "rounds": 10
+     }
+    ]
+   }
+  ]
+ },
+ {
+  "id": "wand_of_web",
+  "kind": "gear",
+  "name": {
+   "en": "Wand of Web",
+   "ja": "ワンド・オヴ・ウェブ"
+  },
+  "description": {
+   "en": "Casts Web (7 charges).",
+   "ja": "ウェブを唱えられる(7 回)。"
+  },
+  "rarity": "uncommon",
+  "price": 300,
+  "attunement": true,
+  "only": "caster",
+  "charges": 7,
+  "use_spell": "web",
+  "use_slot": 2
+ },
+ {
+  "id": "masters_lantern",
+  "kind": "key",
+  "name": {
+   "en": "Warden's Lantern",
+   "ja": "墓守の角灯"
+  },
+  "price": 0,
+  "description": {
+   "en": "The lantern of the last warden. Its cold blue flame still burns. It opens the sealing doors.",
+   "ja": "最後の墓守の角灯。青白い火が、まだ消えずに灯っている。封じの扉を開く。"
+  }
+ },
+ {
+  "id": "sigil_moon",
+  "kind": "key",
+  "buyback": 100,
+  "name": {
+   "en": "Moon Sigil",
+   "ja": "月の紋章"
+  },
+  "price": 20,
+  "description": {
+   "en": "A cold silver crescent. One of three sigils that open the sealed vault.",
+   "ja": "冷たい銀色の三日月。封印の扉を開く三つの紋章の一つ。"
+  }
+ },
+ {
+  "id": "sigil_star",
+  "kind": "key",
+  "buyback": 100,
+  "name": {
+   "en": "Star Sigil",
+   "ja": "星の紋章"
+  },
+  "price": 20,
+  "description": {
+   "en": "A faintly glowing star of dark glass. One of three sigils that open the sealed vault.",
+   "ja": "かすかに光る黒いガラスの星。封印の扉を開く三つの紋章の一つ。"
+  }
+ },
+ {
+  "id": "sigil_sun",
+  "kind": "key",
+  "buyback": 100,
+  "name": {
+   "en": "Sun Sigil",
+   "ja": "太陽の紋章"
+  },
+  "price": 20,
+  "description": {
+   "en": "A warm golden disc. One of three sigils that open the sealed vault.",
+   "ja": "温かい金色の円盤。封印の扉を開く三つの紋章の一つ。"
+  }
+ },
+ {
+  "id": "iron_arrows",
+  "kind": "ammo",
+  "ammo_type": "arrow",
+  "name": {
+   "en": "Iron-Tipped Arrows",
+   "ja": "鉄の矢じりの矢"
+  },
+  "price": 1,
+  "rarity": "mundane",
+  "stack": 9999,
+  "bundle": 20,
+  "description": {
+   "en": "Heavy iron heads. +1 damage.",
+   "ja": "重い鉄の矢じり。ダメージ +1。"
+  },
+  "ammo_damage": 1
+ },
+ {
+  "id": "iron_bolts",
+  "kind": "ammo",
+  "ammo_type": "bolt",
+  "name": {
+   "en": "Iron-Tipped Bolts",
+   "ja": "鉄の矢じりのボルト"
+  },
+  "price": 1,
+  "rarity": "mundane",
+  "stack": 9999,
+  "bundle": 20,
+  "description": {
+   "en": "Heavy iron heads. +1 damage.",
+   "ja": "重い鉄の矢じり。ダメージ +1。"
+  },
+  "ammo_damage": 1
+ },
+ {
+  "id": "mithral_arrows",
+  "kind": "ammo",
+  "ammo_type": "arrow",
+  "name": {
+   "en": "Mithral-Tipped Arrows",
+   "ja": "ミスリルの矢じりの矢"
+  },
+  "price": 10,
+  "rarity": "mundane",
+  "stack": 9999,
+  "bundle": 20,
+  "description": {
+   "en": "Light, keen mithral heads. +1 to hit, +2 damage.",
+   "ja": "軽く鋭いミスリルの矢じり。命中 +1、ダメージ +2。"
+  },
+  "ammo_hit": 1,
+  "ammo_damage": 2
+ },
+ {
+  "id": "mithral_bolts",
+  "kind": "ammo",
+  "ammo_type": "bolt",
+  "name": {
+   "en": "Mithral-Tipped Bolts",
+   "ja": "ミスリルの矢じりのボルト"
+  },
+  "price": 10,
+  "rarity": "mundane",
+  "stack": 9999,
+  "bundle": 20,
+  "description": {
+   "en": "Light, keen mithral heads. +1 to hit, +2 damage.",
+   "ja": "軽く鋭いミスリルの矢じり。命中 +1、ダメージ +2。"
+  },
+  "ammo_hit": 1,
+  "ammo_damage": 2
+ },
+ {
+  "id": "arrows_plus1",
+  "kind": "ammo",
+  "ammo_type": "arrow",
+  "name": {
+   "en": "Arrows +1",
+   "ja": "+1 の矢"
+  },
+  "price": 25,
+  "rarity": "uncommon",
+  "stack": 9999,
+  "bundle": 10,
+  "description": {
+   "en": "Magic ammunition. +1 to hit and damage.",
+   "ja": "魔法の弾。命中とダメージ +1。"
+  },
+  "bonus": 1
+ },
+ {
+  "id": "arrows_plus2",
+  "kind": "ammo",
+  "ammo_type": "arrow",
+  "name": {
+   "en": "Arrows +2",
+   "ja": "+2 の矢"
+  },
+  "price": 100,
+  "rarity": "rare",
+  "stack": 9999,
+  "bundle": 10,
+  "description": {
+   "en": "Magic ammunition. +2 to hit and damage.",
+   "ja": "魔法の弾。命中とダメージ +2。"
+  },
+  "bonus": 2
+ },
+ {
+  "id": "arrows_plus3",
+  "kind": "ammo",
+  "ammo_type": "arrow",
+  "name": {
+   "en": "Arrows +3",
+   "ja": "+3 の矢"
+  },
+  "price": 400,
+  "rarity": "very_rare",
+  "stack": 9999,
+  "bundle": 10,
+  "description": {
+   "en": "Magic ammunition. +3 to hit and damage.",
+   "ja": "魔法の弾。命中とダメージ +3。"
+  },
+  "bonus": 3
+ },
+ {
+  "id": "bolts_plus1",
+  "kind": "ammo",
+  "ammo_type": "bolt",
+  "name": {
+   "en": "Bolts +1",
+   "ja": "+1 のボルト"
+  },
+  "price": 25,
+  "rarity": "uncommon",
+  "stack": 9999,
+  "bundle": 10,
+  "description": {
+   "en": "Magic ammunition. +1 to hit and damage.",
+   "ja": "魔法の弾。命中とダメージ +1。"
+  },
+  "bonus": 1
+ },
+ {
+  "id": "bolts_plus2",
+  "kind": "ammo",
+  "ammo_type": "bolt",
+  "name": {
+   "en": "Bolts +2",
+   "ja": "+2 のボルト"
+  },
+  "price": 100,
+  "rarity": "rare",
+  "stack": 9999,
+  "bundle": 10,
+  "description": {
+   "en": "Magic ammunition. +2 to hit and damage.",
+   "ja": "魔法の弾。命中とダメージ +2。"
+  },
+  "bonus": 2
+ },
+ {
+  "id": "bolts_plus3",
+  "kind": "ammo",
+  "ammo_type": "bolt",
+  "name": {
+   "en": "Bolts +3",
+   "ja": "+3 のボルト"
+  },
+  "price": 400,
+  "rarity": "very_rare",
+  "stack": 9999,
+  "bundle": 10,
+  "description": {
+   "en": "Magic ammunition. +3 to hit and damage.",
+   "ja": "魔法の弾。命中とダメージ +3。"
+  },
+  "bonus": 3
+ }
+]

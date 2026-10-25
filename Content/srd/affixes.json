@@ -1,0 +1,1718 @@
+[
+ {
+  "id": "elemental_fire",
+  "name": {
+   "en": "Flaming",
+   "ja": "燃える"
+  },
+  "position": "prefix",
+  "kinds": [
+   "weapon"
+  ],
+  "weight": 8,
+  "tiers": [
+   {
+    "min_level": 1,
+    "on_hit": [
+     {
+      "type": "damage",
+      "dice": "1d4",
+      "damage_type": "fire"
+     }
+    ],
+    "price": 400
+   },
+   {
+    "min_level": 6,
+    "on_hit": [
+     {
+      "type": "damage",
+      "dice": "1d6",
+      "damage_type": "fire"
+     }
+    ],
+    "price": 2000
+   },
+   {
+    "min_level": 11,
+    "on_hit": [
+     {
+      "type": "damage",
+      "dice": "2d6",
+      "damage_type": "fire"
+     }
+    ],
+    "price": 8000
+   },
+   {
+    "min_level": 16,
+    "on_hit": [
+     {
+      "type": "damage",
+      "dice": "3d6",
+      "damage_type": "fire"
+     }
+    ],
+    "price": 30000
+   }
+  ],
+  "group": "element"
+ },
+ {
+  "id": "elemental_cold",
+  "name": {
+   "en": "Freezing",
+   "ja": "凍てつく"
+  },
+  "position": "prefix",
+  "kinds": [
+   "weapon"
+  ],
+  "weight": 8,
+  "tiers": [
+   {
+    "min_level": 1,
+    "on_hit": [
+     {
+      "type": "damage",
+      "dice": "1d4",
+      "damage_type": "cold"
+     }
+    ],
+    "price": 400
+   },
+   {
+    "min_level": 6,
+    "on_hit": [
+     {
+      "type": "damage",
+      "dice": "1d6",
+      "damage_type": "cold"
+     }
+    ],
+    "price": 2000
+   },
+   {
+    "min_level": 11,
+    "on_hit": [
+     {
+      "type": "damage",
+      "dice": "2d6",
+      "damage_type": "cold"
+     }
+    ],
+    "price": 8000
+   },
+   {
+    "min_level": 16,
+    "on_hit": [
+     {
+      "type": "damage",
+      "dice": "3d6",
+      "damage_type": "cold"
+     }
+    ],
+    "price": 30000
+   }
+  ],
+  "group": "element"
+ },
+ {
+  "id": "elemental_lightning",
+  "name": {
+   "en": "Shocking",
+   "ja": "雷の"
+  },
+  "position": "prefix",
+  "kinds": [
+   "weapon"
+  ],
+  "weight": 8,
+  "tiers": [
+   {
+    "min_level": 1,
+    "on_hit": [
+     {
+      "type": "damage",
+      "dice": "1d4",
+      "damage_type": "lightning"
+     }
+    ],
+    "price": 400
+   },
+   {
+    "min_level": 6,
+    "on_hit": [
+     {
+      "type": "damage",
+      "dice": "1d6",
+      "damage_type": "lightning"
+     }
+    ],
+    "price": 2000
+   },
+   {
+    "min_level": 11,
+    "on_hit": [
+     {
+      "type": "damage",
+      "dice": "2d6",
+      "damage_type": "lightning"
+     }
+    ],
+    "price": 8000
+   },
+   {
+    "min_level": 16,
+    "on_hit": [
+     {
+      "type": "damage",
+      "dice": "3d6",
+      "damage_type": "lightning"
+     }
+    ],
+    "price": 30000
+   }
+  ],
+  "group": "element"
+ },
+ {
+  "id": "elemental_acid",
+  "name": {
+   "en": "Corrosive",
+   "ja": "溶かす"
+  },
+  "position": "prefix",
+  "kinds": [
+   "weapon"
+  ],
+  "weight": 8,
+  "tiers": [
+   {
+    "min_level": 1,
+    "on_hit": [
+     {
+      "type": "damage",
+      "dice": "1d4",
+      "damage_type": "acid"
+     }
+    ],
+    "price": 400
+   },
+   {
+    "min_level": 6,
+    "on_hit": [
+     {
+      "type": "damage",
+      "dice": "1d6",
+      "damage_type": "acid"
+     }
+    ],
+    "price": 2000
+   },
+   {
+    "min_level": 11,
+    "on_hit": [
+     {
+      "type": "damage",
+      "dice": "2d6",
+      "damage_type": "acid"
+     }
+    ],
+    "price": 8000
+   },
+   {
+    "min_level": 16,
+    "on_hit": [
+     {
+      "type": "damage",
+      "dice": "3d6",
+      "damage_type": "acid"
+     }
+    ],
+    "price": 30000
+   }
+  ],
+  "group": "element"
+ },
+ {
+  "id": "elemental_poison",
+  "name": {
+   "en": "Venomous",
+   "ja": "毒の"
+  },
+  "position": "prefix",
+  "kinds": [
+   "weapon"
+  ],
+  "weight": 8,
+  "tiers": [
+   {
+    "min_level": 1,
+    "on_hit": [
+     {
+      "type": "damage",
+      "dice": "1d4",
+      "damage_type": "poison"
+     }
+    ],
+    "price": 400
+   },
+   {
+    "min_level": 6,
+    "on_hit": [
+     {
+      "type": "damage",
+      "dice": "1d6",
+      "damage_type": "poison"
+     }
+    ],
+    "price": 2000
+   },
+   {
+    "min_level": 11,
+    "on_hit": [
+     {
+      "type": "damage",
+      "dice": "2d6",
+      "damage_type": "poison"
+     }
+    ],
+    "price": 8000
+   },
+   {
+    "min_level": 16,
+    "on_hit": [
+     {
+      "type": "damage",
+      "dice": "3d6",
+      "damage_type": "poison"
+     }
+    ],
+    "price": 30000
+   }
+  ],
+  "group": "element"
+ },
+ {
+  "id": "elemental_thunder",
+  "name": {
+   "en": "Thundering",
+   "ja": "轟く"
+  },
+  "position": "prefix",
+  "kinds": [
+   "weapon"
+  ],
+  "weight": 8,
+  "tiers": [
+   {
+    "min_level": 1,
+    "on_hit": [
+     {
+      "type": "damage",
+      "dice": "1d4",
+      "damage_type": "thunder"
+     }
+    ],
+    "price": 400
+   },
+   {
+    "min_level": 6,
+    "on_hit": [
+     {
+      "type": "damage",
+      "dice": "1d6",
+      "damage_type": "thunder"
+     }
+    ],
+    "price": 2000
+   },
+   {
+    "min_level": 11,
+    "on_hit": [
+     {
+      "type": "damage",
+      "dice": "2d6",
+      "damage_type": "thunder"
+     }
+    ],
+    "price": 8000
+   },
+   {
+    "min_level": 16,
+    "on_hit": [
+     {
+      "type": "damage",
+      "dice": "3d6",
+      "damage_type": "thunder"
+     }
+    ],
+    "price": 30000
+   }
+  ],
+  "group": "element"
+ },
+ {
+  "id": "elemental_necrotic",
+  "name": {
+   "en": "Vile",
+   "ja": "呪われし"
+  },
+  "position": "prefix",
+  "kinds": [
+   "weapon"
+  ],
+  "weight": 8,
+  "tiers": [
+   {
+    "min_level": 1,
+    "on_hit": [
+     {
+      "type": "damage",
+      "dice": "1d4",
+      "damage_type": "necrotic"
+     }
+    ],
+    "price": 400
+   },
+   {
+    "min_level": 6,
+    "on_hit": [
+     {
+      "type": "damage",
+      "dice": "1d6",
+      "damage_type": "necrotic"
+     }
+    ],
+    "price": 2000
+   },
+   {
+    "min_level": 11,
+    "on_hit": [
+     {
+      "type": "damage",
+      "dice": "2d6",
+      "damage_type": "necrotic"
+     }
+    ],
+    "price": 8000
+   },
+   {
+    "min_level": 16,
+    "on_hit": [
+     {
+      "type": "damage",
+      "dice": "3d6",
+      "damage_type": "necrotic"
+     }
+    ],
+    "price": 30000
+   }
+  ],
+  "group": "element"
+ },
+ {
+  "id": "elemental_radiant",
+  "name": {
+   "en": "Holy",
+   "ja": "聖なる"
+  },
+  "position": "prefix",
+  "kinds": [
+   "weapon"
+  ],
+  "weight": 8,
+  "tiers": [
+   {
+    "min_level": 1,
+    "on_hit": [
+     {
+      "type": "damage",
+      "dice": "1d4",
+      "damage_type": "radiant"
+     }
+    ],
+    "price": 400
+   },
+   {
+    "min_level": 6,
+    "on_hit": [
+     {
+      "type": "damage",
+      "dice": "1d6",
+      "damage_type": "radiant"
+     }
+    ],
+    "price": 2000
+   },
+   {
+    "min_level": 11,
+    "on_hit": [
+     {
+      "type": "damage",
+      "dice": "2d6",
+      "damage_type": "radiant"
+     }
+    ],
+    "price": 8000
+   },
+   {
+    "min_level": 16,
+    "on_hit": [
+     {
+      "type": "damage",
+      "dice": "3d6",
+      "damage_type": "radiant"
+     }
+    ],
+    "price": 30000
+   }
+  ],
+  "group": "element"
+ },
+ {
+  "id": "bane_undead",
+  "name": {
+   "en": "of Undead Bane",
+   "ja": "死者祓いの"
+  },
+  "position": "suffix",
+  "kinds": [
+   "weapon"
+  ],
+  "weight": 6,
+  "tiers": [
+   {
+    "min_level": 1,
+    "on_hit": [
+     {
+      "type": "damage",
+      "dice": "1d6",
+      "damage_type": "force",
+      "only": "undead"
+     }
+    ],
+    "price": 300
+   },
+   {
+    "min_level": 6,
+    "on_hit": [
+     {
+      "type": "damage",
+      "dice": "2d6",
+      "damage_type": "force",
+      "only": "undead"
+     }
+    ],
+    "price": 1500
+   },
+   {
+    "min_level": 11,
+    "on_hit": [
+     {
+      "type": "damage",
+      "dice": "3d6",
+      "damage_type": "force",
+      "only": "undead"
+     }
+    ],
+    "price": 6000
+   },
+   {
+    "min_level": 16,
+    "on_hit": [
+     {
+      "type": "damage",
+      "dice": "4d6",
+      "damage_type": "force",
+      "only": "undead"
+     }
+    ],
+    "price": 20000
+   }
+  ],
+  "group": "bane"
+ },
+ {
+  "id": "bane_dragon",
+  "name": {
+   "en": "of Dragon Slaying",
+   "ja": "竜殺しの"
+  },
+  "position": "suffix",
+  "kinds": [
+   "weapon"
+  ],
+  "weight": 6,
+  "tiers": [
+   {
+    "min_level": 1,
+    "on_hit": [
+     {
+      "type": "damage",
+      "dice": "1d6",
+      "damage_type": "force",
+      "only": "dragon"
+     }
+    ],
+    "price": 300
+   },
+   {
+    "min_level": 6,
+    "on_hit": [
+     {
+      "type": "damage",
+      "dice": "2d6",
+      "damage_type": "force",
+      "only": "dragon"
+     }
+    ],
+    "price": 1500
+   },
+   {
+    "min_level": 11,
+    "on_hit": [
+     {
+      "type": "damage",
+      "dice": "3d6",
+      "damage_type": "force",
+      "only": "dragon"
+     }
+    ],
+    "price": 6000
+   },
+   {
+    "min_level": 16,
+    "on_hit": [
+     {
+      "type": "damage",
+      "dice": "4d6",
+      "damage_type": "force",
+      "only": "dragon"
+     }
+    ],
+    "price": 20000
+   }
+  ],
+  "group": "bane"
+ },
+ {
+  "id": "bane_fiend",
+  "name": {
+   "en": "of Fiend Bane",
+   "ja": "悪魔祓いの"
+  },
+  "position": "suffix",
+  "kinds": [
+   "weapon"
+  ],
+  "weight": 6,
+  "tiers": [
+   {
+    "min_level": 1,
+    "on_hit": [
+     {
+      "type": "damage",
+      "dice": "1d6",
+      "damage_type": "force",
+      "only": "fiend"
+     }
+    ],
+    "price": 300
+   },
+   {
+    "min_level": 6,
+    "on_hit": [
+     {
+      "type": "damage",
+      "dice": "2d6",
+      "damage_type": "force",
+      "only": "fiend"
+     }
+    ],
+    "price": 1500
+   },
+   {
+    "min_level": 11,
+    "on_hit": [
+     {
+      "type": "damage",
+      "dice": "3d6",
+      "damage_type": "force",
+      "only": "fiend"
+     }
+    ],
+    "price": 6000
+   },
+   {
+    "min_level": 16,
+    "on_hit": [
+     {
+      "type": "damage",
+      "dice": "4d6",
+      "damage_type": "force",
+      "only": "fiend"
+     }
+    ],
+    "price": 20000
+   }
+  ],
+  "group": "bane"
+ },
+ {
+  "id": "bane_giant",
+  "name": {
+   "en": "of Giant Slaying",
+   "ja": "巨人殺しの"
+  },
+  "position": "suffix",
+  "kinds": [
+   "weapon"
+  ],
+  "weight": 6,
+  "tiers": [
+   {
+    "min_level": 1,
+    "on_hit": [
+     {
+      "type": "damage",
+      "dice": "1d6",
+      "damage_type": "force",
+      "only": "giant"
+     }
+    ],
+    "price": 300
+   },
+   {
+    "min_level": 6,
+    "on_hit": [
+     {
+      "type": "damage",
+      "dice": "2d6",
+      "damage_type": "force",
+      "only": "giant"
+     }
+    ],
+    "price": 1500
+   },
+   {
+    "min_level": 11,
+    "on_hit": [
+     {
+      "type": "damage",
+      "dice": "3d6",
+      "damage_type": "force",
+      "only": "giant"
+     }
+    ],
+    "price": 6000
+   },
+   {
+    "min_level": 16,
+    "on_hit": [
+     {
+      "type": "damage",
+      "dice": "4d6",
+      "damage_type": "force",
+      "only": "giant"
+     }
+    ],
+    "price": 20000
+   }
+  ],
+  "group": "bane"
+ },
+ {
+  "id": "bane_aberration",
+  "name": {
+   "en": "of Aberration Hunting",
+   "ja": "異形狩りの"
+  },
+  "position": "suffix",
+  "kinds": [
+   "weapon"
+  ],
+  "weight": 6,
+  "tiers": [
+   {
+    "min_level": 1,
+    "on_hit": [
+     {
+      "type": "damage",
+      "dice": "1d6",
+      "damage_type": "force",
+      "only": "aberration"
+     }
+    ],
+    "price": 300
+   },
+   {
+    "min_level": 6,
+    "on_hit": [
+     {
+      "type": "damage",
+      "dice": "2d6",
+      "damage_type": "force",
+      "only": "aberration"
+     }
+    ],
+    "price": 1500
+   },
+   {
+    "min_level": 11,
+    "on_hit": [
+     {
+      "type": "damage",
+      "dice": "3d6",
+      "damage_type": "force",
+      "only": "aberration"
+     }
+    ],
+    "price": 6000
+   },
+   {
+    "min_level": 16,
+    "on_hit": [
+     {
+      "type": "damage",
+      "dice": "4d6",
+      "damage_type": "force",
+      "only": "aberration"
+     }
+    ],
+    "price": 20000
+   }
+  ],
+  "group": "bane"
+ },
+ {
+  "id": "bane_monstrosity",
+  "name": {
+   "en": "of Monster Hunting",
+   "ja": "怪物狩りの"
+  },
+  "position": "suffix",
+  "kinds": [
+   "weapon"
+  ],
+  "weight": 6,
+  "tiers": [
+   {
+    "min_level": 1,
+    "on_hit": [
+     {
+      "type": "damage",
+      "dice": "1d6",
+      "damage_type": "force",
+      "only": "monstrosity"
+     }
+    ],
+    "price": 300
+   },
+   {
+    "min_level": 6,
+    "on_hit": [
+     {
+      "type": "damage",
+      "dice": "2d6",
+      "damage_type": "force",
+      "only": "monstrosity"
+     }
+    ],
+    "price": 1500
+   },
+   {
+    "min_level": 11,
+    "on_hit": [
+     {
+      "type": "damage",
+      "dice": "3d6",
+      "damage_type": "force",
+      "only": "monstrosity"
+     }
+    ],
+    "price": 6000
+   },
+   {
+    "min_level": 16,
+    "on_hit": [
+     {
+      "type": "damage",
+      "dice": "4d6",
+      "damage_type": "force",
+      "only": "monstrosity"
+     }
+    ],
+    "price": 20000
+   }
+  ],
+  "group": "bane"
+ },
+ {
+  "id": "accurate",
+  "name": {
+   "en": "Accurate",
+   "ja": "正確な"
+  },
+  "position": "prefix",
+  "kinds": [
+   "weapon"
+  ],
+  "weight": 10,
+  "tiers": [
+   {
+    "min_level": 1,
+    "passive": [
+     {
+      "type": "modifier",
+      "stat": "attack",
+      "value": 1
+     }
+    ],
+    "price": 500
+   },
+   {
+    "min_level": 6,
+    "passive": [
+     {
+      "type": "modifier",
+      "stat": "attack",
+      "value": 1
+     }
+    ],
+    "price": 500
+   },
+   {
+    "min_level": 11,
+    "passive": [
+     {
+      "type": "modifier",
+      "stat": "attack",
+      "value": 2
+     }
+    ],
+    "price": 4000
+   },
+   {
+    "min_level": 16,
+    "passive": [
+     {
+      "type": "modifier",
+      "stat": "attack",
+      "value": 3
+     }
+    ],
+    "price": 15000
+   }
+  ],
+  "group": "accuracy"
+ },
+ {
+  "id": "brutal",
+  "name": {
+   "en": "Brutal",
+   "ja": "残忍な"
+  },
+  "position": "prefix",
+  "kinds": [
+   "weapon"
+  ],
+  "weight": 10,
+  "tiers": [
+   {
+    "min_level": 1,
+    "passive": [
+     {
+      "type": "modifier",
+      "stat": "damage",
+      "value": 1
+     }
+    ],
+    "price": 300
+   },
+   {
+    "min_level": 6,
+    "passive": [
+     {
+      "type": "modifier",
+      "stat": "damage",
+      "value": 2
+     }
+    ],
+    "price": 1500
+   },
+   {
+    "min_level": 11,
+    "passive": [
+     {
+      "type": "modifier",
+      "stat": "damage",
+      "value": 3
+     }
+    ],
+    "price": 5000
+   },
+   {
+    "min_level": 16,
+    "passive": [
+     {
+      "type": "modifier",
+      "stat": "damage",
+      "value": 5
+     }
+    ],
+    "price": 15000
+   }
+  ],
+  "group": "damage"
+ },
+ {
+  "id": "onhit_stunning",
+  "name": {
+   "en": "of Stunning",
+   "ja": "打ちのめす"
+  },
+  "position": "suffix",
+  "kinds": [
+   "weapon"
+  ],
+  "weight": 3,
+  "tiers": [
+   {
+    "min_level": 6,
+    "price": 3000,
+    "on_hit": [
+     {
+      "type": "save",
+      "ability": "con",
+      "dc": 13,
+      "fail": [
+       {
+        "type": "condition",
+        "condition": "stunned",
+        "rounds": 1
+       }
+      ]
+     }
+    ]
+   },
+   {
+    "min_level": 11,
+    "price": 10000,
+    "on_hit": [
+     {
+      "type": "save",
+      "ability": "con",
+      "dc": 15,
+      "fail": [
+       {
+        "type": "condition",
+        "condition": "stunned",
+        "rounds": 1
+       }
+      ]
+     }
+    ]
+   },
+   {
+    "min_level": 16,
+    "price": 30000,
+    "on_hit": [
+     {
+      "type": "save",
+      "ability": "con",
+      "dc": 17,
+      "fail": [
+       {
+        "type": "condition",
+        "condition": "stunned",
+        "rounds": 1
+       }
+      ]
+     }
+    ]
+   }
+  ],
+  "group": "status"
+ },
+ {
+  "id": "onhit_venom",
+  "name": {
+   "en": "of Venom",
+   "ja": "蛇毒の"
+  },
+  "position": "suffix",
+  "kinds": [
+   "weapon"
+  ],
+  "weight": 6,
+  "tiers": [
+   {
+    "min_level": 1,
+    "price": 800,
+    "on_hit": [
+     {
+      "type": "save",
+      "ability": "con",
+      "dc": 11,
+      "fail": [
+       {
+        "type": "condition",
+        "condition": "poisoned",
+        "rounds": 3
+       }
+      ]
+     }
+    ]
+   },
+   {
+    "min_level": 6,
+    "price": 3000,
+    "on_hit": [
+     {
+      "type": "save",
+      "ability": "con",
+      "dc": 13,
+      "fail": [
+       {
+        "type": "condition",
+        "condition": "poisoned",
+        "rounds": 3
+       }
+      ]
+     }
+    ]
+   },
+   {
+    "min_level": 11,
+    "price": 10000,
+    "on_hit": [
+     {
+      "type": "save",
+      "ability": "con",
+      "dc": 15,
+      "fail": [
+       {
+        "type": "condition",
+        "condition": "poisoned",
+        "rounds": 3
+       }
+      ]
+     }
+    ]
+   },
+   {
+    "min_level": 16,
+    "price": 30000,
+    "on_hit": [
+     {
+      "type": "save",
+      "ability": "con",
+      "dc": 17,
+      "fail": [
+       {
+        "type": "condition",
+        "condition": "poisoned",
+        "rounds": 3
+       }
+      ]
+     }
+    ]
+   }
+  ],
+  "group": "status"
+ },
+ {
+  "id": "onhit_terror",
+  "name": {
+   "en": "of Terror",
+   "ja": "恐怖の"
+  },
+  "position": "suffix",
+  "kinds": [
+   "weapon"
+  ],
+  "weight": 5,
+  "tiers": [
+   {
+    "min_level": 1,
+    "price": 800,
+    "on_hit": [
+     {
+      "type": "save",
+      "ability": "wis",
+      "dc": 11,
+      "fail": [
+       {
+        "type": "condition",
+        "condition": "frightened",
+        "rounds": 2
+       }
+      ]
+     }
+    ]
+   },
+   {
+    "min_level": 6,
+    "price": 3000,
+    "on_hit": [
+     {
+      "type": "save",
+      "ability": "wis",
+      "dc": 13,
+      "fail": [
+       {
+        "type": "condition",
+        "condition": "frightened",
+        "rounds": 2
+       }
+      ]
+     }
+    ]
+   },
+   {
+    "min_level": 11,
+    "price": 10000,
+    "on_hit": [
+     {
+      "type": "save",
+      "ability": "wis",
+      "dc": 15,
+      "fail": [
+       {
+        "type": "condition",
+        "condition": "frightened",
+        "rounds": 2
+       }
+      ]
+     }
+    ]
+   },
+   {
+    "min_level": 16,
+    "price": 30000,
+    "on_hit": [
+     {
+      "type": "save",
+      "ability": "wis",
+      "dc": 17,
+      "fail": [
+       {
+        "type": "condition",
+        "condition": "frightened",
+        "rounds": 2
+       }
+      ]
+     }
+    ]
+   }
+  ],
+  "group": "status"
+ },
+ {
+  "id": "onhit_binding",
+  "name": {
+   "en": "of Binding",
+   "ja": "縛めの"
+  },
+  "position": "suffix",
+  "kinds": [
+   "weapon"
+  ],
+  "weight": 4,
+  "tiers": [
+   {
+    "min_level": 6,
+    "price": 3000,
+    "on_hit": [
+     {
+      "type": "save",
+      "ability": "str",
+      "dc": 13,
+      "fail": [
+       {
+        "type": "condition",
+        "condition": "restrained",
+        "rounds": 2
+       }
+      ]
+     }
+    ]
+   },
+   {
+    "min_level": 11,
+    "price": 10000,
+    "on_hit": [
+     {
+      "type": "save",
+      "ability": "str",
+      "dc": 15,
+      "fail": [
+       {
+        "type": "condition",
+        "condition": "restrained",
+        "rounds": 2
+       }
+      ]
+     }
+    ]
+   },
+   {
+    "min_level": 16,
+    "price": 30000,
+    "on_hit": [
+     {
+      "type": "save",
+      "ability": "str",
+      "dc": 17,
+      "fail": [
+       {
+        "type": "condition",
+        "condition": "restrained",
+        "rounds": 2
+       }
+      ]
+     }
+    ]
+   }
+  ],
+  "group": "status"
+ },
+ {
+  "id": "warding",
+  "name": {
+   "en": "Warding",
+   "ja": "守りの"
+  },
+  "position": "prefix",
+  "kinds": [
+   "armor",
+   "shield"
+  ],
+  "weight": 10,
+  "tiers": [
+   {
+    "min_level": 1,
+    "passive": [
+     {
+      "type": "modifier",
+      "stat": "ac",
+      "value": 1
+     }
+    ],
+    "price": 600
+   },
+   {
+    "min_level": 6,
+    "passive": [
+     {
+      "type": "modifier",
+      "stat": "ac",
+      "value": 1
+     }
+    ],
+    "price": 600
+   },
+   {
+    "min_level": 11,
+    "passive": [
+     {
+      "type": "modifier",
+      "stat": "ac",
+      "value": 2
+     }
+    ],
+    "price": 5000
+   },
+   {
+    "min_level": 16,
+    "passive": [
+     {
+      "type": "modifier",
+      "stat": "ac",
+      "value": 3
+     }
+    ],
+    "price": 20000
+   }
+  ],
+  "group": "ac"
+ },
+ {
+  "id": "resolute",
+  "name": {
+   "en": "Resolute",
+   "ja": "不屈の"
+  },
+  "position": "prefix",
+  "kinds": [
+   "armor",
+   "shield"
+  ],
+  "weight": 10,
+  "tiers": [
+   {
+    "min_level": 1,
+    "passive": [
+     {
+      "type": "modifier",
+      "stat": "save",
+      "value": 1
+     }
+    ],
+    "price": 800
+   },
+   {
+    "min_level": 6,
+    "passive": [
+     {
+      "type": "modifier",
+      "stat": "save",
+      "value": 1
+     }
+    ],
+    "price": 800
+   },
+   {
+    "min_level": 11,
+    "passive": [
+     {
+      "type": "modifier",
+      "stat": "save",
+      "value": 2
+     }
+    ],
+    "price": 6000
+   },
+   {
+    "min_level": 16,
+    "passive": [
+     {
+      "type": "modifier",
+      "stat": "save",
+      "value": 3
+     }
+    ],
+    "price": 20000
+   }
+  ],
+  "group": "save"
+ },
+ {
+  "id": "resist_fire",
+  "name": {
+   "en": "of Fire Resistance",
+   "ja": "耐火の"
+  },
+  "position": "suffix",
+  "kinds": [
+   "armor",
+   "shield"
+  ],
+  "weight": 6,
+  "tiers": [
+   {
+    "min_level": 1,
+    "passive": [
+     {
+      "type": "resist",
+      "damage_type": "fire"
+     }
+    ],
+    "price": 2000
+   }
+  ],
+  "group": "resist"
+ },
+ {
+  "id": "resist_cold",
+  "name": {
+   "en": "of Cold Resistance",
+   "ja": "耐寒の"
+  },
+  "position": "suffix",
+  "kinds": [
+   "armor",
+   "shield"
+  ],
+  "weight": 6,
+  "tiers": [
+   {
+    "min_level": 1,
+    "passive": [
+     {
+      "type": "resist",
+      "damage_type": "cold"
+     }
+    ],
+    "price": 2000
+   }
+  ],
+  "group": "resist"
+ },
+ {
+  "id": "resist_lightning",
+  "name": {
+   "en": "of Lightning Resistance",
+   "ja": "絶縁の"
+  },
+  "position": "suffix",
+  "kinds": [
+   "armor",
+   "shield"
+  ],
+  "weight": 6,
+  "tiers": [
+   {
+    "min_level": 1,
+    "passive": [
+     {
+      "type": "resist",
+      "damage_type": "lightning"
+     }
+    ],
+    "price": 2000
+   }
+  ],
+  "group": "resist"
+ },
+ {
+  "id": "resist_acid",
+  "name": {
+   "en": "of Acid Resistance",
+   "ja": "耐酸の"
+  },
+  "position": "suffix",
+  "kinds": [
+   "armor",
+   "shield"
+  ],
+  "weight": 6,
+  "tiers": [
+   {
+    "min_level": 1,
+    "passive": [
+     {
+      "type": "resist",
+      "damage_type": "acid"
+     }
+    ],
+    "price": 2000
+   }
+  ],
+  "group": "resist"
+ },
+ {
+  "id": "resist_poison",
+  "name": {
+   "en": "of Poison Resistance",
+   "ja": "解毒の"
+  },
+  "position": "suffix",
+  "kinds": [
+   "armor",
+   "shield"
+  ],
+  "weight": 6,
+  "tiers": [
+   {
+    "min_level": 1,
+    "passive": [
+     {
+      "type": "resist",
+      "damage_type": "poison"
+     }
+    ],
+    "price": 2000
+   }
+  ],
+  "group": "resist"
+ },
+ {
+  "id": "resist_necrotic",
+  "name": {
+   "en": "of Necrotic Resistance",
+   "ja": "生命の"
+  },
+  "position": "suffix",
+  "kinds": [
+   "armor",
+   "shield"
+  ],
+  "weight": 6,
+  "tiers": [
+   {
+    "min_level": 1,
+    "passive": [
+     {
+      "type": "resist",
+      "damage_type": "necrotic"
+     }
+    ],
+    "price": 2000
+   }
+  ],
+  "group": "resist"
+ },
+ {
+  "id": "resist_thunder",
+  "name": {
+   "en": "of Thunder Resistance",
+   "ja": "静寂の"
+  },
+  "position": "suffix",
+  "kinds": [
+   "armor",
+   "shield"
+  ],
+  "weight": 6,
+  "tiers": [
+   {
+    "min_level": 1,
+    "passive": [
+     {
+      "type": "resist",
+      "damage_type": "thunder"
+     }
+    ],
+    "price": 2000
+   }
+  ],
+  "group": "resist"
+ },
+ {
+  "id": "resist_psychic",
+  "name": {
+   "en": "of Psychic Resistance",
+   "ja": "明晰の"
+  },
+  "position": "suffix",
+  "kinds": [
+   "armor",
+   "shield"
+  ],
+  "weight": 6,
+  "tiers": [
+   {
+    "min_level": 1,
+    "passive": [
+     {
+      "type": "resist",
+      "damage_type": "psychic"
+     }
+    ],
+    "price": 2000
+   }
+  ],
+  "group": "resist"
+ },
+ {
+  "id": "immune_free_action",
+  "name": {
+   "en": "of Free Action",
+   "ja": "自由の"
+  },
+  "position": "suffix",
+  "kinds": [
+   "armor"
+  ],
+  "weight": 4,
+  "tiers": [
+   {
+    "min_level": 6,
+    "passive": [
+     {
+      "type": "immune_condition",
+      "condition": "paralyzed"
+     },
+     {
+      "type": "immune_condition",
+      "condition": "restrained"
+     }
+    ],
+    "price": 4000
+   }
+  ],
+  "group": "immune"
+ },
+ {
+  "id": "immune_clarity",
+  "name": {
+   "en": "of Clarity",
+   "ja": "澄んだ心の"
+  },
+  "position": "suffix",
+  "kinds": [
+   "armor"
+  ],
+  "weight": 4,
+  "tiers": [
+   {
+    "min_level": 1,
+    "passive": [
+     {
+      "type": "immune_condition",
+      "condition": "charmed"
+     },
+     {
+      "type": "immune_condition",
+      "condition": "frightened"
+     }
+    ],
+    "price": 4000
+   }
+  ],
+  "group": "immune"
+ },
+ {
+  "id": "immune_vigor",
+  "name": {
+   "en": "of Vigor",
+   "ja": "頑健の"
+  },
+  "position": "suffix",
+  "kinds": [
+   "armor"
+  ],
+  "weight": 4,
+  "tiers": [
+   {
+    "min_level": 1,
+    "passive": [
+     {
+      "type": "immune_condition",
+      "condition": "poisoned"
+     }
+    ],
+    "price": 4000
+   }
+  ],
+  "group": "immune"
+ },
+ {
+  "id": "immune_sight",
+  "name": {
+   "en": "of Sight",
+   "ja": "見通す"
+  },
+  "position": "suffix",
+  "kinds": [
+   "armor"
+  ],
+  "weight": 4,
+  "tiers": [
+   {
+    "min_level": 6,
+    "passive": [
+     {
+      "type": "immune_condition",
+      "condition": "blinded"
+     }
+    ],
+    "price": 4000
+   }
+  ],
+  "group": "immune"
+ }
+]

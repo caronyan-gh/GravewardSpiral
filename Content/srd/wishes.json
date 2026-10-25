@@ -1,0 +1,11 @@
+[
+  { "id": "restore_party", "name": { "en": "Restore the whole party", "ja": "パーティ全員を完全に回復する" },
+    "effects": [
+      { "type": "heal", "dice": "999" },
+      { "type": "remove_condition", "condition": "poisoned" }, { "type": "remove_condition", "condition": "blinded" },
+      { "type": "remove_condition", "condition": "deafened" }, { "type": "remove_condition", "condition": "frightened" } ] },
+  { "id": "return_to_town", "name": { "en": "Return to town", "ja": "町へ帰る" }, "special": "return_town" },
+  { "id": "raise_all", "name": { "en": "Raise the fallen", "ja": "倒れた仲間を蘇らせる" }, "special": "later", "note": "蘇生は M5" },
+  { "id": "item", "name": { "en": "An item of chosen rarity", "ja": "望んだ等級のアイテムを1つ" }, "special": "later", "note": "アイテムは M5" },
+  { "id": "ability", "name": { "en": "Raise an ability score", "ja": "能力値を1つ永く上げる" }, "special": "later" }
+]

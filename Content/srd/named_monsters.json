@@ -1,0 +1,164 @@
+[
+  {
+    "id": "rat_king",
+    "name": {
+      "en": "The Rat King",
+      "ja": "鼠の王"
+    },
+    "monster": "giant_rat",
+    "item": "rat_kings_keyring",
+    "min_depth": 0,
+    "max_depth": 0.5,
+    "weight": 2,
+    "placement": "either",
+    "hp_mult": 6,
+    "damage_mult": 1.25,
+    "ac_bonus": 1,
+    "hit_bonus": 1,
+    "item_chance": 0.5
+  },
+  {
+    "id": "fleet_kobold",
+    "name": {
+      "en": "Fleetfoot the Kobold",
+      "ja": "逃げ足のコボルド"
+    },
+    "monster": "kobold",
+    "item": "fleet_boots",
+    "min_depth": 0,
+    "max_depth": 0.5,
+    "weight": 2,
+    "placement": "wander",
+    "hp_mult": 5,
+    "damage_mult": 1.25,
+    "ac_bonus": 1,
+    "hit_bonus": 1,
+    "item_chance": 0.5
+  },
+  {
+    "id": "sentry_orc",
+    "name": {
+      "en": "The Sleepless Sentry",
+      "ja": "眠らずの見張り番"
+    },
+    "monster": "orc",
+    "item": "sentry_necklace",
+    "min_depth": 0,
+    "max_depth": 0.6,
+    "weight": 2,
+    "placement": "lair",
+    "hp_mult": 2.5,
+    "damage_mult": 1.25,
+    "ac_bonus": 1,
+    "hit_bonus": 1,
+    "item_chance": 0.5
+  },
+  {
+    "id": "one_eyed_captain",
+    "name": {
+      "en": "One-Eye the Bandit Chief",
+      "ja": "片目の盗賊頭"
+    },
+    "monster": "bandit_captain",
+    "item": "whisperblade",
+    "min_depth": 0.1,
+    "max_depth": 0.6,
+    "weight": 1,
+    "placement": "either",
+    "hp_mult": 2,
+    "damage_mult": 1.25,
+    "ac_bonus": 1,
+    "hit_bonus": 1,
+    "item_chance": 0.5
+  },
+  {
+    "id": "fallen_gravekeeper",
+    "name": {
+      "en": "The Fallen Gravekeeper",
+      "ja": "墓守崩れのグール"
+    },
+    "monster": "ghoul",
+    "item": "gravekeepers_pick",
+    "min_depth": 0,
+    "max_depth": 0.5,
+    "weight": 1,
+    "placement": "wander",
+    "hp_mult": 2.5,
+    "damage_mult": 1.25,
+    "ac_bonus": 1,
+    "hit_bonus": 1,
+    "item_chance": 0.5
+  },
+  {
+    "id": "coffin_bearer",
+    "name": {
+      "en": "The Coffin Bearer",
+      "ja": "棺担ぎのオーガ"
+    },
+    "monster": "ogre",
+    "item": "coffin_lid",
+    "min_depth": 0.2,
+    "max_depth": 0.8,
+    "weight": 1,
+    "placement": "lair",
+    "hp_mult": 2,
+    "damage_mult": 1.25,
+    "ac_bonus": 1,
+    "hit_bonus": 1,
+    "item_chance": 0.5
+  },
+  {
+    "id": "ninth_grave_wight",
+    "name": {
+      "en": "The Wight of the Ninth Grave",
+      "ja": "九つ目の墓のワイト"
+    },
+    "monster": "wight",
+    "item": "ninth_grave_ring",
+    "min_depth": 0.3,
+    "max_depth": 1,
+    "weight": 1,
+    "placement": "lair",
+    "hp_mult": 2,
+    "damage_mult": 1.25,
+    "ac_bonus": 1,
+    "hit_bonus": 1,
+    "item_chance": 0.5
+  },
+  {
+    "id": "vigil_gargoyle",
+    "name": {
+      "en": "The Vigil Gargoyle",
+      "ja": "不寝番のガーゴイル"
+    },
+    "monster": "gargoyle",
+    "item": "vigil_amulet",
+    "min_depth": 0.3,
+    "max_depth": 1,
+    "weight": 1,
+    "placement": "lair",
+    "hp_mult": 2,
+    "damage_mult": 1.25,
+    "ac_bonus": 1,
+    "hit_bonus": 1,
+    "item_chance": 0.5
+  },
+  {
+    "id": "spiral_minotaur",
+    "name": {
+      "en": "The Minotaur of the Spiral",
+      "ja": "螺旋の牛鬼"
+    },
+    "monster": "minotaur",
+    "item": "spiral_ward",
+    "min_depth": 0.6,
+    "max_depth": 1,
+    "weight": 0.5,
+    "placement": "wander",
+    "hp_mult": 2,
+    "damage_mult": 1.25,
+    "ac_bonus": 1,
+    "hit_bonus": 1,
+    "item_chance": 0.5
+  }
+]

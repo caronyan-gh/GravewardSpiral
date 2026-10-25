@@ -1,0 +1,48 @@
+# 仕掛けの見本の階(--start events)。下の通路に散らすイベントを並べ、上に連動する仕掛けを置く
+floor devtest_events
+name.ja 仕掛けの見本
+name.en Gimmick Gallery
+size 13 7
+wrap none
+start 0 6 E
+walls
++-+-+-+-+-+-+-+-+-+-+-+-+-+
+|#|#|#|#|#|#|#|#|#|#|#|#|#|
++-+-+-+-+-+-+-+-+-+-+-+-+-+
+|#|#|#|#|#|#|#|#|#|#|#|#|#|
++-+-+-+-+-+-+-+-+-+-+-+-+-+
+|#|#|#|#|#|#|#|#|#|#|#|#|#|
++-+-+-+-+-+-+-+-+-+-+-+-+-+
+|     |#|#| |#|#| |#|#| |#|
++ + + +-+-+ +-+-+ +-+-+L+-+
+|     L |#| |#|#| |#|     |
++ + + +-+-+L+-+-+L+-+ +-+ +
+|     |#|#| |#|#| |#| |#| |
++-+ +-+-+-+ +-+-+ +-+ +-+ +
+|u                        |
++-+-+-+-+-+-+-+-+-+-+-+-+-+
+mark 1 6 event:wall_writing
+mark 2 6 event:remains
+mark 3 6 event:gravestone
+mark 4 6 event:fountain
+mark 5 6 event:whisper
+mark 6 6 event:altar
+mark 7 6 event:statue
+mark 8 6 event:pressure_plate
+mark 9 6 event:campsite
+mark 10 6 event:sigil_shrine_star
+mark 11 6 event:sigil_shrine_sun
+mark 12 6 event:sigil_shrine_moon
+mark 0 4 event:lever
+mark 2 4 gate:lever
+mark 3 4 event:vault
+mark 5 5 event:riddle_door
+mark 5 4 gate:riddle
+mark 5 3 event:vault
+mark 8 5 event:sealed_vault
+mark 8 4 gate:sealed
+mark 8 3 event:sealed_hoard
+mark 10 4 event:twin_switch_a
+mark 12 4 event:twin_switch_b
+mark 11 4 gate:twin
+mark 11 3 event:twin_vault

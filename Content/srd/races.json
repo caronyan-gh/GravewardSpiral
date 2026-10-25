@@ -1,0 +1,80 @@
+[
+  {
+    "id": "dwarf",
+    "name": { "en": "Dwarf", "ja": "ドワーフ" },
+    "subrace": { "en": "Hill Dwarf", "ja": "丘ドワーフ" },
+    "ability_bonus": { "con": 2, "wis": 1 },
+    "darkvision": true,
+    "hp_per_level": 1,
+    "traits": ["dwarven_resilience", "stonecunning", "dwarven_toughness"],
+    "description": { "en": "Stout and enduring. Resistant to poison.", "ja": "頑丈でねばり強い。毒に強い。レベルごとに HP が 1 多い。" }
+  },
+  {
+    "id": "elf",
+    "name": { "en": "Elf", "ja": "エルフ" },
+    "subrace": { "en": "High Elf", "ja": "ハイ・エルフ" },
+    "ability_bonus": { "dex": 2, "int": 1 },
+    "darkvision": true,
+    "skills": ["perception"],
+    "traits": ["keen_senses", "fey_ancestry", "trance"],
+    "description": { "en": "Graceful and keen-eyed. Hard to charm, cannot be put to sleep by magic.", "ja": "身軽で目がよい。魅了されにくく、魔法では眠らない。" }
+  },
+  {
+    "id": "halfling",
+    "name": { "en": "Halfling", "ja": "ハーフリング" },
+    "subrace": { "en": "Lightfoot", "ja": "ライトフット" },
+    "ability_bonus": { "dex": 2, "cha": 1 },
+    "traits": ["lucky", "brave", "halfling_nimbleness", "naturally_stealthy"],
+    "description": { "en": "Small and lucky. Rerolls natural 1s.", "ja": "小柄で運がよい。d20 で 1 を出しても振り直せる。" }
+  },
+  {
+    "id": "human",
+    "name": { "en": "Human", "ja": "人間" },
+    "ability_bonus": { "str": 1, "dex": 1, "con": 1, "int": 1, "wis": 1, "cha": 1 },
+    "traits": [],
+    "description": { "en": "Versatile. Every ability +1.", "ja": "何にでも向く。すべての能力値が 1 上がる。" }
+  },
+  {
+    "id": "dragonborn",
+    "name": { "en": "Dragonborn", "ja": "ドラゴンボーン" },
+    "ability_bonus": { "str": 2, "cha": 1 },
+    "traits": ["breath_weapon", "damage_resistance"],
+    "description": { "en": "Draconic heritage. Breathes fire.", "ja": "竜の血を引く。火の息を吐き、火に強い。" }
+  },
+  {
+    "id": "gnome",
+    "name": { "en": "Gnome", "ja": "ノーム" },
+    "subrace": { "en": "Rock Gnome", "ja": "ロック・ノーム" },
+    "ability_bonus": { "int": 2, "con": 1 },
+    "darkvision": true,
+    "traits": ["gnome_cunning", "tinker"],
+    "description": { "en": "Clever. Resists magic that targets the mind.", "ja": "賢い。心に働く魔法(知力・判断力・魅力のセーヴ)に強い。" }
+  },
+  {
+    "id": "half_elf",
+    "name": { "en": "Half-Elf", "ja": "ハーフエルフ" },
+    "ability_bonus": { "cha": 2 },
+    "free_ability_points": 2,
+    "darkvision": true,
+    "free_skills": 2,
+    "traits": ["fey_ancestry", "skill_versatility"],
+    "description": { "en": "Charismatic. +1 to two other abilities and two extra skills.", "ja": "人をひきつける。ほかの能力値 2 つが 1 上がり、技能を 2 つ多く覚える。" }
+  },
+  {
+    "id": "half_orc",
+    "name": { "en": "Half-Orc", "ja": "ハーフオーク" },
+    "ability_bonus": { "str": 2, "con": 1 },
+    "darkvision": true,
+    "skills": ["intimidation"],
+    "traits": ["menacing", "relentless_endurance", "savage_attacks"],
+    "description": { "en": "Fierce. Once per rest, drops to 1 HP instead of 0.", "ja": "猛々しい。休憩ごとに1回、HP が 0 になっても 1 で踏みとどまる。" }
+  },
+  {
+    "id": "tiefling",
+    "name": { "en": "Tiefling", "ja": "ティーフリング" },
+    "ability_bonus": { "cha": 2, "int": 1 },
+    "darkvision": true,
+    "traits": ["hellish_resistance", "infernal_legacy"],
+    "description": { "en": "Infernal heritage. Resistant to fire.", "ja": "地獄の血を引く。火に強い。" }
+  }
+]

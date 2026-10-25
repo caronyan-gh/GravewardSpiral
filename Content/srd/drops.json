@@ -1,0 +1,956 @@
+[
+ {
+  "id": "cr_0_1",
+  "cr_min": 0,
+  "cr_max": 1,
+  "chance": 0.02,
+  "entries": [
+   {
+    "rarity": "common",
+    "weight": 6
+   },
+   {
+    "rarity": "uncommon",
+    "weight": 3
+   }
+  ]
+ },
+ {
+  "id": "undead_0_1",
+  "type": "undead",
+  "cr_min": 0,
+  "cr_max": 1,
+  "chance": 0.02,
+  "entries": [
+   {
+    "rarity": "common",
+    "weight": 6
+   },
+   {
+    "rarity": "uncommon",
+    "weight": 3
+   },
+   {
+    "item": "gravekeepers_pick",
+    "weight": 1
+   },
+   {
+    "item": "coffin_lid",
+    "weight": 1
+   }
+  ]
+ },
+ {
+  "id": "humanoid_0_1",
+  "type": "humanoid",
+  "cr_min": 0,
+  "cr_max": 1,
+  "chance": 0.02,
+  "entries": [
+   {
+    "rarity": "common",
+    "weight": 6
+   },
+   {
+    "rarity": "uncommon",
+    "weight": 3
+   },
+   {
+    "item": "whisperblade",
+    "weight": 1
+   },
+   {
+    "item": "shadowweave",
+    "weight": 1
+   }
+  ]
+ },
+ {
+  "id": "aberration_0_1",
+  "type": "aberration",
+  "cr_min": 0,
+  "cr_max": 1,
+  "chance": 0.02,
+  "entries": [
+   {
+    "rarity": "common",
+    "weight": 6
+   },
+   {
+    "rarity": "uncommon",
+    "weight": 3
+   },
+   {
+    "item": "mindsplitter",
+    "weight": 1
+   }
+  ]
+ },
+ {
+  "id": "giant_0_1",
+  "type": "giant",
+  "cr_min": 0,
+  "cr_max": 1,
+  "chance": 0.02,
+  "entries": [
+   {
+    "rarity": "common",
+    "weight": 6
+   },
+   {
+    "rarity": "uncommon",
+    "weight": 3
+   },
+   {
+    "item": "giantsbane_gauntlets",
+    "weight": 1
+   }
+  ]
+ },
+ {
+  "id": "cr_2_4",
+  "cr_min": 2,
+  "cr_max": 4,
+  "chance": 0.04,
+  "entries": [
+   {
+    "rarity": "uncommon",
+    "weight": 6
+   },
+   {
+    "rarity": "rare",
+    "weight": 1
+   }
+  ]
+ },
+ {
+  "id": "undead_2_4",
+  "type": "undead",
+  "cr_min": 2,
+  "cr_max": 4,
+  "chance": 0.04,
+  "entries": [
+   {
+    "rarity": "uncommon",
+    "weight": 6
+   },
+   {
+    "rarity": "rare",
+    "weight": 1
+   },
+   {
+    "item": "gravekeepers_pick",
+    "weight": 1
+   },
+   {
+    "item": "coffin_lid",
+    "weight": 1
+   },
+   {
+    "item": "bone_reaver",
+    "weight": 1
+   }
+  ]
+ },
+ {
+  "id": "humanoid_2_4",
+  "type": "humanoid",
+  "cr_min": 2,
+  "cr_max": 4,
+  "chance": 0.04,
+  "entries": [
+   {
+    "rarity": "uncommon",
+    "weight": 6
+   },
+   {
+    "rarity": "rare",
+    "weight": 1
+   },
+   {
+    "item": "whisperblade",
+    "weight": 1
+   },
+   {
+    "item": "shadowweave",
+    "weight": 1
+   }
+  ]
+ },
+ {
+  "id": "aberration_2_4",
+  "type": "aberration",
+  "cr_min": 2,
+  "cr_max": 4,
+  "chance": 0.04,
+  "entries": [
+   {
+    "rarity": "uncommon",
+    "weight": 6
+   },
+   {
+    "rarity": "rare",
+    "weight": 1
+   },
+   {
+    "item": "mindsplitter",
+    "weight": 1
+   }
+  ]
+ },
+ {
+  "id": "giant_2_4",
+  "type": "giant",
+  "cr_min": 2,
+  "cr_max": 4,
+  "chance": 0.04,
+  "entries": [
+   {
+    "rarity": "uncommon",
+    "weight": 6
+   },
+   {
+    "rarity": "rare",
+    "weight": 1
+   },
+   {
+    "item": "giantsbane_gauntlets",
+    "weight": 1
+   }
+  ]
+ },
+ {
+  "id": "cr_5_10",
+  "cr_min": 5,
+  "cr_max": 10,
+  "chance": 0.06,
+  "entries": [
+   {
+    "rarity": "uncommon",
+    "weight": 4
+   },
+   {
+    "rarity": "rare",
+    "weight": 4
+   },
+   {
+    "rarity": "very_rare",
+    "weight": 1
+   },
+   {
+    "item": "vigil_amulet",
+    "weight": 0.5
+   }
+  ]
+ },
+ {
+  "id": "undead_5_10",
+  "type": "undead",
+  "cr_min": 5,
+  "cr_max": 10,
+  "chance": 0.06,
+  "entries": [
+   {
+    "rarity": "uncommon",
+    "weight": 4
+   },
+   {
+    "rarity": "rare",
+    "weight": 4
+   },
+   {
+    "rarity": "very_rare",
+    "weight": 1
+   },
+   {
+    "item": "vigil_amulet",
+    "weight": 0.5
+   },
+   {
+    "item": "gravekeepers_pick",
+    "weight": 1
+   },
+   {
+    "item": "coffin_lid",
+    "weight": 1
+   },
+   {
+    "item": "bone_reaver",
+    "weight": 1
+   },
+   {
+    "item": "ninth_grave_ring",
+    "weight": 1
+   }
+  ]
+ },
+ {
+  "id": "humanoid_5_10",
+  "type": "humanoid",
+  "cr_min": 5,
+  "cr_max": 10,
+  "chance": 0.06,
+  "entries": [
+   {
+    "rarity": "uncommon",
+    "weight": 4
+   },
+   {
+    "rarity": "rare",
+    "weight": 4
+   },
+   {
+    "rarity": "very_rare",
+    "weight": 1
+   },
+   {
+    "item": "vigil_amulet",
+    "weight": 0.5
+   },
+   {
+    "item": "whisperblade",
+    "weight": 1
+   },
+   {
+    "item": "shadowweave",
+    "weight": 1
+   }
+  ]
+ },
+ {
+  "id": "aberration_5_10",
+  "type": "aberration",
+  "cr_min": 5,
+  "cr_max": 10,
+  "chance": 0.06,
+  "entries": [
+   {
+    "rarity": "uncommon",
+    "weight": 4
+   },
+   {
+    "rarity": "rare",
+    "weight": 4
+   },
+   {
+    "rarity": "very_rare",
+    "weight": 1
+   },
+   {
+    "item": "vigil_amulet",
+    "weight": 0.5
+   },
+   {
+    "item": "mindsplitter",
+    "weight": 1
+   }
+  ]
+ },
+ {
+  "id": "dragon_5_10",
+  "type": "dragon",
+  "cr_min": 5,
+  "cr_max": 10,
+  "chance": 0.06,
+  "entries": [
+   {
+    "rarity": "uncommon",
+    "weight": 4
+   },
+   {
+    "rarity": "rare",
+    "weight": 4
+   },
+   {
+    "rarity": "very_rare",
+    "weight": 1
+   },
+   {
+    "item": "vigil_amulet",
+    "weight": 0.5
+   },
+   {
+    "item": "wyrmfang",
+    "weight": 1
+   },
+   {
+    "item": "dragonscale_mail",
+    "weight": 1
+   }
+  ]
+ },
+ {
+  "id": "fiend_5_10",
+  "type": "fiend",
+  "cr_min": 5,
+  "cr_max": 10,
+  "chance": 0.06,
+  "entries": [
+   {
+    "rarity": "uncommon",
+    "weight": 4
+   },
+   {
+    "rarity": "rare",
+    "weight": 4
+   },
+   {
+    "rarity": "very_rare",
+    "weight": 1
+   },
+   {
+    "item": "vigil_amulet",
+    "weight": 0.5
+   },
+   {
+    "item": "hellbrand",
+    "weight": 1
+   }
+  ]
+ },
+ {
+  "id": "giant_5_10",
+  "type": "giant",
+  "cr_min": 5,
+  "cr_max": 10,
+  "chance": 0.06,
+  "entries": [
+   {
+    "rarity": "uncommon",
+    "weight": 4
+   },
+   {
+    "rarity": "rare",
+    "weight": 4
+   },
+   {
+    "rarity": "very_rare",
+    "weight": 1
+   },
+   {
+    "item": "vigil_amulet",
+    "weight": 0.5
+   },
+   {
+    "item": "giantsbane_gauntlets",
+    "weight": 1
+   },
+   {
+    "item": "stormcaller",
+    "weight": 1
+   }
+  ]
+ },
+ {
+  "id": "elemental_5_10",
+  "type": "elemental",
+  "cr_min": 5,
+  "cr_max": 10,
+  "chance": 0.06,
+  "entries": [
+   {
+    "rarity": "uncommon",
+    "weight": 4
+   },
+   {
+    "rarity": "rare",
+    "weight": 4
+   },
+   {
+    "rarity": "very_rare",
+    "weight": 1
+   },
+   {
+    "item": "vigil_amulet",
+    "weight": 0.5
+   },
+   {
+    "item": "stormcaller",
+    "weight": 1
+   }
+  ]
+ },
+ {
+  "id": "cr_11_16",
+  "cr_min": 11,
+  "cr_max": 16,
+  "chance": 0.08,
+  "entries": [
+   {
+    "rarity": "rare",
+    "weight": 4
+   },
+   {
+    "rarity": "very_rare",
+    "weight": 4
+   },
+   {
+    "rarity": "legendary",
+    "weight": 1
+   },
+   {
+    "item": "spiral_ward",
+    "weight": 0.5
+   },
+   {
+    "item": "vigil_amulet",
+    "weight": 0.5
+   }
+  ]
+ },
+ {
+  "id": "undead_11_16",
+  "type": "undead",
+  "cr_min": 11,
+  "cr_max": 16,
+  "chance": 0.08,
+  "entries": [
+   {
+    "rarity": "rare",
+    "weight": 4
+   },
+   {
+    "rarity": "very_rare",
+    "weight": 4
+   },
+   {
+    "rarity": "legendary",
+    "weight": 1
+   },
+   {
+    "item": "spiral_ward",
+    "weight": 0.5
+   },
+   {
+    "item": "vigil_amulet",
+    "weight": 0.5
+   },
+   {
+    "item": "bone_reaver",
+    "weight": 1
+   },
+   {
+    "item": "ninth_grave_ring",
+    "weight": 1
+   },
+   {
+    "item": "bloodthirst",
+    "weight": 0.5
+   }
+  ]
+ },
+ {
+  "id": "aberration_11_16",
+  "type": "aberration",
+  "cr_min": 11,
+  "cr_max": 16,
+  "chance": 0.08,
+  "entries": [
+   {
+    "rarity": "rare",
+    "weight": 4
+   },
+   {
+    "rarity": "very_rare",
+    "weight": 4
+   },
+   {
+    "rarity": "legendary",
+    "weight": 1
+   },
+   {
+    "item": "spiral_ward",
+    "weight": 0.5
+   },
+   {
+    "item": "vigil_amulet",
+    "weight": 0.5
+   },
+   {
+    "item": "mindsplitter",
+    "weight": 1
+   }
+  ]
+ },
+ {
+  "id": "dragon_11_16",
+  "type": "dragon",
+  "cr_min": 11,
+  "cr_max": 16,
+  "chance": 0.08,
+  "entries": [
+   {
+    "rarity": "rare",
+    "weight": 4
+   },
+   {
+    "rarity": "very_rare",
+    "weight": 4
+   },
+   {
+    "rarity": "legendary",
+    "weight": 1
+   },
+   {
+    "item": "spiral_ward",
+    "weight": 0.5
+   },
+   {
+    "item": "vigil_amulet",
+    "weight": 0.5
+   },
+   {
+    "item": "wyrmfang",
+    "weight": 1
+   },
+   {
+    "item": "dragonscale_mail",
+    "weight": 1
+   }
+  ]
+ },
+ {
+  "id": "fiend_11_16",
+  "type": "fiend",
+  "cr_min": 11,
+  "cr_max": 16,
+  "chance": 0.08,
+  "entries": [
+   {
+    "rarity": "rare",
+    "weight": 4
+   },
+   {
+    "rarity": "very_rare",
+    "weight": 4
+   },
+   {
+    "rarity": "legendary",
+    "weight": 1
+   },
+   {
+    "item": "spiral_ward",
+    "weight": 0.5
+   },
+   {
+    "item": "vigil_amulet",
+    "weight": 0.5
+   },
+   {
+    "item": "hellbrand",
+    "weight": 1
+   },
+   {
+    "item": "bloodthirst",
+    "weight": 0.5
+   }
+  ]
+ },
+ {
+  "id": "giant_11_16",
+  "type": "giant",
+  "cr_min": 11,
+  "cr_max": 16,
+  "chance": 0.08,
+  "entries": [
+   {
+    "rarity": "rare",
+    "weight": 4
+   },
+   {
+    "rarity": "very_rare",
+    "weight": 4
+   },
+   {
+    "rarity": "legendary",
+    "weight": 1
+   },
+   {
+    "item": "spiral_ward",
+    "weight": 0.5
+   },
+   {
+    "item": "vigil_amulet",
+    "weight": 0.5
+   },
+   {
+    "item": "giantsbane_gauntlets",
+    "weight": 1
+   },
+   {
+    "item": "stormcaller",
+    "weight": 1
+   }
+  ]
+ },
+ {
+  "id": "elemental_11_16",
+  "type": "elemental",
+  "cr_min": 11,
+  "cr_max": 16,
+  "chance": 0.08,
+  "entries": [
+   {
+    "rarity": "rare",
+    "weight": 4
+   },
+   {
+    "rarity": "very_rare",
+    "weight": 4
+   },
+   {
+    "rarity": "legendary",
+    "weight": 1
+   },
+   {
+    "item": "spiral_ward",
+    "weight": 0.5
+   },
+   {
+    "item": "vigil_amulet",
+    "weight": 0.5
+   },
+   {
+    "item": "stormcaller",
+    "weight": 1
+   }
+  ]
+ },
+ {
+  "id": "cr_17_30",
+  "cr_min": 17,
+  "cr_max": 30,
+  "chance": 0.12,
+  "entries": [
+   {
+    "rarity": "very_rare",
+    "weight": 4
+   },
+   {
+    "rarity": "legendary",
+    "weight": 3
+   },
+   {
+    "item": "spiral_ward",
+    "weight": 0.5
+   }
+  ]
+ },
+ {
+  "id": "undead_17_30",
+  "type": "undead",
+  "cr_min": 17,
+  "cr_max": 30,
+  "chance": 0.12,
+  "entries": [
+   {
+    "rarity": "very_rare",
+    "weight": 4
+   },
+   {
+    "rarity": "legendary",
+    "weight": 3
+   },
+   {
+    "item": "spiral_ward",
+    "weight": 0.5
+   },
+   {
+    "item": "ninth_grave_ring",
+    "weight": 1
+   },
+   {
+    "item": "bloodthirst",
+    "weight": 0.5
+   }
+  ]
+ },
+ {
+  "id": "aberration_17_30",
+  "type": "aberration",
+  "cr_min": 17,
+  "cr_max": 30,
+  "chance": 0.12,
+  "entries": [
+   {
+    "rarity": "very_rare",
+    "weight": 4
+   },
+   {
+    "rarity": "legendary",
+    "weight": 3
+   },
+   {
+    "item": "spiral_ward",
+    "weight": 0.5
+   },
+   {
+    "item": "mindsplitter",
+    "weight": 1
+   }
+  ]
+ },
+ {
+  "id": "dragon_17_30",
+  "type": "dragon",
+  "cr_min": 17,
+  "cr_max": 30,
+  "chance": 0.12,
+  "entries": [
+   {
+    "rarity": "very_rare",
+    "weight": 4
+   },
+   {
+    "rarity": "legendary",
+    "weight": 3
+   },
+   {
+    "item": "spiral_ward",
+    "weight": 0.5
+   },
+   {
+    "item": "wyrmfang",
+    "weight": 1
+   },
+   {
+    "item": "dragonscale_mail",
+    "weight": 1
+   }
+  ]
+ },
+ {
+  "id": "fiend_17_30",
+  "type": "fiend",
+  "cr_min": 17,
+  "cr_max": 30,
+  "chance": 0.12,
+  "entries": [
+   {
+    "rarity": "very_rare",
+    "weight": 4
+   },
+   {
+    "rarity": "legendary",
+    "weight": 3
+   },
+   {
+    "item": "spiral_ward",
+    "weight": 0.5
+   },
+   {
+    "item": "hellbrand",
+    "weight": 1
+   },
+   {
+    "item": "bloodthirst",
+    "weight": 0.5
+   }
+  ]
+ },
+ {
+  "id": "giant_17_30",
+  "type": "giant",
+  "cr_min": 17,
+  "cr_max": 30,
+  "chance": 0.12,
+  "entries": [
+   {
+    "rarity": "very_rare",
+    "weight": 4
+   },
+   {
+    "rarity": "legendary",
+    "weight": 3
+   },
+   {
+    "item": "spiral_ward",
+    "weight": 0.5
+   },
+   {
+    "item": "giantsbane_gauntlets",
+    "weight": 1
+   },
+   {
+    "item": "stormcaller",
+    "weight": 1
+   }
+  ]
+ },
+ {
+  "id": "elemental_17_30",
+  "type": "elemental",
+  "cr_min": 17,
+  "cr_max": 30,
+  "chance": 0.12,
+  "entries": [
+   {
+    "rarity": "very_rare",
+    "weight": 4
+   },
+   {
+    "rarity": "legendary",
+    "weight": 3
+   },
+   {
+    "item": "spiral_ward",
+    "weight": 0.5
+   },
+   {
+    "item": "stormcaller",
+    "weight": 1
+   }
+  ]
+ },
+ {
+  "id": "extra_consecrated_bell",
+  "type": "undead",
+  "cr_min": 3,
+  "cr_max": 30,
+  "chance": 0.02,
+  "extra": true,
+  "entries": [
+   {
+    "item": "consecrated_bell",
+    "weight": 1
+   }
+  ]
+ },
+ {
+  "id": "extra_ancient_dragon_scale",
+  "type": "dragon",
+  "cr_min": 5,
+  "cr_max": 30,
+  "chance": 0.3,
+  "extra": true,
+  "entries": [
+   {
+    "item": "ancient_dragon_scale",
+    "weight": 1
+   }
+  ]
+ },
+ {
+  "id": "boss_final",
+  "boss": "final",
+  "chance": 1.0,
+  "entries": [
+   {
+    "item": "gravekeepers_pick",
+    "weight": 2
+   },
+   {
+    "item": "ninth_grave_ring",
+    "weight": 2
+   },
+   {
+    "item": "vigil_amulet",
+    "weight": 2
+   },
+   {
+    "item": "coffin_lid",
+    "weight": 1
+   }
+  ]
+ }
+]

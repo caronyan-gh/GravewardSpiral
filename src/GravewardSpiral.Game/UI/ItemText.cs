@@ -1,0 +1,148 @@
+using GravewardSpiral.Core.Effects;
+using GravewardSpiral.Core.Items;
+using GravewardSpiral.Game.Text;
+
+namespace GravewardSpiral.Game.UI;
+
+/// <summary>アイテムの名前と説明の文(未鑑定なら仮の名前)。</summary>
+public static class ItemText
+{
+    /// <summary>
+    /// 見える名前。鑑定していない魔法の品は仮の名前(武器・鎧は元の品の名前に「?」、装身具は「指輪?」など)。
+    /// 鑑定した +N の品は「+1 ロングソード」。重ねて持っているものは「×3」を付ける。
+    /// </summary>
+    public static string Name(GameServices sv, ItemInstance item, bool count = true)
+    {
+        item = item.Apparent(sv.Data.Items);
+        if (!sv.Data.Items.TryGetValue(item.ItemId, out var def)) return item.ItemId;
+        string name;
+        if (!item.Identified && (def.IsMagic || item.Bonus != 0))
+        {
+            name = def.Base != null && sv.Data.Items.TryGetValue(def.Base, out var b) ? sv.Name(b.Name) + "?"
+                : def.Kind is ItemKind.Weapon or ItemKind.Armor or ItemKind.Shield ? sv.Name(def.Name) + "?"
+                : def.Id.StartsWith("scroll_") ? sv.Strings["item.unknown.scroll"]
+                : def.Id.StartsWith("potion_") ? sv.Strings["item.unknown.potion"]
+                : sv.Strings["item.unknown." + (def.Kind == ItemKind.Accessory ? def.Slot : def.Kind.ToString().ToLowerInvariant())];
+        }
+        else
+        {
+            int bonus = item.TotalBonus(def) - def.Bonus;   // 名前つきの品の Bonus は名前に含めない
+            name = (bonus > 0 ? $"+{bonus} " : bonus < 0 ? $"{bonus} " : "") + WithAffixes(sv, item, def);
+        }
+        if (item.Charges is int ch && item.Identified) name += $" [{ch}]";
+        return count && item.Count > 1 ? $"{name} ×{item.Count}" : name;
+    }
+
+    /// <summary>
+    /// 追加効果の語を付けた名前(「燃える 守りの ロングソード」/ "Flaming Longsword of Warding")。
+    /// 固有の品(drop_only)は、名前をそのまま出す(追加効果は説明の行で見せる)。
+    /// </summary>
+    private static string WithAffixes(GameServices sv, ItemInstance item, ItemDef def)
+    {
+        string baseName = sv.Name(def.Name);
+        if (def.DropOnly || item.Affixes.Count == 0) return baseName;
+        var affixes = item.Affixes.Select(a => sv.Data.Affixes.GetValueOrDefault(a.Id)).OfType<AffixDef>().ToList();
+        // 日本語のように、追加効果の語を全部前に付ける言語(text の item.affix_order が "before")
+        if (sv.Strings["item.affix_order"] == "before") return string.Concat(affixes.Select(a => sv.Name(a.Name) + " ")) + baseName;
+        var pre = affixes.Where(a => a.Position == "prefix").Select(a => sv.Name(a.Name) + " ");
+        var suf = affixes.Where(a => a.Position == "suffix").Select(a => " " + sv.Name(a.Name));
+        return string.Concat(pre) + baseName + string.Concat(suf);
+    }
+
+    /// <summary>武器の持ち方の短い印(片手・両手・片手か両手)。武器でなければ null。</summary>
+    public static string? Hands(GameServices sv, ItemInstance item)
+    {
+        if (!sv.Data.Items.TryGetValue(item.ItemId, out var def) || def.Kind != ItemKind.Weapon) return null;
+        return sv.Strings[def.Has("two_handed") ? "item.hands_two_short" : def.VersatileDamage != null ? "item.hands_versatile_short" : "item.hands_one_short"];
+    }
+
+    /// <summary>説明の行(鑑定していない品は、ほとんど分からない)。</summary>
+    public static IEnumerable<string> Lines(GameServices sv, ItemInstance item)
+    {
+        var s = sv.Strings;
+        item = item.Apparent(sv.Data.Items);
+        if (!sv.Data.Items.TryGetValue(item.ItemId, out var def)) yield break;
+        if (!item.Identified && (def.IsMagic || item.Bonus != 0))
+        {
+            yield return s["item.not_identified"];
+            yield break;
+        }
+        if (def.IsMagic || item.Bonus != 0) yield return s["rarity." + (item.Bonus > 0 && !def.IsMagic ? Treasure.RarityOf(item.Bonus, def.Kind) : def.Rarity)];
+        int bonus = item.TotalBonus(def);
+        switch (def.Kind)
+        {
+            case ItemKind.Weapon:
+                yield return s.Format("item.weapon", def.Damage ?? "-", s["damage." + def.DamageType], s["weapon." + (def.Category ?? "simple")]);
+                yield return def.Has("two_handed") ? s["item.hands_two"]
+                    : def.VersatileDamage != null ? s.Format("item.hands_versatile", def.VersatileDamage) : s["item.hands_one"];
+                if (def.Has("returning")) yield return s["item.returning"];
+                else if (def.Has("thrown")) yield return s["item.thrown"];
+                if (bonus != 0) yield return s.Format("item.bonus_attack", Signed(ItemInstance.HitAcBonus(bonus)), Signed(bonus));
+                break;
+            case ItemKind.Armor:
+                yield return s.Format("item.armor", def.ArmorClass + ItemInstance.HitAcBonus(bonus), s["armor." + def.ArmorType.ToString()!.ToLowerInvariant()]);
+                if (def.StrengthRequired > 0) yield return s.Format("item.str_required", def.StrengthRequired);
+                if (def.StealthDisadvantage) yield return s["item.stealth_disadvantage"];
+                break;
+            case ItemKind.Shield:
+                yield return s.Format("item.shield", Signed(def.ArmorClass + ItemInstance.HitAcBonus(bonus)));
+                break;
+            case ItemKind.Backpack:
+                yield return s.Format("item.slots", def.Slots);
+                break;
+            case ItemKind.Ammo:
+                yield return s.Format("item.ammo", s["ammo." + def.AmmoType]);
+                int hit = ItemInstance.HitAcBonus(bonus) + def.AmmoHit, dmg = bonus + def.AmmoDamage;
+                if (hit != 0 || dmg != 0) yield return s.Format("item.ammo_bonus", Signed(hit), Signed(dmg));
+                break;
+        }
+        if (def.Attunement) yield return s[item.Attuned ? "item.attuned" : "item.needs_attunement"];
+        if (def.Cursed) yield return s["item.cursed"];
+        foreach (var p in def.Passive) yield return Passive(sv, p);
+        foreach (var p in def.OnHit) if (OnHit(sv, p) is { } line) yield return line;
+        // 追加効果(どの語で、何が付いたか)
+        foreach (var roll in item.Affixes)
+        {
+            if (!sv.Data.Affixes.TryGetValue(roll.Id, out var affix) || roll.Get(sv.Data) is not { } tier) continue;
+            var parts = tier.Passive.Select(p => Passive(sv, p)).Concat(tier.OnHit.Select(p => OnHit(sv, p)).OfType<string>());
+            yield return s.Format("item.affix", sv.Name(affix.Name).Trim(), string.Join(s["item.affix_sep"], parts));
+        }
+        if (def.UseSpell != null && sv.Data.Spells.TryGetValue(def.UseSpell, out var sp)) yield return s.Format("item.use_spell", sv.Name(sp.Name));
+        foreach (var line in SpellText.Effects(s, new Core.Magic.SpellDef { Effects = def.Use }, 1)) yield return s["item.use"] + line;
+        if (def.Description != null) yield return sv.Name(def.Description);
+        yield return s.Format("item.price", Treasure.Price(def, item));
+    }
+
+    /// <summary>当たったときの効果の1行(ダメージと、セーヴに失敗したときの効果)。書けないものは null。</summary>
+    private static string? OnHit(GameServices sv, EffectPart p)
+    {
+        var s = sv.Strings;
+        if (p.Type == EffectPart.Damage)
+            return s.Format(p.Only != null ? "item.on_hit_only" : "item.on_hit", p.Dice ?? "", s["damage." + p.DamageType], p.Only != null ? s["creature." + p.Only] : "");
+        if (p.Type != EffectPart.Save) return null;
+        var fail = p.Fail.Select(f => f.Type switch
+        {
+            EffectPart.Damage => s.Format("item.fail_damage", f.Dice ?? "", s["damage." + f.DamageType]),
+            EffectPart.ConditionType => s["condition." + f.Condition.ToString()!.ToLowerInvariant()],
+            EffectPart.Kill => s.Format("item.fail_kill", f.MaxHp ?? 0),
+            _ => null,
+        }).OfType<string>();
+        return s.Format("item.on_hit_save", s["ability." + p.Ability], p.Dc, string.Join(s["item.affix_sep"], fail));
+    }
+
+    private static string Passive(GameServices sv, EffectPart p)
+    {
+        var s = sv.Strings;
+        return p.Type switch
+        {
+            EffectPart.Modifier => s.Format("spell.fx.modifier", s["stat." + p.Stat], p.Dice ?? Signed(p.Value ?? 0)),
+            EffectPart.Resist => s.Format("item.resist", s["damage." + p.DamageType]),
+            EffectPart.Vulnerable => s.Format("item.vulnerable", s["damage." + p.DamageType]),
+            EffectPart.ImmuneCondition => s.Format("item.immune", s["condition." + p.Condition.ToString()!.ToLowerInvariant()]),
+            EffectPart.SetAbility => s.Format("item.set_ability", s["ability." + p.Ability], p.Value ?? 0),
+            _ => p.Type,
+        };
+    }
+
+    private static string Signed(int v) => v >= 0 ? $"+{v}" : v.ToString();
+}

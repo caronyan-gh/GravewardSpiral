@@ -1,0 +1,56 @@
+﻿GRAVEWARD SPIRAL
+クレジット / Credits
+========================================
+
+■ System Reference Document 5.1
+
+This work includes material taken from the System Reference Document 5.1
+("SRD 5.1") by Wizards of the Coast LLC and available at
+https://dnd.wizards.com/resources/systems-reference-document.
+The SRD 5.1 is licensed under the Creative Commons Attribution 4.0
+International License available at
+https://creativecommons.org/licenses/by/4.0/legalcode.
+
+モンスター・呪文・アイテムのデータは、SRD 5.1 を JSON にした
+5e-bits/5e-database(MIT License)から変換しています。
+Monster, spell and item data is converted from 5e-bits/5e-database
+(MIT License), a JSON edition of the SRD 5.1.
+https://github.com/5e-bits/5e-database
+
+■ ソフトウェア / Software
+
+MonoGame ............ Microsoft Public License
+FontStashSharp ...... MIT License
+NLayer .............. MIT License
+.NET ................ MIT License
+
+■ フォント / Fonts
+
+Hina Mincho ......... Copyright 2020 The Hina Mincho Project Authors
+                      SIL Open Font License 1.1
+BIZ UDゴシック ...... Copyright 2022 The BIZ UDGothic Project Authors
+(BIZ UDGothic)        SIL Open Font License 1.1
+ライセンス文は Content/fonts/ にあります。
+The license texts are in Content/fonts/.
+
+■ 効果音 / Sound Effects (CC0)
+
+Kenney ............... RPG Audio / Interface Sounds / Impact Sounds
+                       https://kenney.nl
+artisticdude ......... RPG Sound Pack
+rubberduck ........... 100 CC0 SFX / 80 CC0 RPG SFX
+JaggedStone .......... magic spell sfx
+HaelDB ............... Male Grunt/Yelling sounds
+AntumDeluge .......... Scrapes
+Joth ................. 7 Assorted Sound Effects (Menu, Level Up)
+                       https://opengameart.org/users/joth
+(OpenGameArt.org)
+
+■ 音楽・画像 / Music and Images
+
+音楽は Google Gemini、タイトルのロゴ・アイコン・モンスターの絵は
+ChatGPT で作ったものです(AI による生成)。
+Music was made with Google Gemini; the title logo, icons and monster
+art were made with ChatGPT (AI-generated).
+
+========================================
