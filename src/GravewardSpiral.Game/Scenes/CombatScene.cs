@@ -56,6 +56,7 @@ public sealed class CombatScene : Scene
     private const double ShakeSeconds = 0.3;
     private readonly List<string> _lines = [];
     private readonly List<Color?> _lineColors = [];   // 呪文の属性の色(無ければ白)
+    private readonly List<(string Text, Color? Color)> _backlog = [];   // この戦闘のログの全部(メニューのキーで読み返す)
 
     /// <param name="onEnd">終わったときに呼ぶ(迷宮が、次の遭遇までの歩数を戻すなど)。</param>
     /// <param name="noMagic">魔法禁止区域での戦闘(呪文と、呪文のアイテムが使えない)。</param>
@@ -149,7 +150,10 @@ public sealed class CombatScene : Scene
         var items = new List<MenuItem>
         {
             new(S["combat.cmd.attack"], reach ? null : S["combat.cannot_reach"], reach, CommandKind.Attack),
-            new(S["combat.cmd.cast"], Enabled: CombatSpells().Any(x => x.Slot != null), Tag: CommandKind.Cast),
+            // 習熟の無い鎧を着ていると唱えられない(5版)
+            Current.Character.ArmorProficient(Services.Data)
+                ? new(S["combat.cmd.cast"], Enabled: CombatSpells().Any(x => x.Slot != null), Tag: CommandKind.Cast)
+                : new(S["combat.cmd.cast"], S["inv.no_proficiency"], false, CommandKind.Cast),
             new(S["combat.cmd.item"], Enabled: UsableItems().Any(), Tag: CommandKind.Item),
             new(S["combat.cmd.dodge"], Tag: CommandKind.Dodge),
             new(S["combat.cmd.help"], Enabled: _state.Party.Count(p => p.Standing) > 1, Tag: CommandKind.Help),
@@ -278,15 +282,31 @@ public sealed class CombatScene : Scene
         SetMenu(items);
     }
 
-    /// <summary>一覧を入れ替え、カーソルを選べる最初の項目に置く。</summary>
+    /// <summary>一覧を入れ替え、カーソルをその人が前に選んだ項目に置く(選べなければ、選べる最初の項目)。</summary>
     private void SetMenu(IEnumerable<MenuItem> items)
     {
         var list = items.ToList();
-        _menu.SetItems(list, Math.Max(0, list.FindIndex(i => i.Enabled)));
+        int at = Services.CombatCursor.TryGetValue((Current.Id, _phase.ToString()), out var last)
+            ? list.FindIndex(i => i.Enabled && CursorKey(i.Tag) == last) : -1;
+        _menu.SetItems(list, at >= 0 ? at : Math.Max(0, list.FindIndex(i => i.Enabled)));
     }
+
+    /// <summary>
+    /// 覚えておく選んだものの名前。呪文は id、グループはその敵の id、仲間はキャラの id にして、次の戦闘でも合わせられるようにする。
+    /// </summary>
+    private string? CursorKey(object? tag) => (_phase, tag) switch
+    {
+        (_, SpellDef sp) => sp.Id,
+        (Phase.Target, int g) when g >= 0 && g < _state.Groups.Count => _state.Groups[g].Def.Id,
+        (Phase.Member, int m) when m >= 0 && m < _state.Party.Count => _state.Party[m].Id,
+        (_, "back") => null,
+        _ => tag?.ToString(),
+    };
 
     private void Choose(MenuItem item)
     {
+        // その人がこの画面で選んだものを覚える(次に同じ画面を開くと、カーソルがそこにある)
+        if (CursorKey(item.Tag) is { } key) Services.CombatCursor[(Current.Id, _phase.ToString())] = key;
         switch (_phase)
         {
             case Phase.Input when item.Tag is "auto" or "auto_nospell":
@@ -385,6 +405,13 @@ public sealed class CombatScene : Scene
     public override void Update(GameTime time, InputState input)
     {
         _shake = Math.Max(0, _shake - time.ElapsedGameTime.TotalSeconds);
+        // メニューのキーで、この戦闘のログを読み返す(読んでいるあいだ戦闘は止まる)
+        if (input.Pressed(GameAction.Menu))
+        {
+            Services.Audio.PlaySe(Sounds.Confirm);
+            Stack.Push(new BacklogScene(_backlog));
+            return;
+        }
         switch (_phase)
         {
             case Phase.Playing:
@@ -431,6 +458,7 @@ public sealed class CombatScene : Scene
     {
         _lines.Add(text);
         _lineColors.Add(color);
+        _backlog.Add((text, color));
         if (_lines.Count > 40)
         {
             _lines.RemoveAt(0);
@@ -478,6 +506,17 @@ public sealed class CombatScene : Scene
                 AddLine(S["combat.defeat"]);
                 break;
         }
+        KeepLog();
+    }
+
+    /// <summary>この戦闘のログを、キャンプで読み返せるように残し、combat.log にも足す。</summary>
+    private void KeepLog()
+    {
+        Services.LastCombatLog = [.. _backlog];
+        string floor = Services.Session?.Exploration is { } ex ? $"B{ex.Position.Floor + 1} " : "";
+        string foes = string.Join(", ", _state.Groups.Select(g => $"{Services.Name(g.Def.Name)} x{g.Units.Count}"));
+        Services.AppendCombatLog($"{DateTime.Now:yyyy-MM-dd HH:mm} {floor}{foes} -> {_state.Outcome} (round {_state.Round})",
+            _backlog.Select(l => l.Text));
     }
 
     private void End()
@@ -552,9 +591,11 @@ public sealed class CombatScene : Scene
                 d.TextWrapped(S["combat.skip_hint"], new Vector2(CommandArea.X + 16, CommandArea.Y + CommandArea.Height - 60), CommandArea.Width - 32, 15, Theme.Dim);
                 break;
             case Phase.Result:
-                d.TextWrapped(S["combat.result_hint"], new Vector2(CommandArea.X + 16, CommandArea.Y + CommandArea.Height - 40), CommandArea.Width - 32, 15, Theme.Dim);
+                d.TextWrapped(S["combat.result_hint"], new Vector2(CommandArea.X + 16, CommandArea.Y + CommandArea.Height - 60), CommandArea.Width - 32, 15, Theme.Dim);
                 break;
         }
+        if (_phase is Phase.Playing or Phase.Result)
+            d.Text(S["combat.backlog_hint"], new Vector2(CommandArea.X + 16, CommandArea.Y + CommandArea.Height - 22), 15, Theme.Dim);
 
         int? highlight = _phase is Phase.Input or Phase.Spell or Phase.Slot or Phase.ItemList or Phase.Target or Phase.Member ? _member : null;
         PartyPanel.Draw(d, Services, PartyArea, highlight, Shown?.Party);

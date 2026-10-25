@@ -80,6 +80,37 @@ public sealed class GameServices
     /// <summary>遊んでいるゲーム(タイトル画面と試しの迷宮では null)。</summary>
     public GameSession? Session { get; set; }
 
+    /// <summary>前の戦闘のログ(キャンプで読み返す。セーブには書かない)。</summary>
+    public List<(string Text, Microsoft.Xna.Framework.Color? Color)> LastCombatLog { get; set; } = [];
+
+    /// <summary>戦闘のメニューで、キャラ(id)と画面ごとに前に選んだもの(ゲームを閉じるまで覚える。セーブには書かない)。</summary>
+    public Dictionary<(string CharacterId, string Phase), string> CombatCursor { get; } = [];
+
+    /// <summary>combat.log に残す戦闘の数(古いものから消す)。</summary>
+    private const int CombatLogKeep = 20;
+
+    /// <summary>
+    /// 戦闘のログを %LOCALAPPDATA%/GravewardSpiral/combat.log に足す(「呪文が効かない」などを後で調べるため)。
+    /// 戦闘は "=== " で始まる見出しで区切り、新しい CombatLogKeep 戦だけを残す。確かめの起動(設定を残さない)では書かない。
+    /// </summary>
+    public void AppendCombatLog(string header, IEnumerable<string> lines)
+    {
+        if (!PersistOptions) return;
+        try
+        {
+            string path = AppPaths.UserFile("combat.log");
+            var all = File.Exists(path) ? File.ReadAllLines(path).ToList() : [];
+            all.Add("=== " + header);
+            all.AddRange(lines);
+            all.Add("");
+            var starts = all.Select((l, i) => (l, i)).Where(x => x.l.StartsWith("=== ")).Select(x => x.i).ToList();
+            if (starts.Count > CombatLogKeep) all = all.Skip(starts[^CombatLogKeep]).ToList();
+            File.WriteAllLines(path, all);
+        }
+        catch (IOException) { }
+        catch (UnauthorizedAccessException) { }
+    }
+
     /// <summary>デバッグ用の操作を使えるか(起動の引数 --debug)。</summary>
     public bool Debug { get; init; }
 

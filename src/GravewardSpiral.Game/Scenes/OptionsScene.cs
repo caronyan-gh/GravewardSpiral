@@ -12,10 +12,10 @@ namespace GravewardSpiral.Game.Scenes;
 /// </summary>
 public sealed class OptionsScene : Scene
 {
-    private enum Row { Language, Bgm, Se, LogSpeed, Wireframe, Map, Ai, Back }
+    private enum Row { Language, Bgm, Se, LogSpeed, Wireframe, StoryFont, Map, Ai, Back }
 
     private static readonly Row[] Rows = Enum.GetValues<Row>();
-    private static readonly RectangleF Area = new(240, 70, 800, 580);
+    private static readonly RectangleF Area = new(240, 40, 800, 640);
     private const float RowHeight = 56f;
 
     private readonly bool _overlay;
@@ -43,7 +43,7 @@ public sealed class OptionsScene : Scene
     private RectangleF LeftArrow(int i)
     {
         var r = RowRect(i);
-        return new RectangleF(r.X + r.Width - 210, r.Y + 4, 40, r.Height - 8);
+        return new RectangleF(r.X + r.Width - 250, r.Y + 4, 40, r.Height - 8);
     }
 
     private RectangleF RightArrow(int i)
@@ -139,6 +139,13 @@ public sealed class OptionsScene : Scene
             case Row.Wireframe:
                 O.MonoWireframe = !O.MonoWireframe;
                 break;
+            case Row.StoryFont:
+            {
+                var fonts = Rendering.TextRenderer.StoryFonts;
+                int i = Math.Max(0, Array.IndexOf(fonts, O.StoryFont));
+                O.StoryFont = fonts[(i + step + fonts.Length) % fonts.Length];
+                break;
+            }
             case Row.Map:
             {
                 int i = Math.Max(0, Array.IndexOf(GameOptions.MapModes, O.MapMode));
@@ -180,6 +187,7 @@ public sealed class OptionsScene : Scene
             Row.Se => $"{O.SeVolume}%",
             Row.LogSpeed => s["options.log." + O.LogSpeed],
             Row.Wireframe => s[O.MonoWireframe ? "options.wire.mono" : "options.wire.color"],
+            Row.StoryFont => s["options.storyfont." + O.StoryFont],
             Row.Map => s["options.map." + O.MapMode],
             Row.Ai => s[!O.AiEnabled ? "options.ai.off" : Ai.ApiKeyStore.Load(Ai.ApiKeyStore.Claude) != null ? "options.ai.on" : "options.ai.no_key"],
             _ => "",
@@ -218,7 +226,11 @@ public sealed class OptionsScene : Scene
                 d.Text("◀", new Vector2(la.X + la.Width / 2, r.Y + 12), 24, color, TextAlign.Center);
                 d.Text("▶", new Vector2(ra.X + ra.Width / 2, r.Y + 12), 24, color, TextAlign.Center);
             }
-            d.Text(v, new Vector2((la.X + la.Width + ra.X) / 2, r.Y + 12), 24, color, TextAlign.Center);
+            var valueStyle = Rows[i] == Row.StoryFont ? FontStyle.Story : FontStyle.Ui;   // 物語の書体は、その書体で見せる
+            // 長い値は、矢印のあいだに収まるまで字を小さくする
+            float room = ra.X - (la.X + la.Width) - 8;
+            float valueSize = Math.Min(24f, 24f * room / Math.Max(1f, d.Fonts.Measure(v, 24, valueStyle).X));
+            d.Text(v, new Vector2((la.X + la.Width + ra.X) / 2, r.Y + 12 + (24 - valueSize) / 2), valueSize, color, TextAlign.Center, valueStyle);
             if (Rows[i] is Row.Bgm or Row.Se)
             {
                 int vol = Rows[i] == Row.Bgm ? O.BgmVolume : O.SeVolume;

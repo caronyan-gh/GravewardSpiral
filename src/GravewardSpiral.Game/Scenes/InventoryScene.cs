@@ -77,7 +77,11 @@ public sealed class InventoryScene(Character owner) : MenuScene
                 }
                 else if (_picked is ItemInstance item && Data.Items.TryGetValue(item.ItemId, out var def))
                 {
-                    if (def.IsEquippable) yield return new MenuItem(s["inv.equip"], Tag: "equip");
+                    if (def.IsEquippable)
+                    {
+                        bool wear = owner.CanWear(Data, def);   // 習熟の無い鎧と盾は付けられない
+                        yield return new MenuItem(s["inv.equip"], wear ? null : s["inv.no_proficiency"], wear, "equip");
+                    }
                     if (def.IsUsable) yield return new MenuItem(s["inv.use"], Tag: "use");
                     yield return new MenuItem(s["inv.give"], Enabled: Party.Count > 1, Tag: "give");
                     // 大事なもの(鍵・紋章など)は捨てられない
@@ -226,8 +230,10 @@ public sealed class InventoryScene(Character owner) : MenuScene
         var s = Services.Strings;
         var items = new List<MenuItem>();
         if (Inv[slot] != null) items.Add(new MenuItem(s["inv.unequip"], Tag: "unequip"));
-        items.AddRange(Candidates(slot).Select(i => new MenuItem(ItemText.Name(Services, i), ItemText.Hands(Services, i), Tag: i)));
-        _slotMenu.SetItems(items, 0);
+        items.AddRange(Candidates(slot).Select(i => owner.CanWear(Data, Data.Items[i.ItemId])
+            ? new MenuItem(ItemText.Name(Services, i), ItemText.Hands(Services, i), Tag: i)
+            : new MenuItem(ItemText.Name(Services, i), Services.Strings["inv.no_proficiency"], false, i)));
+        _slotMenu.SetItems(items, Math.Max(0, items.FindIndex(i => i.Enabled)));
         _mode = Mode.SlotPick;
     }
 

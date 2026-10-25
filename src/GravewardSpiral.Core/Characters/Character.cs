@@ -179,12 +179,16 @@ public sealed class Character
     /// <summary>着ている鎧の習熟があるか(無いと攻撃が不利になり、呪文を唱えられない。5版)。鎧と盾の両方を見る。</summary>
     public bool ArmorProficient(GameData data)
     {
-        var known = ClassIds.Select(id => data.Classes[id]).SelectMany(c => c.Armor).ToHashSet();
-        if (Inventory[EquipSlot.Armor] is { } armor && data.Items.TryGetValue(armor.ItemId, out var a) && a.ArmorType is { } t
-            && !known.Contains(t.ToString().ToLowerInvariant())) return false;
-        if (Inventory[EquipSlot.OffHand] is { } off && data.Items.TryGetValue(off.ItemId, out var s) && s.Kind == ItemKind.Shield
-            && !known.Contains("shield")) return false;
+        if (Inventory[EquipSlot.Armor] is { } armor && data.Items.TryGetValue(armor.ItemId, out var a) && !CanWear(data, a)) return false;
+        if (Inventory[EquipSlot.OffHand] is { } off && data.Items.TryGetValue(off.ItemId, out var s) && !CanWear(data, s)) return false;
         return true;
+    }
+
+    /// <summary>その鎧か盾の習熟があるか(鎧と盾でない品は true)。装備の画面は、習熟の無い鎧と盾を付けさせない。</summary>
+    public bool CanWear(GameData data, ItemDef def)
+    {
+        string? need = def.Kind == ItemKind.Shield ? "shield" : def.ArmorType?.ToString().ToLowerInvariant();
+        return need == null || ClassIds.Select(id => data.Classes[id]).Any(c => c.Armor.Contains(need));
     }
 
     /// <summary>

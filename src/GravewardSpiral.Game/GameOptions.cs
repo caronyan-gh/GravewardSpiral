@@ -35,6 +35,9 @@ public sealed class GameOptions
 
     public static readonly string[] MapModes = ["auto", "map", "none"];
 
+    /// <summary>物語の書体(タイトル・迷宮のメッセージ・戦闘のログ・イベントの文): hina(Hina Mincho)/ shippori(しっぽり明朝)/ gothic(BIZ UDゴシック)。</summary>
+    public string StoryFont { get; set; } = "hina";
+
     /// <summary>
     /// AI の手伝い(新しいゲームで、その世界の文を AI に書いてもらう)。キーが無ければ使わない。
     /// キーはここに置かず、資格情報マネージャーに置く(Ai.ApiKeyStore)。
@@ -63,6 +66,7 @@ public sealed class GameOptions
             audio.SeVolume = SeFull * Math.Clamp(SeVolume, 0, 100) / 100f;
         }
         WireframeRenderer.Monochrome = MonoWireframe;
+        TextRenderer.StoryFont = TextRenderer.StoryFonts.Contains(StoryFont) ? StoryFont : "hina";
     }
 
     public static GameOptions Load(string path)

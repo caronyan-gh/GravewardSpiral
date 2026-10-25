@@ -17,6 +17,20 @@ public class ItemTests
     private static Character Fighter(GameData data) => CharacterFactory.QuickCreate(data, "A", "human", "fighter");
 
     [Fact]
+    public void OnlyProficientArmorCanBeWorn()
+    {
+        var data = Fresh();
+        var fighter = Fighter(data);
+        var wizard = CharacterFactory.QuickCreate(data, "B", "human", "wizard");
+        Assert.True(fighter.CanWear(data, data.Items["chain_mail"]));
+        Assert.True(fighter.CanWear(data, data.Items["shield"]));
+        Assert.False(wizard.CanWear(data, data.Items["chain_mail"]));
+        Assert.False(wizard.CanWear(data, data.Items["leather_armor"]));
+        Assert.False(wizard.CanWear(data, data.Items["shield"]));
+        Assert.True(wizard.CanWear(data, data.Items["dagger"]));   // 鎧と盾でない品は見ない
+    }
+
+    [Fact]
     public void BiggerBagsCostMore()
     {
         var data = Fresh();

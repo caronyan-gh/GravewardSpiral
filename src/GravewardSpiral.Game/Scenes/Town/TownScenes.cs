@@ -12,6 +12,9 @@ namespace GravewardSpiral.Game.Scenes.Town;
 /// <summary>町。酒場・宿屋・商店・寺院・訓練場と、迷宮への入口。町に来るたびに自動でセーブする。</summary>
 public sealed class TownScene : MenuScene
 {
+    /// <summary>施設が10あるので、一覧の行を少し詰めて、全部が見えるようにする。</summary>
+    public TownScene() : base(37f, 23f) { }
+
     private enum Place { Tavern, Inn, Shop, Temple, Training, House, Visit, Story, Maze, Quit }
 
     /// <summary>町の BGM(「Candlelight and Cold Stone」)。町の中の画面のあいだ、ずっと流す。</summary>
@@ -53,9 +56,9 @@ public sealed class TownScene : MenuScene
         yield return new MenuItem(s["town.house"], Tag: Place.House);
         // 町のイベントがあるときだけ出す
         if (Services.Data.Events.Values.Any(e => e.Place == "town")) yield return new MenuItem(s["town.visit"], Tag: Place.Visit);
-        // この世界のいわれ(序文)があれば、読み返せる
-        if (StoryScene.Available(Services)) yield return new MenuItem(s["town.story"], Tag: Place.Story);
         yield return new MenuItem(s["town.maze"], Enabled: PartyCanEnter, Tag: Place.Maze);
+        // この迷宮のいわれ(序文)があれば、読み返せる
+        if (StoryScene.Available(Services)) yield return new MenuItem(s["town.story"], Tag: Place.Story);
         yield return new MenuItem(s["town.quit"], Tag: Place.Quit);
     }
 
@@ -598,6 +601,7 @@ public sealed class StatusScene : Scene
         Text(string.Join("  ", Abilities.All.Select(a => $"{s[$"ability_short.{a.Code()}"]} {c.Scores[a]}")), Theme.Text, 18);
         Text(s.Format("status.xp", c.Xp, Progression.XpForLevel(c.Level + 1)), Theme.Dim, 18);
         Text(s.Format("status.gold", c.Gold), Theme.Gold, 18);
+        if (!c.ArmorProficient(data)) Text(s["status.armor_unproficient"], Theme.Warn, 18);   // 呪文を唱えられず、攻撃が不利
         if (UI.SpellText.Slots(s, data, c) is { } slots) Text(slots, Theme.Text, 18);
         return y;
     }

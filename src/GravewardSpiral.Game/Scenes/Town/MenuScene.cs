@@ -16,7 +16,10 @@ public abstract class MenuScene : Scene
     protected static readonly RectangleF InfoArea = new(600, 130, 600, 400);
     protected static readonly RectangleF PartyArea = new(40, 572, 1200, 116);
 
-    protected readonly MenuList List = new(ListArea, 46f, 26f);
+    protected readonly MenuList List;
+
+    /// <param name="rowHeight">一覧の行の高さと字の大きさ(項目の多い画面は小さくして、全部が見えるようにする)。</param>
+    protected MenuScene(float rowHeight = 46f, float fontSize = 26f) => List = new MenuList(ListArea, rowHeight, fontSize);
     protected string? Message { get; set; }
 
     protected abstract string Title { get; }

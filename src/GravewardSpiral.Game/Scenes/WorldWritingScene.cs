@@ -97,9 +97,9 @@ public sealed class WorldWritingScene : Scene
         }
         else if (_prologue != null)
         {
-            var area = new RectangleF(160, 70, 960, 560);
+            var area = new RectangleF(140, 40, 1000, 610);
             Theme.Panel(d, area);
-            d.TextWrapped(_prologue, new Vector2(area.X + 40, area.Y + 36), area.Width - 100, 22, Theme.Text, 10);   // 英語の行末がはみ出さないよう、少し余らせる
+            StoryScene.DrawTale(d, _prologue, new Vector2(area.X + 40, area.Y + 36), area.Width - 100, area.Height - 60);   // 英語の行末がはみ出さないよう、少し余らせる
         }
         d.Text(s["ai.world_next"], new Vector2(640, 668), 16, Theme.Dim, TextAlign.Center);
     }

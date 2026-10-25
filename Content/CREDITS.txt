@@ -28,6 +28,8 @@ NLayer .............. MIT License
 
 Hina Mincho ......... Copyright 2020 The Hina Mincho Project Authors
                       SIL Open Font License 1.1
+しっぽり明朝 ........ Copyright 2021 The Shippori Mincho Project Authors
+(Shippori Mincho)     SIL Open Font License 1.1
 BIZ UDゴシック ...... Copyright 2022 The BIZ UDGothic Project Authors
 (BIZ UDGothic)        SIL Open Font License 1.1
 ライセンス文は Content/fonts/ にあります。

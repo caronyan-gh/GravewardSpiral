@@ -7,7 +7,7 @@ public enum TextAlign { Left, Center, Right }
 
 /// <summary>
 /// 文字の役割。Ui はメニュー・数値・説明などのシステムの文字(BIZ UDゴシック。読みやすさ優先)、
-/// Story はタイトル・迷宮のメッセージ・戦闘のログ・イベントや会話などの見せる文字(Hina Mincho を少し太らせて描く)。
+/// Story はタイトル・迷宮のメッセージ・戦闘のログ・イベントや会話などの見せる文字(設定で Hina Mincho・しっぽり明朝・BIZ UDゴシックから選ぶ。明朝は少し太らせて描く)。
 /// </summary>
 public enum FontStyle { Ui, Story }
 
@@ -18,8 +18,22 @@ public enum FontStyle { Ui, Story }
 /// </summary>
 public sealed class TextRenderer
 {
-    /// <summary>同梱のフォントを使う順番(役割ごと)。前のフォントに無い字は、次のフォントで描く。</summary>
-    private static readonly string[] StoryOrder = ["HinaMincho-Regular.ttf", "BIZUDGothic-Regular.ttf"];
+    /// <summary>見せる文字の書体(設定の物語の書体)。前のフォントに無い字は、次のフォントで描く。</summary>
+    public static readonly string[] StoryFonts = ["hina", "shippori", "gothic"];
+
+    private static string[] StoryOrderOf(string id) => id switch
+    {
+        "shippori" => ["ShipporiMincho-Regular.ttf", "BIZUDGothic-Regular.ttf"],
+        "gothic" => ["BIZUDGothic-Regular.ttf"],
+        _ => ["HinaMincho-Regular.ttf", "BIZUDGothic-Regular.ttf"],
+    };
+
+    private static readonly string[] StoryOrder = StoryOrderOf("hina");
+
+    /// <summary>いま使う見せる文字の書体(GameOptions.Apply が決める)。変えると、次に描くときから効く。</summary>
+    public static string StoryFont { get; set; } = "hina";
+
+    private readonly Dictionary<string, FontSystem> _storyByFont = new(StringComparer.Ordinal);
     private static readonly string[] UiOrder = ["BIZUDGothic-Regular.ttf"];
 
     private static readonly string[] SystemFallbacks =
@@ -40,6 +54,7 @@ public sealed class TextRenderer
         if (FontPaths.Count == 0)
             throw new FileNotFoundException("日本語のフォントが見つかりません。Content/fonts に BIZUDGothic-Regular.ttf を置いてください。");
         _story = Load(FontPaths);
+        _storyByFont["hina"] = _story;
         var ui = FindFonts(UiOrder);
         _ui = Load(ui.Count > 0 ? ui : FontPaths);
     }
@@ -63,7 +78,15 @@ public sealed class TextRenderer
         return found;
     }
 
-    private FontSystem System(FontStyle style) => style == FontStyle.Story ? _story : _ui;
+    private FontSystem System(FontStyle style) => style == FontStyle.Story ? StorySystem() : _ui;
+
+    /// <summary>選んでいる書体の見せる文字(初めて使うときに読む。見つからなければ Hina Mincho の組)。</summary>
+    private FontSystem StorySystem()
+    {
+        if (_storyByFont.TryGetValue(StoryFont, out var fonts)) return fonts;
+        var paths = FindFonts(StoryOrderOf(StoryFont));
+        return _storyByFont[StoryFont] = paths.Count > 0 ? Load(paths) : _story;
+    }
 
     /// <summary>size は 1280x720 の座標での文字の高さ。</summary>
     public SpriteFontBase Font(float size, float scale, FontStyle style = FontStyle.Ui) =>
@@ -86,8 +109,8 @@ public sealed class TextRenderer
         };
         var at = new Vector2(MathF.Round(screen.X), MathF.Round(screen.Y));
         d.Batch.DrawString(font, text, at, color);
-        if (style != FontStyle.Story) return;
-        // Hina Mincho は線が細いので、横に少しずらして重ね、太く見せる(大きい文字ほど厚く)
+        if (style != FontStyle.Story || StoryFont == "gothic") return;
+        // 明朝は線が細いので、横に少しずらして重ね、太く見せる(大きい文字ほど厚く)
         int extra = Math.Max(1, (int)MathF.Round(size * d.Scale / 28f));
         for (int i = 1; i <= extra; i++) d.Batch.DrawString(font, text, at + new Vector2(i, 0), color);
     }
