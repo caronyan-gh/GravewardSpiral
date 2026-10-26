@@ -47,6 +47,7 @@ public static class Help
             ・ボス: 1体に1マス。ほかのマスに置くと動く。ボスは物語のタブで足す。
             ・文言: 文言のタブの文を出す(張り紙など)。
             ・門: イベントの手順「門を開ける」で開く扉。
+            ・エレベーター: 縦穴を1本通す。全部の階で同じ場所で、下の欄の「通す階」の範囲のうち、このマスが空いている階に自動で止まる(岩や壁、ほかの仕掛けのある階は素通りで、地図に薄い e が出る)。ほかの階に置き直す必要はない。「なし」にすると縦穴ごと消える。「スイッチを入れるまで動かない」にすると、フラグが立つまで動かない。標準のイベント「エレベーターのスイッチ」を、どこかのマス(下の階がおすすめ)に置く。
             ■ 見え方と魔法禁止
             見え方は、ふつう・暗闇(前が見えず、地図は触れた壁だけ)・霧(見えるが地図に残らない)のどれか。魔法禁止は呪文が唱えられない(見え方と重ねられる)。
             ■ 壁と扉
@@ -56,7 +57,7 @@ public static class Help
             部屋: 四角く選んで「この四角を部屋にする」。部屋の中のマスを選ぶと消せる。部屋は、名のある敵のねぐらやはめ込む部屋の目安。
             着く場所: 上り階段から来たとき(と、この階から始めるとき)に立つマスと向き(赤い矢印)。
             ■ 地図の印
-            上・下 階段、回 回転床、T テレポーター、穴 落とし穴、落 シュート、E エレベーター、★ イベント、主 ボス、鍵、文 文言、門、名 名のある敵のねぐら。黒は岩盤、薄い黄色は部屋。
+            上・下 階段、回 回転床、T テレポーター、穴 落とし穴、落 シュート、E エレベーター(薄い e は縦穴が素通りする階)、★ イベント、主 ボス、鍵、文 文言、門、名 名のある敵のねぐら。黒は岩盤、薄い黄色は部屋。
             ■ この階
             地図の上: 名前(空なら物語のタブの名前)、大きさ(左上をそろえて右と下を足すか削る)、端のつながり。左: 階を足す・消す・並べ替え・自動で作り直す。
             """, """
@@ -64,6 +65,7 @@ public static class Help
             Click a cell to select it. Drag to select a rectangle (changes on the right apply to every selected cell).
             ■ What is here
             One per cell: nothing, stairs, spinner, teleporter, pit, chute, elevator, solid rock, event, boss, key, text or gate. Picking one shows only the fields it needs (which event, destination, etc.).
+            ・Elevator: makes one shaft. It is at the same place on every floor and stops automatically on floors in the "Floors" range below where this cell is open (it passes through rock, walls and other features, shown as a faint e). No need to place it on other floors. Setting "Nothing" removes the whole shaft. "Doesn't run until a switch is turned on" keeps it still until the flag is set; place the standard event "Elevator switch" on a cell somewhere (a lower floor works well).
             ・Event: this scenario's events and standard ones already placed. Other standard events: "Pick a standard event". Make your own on the Events tab.
             ・Boss: one cell per boss; placing it elsewhere moves it. Add bosses on the Story tab.
             ・Text: shows text from the Text tab (notices, etc.).

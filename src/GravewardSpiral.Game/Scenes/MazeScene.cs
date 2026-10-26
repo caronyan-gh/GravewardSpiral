@@ -209,6 +209,13 @@ public sealed class MazeScene : Scene
     {
         if (State.Cell.Feature == CellFeature.Elevator)
         {
+            // スイッチ待ちの縦穴は動かない(シナリオの dungeons.json の elevators の power)
+            if (DungeonLoader.ScenarioDef(Services.Content)?.Elevators is { } shafts && Services.Session is { } session
+                && Elevators.Unpowered(shafts, State.Cell, session.Flags) != null)
+            {
+                Say(Services.Strings["elevator.no_power"]);
+                return;
+            }
             Stack.Push(new ElevatorScene(_nav, r => Report(r)));
             return;
         }

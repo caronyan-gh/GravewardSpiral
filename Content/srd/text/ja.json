@@ -575,6 +575,7 @@
   "elevator.title": "エレベーター",
   "elevator.here": "(今の階)",
   "elevator.unknown": "(まだ行っていない)",
+  "elevator.no_power": "エレベーターは動かない。どこかで動力を入れる必要がありそうだ。",
   "elevator.about": "行ったことのある階へ移れます。",
   "maze.elevator": "エレベーターがある。(決定で使う)",
   "maze.key_found": "鍵を見つけた！ この階の錠のある扉を開けられる。",

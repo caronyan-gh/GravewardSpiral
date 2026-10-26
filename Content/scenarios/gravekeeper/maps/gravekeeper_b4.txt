@@ -16,7 +16,7 @@ walls
 +-+-+ +D+L+-+-+-+-+-+ +-+-+ + + +-+ + +-+
     | | | |#|#|#|#|#| |#|#|     |#|      
 +-+ + + + +-+-+-+-+-+ +-+-+-+ +-+-+-+-+-+
-    | | |    e  D     |#|#|#|            
+    | | |       D     |#|#|#|            
 + +-+ + + + + + + +D+-+-+-+-+-+-+-+-+-+-+
   |#|   |       D D       |#|#|#|#|#|#|  
 +-+-+-+ + + + + +-+ + + + +-+-+-+-+-+-+ +
@@ -71,7 +71,6 @@ mark 10 1 event:sigil_shrine_star
 mark 14 2 event:vault
 mark 14 3 gate:riddle
 mark 14 4 event:riddle_door
-mark 6 6 elevator:0
 mark 5 13 event:ev3_plank_bridge_gap
 mark 12 14 event:a_b4_relic
 mark 12 15 gate:a_stele

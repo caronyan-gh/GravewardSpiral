@@ -27,6 +27,8 @@
 //                      (--seed S、--floors F、--model M で AI のモデルを替える。お金がかかるので確かめるときだけ。--scenario none と一緒に使う)
 //   --fill-scenario    --scenario のシナリオ(フォルダ)の、決めていない中身(出る敵・名のある敵・散らすイベント)を選んで書き込む
 //                      (シナリオエディタの「決めていないところを全部埋める」と同じ。--seed S で選び方を変える。フォルダを書き換える)
+//   --convert-elevators  --scenario のシナリオ(フォルダ)の、前の形のエレベーター(階ごとの elevator:組 の印)を縦穴(dungeons.json の elevators)に直す
+//                      (マップの e と印の行を消し、組の範囲で止まる階が一番多い座標を選ぶ。--seed S で選び方を変える。フォルダを書き換える)
 //   --scenario ID      重ねて読むシナリオ(Content/scenarios/ID か、シナリオのフォルダ)。省略すると第1部 gravekeeper、none なら自由な迷宮(標準のパックだけ)
 using GravewardSpiral.Core.Characters;
 using GravewardSpiral.Core.Combat;
@@ -42,7 +44,7 @@ int runs = 20;
 string? partiesArg = null;
 string? aiModel = null;
 var checkFiles = new List<string>();
-bool allowExisting = false, fillScenario = false;
+bool allowExisting = false, fillScenario = false, convertElevators = false;
 string? bossId = null;
 string scenarioId = ScenarioCatalog.Gravekeeper;
 ulong seed = 1;
@@ -73,6 +75,7 @@ for (int i = 0; i < args.Length; i++)
         case "--scenario": scenarioId = next; i++; break;
         case "--allow-existing": allowExisting = true; break;
         case "--fill-scenario": fillScenario = true; break;
+        case "--convert-elevators": convertElevators = true; break;
         case "--check-events":
             while (i + 1 < args.Length && !args[i + 1].StartsWith("--")) checkFiles.Add(args[++i]);
             break;
@@ -115,6 +118,49 @@ if (fillScenario)
     var done = GravewardSpiral.Core.Save.ScenarioFill.Fill(pack, data, baseContent, seed == 0 ? 1 : seed, GravewardSpiral.Core.Save.ScenarioFill.Parts.All);
     pack.Save(baseContent);
     Console.WriteLine($"埋めたもの: {done}(顔ぶれ {pack.Rosters.Count(r => r.Count > 0)} 階、名のある敵 {pack.Named?.Count}、散らすイベントの印 {pack.Floors.Sum(f => f.AllCells().Count(c => f[c].Mark?.StartsWith("event:") == true))})");
+    return 0;
+}
+
+if (convertElevators)
+{
+    // 前の形のエレベーターを縦穴に直す。マップは文字で直す(e を空きに、elevator: の印の行を消す)ので、ほかの書き方は変わらない
+    string folder = Directory.Exists(scenarioId) ? scenarioId : Path.Combine(contentRoot, "scenarios", scenarioId);
+    string dungeonsPath = Path.Combine(folder, "dungeons.json");
+    var root = System.Text.Json.Nodes.JsonNode.Parse(File.ReadAllText(dungeonsPath))!.AsArray();
+    foreach (var defNode in root.OfType<System.Text.Json.Nodes.JsonObject>())
+    {
+        var paths = defNode["floors"]!.AsArray().Select(x => (string)x!).ToList();
+        var floorsList = paths.Select(p => GravewardSpiral.Core.Maze.MazeTextFormat.Parse(File.ReadAllText(Path.Combine(folder, p)), p)).ToList();
+        var old = floorsList.SelectMany((f, i) => f.AllCells().Where(c => f[c].Feature == GravewardSpiral.Core.Maze.CellFeature.Elevator).Select(c => (Floor: i, Cell: c))).ToList();
+        if (old.Count == 0) continue;
+        var existing = defNode["elevators"] is { } shaftsNode
+            ? System.Text.Json.JsonSerializer.Deserialize<List<GravewardSpiral.Core.Maze.ElevatorShaft>>(shaftsNode, ContentLibrary.JsonOptions) ?? []
+            : [];
+        var made = GravewardSpiral.Core.Maze.Elevators.FromLegacy(floorsList, new GravewardSpiral.Core.Rng.Pcg32(seed == 0 ? 1 : seed, 7), existing);
+        // 縦穴にできた組の、前のマスだけを消す(できなかった組はマップに残す)
+        var kept = floorsList.SelectMany((f, i) => f.AllCells().Where(c => f[c].Feature == GravewardSpiral.Core.Maze.CellFeature.Elevator
+            && f[c].Mark is { } m && !made.Any(s => s.Mark == m)).Select(c => (Floor: i, Cell: c))).ToHashSet();
+        foreach (var group in old.Where(o => !kept.Contains(o)).GroupBy(o => o.Floor))
+        {
+            string file = Path.Combine(folder, paths[group.Key]);
+            var lines = File.ReadAllText(file).Replace("\r\n", "\n").Split('\n').ToList();
+            int walls = lines.IndexOf("walls");
+            foreach (var (_, cell) in group)
+            {
+                var row = lines[walls + 1 + 2 * cell.Y + 1].ToCharArray();
+                if (row[2 * cell.X + 1] == 'e') row[2 * cell.X + 1] = ' ';
+                lines[walls + 1 + 2 * cell.Y + 1] = new string(row);
+                lines.RemoveAll(l => l.StartsWith($"mark {cell.X} {cell.Y} elevator:"));
+            }
+            File.WriteAllText(file, string.Join("\n", lines));
+        }
+        existing.AddRange(made);
+        defNode["elevators"] = System.Text.Json.JsonSerializer.SerializeToNode(existing, ContentLibrary.JsonOptions);
+        foreach (var s in made)
+            Console.WriteLine($"{defNode["id"]}: 縦穴 ({s.X},{s.Y}) B{s.From}〜B{s.To}、止まる階 {string.Join("・", GravewardSpiral.Core.Maze.Elevators.Stops(floorsList, s).Select(f => $"B{f + 1}"))}");
+        if (kept.Count > 0) Console.WriteLine($"{defNode["id"]}: 縦穴にできなかったエレベーター {kept.Count} マスは、そのまま残した");
+    }
+    File.WriteAllText(dungeonsPath, root.ToJsonString(new System.Text.Json.JsonSerializerOptions { WriteIndented = true, Encoder = System.Text.Encodings.Web.JavaScriptEncoder.UnsafeRelaxedJsonEscaping }) + "\n");
     return 0;
 }
 

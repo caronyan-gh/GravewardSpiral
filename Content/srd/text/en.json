@@ -575,6 +575,7 @@
   "elevator.title": "Elevator",
   "elevator.here": "(current floor)",
   "elevator.unknown": "(not yet visited)",
+  "elevator.no_power": "The elevator does not move. It needs power from somewhere.",
   "elevator.about": "Travel to any floor you have visited.",
   "maze.elevator": "An elevator. (Enter to use)",
   "maze.key_found": "Found a key! It opens locked doors on this floor.",

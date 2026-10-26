@@ -52,6 +52,9 @@ public sealed class MapCanvas : FrameworkElement
     /// <summary>名のある敵のねぐら(この階のマス。地図に「名」で出す)。</summary>
     public IReadOnlyCollection<GridPos> Lairs { get; set; } = [];
 
+    /// <summary>エレベーターの縦穴が通るが止まらないマス(薄い e で出す)。</summary>
+    public IReadOnlyCollection<GridPos> ShaftPasses { get; set; } = [];
+
     /// <summary>選んでいる四角(向かい合う2つの角)。無ければ null。</summary>
     public (GridPos A, GridPos B)? Selection
     {
@@ -240,6 +243,11 @@ public sealed class MapCanvas : FrameworkElement
                     : mark.StartsWith("message:") ? T("文", "M") : mark.StartsWith("gate:") ? T("門", "G") : mark.StartsWith("elevator:") ? "" : T("印", "*");
                 if (tag.Length > 0) Label(dc, tag, new Point(r.Right - 7, r.Bottom - 8), 10, Brushes.Purple, dpi, bold: true);
             }
+        }
+        foreach (var p in ShaftPasses.Where(p => f.InBounds(p.X, p.Y)))
+        {
+            var r = CellRect(p.X, p.Y);
+            Label(dc, "e", new Point(r.Left + r.Width / 2, r.Top + r.Height / 2), 11, new SolidColorBrush(Color.FromArgb(140, 120, 120, 120)), dpi);
         }
         foreach (var p in Lairs.Where(p => f.InBounds(p.X, p.Y)))
         {

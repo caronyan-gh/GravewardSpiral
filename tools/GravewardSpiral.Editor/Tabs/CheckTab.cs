@@ -312,6 +312,21 @@ public sealed class CheckTab : IEditorTab
             warn(T($"散らすイベントなのに迷宮に置かれていないもの {unplacedScatter.Count} 個(基本のタブの「散らし直す」で置き直せる): {string.Join("、", unplacedScatter)}",
                 $"{unplacedScatter.Count} scattered event(s) not placed in the maze (re-scatter on the Basic tab): {string.Join(", ", unplacedScatter)}"));
 
+        // スイッチ待ちのエレベーター: そのフラグを立てるイベントが、迷宮に置いてあるか
+        var setFlags = new HashSet<string>();
+        void Sets(IEnumerable<EventStep> steps)
+        {
+            foreach (var st in steps)
+            {
+                if (st.Type == "flag" && st.Id != null) setFlags.Add(st.Id);
+                foreach (var child in st.Children()) Sets(child);
+            }
+        }
+        foreach (var e in data.Events.Values.Where(e => placed.Contains(e.Id) || runs.Contains(e.Id))) Sets(e.Steps);
+        foreach (var s in pack.Elevators.Where(s => s.Power != null && !setFlags.Contains(s.Power)))
+            warn(T($"エレベーター ({s.X},{s.Y}) のスイッチ(フラグ {s.Power})を入れるイベントが迷宮に無い(このままでは動かない。標準のイベント「エレベーターのスイッチ」を置く)",
+                $"No event in the maze turns on the switch (flag {s.Power}) of the elevator at ({s.X},{s.Y}); it never runs. Place the standard event \"Elevator switch\""));
+
         // 知らない印
         foreach (var m in marks.Where(m => !(m.Mark == "key" || m.Mark.StartsWith(EventPlacer.MarkPrefix) || m.Mark.StartsWith("boss:") || m.Mark.StartsWith("message:")
                      || m.Mark.StartsWith("gate:") || m.Mark.StartsWith("elevator:"))))

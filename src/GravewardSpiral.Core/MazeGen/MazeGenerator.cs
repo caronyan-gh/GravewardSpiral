@@ -105,21 +105,15 @@ public sealed class MazeGenerator
             }
         }
 
-        // エレベーター: 何階かずつの組に1つずつ置く(全部の階ができてから)
+        // エレベーター: 何階かずつの組に縦穴を1本ずつ通す(全部の階ができてから)。同じ座標で、空いている階に止まる
         if (floors >= _s.ElevatorMinFloors && _s.ElevatorEvery >= 2)
         {
             var rng = RngStreams.Create(req.Seed, "mazegen/elevators");
             for (int g = 0; g * _s.ElevatorEvery < floors; g++)
             {
-                var members = Enumerable.Range(g * _s.ElevatorEvery, Math.Min(_s.ElevatorEvery, floors - g * _s.ElevatorEvery)).ToList();
-                if (members.Count < 2) continue;
-                foreach (int i in members)
-                {
-                    var at = FloorBuilder.PickPlainCell(list[i], rng, corridorOnly: false, exclude: p => list[i][p].Mark != null);
-                    if (at == null) continue;
-                    list[i][at.Value].Feature = CellFeature.Elevator;
-                    list[i][at.Value].Mark = $"elevator:{g}";
-                }
+                int from = g * _s.ElevatorEvery + 1, to = Math.Min(floors, (g + 1) * _s.ElevatorEvery);
+                if (to - from < 1) continue;
+                if (Elevators.Best(list, from, to, rng) is { } shaft) Elevators.Apply(list, shaft);
             }
         }
 

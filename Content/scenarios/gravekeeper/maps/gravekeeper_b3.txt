@@ -4,7 +4,7 @@ wrap y
 start 12 5 N
 walls
 + + +-+ +-+ +-+-+-+-+-+-+ +-+ +-+ +-+ + +
-|   |#|     |#|#|#|#|       |       |e  |
+|   |#|     |#|#|#|#|       |       |   |
 +-+-+-+-+-+ +-+-+-+-+D+ +-+ +-+-+-+-+-+-+
 |#|#|     | D         | |#| |     |#|#|#|
 +-+-+ + + + + + + + + + +-+ + + + +-+-+-+
@@ -67,7 +67,6 @@ zones
 ....................
 teleport 19 8 2 10
 teleport 7 13 10 10
-mark 18 0 elevator:0
 mark 15 1 event:sigil_shrine_moon
 mark 2 2 key
 mark 1 11 event:ev4b_half_circle

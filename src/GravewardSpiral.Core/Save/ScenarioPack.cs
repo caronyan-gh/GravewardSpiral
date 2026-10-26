@@ -54,6 +54,28 @@ public sealed class ScenarioPack
     /// <summary>読んだときの dungeons.json のメモ(そのまま残す)。</summary>
     private string? _dungeonNote;
 
+    /// <summary>
+    /// エレベーターの縦穴(DungeonDef.Elevators)。開いているあいだは、止まる階のマスも Floors に入れておき(地図と検査がそのまま使える)、
+    /// 書くときはマップから外して dungeons.json にだけ書く。縦穴を変えたら <see cref="SetElevators"/> で入れ直す。
+    /// </summary>
+    public List<ElevatorShaft> Elevators { get; private set; } = [];
+
+    /// <summary>縦穴を入れ替える(前の縦穴のマスを外してから、新しい縦穴を空いている階に入れる)。</summary>
+    public void SetElevators(IEnumerable<ElevatorShaft> shafts)
+    {
+        foreach (var old in Elevators) Maze.Elevators.Clear(Floors, old);
+        Elevators = shafts.ToList();
+        Maze.Elevators.ApplyAll(Floors, Elevators);
+    }
+
+    /// <summary>前の形のエレベーター(階ごとの elevator:組 の印)を縦穴に直す(自動生成の迷宮や、古いシナリオを開いたとき)。直した数。</summary>
+    private int ConvertLegacyElevators()
+    {
+        var made = Maze.Elevators.FromLegacy(Floors, new Rng.Pcg32(1, 7), Elevators);
+        Elevators.AddRange(made);
+        return made.Count;
+    }
+
     /// <summary>その階の顔ぶれ(並びが足りなければ足す)。</summary>
     public List<string> RosterOf(int floor)
     {
@@ -85,7 +107,14 @@ public sealed class ScenarioPack
     public string MapFile(int floor) => $"maps/{Id}_b{floor + 1}.txt";
 
     /// <summary>新しいシナリオ(まだ書いていない)。迷宮は渡した階(自動生成したものか、手で作るための空の階)。</summary>
-    public static ScenarioPack New(string dir, string id, IEnumerable<MazeFloor> floors, string? author = null) => new()
+    public static ScenarioPack New(string dir, string id, IEnumerable<MazeFloor> floors, string? author = null)
+    {
+        var pack = NewPack(dir, id, floors, author);
+        pack.ConvertLegacyElevators();
+        return pack;
+    }
+
+    private static ScenarioPack NewPack(string dir, string id, IEnumerable<MazeFloor> floors, string? author) => new()
     {
         Directory = dir,
         Manifest = new PackManifest
@@ -136,6 +165,8 @@ public sealed class ScenarioPack
                     problems.Add($"{path}: {ex.Message}");
                 }
             }
+            pack.SetElevators(def.Elevators);
+            pack.ConvertLegacyElevators();
         }
         pack.Events = Json<List<EventDef>>("events.json") ?? [];
         foreach (var (collection, list) in pack.DataLists())
@@ -193,7 +224,10 @@ public sealed class ScenarioPack
         for (int i = 0; i < Floors.Count; i++)
         {
             Floors[i] = MazeEdit.Copy(Floors[i], $"{Id}_b{i + 1}");
-            File.WriteAllText(Path.Combine(Directory, MapFile(i)), MazeTextFormat.Write(Floors[i]));
+            // 縦穴の止まるマスはマップに書かない(dungeons.json の elevators から、読むときに入れる)
+            var written = MazeEdit.Copy(Floors[i], Floors[i].Id);
+            foreach (var shaft in Elevators) Maze.Elevators.Clear([written], shaft);
+            File.WriteAllText(Path.Combine(Directory, MapFile(i)), MazeTextFormat.Write(written));
             files.Add(MapFile(i));
         }
         foreach (var old in System.IO.Directory.EnumerateFiles(Path.Combine(Directory, "maps"), $"{Id}_b*.txt"))
@@ -204,7 +238,7 @@ public sealed class ScenarioPack
         if (rosters.All(r => r.Count == 0)) rosters = [];
         WriteJson("dungeons.json", new[]
         {
-            new DungeonLoader.DungeonDef { Id = Id, Name = Manifest.Name, Floors = files, Rosters = rosters, Named = Named, EventsPlaced = EventsPlaced, Note = _dungeonNote },
+            new DungeonLoader.DungeonDef { Id = Id, Name = Manifest.Name, Floors = files, Rosters = rosters, Named = Named, EventsPlaced = EventsPlaced, Note = _dungeonNote, Elevators = Elevators },
         }, prune: true);
         WriteJson("events.json", Events, prune: true);
         string rumors = Path.Combine(Directory, RumorDef.Collection + ".json");

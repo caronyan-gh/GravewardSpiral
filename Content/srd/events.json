@@ -79352,5 +79352,67 @@
         ]
       }
     ]
+  },
+  {
+    "id": "elevator_switch",
+    "title": {
+      "en": "Elevator switch",
+      "ja": "エレベーターのスイッチ"
+    },
+    "place": "maze",
+    "once": "place",
+    "note": "エレベーターの縦穴の power が elevator_power のとき、これで動き出す。下の階に置くと、以後の行き来が楽になる",
+    "steps": [
+      {
+        "type": "text",
+        "text": {
+          "en": "A great iron lever juts from the wall. Chains run from it up into the dark, toward the elevator shaft.",
+          "ja": "壁から大きな鉄のレバーが突き出ている。鎖が、暗がりの上へ、エレベーターの縦穴のほうへ伸びている。"
+        }
+      },
+      {
+        "type": "choice",
+        "text": {
+          "en": "Pull the lever?",
+          "ja": "レバーを引く？"
+        },
+        "options": [
+          {
+            "label": {
+              "en": "Pull it",
+              "ja": "引く"
+            },
+            "steps": [
+              {
+                "type": "flag",
+                "id": "elevator_power"
+              },
+              {
+                "type": "sound",
+                "id": "search"
+              },
+              {
+                "type": "text",
+                "text": {
+                  "en": "With a groan the chains go taut. Far above, something heavy begins to move. The elevator is running.",
+                  "ja": "鎖がうなりを上げて張りつめた。はるか上で、何か重いものが動き出す。エレベーターが動くようになった。"
+                }
+              }
+            ]
+          },
+          {
+            "label": {
+              "en": "Leave it",
+              "ja": "そのままにする"
+            },
+            "steps": [
+              {
+                "type": "again"
+              }
+            ]
+          }
+        ]
+      }
+    ]
   }
 ]

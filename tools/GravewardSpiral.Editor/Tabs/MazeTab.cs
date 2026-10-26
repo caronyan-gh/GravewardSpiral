@@ -116,6 +116,7 @@ public sealed class MazeTab : IEditorTab
     private void Refresh()
     {
         _map.Lairs = _context.Pack?.Named?.Where(n => n.Lair && n.Floor == Floor).Select(n => new GridPos(n.X, n.Y)).ToList() ?? [];
+        ShowShaftPasses();
         _map.InvalidateVisual();
         ShowCell();
         ShowFloorProps();
@@ -189,6 +190,9 @@ public sealed class MazeTab : IEditorTab
 
     private void Edited()
     {
+        // エレベーターの縦穴は、マスが空いているかで止まる階が変わるので、直すたびに入れ直す
+        if (_context.Pack is { } pack) pack.SetElevators(pack.Elevators.ToList());
+        ShowShaftPasses();
         _map.InvalidateVisual();
         _context.MarkEdited();
     }
@@ -201,6 +205,15 @@ public sealed class MazeTab : IEditorTab
         Edited();
     }
 
+
+    /// <summary>この階で、縦穴が通るが止まらないマスを地図に出す。</summary>
+    private void ShowShaftPasses() =>
+        _map.ShaftPasses = _context.Pack is { } pack && Current is { } f
+            ? pack.Elevators.Where(s => s.Covers(Floor) && f.InBounds(s.X, s.Y) && f[s.Cell].Mark != s.Mark).Select(s => s.Cell).ToList()
+            : [];
+
+    /// <summary>このマスが止まる階になっている縦穴(無ければ null)。</summary>
+    private ElevatorShaft? ShaftOf(MazeCell c) => _context.Pack?.Elevators.FirstOrDefault(s => s.Mark == c.Mark);
 
     /// <summary>そのマスにあるもの(Things のキー)。どれにも当たらない印は "other"。</summary>
     private static string ThingOf(MazeCell c) => c.Feature switch
@@ -226,6 +239,16 @@ public sealed class MazeTab : IEditorTab
     private void SetThing(MazeFloor f, GridPos p, string thing)
     {
         var c = f[p];
+        // エレベーターを「なし」にしたら、縦穴ごと消す(ほかのものにしたら、この階だけ止まらなくなる)
+        if (ShaftOf(c) is { } shaft && _context.Pack is { } owner)
+        {
+            if (thing == "none")
+            {
+                owner.SetElevators(owner.Elevators.Where(s => s != shaft));
+                return;
+            }
+            if (thing == "elevator") return;
+        }
         if (c.IsSolid && thing != "solid") MazeEdit.SetFeature(f, p, CellFeature.None);
         MazeEdit.SetFeature(f, p, CellFeature.None);
         c.Mark = null;
@@ -237,10 +260,14 @@ public sealed class MazeTab : IEditorTab
             case "pit": MazeEdit.SetFeature(f, p, CellFeature.Pit); break;
             case "teleport": MazeEdit.SetFeature(f, p, CellFeature.Teleporter, new WarpTarget(null, p)); break;
             case "chute": MazeEdit.SetFeature(f, p, CellFeature.Chute, new WarpTarget(Floor + 1, p)); break;
-            case "elevator":
-                MazeEdit.SetFeature(f, p, CellFeature.Elevator);
-                c.Mark = "elevator:a";
+            case "elevator" when _context.Pack is { } pack:
+            {
+                // ここに縦穴を通す(はじめはこの階と、その下の階。上下の階は下の欄で直す)。同じ座標の縦穴は置き換える
+                int count = pack.Floors.Count, from = Floor + 1, to = Math.Min(count, Floor + 2);
+                if (to == from) from = Math.Max(1, from - 1);
+                pack.SetElevators(pack.Elevators.Where(s => s.X != p.X || s.Y != p.Y).Append(new ElevatorShaft(p.X, p.Y, from, to)));
                 break;
+            }
             case "solid": MazeEdit.SetFeature(f, p, CellFeature.Solid); break;
             case "event": c.Mark = EventChoices().FirstOrDefault() is { } ev ? EventPlacer.MarkPrefix + ev.Key : null; break;
             case "boss": c.Mark = "boss:"; break;   // どのボスかは、下の欄で選ぶ(はじめは空)
@@ -487,6 +514,59 @@ public sealed class MazeTab : IEditorTab
                 name.LostFocus += (_, _) => { if (name.Text.Trim().Length > 0) Marks(v => "gate:" + v, name.Text.Trim()); };
                 _cellPanel.Children.Add(Ui.Row(T("門の名前", "Gate name"), name, LabelWidth));
                 _cellPanel.Children.Add(Ui.Row("", Ui.Note(T("イベントの手順「門を開ける」(open)で、この名前の門の錠を開ける。", "The event step \"Open gate\" (open) unlocks the gate with this name.")), LabelWidth));
+                break;
+            }
+            case "elevator" when ShaftOf(c) is { } shaft && _context.Pack is { } pack && cells.Count == 1:
+            {
+                // 縦穴: 上の階と下の階を選ぶ。範囲の階のうち、このマスが空いている階に止まる
+                var levels = Enumerable.Range(1, pack.Floors.Count).Select(n => $"B{n}").ToList();
+                var top = new ComboBox { ItemsSource = levels, Width = 80, SelectedIndex = Math.Min(shaft.From, shaft.To) - 1 };
+                var bottom = new ComboBox { ItemsSource = levels, Width = 80, SelectedIndex = Math.Max(shaft.From, shaft.To) - 1 };
+                void Range()
+                {
+                    if (top.SelectedIndex < 0 || bottom.SelectedIndex < 0) return;
+                    int a = top.SelectedIndex + 1, b = bottom.SelectedIndex + 1;
+                    pack.SetElevators(pack.Elevators.Select(s => s == shaft ? s with { From = Math.Min(a, b), To = Math.Max(a, b) } : s));
+                    Edited();
+                    ShowCell();
+                }
+                top.SelectionChanged += (_, _) => Range();
+                bottom.SelectionChanged += (_, _) => Range();
+                var range = new WrapPanel();
+                range.Children.Add(top);
+                range.Children.Add(new TextBlock { Text = " 〜 ", VerticalAlignment = VerticalAlignment.Center });
+                range.Children.Add(bottom);
+                _cellPanel.Children.Add(Ui.Row(T("通す階", "Floors"), range, LabelWidth));
+                var stops = Elevators.Stops(pack.Floors, shaft);
+                _cellPanel.Children.Add(Ui.Row(T("止まる階", "Stops"), new TextBlock
+                {
+                    Text = string.Join("・", stops.Select(x => $"B{x + 1}")) + (stops.Count < 2 ? T("(2 つ以上の階に止まるようにする)", " (needs two or more)") : ""),
+                    Foreground = stops.Count < 2 ? Ui.Warn : Theme.Brush(Theme.Palette.Text), VerticalAlignment = VerticalAlignment.Center,
+                }, LabelWidth));
+                // スイッチ: フラグが立つまで動かない(標準のイベント「エレベーターのスイッチ」が elevator_power を立てる)
+                var power = new CheckBox
+                {
+                    Content = T("スイッチを入れるまで動かない", "Doesn't run until a switch is turned on"), IsChecked = shaft.Power != null, VerticalAlignment = VerticalAlignment.Center,
+                };
+                var flag = new TextBox { Text = shaft.Power ?? Elevators.DefaultPower, Width = 160, IsEnabled = shaft.Power != null, Margin = new Thickness(8, 0, 0, 0) };
+                void Power()
+                {
+                    string? value = power.IsChecked == true ? (flag.Text.Trim() is { Length: > 0 } t ? t : Elevators.DefaultPower) : null;
+                    pack.SetElevators(pack.Elevators.Select(s => s == shaft ? s with { Power = value } : s));
+                    Edited();
+                    ShowCell();
+                }
+                power.Click += (_, _) => Power();
+                flag.LostFocus += (_, _) => { if (power.IsChecked == true && flag.Text.Trim() != shaft.Power) Power(); };
+                var powerRow = new WrapPanel();
+                powerRow.Children.Add(power);
+                powerRow.Children.Add(flag);
+                _cellPanel.Children.Add(Ui.Row(T("スイッチ", "Switch"), powerRow, LabelWidth));
+                if (shaft.Power != null)
+                    _cellPanel.Children.Add(Ui.Row("", Ui.Note(T($"フラグ {shaft.Power} が立つまで動かない。標準のイベント「エレベーターのスイッチ」(elevator_switch)は {Elevators.DefaultPower} を立てるので、それをどこかのマス(下の階がおすすめ)に置く。自分のイベントの「フラグを立てる」でもよい。",
+                        $"Doesn't run until flag {shaft.Power} is set. The standard event \"Elevator switch\" (elevator_switch) sets {Elevators.DefaultPower}; place it on a cell somewhere (a lower floor works well). Your own event's \"Set flag\" also works.")), LabelWidth));
+                _cellPanel.Children.Add(Ui.Row("", Ui.Note(T("縦穴は全部の階で同じ場所。範囲の階のうち、このマスが空いている階に自動で止まる(岩や壁、ほかの仕掛けのある階は素通り)。「なし」にすると縦穴ごと消える。",
+                    "The shaft is at the same place on every floor. It stops automatically on floors in the range where this cell is open (it passes through rock, walls and other features). Setting \"Nothing\" removes the whole shaft.")), LabelWidth));
                 break;
             }
             case "elevator":

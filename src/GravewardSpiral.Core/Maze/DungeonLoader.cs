@@ -34,6 +34,9 @@ public static class DungeonLoader
         /// </summary>
         public bool EventsPlaced { get; set; }
 
+        /// <summary>エレベーターの縦穴(座標と上下の階)。読むときに、範囲の空いている階へ止まるマスを入れる。</summary>
+        public List<ElevatorShaft> Elevators { get; set; } = [];
+
         public string? Note { get; set; }
     }
 
@@ -53,6 +56,7 @@ public static class DungeonLoader
             string full = item.ResolvePath(path);
             return MazeTextFormat.Parse(File.ReadAllText(full), $"{item.Pack.Id}/{path}");
         }).ToList();
+        Elevators.ApplyAll(floors, def.Elevators);
         return new Dungeon(def.Id, floors);
     }
 
@@ -74,6 +78,11 @@ public static class DungeonLoader
                 var dungeon = Load(content, item.Id);
                 content.Problems.AddRange(dungeon.Validate().Select(p => $"迷宮 '{item.Id}': {p}"));
                 var def = item.As<DungeonDef>();
+                foreach (var shaft in def.Elevators)
+                {
+                    int stops = Elevators.Stops(dungeon.Floors, shaft).Count;
+                    if (stops < 2) content.Problems.Add($"迷宮 '{item.Id}' のエレベーター ({shaft.X},{shaft.Y}) B{shaft.From}〜B{shaft.To} が止まる階が {stops} しかありません(2 つ以上の階で空いているマスにする)");
+                }
                 for (int i = 0; i < def.Rosters.Count; i++)
                     foreach (var m in def.Rosters[i])
                     {
