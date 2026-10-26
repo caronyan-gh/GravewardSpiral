@@ -22,6 +22,14 @@
     <Nullable>enable</Nullable>
     <AssemblyName>GravewardSpiralEditor</AssemblyName>
     <RootNamespace>GravewardSpiral.Editor</RootNamespace>
+    <!-- exe のアイコン(エクスプローラーとスタートメニュー) -->
+    <ApplicationIcon>Icon.ico</ApplicationIcon>
   </PropertyGroup>
+
+  <ItemGroup>
+    <!-- 窓のアイコン(タイトルの帯とタスクバー)。Icon.png は 512 の元の絵 -->
+    <Resource Include="Icon.ico" />
+    <None Remove="Icon.png" />
+  </ItemGroup>
 
 </Project>

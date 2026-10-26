@@ -78,6 +78,11 @@ public sealed class MazeScene : Scene
 
     private int _version;
 
+    /// <summary>上に積んだ画面から戻ったところ。移動のキーを押し直すまで歩かない(戦闘のあとに前進が入りっぱなしにならないように)。</summary>
+    private bool _waitMoveRelease;
+
+    private static readonly GameAction[] MoveActions = [GameAction.Up, GameAction.Down, GameAction.StrafeLeft, GameAction.StrafeRight];
+
     /// <summary>厳しいセーブの難易度なら、今の状態を保存する(上に積んだ画面から戻ったとき・階を移ったとき)。</summary>
     private void AutoSave()
     {
@@ -92,7 +97,10 @@ public sealed class MazeScene : Scene
         {
             _version = Stack.Version;
             AutoSave();
+            _waitMoveRelease = true;
         }
+        // 戻ってきたあとは、移動のキーを全部放すか、新しく押すまで、押しっぱなしでは歩かない
+        if (_waitMoveRelease && (!MoveActions.Any(input.Held) || MoveActions.Any(input.Pressed))) _waitMoveRelease = false;
         // 休憩中に来た敵(キャンプが閉じてから戦う)
         if (_ambushPending)
         {
@@ -101,21 +109,22 @@ public sealed class MazeScene : Scene
             return;
         }
         if (Services.Debug && DebugKeys()) return;
-        if (input.Repeat(GameAction.Up))
+        bool walk = !_waitMoveRelease;   // 押しっぱなしのまま戻ってきたあいだは、歩かない(回転やメニューはできる)
+        if (walk && input.Repeat(GameAction.Up))
         {
             bool door = ThroughDoor(State.Position.Facing);   // 動く前に、これから通る辺を見る
             _moveDir = State.Position.Facing;
             _stepFrom = State.Position.Cell;
             Report(_nav.Forward(), door);
         }
-        else if (input.Repeat(GameAction.Down))
+        else if (walk && input.Repeat(GameAction.Down))
         {
             bool door = ThroughDoor(State.Position.Facing.Opposite());
             _moveDir = State.Position.Facing.Opposite();
             _stepFrom = State.Position.Cell;
             Report(_nav.Backward(), door);
         }
-        else if (input.Repeat(GameAction.StrafeLeft) || input.Repeat(GameAction.StrafeRight))
+        else if (walk && (input.Repeat(GameAction.StrafeLeft) || input.Repeat(GameAction.StrafeRight)))
         {
             var dir = input.Repeat(GameAction.StrafeLeft) ? State.Position.Facing.Left() : State.Position.Facing.Right();
             bool door = ThroughDoor(dir);

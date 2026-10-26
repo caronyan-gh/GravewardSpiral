@@ -77,7 +77,7 @@ public sealed class InputState
         _repeated.Clear();
         foreach (var action in Enum.GetValues<GameAction>())
         {
-            bool down = windowActive && (_bindings.KeysFor(action).Any(keys.IsKeyDown)
+            bool down = windowActive && (_bindings.KeysFor(action).Any(k => KeyDown(keys, k))
                         || (pad.IsConnected && _bindings.ButtonsFor(action).Any(pad.IsButtonDown)));
             bool wasDown = _held.Contains(action);
             if (down && !wasDown)
@@ -140,4 +140,14 @@ public sealed class InputState
     }
 
     private bool Pressed(KeyboardState keys, Keys key) => keys.IsKeyDown(key) && _prevKeys.IsKeyUp(key);
+
+    /// <summary>
+    /// キーが押されているか。DesktopGL(SDL)は、放した知らせが届かない(日本語入力や窓の切り替えのとき)と押したままと思い続け、
+    /// 前進が入りっぱなしになる。Windows では、OS にも今押されているかを確かめる(Keys の値は Windows の仮想キーの番号と同じ)。
+    /// </summary>
+    private static bool KeyDown(KeyboardState keys, Keys key) =>
+        keys.IsKeyDown(key) && (!OperatingSystem.IsWindows() || (GetAsyncKeyState((int)key) & 0x8000) != 0);
+
+    [System.Runtime.InteropServices.DllImport("user32.dll")]
+    private static extern short GetAsyncKeyState(int vKey);
 }

@@ -38,6 +38,7 @@ public sealed class MainWindow : Window
     {
         _context = context;
         _options = options;
+        Icon = System.Windows.Media.Imaging.BitmapFrame.Create(new Uri("pack://application:,,,/Icon.ico"));
         Width = 1280;
         Height = 820;
         FontSize = 13;
