@@ -147,6 +147,8 @@ public sealed class CombatScene : Scene
     private void ShowCommands()
     {
         _phase = Phase.Input;
+        // 前の人の呪文・アイテムの選びかけを残さない(残ると、攻撃で敵を選んだときに、その呪文やアイテムを使ってしまう)
+        _pending = CommandKind.Attack;
         bool reach = _state.AttackableGroups(Current).Any();
         var items = new List<MenuItem>
         {

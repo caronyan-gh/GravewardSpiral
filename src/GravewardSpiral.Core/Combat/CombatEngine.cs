@@ -807,8 +807,7 @@ public sealed class CombatEngine(GameData data, IRandom rng)
         var c = p.Character;
         // 難易度と攻撃の修正は、その呪文を覚えている(準備している)クラスの能力値で決める
         if (cmd.SpellId == null || !_data.Spells.TryGetValue(cmd.SpellId, out var spell) || Spellcasting.ClassFor(_data, c, cmd.SpellId) is not { } cls)
-            return;
-        if (s.NoMagic)
+            return;        if (s.NoMagic)
         {
             s.Add("combat.antimagic", p.Name);
             return;
