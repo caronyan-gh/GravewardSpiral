@@ -13,6 +13,9 @@ public sealed class SkillDef
     public string Ability { get; set; } = "";
     public LocalizedText Name { get; set; } = LocalizedText.Of("");
 
+    /// <summary>説明(何をする技能か、このゲームでの使いどころ)。キャラ作成で技能を選ぶときに出す。</summary>
+    public LocalizedText? Description { get; set; }
+
     public Ability AbilityValue => Abilities.Parse(Ability);
 }
 

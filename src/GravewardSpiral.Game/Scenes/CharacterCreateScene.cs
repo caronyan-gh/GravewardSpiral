@@ -404,6 +404,13 @@ public sealed class CharacterCreateScene : Scene
             case Step.FreeAbilities:
                 Line(s[$"create.about_{_step.ToString().ToLowerInvariant()}"], Theme.Dim, 18);
                 if (_step != Step.FreeAbilities) Line(s.Format("create.fixed_skills", Services.Strings.List(FixedSkills().Select(SkillName))), Theme.Text, 18);
+                // カーソルの技能の説明(元の能力値と、何に使うか)
+                if (_step != Step.FreeAbilities && _list.Current?.Tag is string sid && Data.Skills.TryGetValue(sid, out var skill))
+                {
+                    y += 14;
+                    Line($"{Services.Name(skill.Name)}({AbilityName(skill.AbilityValue)})", Theme.Title, 24);
+                    if (skill.Description != null) Wrap(d, Services.Name(skill.Description), at.X, ref y);
+                }
                 break;
             case Step.Background when _list.Current?.Tag is string bid:
                 Line(Services.Name(Data.Backgrounds[bid].Name), Theme.Title, 26);
