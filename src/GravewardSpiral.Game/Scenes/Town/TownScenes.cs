@@ -621,7 +621,8 @@ public sealed class StatusScene : Scene
         Text(s.Format("status.xp", c.Xp, Progression.XpForLevel(c.Level + 1)), Theme.Dim, 18);
         Text(s.Format("status.gold", c.Gold), Theme.Gold, 18);
         if (!c.ArmorProficient(data)) Text(s["status.armor_unproficient"], Theme.Warn, 18);   // 呪文を唱えられず、攻撃が不利
-        if (UI.SpellText.Slots(s, data, c) is { } slots) Text(slots, Theme.Text, 18);
+        if (UI.SpellText.SlotLines(s, data, c) is { } slots)
+            foreach (var line in slots) Text(line, Theme.Text, 18);
         return y;
     }
 

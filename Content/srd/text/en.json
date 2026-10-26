@@ -313,6 +313,8 @@
   "maze.after_flee": "Barely escaped.",
   "combat.cmd.cast": "Cast",
   "combat.ask_spell": "Which spell to cast?",
+  "combat.tab_cantrip": "C",
+  "combat.no_spells_at_level": "No spells of this level",
   "combat.ask_slot": "Using which slot level?",
   "combat.cast": "{0} casts {1}!",
   "combat.no_slot": "{0} has no slot left to cast {1}.",

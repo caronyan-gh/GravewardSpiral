@@ -32,6 +32,13 @@ public sealed class CampScene : MenuScene
     private SpellDef? _spell;
     private int _slot;
 
+    /// <summary>呪文の一覧で見ているレベルのタブ(0 は初級呪文、1〜9 は呪文のレベル)。戦闘と同じ形。</summary>
+    private int _spellTab;
+
+    /// <summary>呪文を選ぶときは、一覧の上にレベルのタブの帯を出し、一覧をその分だけ下げる。</summary>
+    private static readonly RectangleF SpellTabArea = new(ListArea.X, ListArea.Y - 4, ListArea.Width, 34);
+    private static readonly RectangleF SpellListArea = new(ListArea.X, ListArea.Y + 42, ListArea.Width, ListArea.Height - 42);
+
     /// <param name="restInterrupted">小休憩のあとで呼ぶ。敵が来たら true(戦闘は呼んだ側が始める)。</param>
     /// <param name="returnToTown">ウィッシュで町へ帰るときに呼ぶ。</param>
     public CampScene(Func<bool> restInterrupted, Action returnToTown)
@@ -70,7 +77,7 @@ public sealed class CampScene : MenuScene
                 yield return new MenuItem(s["common.back"], Tag: "back");
                 break;
             case Mode.CastWho:
-                foreach (var c in Party) yield return new MenuItem(c.Name, SpellText.Slots(s, data, c), c.CanAct && CampSpells(c).Any(), c);
+                foreach (var c in Party) yield return new MenuItem(c.Name, Enabled: c.CanAct && CampSpells(c).Any(), Tag: c);
                 break;
             case Mode.PrepareWho:
                 foreach (var c in Party) yield return new MenuItem(c.Name, Enabled: Prepares(data, c), Tag: c);
@@ -85,10 +92,18 @@ public sealed class CampScene : MenuScene
                     yield return new MenuItem(c.Name, c.IsAlive ? $"{c.Hp}/{c.MaxHp}" : s[$"state.{c.State.ToString().ToLowerInvariant()}"], Tag: c);
                 break;
             case Mode.CastSpell:
-                foreach (var sp in CampSpells(_caster!))
-                    yield return SpellText.CastItem(Services, _caster!, sp, SpellText.Level(s, sp),
-                        Spellcasting.LowestSlot(Spellcasting.CasterClass(data, _caster!)!, _caster!, sp) != null);
+            {
+                // 今のタブに出す呪文(上のスロットで強くなる呪文も)。タブがそのまま唱えるスロットのレベルなので、レベルと残りの数は出さない
+                bool castable = SpellTabs.CanCast(data, _caster!, _spellTab);
+                bool any = false;
+                foreach (var sp in CampSpells(_caster!).Where(x => SpellTabs.Shows(x, _spellTab)))
+                {
+                    any = true;
+                    yield return SpellText.CastItem(Services, _caster!, sp, null, castable);
+                }
+                if (!any) yield return new MenuItem(s["combat.no_spells_at_level"], Enabled: false);
                 break;
+            }
             case Mode.CastSlot:
             {
                 var cls = Spellcasting.CasterClass(data, _caster!)!;
@@ -122,6 +137,7 @@ public sealed class CampScene : MenuScene
     private void Go(Mode mode)
     {
         _mode = mode;
+        List.Area = mode == Mode.CastSpell ? SpellListArea : ListArea;
         var items = Items().ToList();
         List.SetItems(items, Math.Max(0, items.FindIndex(i => i.Enabled)));   // 選べる最初の項目から
     }
@@ -166,22 +182,15 @@ public sealed class CampScene : MenuScene
             case (Mode.PrepareWho, Character c): Stack.Push(new SpellPickScene(c, SpellPickScene.Kind.Prepared)); break;
             case (Mode.CastWho, Character c):
                 _caster = c;
+                // はじめのタブは、唱えられる一番低いタブ
+                _spellTab = SpellTabs.First(Services.Data, c, CampSpells(c));
                 Go(Mode.CastSpell);
                 break;
             case (Mode.CastSpell, SpellDef sp):
-            {
                 _spell = sp;
-                var cls = Spellcasting.CasterClass(Services.Data, _caster!)!;
-                var levels = sp.IsCantrip ? [] : Enumerable.Range(sp.Level, 10 - sp.Level).Where(l => Spellcasting.SlotsLeft(cls, _caster!, l) > 0).ToList();
-                if (levels.Count > 1)
-                {
-                    Go(Mode.CastSlot);
-                    break;
-                }
-                _slot = levels.Count == 1 ? levels[0] : 0;
+                _slot = _spellTab;   // タブのレベルのスロットで唱える
                 AfterSlot();
                 break;
-            }
             case (Mode.CastSlot, int level):
                 _slot = level;
                 AfterSlot();
@@ -253,8 +262,9 @@ public sealed class CampScene : MenuScene
         }
         Message = string.Join(" ", state.Log.Skip(1).Select(e => CombatText.Format(Services, e)).TakeLast(2));
         Services.Audio.PlaySe(_spell.Effects.Any(e => e.Type == Core.Effects.EffectPart.Heal) ? Sounds.Heal : Sounds.SpellCast);
-        // 続けて唱えられるよう、同じ人の呪文の一覧に戻る(カーソルは今の呪文に)
+        // 続けて唱えられるよう、同じ人の呪文の一覧に戻る(タブはそのまま、カーソルは今の呪文に)
         _mode = Mode.CastSpell;
+        List.Area = SpellListArea;
         var items = Items().ToList();
         int at = items.FindIndex(i => i.Tag == _spell);
         List.SetItems(items, at >= 0 && items[at].Enabled ? at : Math.Max(0, items.FindIndex(i => i.Enabled)));
@@ -320,6 +330,34 @@ public sealed class CampScene : MenuScene
         else Go(Mode.Main);
     }
 
+    public override void Update(GameTime time, Input.InputState input)
+    {
+        // 呪文: 左右かタブのクリックで、呪文のレベルを切り替える(呪文のあるタブだけを回る)
+        if (_mode == Mode.CastSpell)
+        {
+            var tabs = SpellTabs.Tabs(Services.Data, _caster!, CampSpells(_caster!));
+            int next = _spellTab;
+            if (input.Repeat(Input.GameAction.Left)) next = SpellTabs.Move(tabs, _spellTab, -1);
+            else if (input.Repeat(Input.GameAction.Right)) next = SpellTabs.Move(tabs, _spellTab, 1);
+            else if (input.LeftClicked && input.Mouse is { } m && SpellTabs.At(SpellTabArea, m) is int tab && tabs.Contains(tab)) next = tab;
+            if (next != _spellTab)
+            {
+                _spellTab = next;
+                Services.Audio.PlaySe(Sounds.Cursor);
+                Go(Mode.CastSpell);
+                return;
+            }
+        }
+        base.Update(time, input);
+    }
+
+    public override void Draw(Draw2D d)
+    {
+        base.Draw(d);
+        if (_mode == Mode.CastSpell)
+            SpellTabs.Draw(d, SpellTabArea, Services.Data, _caster!, _spellTab, SpellTabs.Tabs(Services.Data, _caster!, CampSpells(_caster!)), Services.Strings["combat.tab_cantrip"], 22);
+    }
+
     protected override int? PartyHighlight => _mode is Mode.CastWho or Mode.PrepareWho or Mode.StatusWho or Mode.ItemsWho or Mode.CastTarget ? List.Cursor
         : _mode == Mode.Reorder && List.Current?.Tag is Character c ? Roster.Party.IndexOf(c.Id) : null;
 
@@ -331,7 +369,7 @@ public sealed class CampScene : MenuScene
         {
             y = Line(d, area, y, Services.Name(sp.Name), Theme.Title, 26);
             y = Line(d, area, y, SpellText.Header(s, sp), Theme.Dim, 18);
-            int level = sp.Scale == "character" ? _caster!.Level : Math.Max(1, sp.Level);
+            int level = sp.Scale == "character" ? _caster!.Level : Math.Max(1, _mode == Mode.CastSpell ? Math.Max(sp.Level, _spellTab) : sp.Level);
             foreach (var line in SpellText.Effects(s, sp, level)) y = Line(d, area, y, line, Theme.Text, 19);
             return;
         }

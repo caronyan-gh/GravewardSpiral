@@ -227,30 +227,46 @@ public sealed class CombatScene : Scene
         else Set(new PlayerCommand(CommandKind.Item, ItemIndex: _itemIndex));
     }
 
+    /// <summary>呪文の一覧で見ているレベルのタブ(0 は初級呪文、1〜9 は呪文のレベル)。</summary>
+    private int _spellTab;
+
+    /// <summary>呪文の一覧の上のタブの帯(初・1〜9)。一覧はその下に下げる。</summary>
+    private static readonly RectangleF SpellTabArea = new(CommandArea.X + 16, CommandArea.Y + 44, CommandArea.Width - 32, 30);
+    private static readonly RectangleF MenuArea = new(CommandArea.X + 16, CommandArea.Y + 50, CommandArea.Width - 32, CommandArea.Height - 64);
+    private static readonly RectangleF SpellMenuArea = new(CommandArea.X + 16, CommandArea.Y + 84, CommandArea.Width - 32, CommandArea.Height - 98);
+
+    /// <summary>呪文を選ぶ。はじめのタブは、前に選んだタブ(選べなければ、唱えられる一番低いタブ)。</summary>
     private void ShowSpells()
     {
         _phase = Phase.Spell;
-        var cls = CurrentClass!;
-        var items = CombatSpells().Select(x => SpellText.CastItem(Services, Current.Character, x.Spell,
-            x.Spell.IsCantrip ? S["spell.cantrip"] : $"Lv{x.Spell.Level} ({Spellcasting.SlotsLeft(cls, Current.Character, x.Spell.Level)})",
-            x.Slot != null));
+        var tabs = SpellTabs();
+        _spellTab = Services.CombatCursor.TryGetValue((Current.Id, "SpellTab"), out var last) && int.TryParse(last, out int t) && tabs.Contains(t)
+            ? t : UI.SpellTabs.First(Services.Data, Current.Character, CombatSpells().Select(x => x.Spell));
+        ShowSpellTab();
+    }
+
+    /// <summary>今のタブの呪文を一覧にする(タブがそのまま唱えるスロットのレベルなので、レベルと残りの数は出さない)。</summary>
+    private void ShowSpellTab()
+    {
+        Services.CombatCursor[(Current.Id, "SpellTab")] = _spellTab.ToString();
+        bool castable = UI.SpellTabs.CanCast(Services.Data, Current.Character, _spellTab);
+        var items = CombatSpells().Where(x => UI.SpellTabs.Shows(x.Spell, _spellTab))
+            .Select(x => SpellText.CastItem(Services, Current.Character, x.Spell, null, castable)).ToList();
+        if (items.Count == 0) items.Add(new MenuItem(S["combat.no_spells_at_level"], Enabled: false));
         SetMenu(items);
     }
 
-    /// <summary>上のスロットで唱えるか(選べるのが1つなら飛ばす)。</summary>
-    private void ShowSlots()
+    /// <summary>選べるタブ(左右で回る先)。</summary>
+    private List<int> SpellTabs() => UI.SpellTabs.Tabs(Services.Data, Current.Character, CombatSpells().Select(x => x.Spell));
+
+    /// <summary>タブを左右に動かす(選べるタブだけを回る)。</summary>
+    private void MoveSpellTab(int step)
     {
-        var cls = CurrentClass!;
-        var levels = _spell!.IsCantrip ? [] : Enumerable.Range(_spell.Level, 10 - _spell.Level)
-            .Where(l => Spellcasting.SlotsLeft(cls, Current.Character, l) > 0).ToList();
-        if (levels.Count <= 1)
-        {
-            _slot = levels.Count == 1 ? levels[0] : 0;
-            ChooseSpellTarget();
-            return;
-        }
-        _phase = Phase.Slot;
-        SetMenu(levels.Select(l => new MenuItem(S.Format("spell.level", l), $"({Spellcasting.SlotsLeft(cls, Current.Character, l)})", Tag: l)));
+        int next = UI.SpellTabs.Move(SpellTabs(), _spellTab, step);
+        if (next == _spellTab) return;
+        _spellTab = next;
+        Services.Audio.PlaySe(Sounds.Cursor);
+        ShowSpellTab();
     }
 
     private void ChooseSpellTarget()
@@ -289,6 +305,7 @@ public sealed class CombatScene : Scene
     private void SetMenu(IEnumerable<MenuItem> items)
     {
         var list = items.ToList();
+        _menu.Area = _phase == Phase.Spell ? SpellMenuArea : MenuArea;   // 呪文はタブの帯の分だけ下げる
         int at = Services.CombatCursor.TryGetValue((Current.Id, _phase.ToString()), out var last)
             ? list.FindIndex(i => i.Enabled && CursorKey(i.Tag) == last) : -1;
         _menu.SetItems(list, at >= 0 ? at : Math.Max(0, list.FindIndex(i => i.Enabled)));
@@ -342,7 +359,8 @@ public sealed class CombatScene : Scene
                 break;
             case Phase.Spell when item.Tag is SpellDef sp:
                 _spell = sp;
-                ShowSlots();
+                _slot = _spellTab;   // タブのレベルのスロットで唱える
+                ChooseSpellTarget();
                 break;
             case Phase.Slot when item.Tag is int level:
                 _slot = level;
@@ -424,6 +442,22 @@ public sealed class CombatScene : Scene
                 if (input.Pressed(GameAction.Confirm) || input.Pressed(GameAction.Cancel) || input.LeftClicked) End();
                 break;
             default:
+                // 呪文: 左右かタブのクリックで、呪文のレベルを切り替える
+                if (_phase == Phase.Spell)
+                {
+                    if (input.Repeat(GameAction.Left)) { MoveSpellTab(-1); return; }
+                    if (input.Repeat(GameAction.Right)) { MoveSpellTab(1); return; }
+                    if (input.LeftClicked && input.Mouse is { } m && UI.SpellTabs.At(SpellTabArea, m) is int tab)
+                    {
+                        if (SpellTabs().Contains(tab) && tab != _spellTab)
+                        {
+                            _spellTab = tab;
+                            Services.Audio.PlaySe(Sounds.Cursor);
+                            ShowSpellTab();
+                        }
+                        return;
+                    }
+                }
                 var chosen = _menu.Update(input, Services.Audio);
                 if (chosen is int i) Choose(_menu.Items[i]);
                 else if (input.Pressed(GameAction.Cancel))
@@ -587,6 +621,7 @@ public sealed class CombatScene : Scene
                     _ => S.Format("combat.ask", Current.Character.Name),
                 };
                 d.Text(ask, new Vector2(CommandArea.X + 16, CommandArea.Y + 12), 21, Theme.Title);
+                if (_phase == Phase.Spell) UI.SpellTabs.Draw(d, SpellTabArea, Services.Data, Current.Character, _spellTab, SpellTabs(), S["combat.tab_cantrip"]);
                 _menu.Draw(d);
                 break;
             case Phase.Playing:
@@ -615,7 +650,7 @@ public sealed class CombatScene : Scene
         if (_phase == Phase.Spell && _menu.Current?.Tag is SpellDef cur)
         {
             sp = cur;
-            level = cur.IsCantrip ? 0 : cur.Level;
+            level = cur.IsCantrip ? 0 : Math.Max(cur.Level, _spellTab);   // タブのレベルで唱えたときの効果
         }
         else if (_phase == Phase.Slot && _spell != null)
         {

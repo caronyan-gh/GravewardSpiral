@@ -14,7 +14,7 @@ public static class SpellText
     /// 唱える一覧の1行。呪文の種類のアイコンを付け、術者のクラスが2つ以上なら、どのクラスの呪文かの印も付ける
     /// (クラスのアイコンが無ければクラスの名前)。
     /// </summary>
-    public static MenuItem CastItem(GameServices svc, Character c, SpellDef sp, string detail, bool enabled)
+    public static MenuItem CastItem(GameServices svc, Character c, SpellDef sp, string? detail, bool enabled)
     {
         var item = new MenuItem(svc.Name(sp.Name), detail, enabled, sp, Icon: svc.SpellIcon(sp));
         if (Spellcasting.CasterClasses(svc.Data, c).Count() < 2 || Spellcasting.ClassFor(svc.Data, c, sp.Id) is not { } cls) return item;
@@ -85,11 +85,24 @@ public static class SpellText
     }
 
     /// <summary>スロットの残りの1行(「1: 2/2  2: 1/3」)。術者でなければ null。</summary>
-    public static string? Slots(Strings s, GameData data, Character c)
+    public static string? Slots(Strings s, GameData data, Character c) =>
+        SlotLines(s, data, c, int.MaxValue) is { } lines ? string.Join("  ", lines) : null;
+
+    /// <summary>
+    /// スロットの残りを、perLine レベルずつの行に分けたもの(高いレベルの術者で、横にはみ出さないように)。
+    /// 1行目に「スロット」を付け、2行目からは字下げする。術者でなければ null。
+    /// </summary>
+    public static List<string>? SlotLines(Strings s, GameData data, Character c, int perLine = 5)
     {
         if (Spellcasting.CasterClass(data, c) is not { } cls) return null;
         var parts = Enumerable.Range(1, 9).Where(l => Spellcasting.MaxSlots(cls, c, l) > 0)
             .Select(l => $"{l}: {Spellcasting.SlotsLeft(cls, c, l)}/{Spellcasting.MaxSlots(cls, c, l)}").ToList();
-        return parts.Count == 0 ? s["spell.no_slots"] : s.Format("spell.slots", string.Join("  ", parts));
+        if (parts.Count == 0) return [s["spell.no_slots"]];
+        var lines = parts.Chunk(perLine).Select(chunk => string.Join("  ", chunk)).ToList();
+        string head = s.Format("spell.slots", lines[0]);
+        // 頭の「スロット」の幅だけ字下げ(全角の字は半角の空白2つぶん)
+        string indent = string.Concat(head[..(head.Length - lines[0].Length)].Select(ch => ch < 128 ? " " : "  "));
+        return [head, .. lines.Skip(1).Select(l => indent + l)];
     }
+
 }

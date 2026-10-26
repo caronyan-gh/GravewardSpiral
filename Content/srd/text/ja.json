@@ -313,6 +313,8 @@
   "maze.after_flee": "なんとか逃げ切った。",
   "combat.cmd.cast": "呪文",
   "combat.ask_spell": "どの呪文を唱える？",
+  "combat.tab_cantrip": "初",
+  "combat.no_spells_at_level": "このレベルの呪文は無い",
   "combat.ask_slot": "どのレベルのスロットで？",
   "combat.cast": "{0} は {1} を唱えた！",
   "combat.no_slot": "{0} は {1} を唱えるスロットが残っていない。",
