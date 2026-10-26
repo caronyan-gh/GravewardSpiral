@@ -250,7 +250,7 @@ public sealed class CombatScene : Scene
     {
         Services.CombatCursor[(Current.Id, "SpellTab")] = _spellTab.ToString();
         bool castable = UI.SpellTabs.CanCast(Services.Data, Current.Character, _spellTab);
-        var items = CombatSpells().Where(x => UI.SpellTabs.Shows(x.Spell, _spellTab))
+        var items = CombatSpells().Where(x => UI.SpellTabs.Shows(Services.Data, Current.Character, x.Spell, _spellTab))
             .Select(x => SpellText.CastItem(Services, Current.Character, x.Spell, null, castable)).ToList();
         if (items.Count == 0) items.Add(new MenuItem(S["combat.no_spells_at_level"], Enabled: false));
         SetMenu(items);

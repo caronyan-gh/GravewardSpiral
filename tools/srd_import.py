@@ -21,6 +21,7 @@ SRC = ROOT / "tools" / "srd-source"
 OUT = ROOT / "Content" / "srd" / "monsters.json"
 SPELLS_OUT = ROOT / "Content" / "srd" / "spells.json"
 ITEMS_OUT = ROOT / "Content" / "srd" / "items.json"
+DAMAGE_TYPES = ["acid", "bludgeoning", "cold", "fire", "force", "lightning", "necrotic", "piercing", "poison", "psychic", "radiant", "slashing", "thunder"]
 
 ABILITY = {"strength": "str", "dexterity": "dex", "constitution": "con",
            "intelligence": "int", "wisdom": "wis", "charisma": "cha"}
@@ -311,6 +312,15 @@ def convert(m, ja):
     traits = [snake(s["name"]) for s in m.get("special_abilities", [])]
     if traits:
         mon["traits"] = traits
+    # 再生: 番の初めに戻す HP と、次の番の再生を止めるダメージの種類
+    for sa in m.get("special_abilities", []):
+        if sa["name"].startswith("Regeneration") and (hp := re.search(r"regains (\d+) hit points at the start of its turn", sa["desc"])):
+            mon["regenerate"] = int(hp.group(1))
+            stop = re.search(r"takes (.+?) damage", sa["desc"])
+            if stop:
+                types = [t for t in DAMAGE_TYPES if t in stop.group(1)]
+                if types:
+                    mon["regenerate_stop"] = types
     # 呪文を使う(スロットのある Spellcasting だけ。生まれつきの呪文は、まだ入れない)
     for sa in m.get("special_abilities", []):
         sc = sa.get("spellcasting")

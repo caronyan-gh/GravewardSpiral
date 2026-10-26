@@ -130,6 +130,7 @@ public sealed class CombatEngine(GameData data, IRandom rng)
         }
         if (!c.Standing) return;
         c.ReactionUsed = false;
+        if (c is MonsterUnit regen) Regenerate(s, regen);
         Linger(s, c);
         if (s.Outcome != CombatOutcome.Ongoing || !c.Standing) return;
         var prone = c.Conditions.FirstOrDefault(x => x.Condition == Condition.Prone);
@@ -145,6 +146,20 @@ public sealed class CombatEngine(GameData data, IRandom rng)
         else if (c is MonsterUnit m) MonsterTurn(s, m);
 
         EndOfTurn(s, c);
+    }
+
+    /// <summary>
+    /// 再生(トロルなど): 番の初めに HP を戻す。止める種類のダメージ(Def.RegenerateStop)を受けたあとの番は戻さない。
+    /// 5版のトロルは「HP 0 で番を始め、再生しなかったときだけ死ぬ」が、ここでは HP 0 で倒れる(ほかの再生するモンスターと同じ)。
+    /// </summary>
+    private static void Regenerate(CombatState s, MonsterUnit m)
+    {
+        bool stopped = m.RegenerationStopped;
+        m.RegenerationStopped = false;
+        if (m.Def.Regenerate <= 0 || stopped || m.Hp >= m.MaxHp) return;
+        int before = m.Hp;
+        m.Hp = Math.Min(m.MaxHp, before + m.Def.Regenerate);
+        s.Add("combat.regenerate", s.GroupOf(m).DisplayName, m.Hp - before);
     }
 
     private static object ConditionName(Combatant c) =>
@@ -745,7 +760,7 @@ public sealed class CombatEngine(GameData data, IRandom rng)
                 {
                     var ability = Abilities.Parse(part.Ability ?? "con");
                     int dc = part.Dc == 0 && ctx != null ? ctx.Dc : part.Dc;
-                    bool ok = SaveOrResist(s, target, ability, dc);
+                    bool ok = SaveOrResist(s, target, ability, dc, magical || ctx != null);
                     s.Add(ok ? "combat.save_ok" : "combat.save_fail", target.Name, ability);
                     var withDc = part.Dc == dc ? part : new EffectPart { Ability = part.Ability, Dc = dc };
                     if (ok)
@@ -1053,10 +1068,13 @@ public sealed class CombatEngine(GameData data, IRandom rng)
         s.Add("combat.concentration_end", caster.Name);
     }
 
-    /// <summary>セーヴ。失敗しても、伝説的抵抗が残っているモンスターは成功に変える(ボスに縛る呪文が素通りしないように)。</summary>
-    private bool SaveOrResist(CombatState s, Combatant c, Ability a, int dc)
+    /// <summary>
+    /// セーヴ。呪文と魔法の効果(magical)なら、魔法への抵抗のあるものは有利で振る。
+    /// 失敗しても、伝説的抵抗が残っているモンスターは成功に変える(ボスに縛る呪文が素通りしないように)。
+    /// </summary>
+    private bool SaveOrResist(CombatState s, Combatant c, Ability a, int dc, bool magical)
     {
-        if (SavingThrow(c, a, dc)) return true;
+        if (SavingThrow(c, a, dc, advantage: magical && c.MagicResistant)) return true;
         if (c is MonsterUnit { LegendaryResistLeft: > 0 } m)
         {
             m.LegendaryResistLeft--;
@@ -1142,12 +1160,15 @@ public sealed class CombatEngine(GameData data, IRandom rng)
         return false;
     }
 
-    public bool SavingThrow(Combatant c, Ability a, int dc)
+    /// <summary>セーヴを振る。advantage なら d20 を2回振って良いほう(拘束の敏捷力のセーヴの不利と打ち消し合う)。</summary>
+    public bool SavingThrow(Combatant c, Ability a, int dc, bool advantage = false)
     {
         bool helpless = c.Has(Condition.Paralyzed) || c.Has(Condition.Stunned) || c.Has(Condition.Unconscious) || c.Has(Condition.Petrified);
         if (helpless && a is Ability.Str or Ability.Dex) return false;   // 麻痺などでは筋力と敏捷力のセーヴに必ず失敗する
         int roll = D20();
-        if (a == Ability.Dex && c.Has(Condition.Restrained)) roll = Math.Min(roll, D20());
+        bool disadvantage = a == Ability.Dex && c.Has(Condition.Restrained);
+        if (advantage && !disadvantage) roll = Math.Max(roll, D20());
+        else if (disadvantage && !advantage) roll = Math.Min(roll, D20());
         return roll + c.SaveBonus(a) + ModifierRoll(c, "save") >= dc;
     }
 
@@ -1174,16 +1195,20 @@ public sealed class CombatEngine(GameData data, IRandom rng)
             SpellId = ctx is { Spell.Concentration: true } ? ctx.Spell.Id : null,
         });
         s.Add("combat.condition", target.Name, cond);
+        // 無力状態になる状態(麻痺・朦朧・気絶・石化・無力)にされたら、集中は切れる(5版)
+        if (target.Concentration != null && cond is Condition.Incapacitated or Condition.Paralyzed or Condition.Stunned or Condition.Unconscious or Condition.Petrified)
+            EndConcentration(s, target);
     }
 
     /// <summary>ダメージを与える。抵抗などの倍率をかけ、HP が 0 になったら倒れる。</summary>
     public void Damage(CombatState s, Combatant target, int amount, string type, bool crit, bool magical)
     {
         if (target is PartyMember { Character.State: LifeState.Dead }) return;
-        double mult = target.DamageMultiplier(type, magical);
-        if (target.Modifiers.Any(m => m.Stat == "resist:" + type)) mult *= 0.5;
-        if (target.Modifiers.Any(m => m.Stat == "vulnerable:" + type)) mult *= 2;
+        double mult = target.DamageMultiplier(type, magical);   // 装備・種族・呪文などの抵抗と脆弱(効かないなら 0)
         int dealt = (int)Math.Floor(amount * mult);
+        if (dealt > 0 && target is MonsterUnit { Def.RegenerateStop: { Count: > 0 } stops } regen && stops.Contains(type)) regen.RegenerationStopped = true;   // 次の番は再生しない
+        int taken = dealt;   // 一時的な HP で受けた分も含めた、受けたダメージ(集中の判定に使う)
+        bool allAbsorbed = false;
         if (dealt > 0 && target.TempHp > 0)
         {
             int absorbed = Math.Min(target.TempHp, dealt);
@@ -1192,12 +1217,13 @@ public sealed class CombatEngine(GameData data, IRandom rng)
             if (dealt == 0)
             {
                 s.Add("combat.temp_absorb", target.Name, absorbed);
-                return;
+                allAbsorbed = true;
             }
         }
-        // 集中: ダメージを受けたら耐久力のセーヴ(難易度は 10 か、ダメージの半分の大きい方)
-        if (dealt > 0 && target.Concentration != null && target.Hp - dealt > 0 && !SavingThrow(target, Ability.Con, Math.Max(10, dealt / 2)))
+        // 集中: ダメージを受けたら耐久力のセーヴ(難易度は 10 か、受けたダメージの半分の大きい方。一時的な HP で受けても判定する)
+        if (taken > 0 && target.Concentration != null && target.Hp - dealt > 0 && !SavingThrow(target, Ability.Con, Math.Max(10, taken / 2)))
             EndConcentration(s, target);
+        if (allAbsorbed) return;
         if (target is PartyMember dying && dying.Character.State == LifeState.Unconscious)
         {
             if (dealt <= 0) return;
@@ -1284,7 +1310,7 @@ public sealed class CombatEngine(GameData data, IRandom rng)
         foreach (var x in c.Conditions.ToList())
         {
             bool end = false;
-            if (x.SaveAbility is { } a && SaveOrResist(s, c, a, x.Dc)) end = true;
+            if (x.SaveAbility is { } a && SaveOrResist(s, c, a, x.Dc, magical: x.SpellId != null)) end = true;
             if (x.RoundsLeft is int n)
             {
                 x.RoundsLeft = n - 1;

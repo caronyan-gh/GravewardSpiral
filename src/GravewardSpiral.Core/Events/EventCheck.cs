@@ -21,6 +21,10 @@ public static class EventCheck
         if (e.Once != null && !OnceKinds.Contains(e.Once)) Add($"once '{e.Once}' は game / place のどちらかです");
         if (e.Place == "town" && e.Title == null) Add("町のイベントには title が要ります");
         if (e.Scatter != null && !ScatterWhere.Contains(e.Scatter.Where)) Add($"scatter の where '{e.Scatter.Where}' は {string.Join(" / ", ScatterWhere)} のどれかです");
+        // 深さは階の数ではなく割合(1〜5 と書くと、最下層にしか置かれない)
+        if (e.Scatter is { } sc && (sc.MinDepth is < 0 or > 1 || sc.MaxDepth is < 0 or > 1))
+            Add($"scatter の min_depth / max_depth({sc.MinDepth} / {sc.MaxDepth})は 0〜1 の割合です(0 が B1、1 が最下層。階の数ではない)");
+        else if (e.Scatter is { } s2 && s2.MinDepth > s2.MaxDepth) Add($"scatter の min_depth({s2.MinDepth})が max_depth({s2.MaxDepth})より大きい");
         if (e.Steps.Count == 0) Add("steps がありません");
         if (e.Bgm != null && content != null && !content.Packs.Any(p => File.Exists(Path.Combine(p.Directory, e.Bgm))))
             Add($"bgm '{e.Bgm}' がどのパックにもありません");
@@ -82,6 +86,39 @@ public static class EventCheck
 
         Conditions(e.When);
         Steps(e.Steps, 0);
+        if (RunCycle(data, e) is { } cycle) Add($"run が輪になっています({string.Join(" → ", cycle)})。選択や戦闘を挟まずに戻ると、止まらなくなります");
         return problems;
+    }
+
+    /// <summary>
+    /// 選択も戦闘も挟まずに run でたどると自分に戻る、止まらない輪(あれば、たどった id の並び)。
+    /// 選択肢の中の run は、選ぶたびに止まるので数えない。
+    /// </summary>
+    public static List<string>? RunCycle(GameData data, EventDef e)
+    {
+        IEnumerable<string> Runs(IEnumerable<EventStep> steps)
+        {
+            foreach (var s in steps)
+            {
+                if (s.Type == "run" && s.Id != null) yield return s.Id;
+                if (s.Type is "choice" or "combat") continue;   // 待つところの先は、輪でも止まる
+                foreach (var child in s.Children()) foreach (var id in Runs(child)) yield return id;
+            }
+        }
+        var path = new List<string> { e.Id };
+        var seen = new HashSet<string>();
+        List<string>? Visit(EventDef cur)
+        {
+            foreach (var id in Runs(cur.Steps).Distinct())
+            {
+                if (id == e.Id) return [.. path, id];
+                if (!seen.Add(id) || !data.Events.TryGetValue(id, out var next)) continue;
+                path.Add(id);
+                if (Visit(next) is { } found) return found;
+                path.RemoveAt(path.Count - 1);
+            }
+            return null;
+        }
+        return Visit(e);
     }
 }

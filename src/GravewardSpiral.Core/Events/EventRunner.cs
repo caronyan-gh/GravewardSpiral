@@ -119,11 +119,22 @@ public sealed class EventRunner
         return new Pcg32(_ctx.Session.Rng.MasterSeed ^ h, 7);
     }
 
+    /// <summary>1回の Next で、何も出さずに進める手順の上限(run の輪などで止まらなくならないように)。</summary>
+    public const int MaxStepsPerNext = 10_000;
+
     public EventOutput Next()
     {
+        int ran = 0;
         while (true)
         {
             if (_out.Count > 0) return _out.Dequeue();
+            if (++ran > MaxStepsPerNext)
+            {
+                // 止まらない流れ(検査をすり抜けた run の輪など)は打ち切って終わらせる
+                _frames.Clear();
+                _finished = true;
+                return new EventDone();
+            }
             if (_choices != null || _combat != null) throw new InvalidOperationException("選択か戦闘の結果を先に渡してください");
             if (_finished) return new EventDone();
             if (_frames.Count == 0)
@@ -369,6 +380,12 @@ public sealed class EventRunner
         if (!data.Items.TryGetValue(item.ItemId, out var def)) return;
         var taker = able.FirstOrDefault(c => c.Inventory.TryAdd(item, data.Items));
         if (taker != null) Say("event.got_item", taker.Name, item);
+        else if (def.Kind == Items.ItemKind.Key || def.NoRandom)
+        {
+            // 大事な品は、持ちきれなくても失わない(二度と手に入らないことがある)。倉庫の枠を超えても置く
+            _ctx.Session.ClanHouse.Storage.Add(item);
+            Say("event.item_sent_home", item);
+        }
         else Say("event.item_left", item);
     }
 
@@ -383,6 +400,19 @@ public sealed class EventRunner
                 item.Count -= n;
                 taken += n;
                 if (item.Count <= 0) c.Inventory.Items.Remove(item);
+                if (taken >= count) return taken;
+            }
+        }
+        // 足りなければ、装備している分も取る(「持っているか」の条件は装備も数えるので、それと合わせる)
+        foreach (var c in party)
+        {
+            foreach (var (slot, item) in c.Inventory.Equipped.Where(kv => kv.Value.ItemId == id).ToList())
+            {
+                int have = Math.Max(1, item.Count);
+                int n = Math.Min(have, count - taken);
+                taken += n;
+                if (have > n) item.Count = have - n;   // 束(矢など)は取った数だけ減らす
+                else c.Inventory.Equipped.Remove(slot);
                 if (taken >= count) return taken;
             }
         }
@@ -419,7 +449,7 @@ public sealed class EventRunner
             "flag" => session.Flags.Contains(c.Id ?? ""),
             "done" => session.Flags.Contains("done:" + c.Id),
             "item" => party.Sum(p => p.Inventory.Items.Where(i => i.ItemId == c.Id).Sum(i => i.Count)
-                                    + p.Inventory.Equipped.Values.Count(i => i.ItemId == c.Id)) >= c.Count,
+                                    + p.Inventory.Equipped.Values.Where(i => i.ItemId == c.Id).Sum(i => Math.Max(1, i.Count))) >= c.Count,   // 装備の矢の束も本数で数える
             "gold" => PartyGold.Total(party) >= EventScale.Reward(c.Value, ctx.RewardScale),
             "level" => party.Any(p => p.Level >= c.Value),
             "class" => party.Any(p => p.ClassIds.Contains(c.Id)),

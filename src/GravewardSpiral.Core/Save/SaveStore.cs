@@ -90,18 +90,20 @@ public sealed class SaveStore
         return new WorldSummary(clan.Id, key, data.SavedAt, data.Location, party, deepest + 1, data.Dungeon.Floors.Count, data.Generation.Seed, data.Scenario, data.Roster.Party);
     }
 
-    /// <summary>クランの世界のファイルを読む(見出しと、よそにいる人を数えるのに使う)。</summary>
+    /// <summary>クランの世界のファイルを読む(見出しと、よそにいる人を数えるのに使う)。組の合わない世界は、読む前に戻す(RecoverWorld)。</summary>
     private List<(string Key, SaveData Data)> ReadWorlds(string clanId)
     {
         var list = new List<(string, SaveData)>();
         string dir = Path.Combine(ClanDir(clanId), WorldsDir);
         if (!Directory.Exists(dir)) return list;
+        var saves = ReadWorldSaves(Path.Combine(ClanDir(clanId), ClanFileName));
         foreach (var w in Directory.EnumerateDirectories(dir))
         {
             string file = Path.Combine(w, WorldFileName);
             if (!File.Exists(file)) continue;
             try
             {
+                RecoverWorld(saves, Path.GetFileName(w), file);
                 list.Add((Path.GetFileName(w), JsonSerializer.Deserialize<SaveData>(File.ReadAllText(file), Json)!));
             }
             catch (Exception ex) when (ex is JsonException or IOException) { }
@@ -114,9 +116,19 @@ public sealed class SaveStore
     {
         string file = Path.Combine(ClanDir(clanId), ClanFileName);
         if (!File.Exists(file)) return null;
-        var clan = JsonSerializer.Deserialize<ClanData>(File.ReadAllText(file), Json) ?? throw new InvalidDataException("クランが読めません");
+        var node = System.Text.Json.Nodes.JsonNode.Parse(File.ReadAllText(file)) ?? throw new InvalidDataException("クランが読めません");
+        var clan = node.Deserialize<ClanData>(Json) ?? throw new InvalidDataException("クランが読めません");
         foreach (var c in clan.Characters) c.NormalizeClasses();
+        MovePactSlots(node["characters"], clan.Characters);
         return clan;
+    }
+
+    /// <summary>協約魔術のスロットを分けて数える前のキャラ(pact_slots_used が無い)は、SlotsUsed から協約の分を移す。</summary>
+    internal static void MovePactSlots(System.Text.Json.Nodes.JsonNode? raw, List<Character> characters)
+    {
+        if (raw is not System.Text.Json.Nodes.JsonArray list) return;
+        for (int i = 0; i < Math.Min(list.Count, characters.Count); i++)
+            if (list[i] is System.Text.Json.Nodes.JsonObject o && !o.ContainsKey("pact_slots_used")) characters[i].MovePactSlotsFromOldSave();
     }
 
     /// <summary>
@@ -155,17 +167,80 @@ public sealed class SaveStore
         var world = SaveData.From(session, content);
         if (savedAt is { } at) world.SavedAt = at;
         world.Roster = new Roster { Party = [.. session.Roster.Party], LeftInMaze = new(session.Roster.LeftInMaze) };   // キャラはクランに書く
-        WriteJson(WorldFile(session.ClanId, session.WorldKey), world);
         var clan = ClanData.From(session);
         if (savedAt is { } t) clan.SavedAt = t;
-        WriteJson(Path.Combine(ClanDir(session.ClanId), ClanFileName), clan);
+        // 世界とクランは同じ時の組で残す: 両方を一時ファイルに書き終えてから置き換え、クランの置き換えに失敗したら世界を前のものに戻す。
+        // 置き換えの間で落ちたときのために、世界とクランに同じ保存の印を付ける(読むときに組が違えば、世界を前の版に戻す。RecoverWorld)
+        string worldPath = WorldFile(session.ClanId, session.WorldKey), clanPath = Path.Combine(ClanDir(session.ClanId), ClanFileName);
+        world.SaveId = Guid.NewGuid().ToString("N");
+        clan.WorldSaves = ReadWorldSaves(clanPath);
+        clan.WorldSaves[session.WorldKey] = world.SaveId;
+        string worldTmp = WriteTemp(worldPath, world), clanTmp = WriteTemp(clanPath, clan);
+        bool hadWorld = File.Exists(worldPath);
+        Replace(worldTmp, worldPath);
+        try
+        {
+            Replace(clanTmp, clanPath);
+        }
+        catch (Exception ex) when (ex is IOException or UnauthorizedAccessException)
+        {
+            try
+            {
+                if (hadWorld) File.Copy(Path.ChangeExtension(worldPath, ".bak.json"), worldPath, overwrite: true);
+                else File.Delete(worldPath);
+            }
+            catch (Exception rollback) when (rollback is IOException or UnauthorizedAccessException) { }   // 戻せなくても、次に読むときに RecoverWorld が戻す
+            throw;
+        }
     }
 
-    private static void WriteJson<T>(string path, T data)
+    /// <summary>クランのファイルにある、世界ごとの最後の保存の印(読めなければ空)。ほかの世界の分を残すのに使う。</summary>
+    private static Dictionary<string, string> ReadWorldSaves(string clanPath)
+    {
+        try
+        {
+            if (File.Exists(clanPath) && System.Text.Json.Nodes.JsonNode.Parse(File.ReadAllText(clanPath))?["world_saves"] is { } node)
+                return node.Deserialize<Dictionary<string, string>>(Json) ?? [];
+        }
+        catch (Exception ex) when (ex is JsonException or IOException or InvalidOperationException) { }
+        return [];
+    }
+
+    /// <summary>
+    /// 世界とクランが別の保存の組なら(世界を置き換えたあと、クランを置き換える前に落ちた)、世界を前の版(.bak.json)に戻す。
+    /// 書く順は世界が先なので、組が違うのは世界だけが新しいとき。前の版も組が合わなければ、追いかけずにそのまま読む。印の無い古いセーブは見ない。
+    /// </summary>
+    private static void RecoverWorld(Dictionary<string, string> worldSaves, string worldKey, string worldPath)
+    {
+        if (!worldSaves.TryGetValue(worldKey, out var expected)) return;
+        if (SaveIdOf(worldPath) is not { } id || id == expected) return;
+        string backup = Path.ChangeExtension(worldPath, ".bak.json");
+        if (File.Exists(backup) && SaveIdOf(backup) == expected) File.Copy(backup, worldPath, overwrite: true);
+    }
+
+    private static string? SaveIdOf(string path)
+    {
+        try
+        {
+            return System.Text.Json.Nodes.JsonNode.Parse(File.ReadAllText(path))?["save_id"]?.GetValue<string>();
+        }
+        catch (Exception ex) when (ex is JsonException or IOException or InvalidOperationException) { return null; }
+    }
+
+    private static void WriteJson<T>(string path, T data) => Replace(WriteTemp(path, data), path);
+
+    /// <summary>path の横の一時ファイルに書く(置き換えは Replace)。一時ファイルの場所を返す。</summary>
+    private static string WriteTemp<T>(string path, T data)
     {
         Directory.CreateDirectory(Path.GetDirectoryName(path)!);
         string tmp = path + ".tmp";
         File.WriteAllText(tmp, JsonSerializer.Serialize(data, Json));
+        return tmp;
+    }
+
+    /// <summary>一時ファイルで path を置き換える(前のものは .bak.json に残す)。</summary>
+    private static void Replace(string tmp, string path)
+    {
         string backup = Path.ChangeExtension(path, ".bak.json");
         if (File.Exists(path)) File.Replace(tmp, path, backup);
         else File.Move(tmp, path);
@@ -175,6 +250,7 @@ public sealed class SaveStore
     public GameSession Load(string clanId, string worldKey)
     {
         var clan = LoadClan(clanId) ?? throw new InvalidDataException("クランがありません");
+        RecoverWorld(clan.WorldSaves, worldKey, WorldFile(clanId, worldKey));
         var node = System.Text.Json.Nodes.JsonNode.Parse(File.ReadAllText(WorldFile(clanId, worldKey))) ?? throw new InvalidDataException("セーブが空です");
         int version = node["version"]?.GetValue<int>() ?? 0;
         if (version > CurrentVersion) throw new InvalidDataException($"このセーブ(版 {version})は、今のゲーム(版 {CurrentVersion})より新しいので読めません");
@@ -225,6 +301,7 @@ public sealed class SaveStore
                 Migrate(node, node["version"]?.GetValue<int>() ?? 0);
                 var data = node.Deserialize<SaveData>(Json);
                 if (data == null) continue;
+                MovePactSlots(node["roster"]?["characters"], data.Roster.Characters);
                 var clan = new ClanData
                 {
                     Id = data.ClanId ?? LegacyClanId(slot),
@@ -264,6 +341,8 @@ public sealed class ClanData
     public int Clears { get; set; }
     public List<string> EventsSeen { get; set; } = [];
     public Dictionary<string, int> LegendsHeard { get; set; } = [];
+    /// <summary>世界ごとの、最後にこのクランと一緒に保存した印(世界の key → SaveData.SaveId)。食い違いを見つけるのに使う。</summary>
+    public Dictionary<string, string> WorldSaves { get; set; } = [];
 
     public static ClanData From(GameSession s) => new()
     {
@@ -282,6 +361,8 @@ public sealed class SaveData
 {
     public int Version { get; set; } = SaveStore.CurrentVersion;
     public DateTime SavedAt { get; set; } = DateTime.Now;
+    /// <summary>この保存の印(クランの WorldSaves と同じ値なら、同じ時の組)。</summary>
+    public string? SaveId { get; set; }
     public DateTime CreatedAt { get; set; }
     public Dictionary<string, string> Packs { get; set; } = [];
     public string Location { get; set; } = "town";

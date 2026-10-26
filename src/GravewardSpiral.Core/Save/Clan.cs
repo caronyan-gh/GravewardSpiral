@@ -74,9 +74,11 @@ public sealed class ClanFile
 
     public static ClanFile Load(string path)
     {
-        var clan = JsonSerializer.Deserialize<ClanFile>(File.ReadAllText(path), SaveStore.Json) ?? throw new InvalidDataException("クランファイルが空です");
+        var node = System.Text.Json.Nodes.JsonNode.Parse(File.ReadAllText(path)) ?? throw new InvalidDataException("クランファイルが空です");
+        var clan = node.Deserialize<ClanFile>(SaveStore.Json) ?? throw new InvalidDataException("クランファイルが空です");
         if (clan.Version > CurrentVersion) throw new InvalidDataException($"このクランファイル(版 {clan.Version})は、今のゲームより新しいので読めません");
         foreach (var c in clan.Characters) c.NormalizeClasses();
+        SaveStore.MovePactSlots(node["characters"], clan.Characters);
         if (clan.Cleared && clan.Clears == 0) clan.Clears = 1;   // 数を持つ前のファイル
         return clan;
     }

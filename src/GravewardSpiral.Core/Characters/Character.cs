@@ -83,8 +83,11 @@ public sealed class Character
     /// <summary>そのクラスの呪文(無ければ作る)。</summary>
     public SpellBook Book(string classId) => Books.TryGetValue(classId, out var b) ? b : Books[classId] = new SpellBook();
 
-    /// <summary>使った呪文スロット(呪文レベルごと)。大休憩で戻る(ウォーロックは小休憩でも)。</summary>
+    /// <summary>使った呪文スロット(呪文レベルごと。協約魔術のスロットは別に PactSlotsUsed)。大休憩で戻る。</summary>
     public Dictionary<int, int> SlotsUsed { get; set; } = [];
+
+    /// <summary>使ったウォーロックの協約魔術のスロット。小休憩でも戻る。</summary>
+    public int PactSlotsUsed { get; set; }
 
     /// <summary>一時的な HP(ダメージはここから減る。大休憩で消える)。</summary>
     public int TempHp { get; set; }
@@ -268,6 +271,7 @@ public sealed class Character
         Hp = Math.Max(Hp, Math.Min(MaxHp, (int)Math.Ceiling(MaxHp * hpFraction)));
         HitDice = Math.Min(Level, HitDice + Math.Max(1, Level / 2));
         SlotsUsed.Clear();
+        PactSlotsUsed = 0;
         TempHp = 0;
         Lasting.Clear();
         // ワンドや杖の回数が戻る
@@ -289,8 +293,22 @@ public sealed class Character
             used++;
             Hp = Math.Min(MaxHp, Hp + Math.Max(1, rng.Roll(cls.HitDie) + Scores.Mod(Ability.Con)));
         }
-        if (LevelIn("warlock") > 0) SlotsUsed.Remove(Spellcasting.PactSlotLevel(this));   // 協約魔術のスロットが戻る
+        PactSlotsUsed = 0;   // 協約魔術のスロットが戻る(ふつうのスロットは戻らない)
         return used;
+    }
+
+    /// <summary>
+    /// 前の形のセーブ(協約魔術のスロットも SlotsUsed に数えていた)を移す。読むときに1回だけ呼ぶ。
+    /// どちらから払ったかは残っていないので、UseSlot と同じく協約のスロットを先に使った扱いにする。
+    /// </summary>
+    public void MovePactSlotsFromOldSave()
+    {
+        if (LevelIn("warlock") == 0) return;
+        int level = Spellcasting.PactSlotLevel(this);
+        if (!SlotsUsed.TryGetValue(level, out int used)) return;
+        PactSlotsUsed = Math.Min(used, Spellcasting.PactSlots(this));
+        if (used > PactSlotsUsed) SlotsUsed[level] = used - PactSlotsUsed;
+        else SlotsUsed.Remove(level);
     }
 }
 

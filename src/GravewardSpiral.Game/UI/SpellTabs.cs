@@ -19,9 +19,12 @@ public static class SpellTabs
     public static readonly Color Plenty = new(80, 140, 255);
     public static readonly Color NotYet = new(0, 0, 0);
 
-    /// <summary>そのタブに出す呪文か(そのレベルの呪文と、上のスロットで強くなる、もっと低いレベルの呪文)。</summary>
-    public static bool Shows(SpellDef sp, int tab) =>
-        tab == 0 ? sp.IsCantrip : !sp.IsCantrip && (sp.Level == tab || sp.Scale == "slot" && sp.Level < tab);
+    /// <summary>
+    /// そのタブに出す呪文か。そのレベルの呪文と、上のスロットで強くなる、もっと低いレベルの呪文。
+    /// 強くならない呪文も、自分のレベルのスロットが無い(使い切った、ウォーロックのように持っていない)ときは、
+    /// 払える一番低い上のタブに出す(出さないと、唱える手段が無くなる)。
+    /// </summary>
+    public static bool Shows(GameData data, Character c, SpellDef sp, int tab) => Spellcasting.ListedAt(data, c, sp, tab);
 
     /// <summary>そのレベルのスロットを持っているか(初級呪文のタブはいつも持っている)。</summary>
     public static bool Has(GameData data, Character c, int tab) =>
@@ -31,7 +34,7 @@ public static class SpellTabs
     public static List<int> Tabs(GameData data, Character c, IEnumerable<SpellDef> spells)
     {
         var list = spells.ToList();
-        return Enumerable.Range(0, Count).Where(t => Has(data, c, t) && list.Any(sp => Shows(sp, t))).ToList();
+        return Enumerable.Range(0, Count).Where(t => Has(data, c, t) && list.Any(sp => Shows(data, c, sp, t))).ToList();
     }
 
     /// <summary>そのタブで唱えられるか(初級呪文はいつも。ほかはそのレベルのスロットが残っているか)。</summary>

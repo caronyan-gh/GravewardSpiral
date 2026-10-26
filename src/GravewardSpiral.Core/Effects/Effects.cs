@@ -9,9 +9,10 @@ public enum Condition
 
 /// <summary>
 /// 効果の部品1つ(呪文、敵の行動、アイテム、罠の「何が起きるか」)。JSON では "type" で種類を書く。
+/// どの部品も、行動の対象(攻撃なら当たった相手)に起きる。使った本人には起きない。
 /// <list type="bullet">
 /// <item>damage: dice のダメージ(damage_type の種類)</item>
-/// <item>heal: dice だけ HP を戻す</item>
+/// <item>heal: dice だけ対象の HP を戻す(敵の攻撃に付けると、当たった相手が回復する)</item>
 /// <item>condition: condition の状態にする。rounds が無ければ戦闘の終わりまで(倒れた状態は次の自分の番で起き上がる)。
 ///   repeat_save なら毎ターンの終わりにセーヴし直して解ける。escape_dc はつかみ・拘束から抜ける難易度(筋力のセーヴで扱う)</item>
 /// <item>save: ability のセーヴを dc で振らせ、失敗なら fail を、成功なら success を起こす。half ならダメージは成功で半分。

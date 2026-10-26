@@ -93,9 +93,21 @@ public static class Spellcasting
     public static int PactSlots(Character c) => Warlock(c) switch { 1 => 1, <= 10 => 2, <= 16 => 3, _ => 4 };
     public static int PactSlotLevel(Character c) => Math.Min(5, (Warlock(c) + 1) / 2);
 
-    /// <summary>今使えるスロットの数。</summary>
+    /// <summary>今使えるスロットの数(ふつうのスロットの残りと、そのレベルなら協約魔術のスロットの残り)。</summary>
     public static int SlotsLeft(ClassDef cls, Character c, int spellLevel) =>
-        Math.Max(0, MaxSlots(cls, c, spellLevel) - c.SlotsUsed.GetValueOrDefault(spellLevel));
+        Math.Max(0, RegularSlots(c, spellLevel) - c.SlotsUsed.GetValueOrDefault(spellLevel)) + PactLeft(c, spellLevel);
+
+    /// <summary>ふつうの呪文スロットの数(術者のレベルの表から。協約魔術の分は入れない)。</summary>
+    public static int RegularSlots(Character c, int spellLevel)
+    {
+        if (spellLevel < 1 || spellLevel > 9) return 0;
+        int lv = CasterLevel(c);
+        return lv > 0 ? FullSlots[lv - 1, spellLevel - 1] : 0;
+    }
+
+    /// <summary>そのレベルの、協約魔術のスロットの残り(ウォーロックで、協約のスロットのレベルのときだけ)。</summary>
+    public static int PactLeft(Character c, int spellLevel) =>
+        c.LevelIn("warlock") > 0 && PactSlotLevel(c) == spellLevel ? Math.Max(0, PactSlots(c) - c.PactSlotsUsed) : 0;
 
     /// <summary>唱えられる一番高い呪文レベル(スロットの残りは見ない)。</summary>
     public static int MaxSpellLevel(ClassDef cls, Character c)
@@ -107,7 +119,12 @@ public static class Spellcasting
         return 0;
     }
 
-    public static void UseSlot(Character c, int spellLevel) => c.SlotsUsed[spellLevel] = c.SlotsUsed.GetValueOrDefault(spellLevel) + 1;
+    /// <summary>スロットを1つ使う。協約魔術のスロットが残っていれば先にそちら(小休憩で戻るので)。</summary>
+    public static void UseSlot(Character c, int spellLevel)
+    {
+        if (PactLeft(c, spellLevel) > 0) c.PactSlotsUsed++;
+        else c.SlotsUsed[spellLevel] = c.SlotsUsed.GetValueOrDefault(spellLevel) + 1;
+    }
 
     public static int CantripsKnown(ClassDef cls, Character c)
     {
@@ -148,10 +165,26 @@ public static class Spellcasting
     public static int SaveDc(ClassDef cls, Character c) => 8 + c.ProficiencyBonus + Mod(cls, c);
     public static int AttackBonus(ClassDef cls, Character c) => c.ProficiencyBonus + Mod(cls, c);
 
-    /// <summary>そのクラスで覚えられる(準備できる)呪文。使える呪文だけで、レベルはスロットがあるところまで。</summary>
+    /// <summary>
+    /// そのクラスで覚えられる(準備できる)呪文の一番高いレベル。マルチクラスでも、そのクラスだけのレベルで決める(5版)。
+    /// 全術者はそのクラスのレベルの表、パラディンとレンジャーはレベルの半分の切り上げ(1 レベルは 0)、ウォーロックは協約のスロットのレベル。
+    /// </summary>
+    public static int ClassMaxSpellLevel(ClassDef cls, Character c)
+    {
+        int lv = c.LevelIn(cls.Id);
+        if (lv <= 0) return 0;
+        if (Kind(cls) == CasterKind.Pact) return PactSlotLevel(c);
+        int casterLv = Math.Min(20, Half(cls.Id) ? (lv < 2 ? 0 : (lv + 1) / 2) : lv);
+        if (casterLv <= 0) return 0;
+        for (int l = 9; l >= 1; l--)
+            if (FullSlots[casterLv - 1, l - 1] > 0) return l;
+        return 0;
+    }
+
+    /// <summary>そのクラスで覚えられる(準備できる)呪文。使える呪文だけで、レベルはそのクラスのレベルで覚えられるところまで。</summary>
     public static IEnumerable<SpellDef> ClassSpells(GameData data, ClassDef cls, Character c, bool cantrips)
     {
-        int max = MaxSpellLevel(cls, c);
+        int max = ClassMaxSpellLevel(cls, c);
         return data.Spells.Values
             .Where(s => s.Usable && s.Classes.Contains(cls.Id) && (cantrips ? s.IsCantrip : !s.IsCantrip && s.Level <= max))
             .OrderBy(s => s.Level).ThenBy(s => s.Id, StringComparer.Ordinal);
@@ -169,6 +202,21 @@ public static class Spellcasting
         }
         return ids.Distinct().Select(id => data.Spells.GetValueOrDefault(id)).OfType<SpellDef>().Where(s => s.Usable)
             .OrderBy(s => s.Level).ThenBy(s => s.Id, StringComparer.Ordinal);
+    }
+
+    /// <summary>
+    /// 呪文を唱える画面で、その呪文を slotLevel のスロット(0 は初級呪文)の欄に並べるか。そのレベルの呪文と、上のスロットで強くなる呪文。
+    /// 強くならない呪文も、自分のレベルのスロットが無い(使い切った、ウォーロックのように持っていない)ときは、払える一番低い上の欄に並べる
+    /// (並べないと唱える手段が無くなる)。
+    /// </summary>
+    public static bool ListedAt(GameData data, Character c, SpellDef sp, int slotLevel)
+    {
+        if (slotLevel == 0 || sp.IsCantrip) return slotLevel == 0 && sp.IsCantrip;
+        if (sp.Level == slotLevel) return true;
+        if (sp.Level > slotLevel) return false;
+        if (sp.Scale == "slot") return true;
+        if (CasterClass(data, c) is not { } cls || SlotsLeft(cls, c, sp.Level) > 0) return false;
+        return LowestSlot(cls, c, sp) == slotLevel;
     }
 
     /// <summary>その呪文を唱えられる一番低いスロット(初級呪文は 0)。無ければ null。</summary>

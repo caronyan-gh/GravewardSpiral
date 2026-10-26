@@ -55,6 +55,18 @@ public sealed class ScenarioPack
     private string? _dungeonNote;
 
     /// <summary>
+    /// 読めなかったファイル(階のマップ、データ、文言など)。一つでもあれば保存しない(読めたところだけで書くと、
+    /// 読めなかった階を詰めたり、読めなかったデータのファイルを消したりして、中身を失うため)。
+    /// </summary>
+    public List<string> LoadErrors { get; } = [];
+
+    /// <summary>読んだ worlds.json のこのシナリオの項目(由来・シード・固定のボスなど。保存では文だけ差し替えて残す)。</summary>
+    private JsonObject? _worldRaw;
+
+    /// <summary>読んだ encounters.json(シナリオ独自の遭遇の設定。保存ではレベル帯だけ差し替えて残す)。</summary>
+    private JsonArray? _encountersRaw;
+
+    /// <summary>
     /// エレベーターの縦穴(DungeonDef.Elevators)。開いているあいだは、止まる階のマスも Floors に入れておき(地図と検査がそのまま使える)、
     /// 書くときはマップから外して dungeons.json にだけ書く。縦穴を変えたら <see cref="SetElevators"/> で入れ直す。
     /// </summary>
@@ -146,6 +158,17 @@ public sealed class ScenarioPack
             catch (JsonException ex)
             {
                 problems.Add($"{file}: {ex.Message}");
+                pack.LoadErrors.Add(file);
+                return null;
+            }
+        }
+        JsonNode? Node(string file)
+        {
+            try { return Read(file) is { } text ? JsonNode.Parse(text, documentOptions: new JsonDocumentOptions { CommentHandling = JsonCommentHandling.Skip, AllowTrailingCommas = true }) : null; }
+            catch (JsonException ex)
+            {
+                problems.Add($"{file}: {ex.Message}");
+                pack.LoadErrors.Add(file);
                 return null;
             }
         }
@@ -163,6 +186,7 @@ public sealed class ScenarioPack
                 catch (Exception ex) when (ex is IOException or FormatException or InvalidDataException)
                 {
                     problems.Add($"{path}: {ex.Message}");
+                    pack.LoadErrors.Add(path);
                 }
             }
             pack.SetElevators(def.Elevators);
@@ -179,6 +203,7 @@ public sealed class ScenarioPack
             catch (JsonException ex)
             {
                 problems.Add($"{collection}.json: {ex.Message}");
+                pack.LoadErrors.Add(collection + ".json");
             }
         }
         string textDir = Path.Combine(dir, "text");
@@ -187,25 +212,69 @@ public sealed class ScenarioPack
             foreach (var file in System.IO.Directory.EnumerateFiles(textDir, "*.json"))
             {
                 try { pack.Texts[Path.GetFileNameWithoutExtension(file)] = JsonSerializer.Deserialize<Dictionary<string, string>>(File.ReadAllText(file)) ?? []; }
-                catch (JsonException ex) { problems.Add($"text/{Path.GetFileName(file)}: {ex.Message}"); }
+                catch (JsonException ex)
+                {
+                    problems.Add($"text/{Path.GetFileName(file)}: {ex.Message}");
+                    pack.LoadErrors.Add($"text/{Path.GetFileName(file)}");
+                }
             }
         }
         pack.Rumors = Json<List<RumorDef>>(RumorDef.Collection + ".json") ?? [];
-        if (Json<List<WorldPackDef>>(WorldPackDef.Collection + ".json")?.FirstOrDefault(w => w.Id == pack.Id)?.Text is { } text) pack.Text = text;
+        if (Node(WorldPackDef.Collection + ".json") is JsonArray worldArray
+            && worldArray.OfType<JsonObject>().FirstOrDefault(w => (string?)w["id"] == pack.Id) is { } worldNode)
+        {
+            pack._worldRaw = worldNode.DeepClone().AsObject();
+            try
+            {
+                if (worldNode.Deserialize<WorldPackDef>(ContentLibrary.JsonOptions)?.Text is { } text) pack.Text = text;
+            }
+            catch (JsonException ex)
+            {
+                problems.Add($"{WorldPackDef.Collection}.json: {ex.Message}");
+                pack.LoadErrors.Add(WorldPackDef.Collection + ".json");
+            }
+        }
         pack.BossGroups = Json<List<BossDef>>("bosses.json")?.FirstOrDefault(b => b.Id == GameSession.FinalBossId)?.Groups;
-        if (Read("bosses.json") is { } bossText && JsonNode.Parse(bossText) is JsonArray bossArray)
+        // 書き出した世界の主の組(worlds.json の boss_picks.final)は、編集する組に取り込む(保存すると決まった主として bosses.json に書く)。
+        // worlds.json に残すと、新しいゲームで編集した組の上に当たってしまうので、そこからは消す
+        if (pack._worldRaw?["boss_picks"] is JsonObject picks && picks[GameSession.FinalBossId] is JsonArray finalPicks)
+        {
+            try
+            {
+                pack.BossGroups ??= finalPicks.Deserialize<List<BossDef.BossGroup>>(ContentLibrary.JsonOptions);
+            }
+            catch (JsonException) { }
+            if (pack.BossGroups != null)
+            {
+                picks.Remove(GameSession.FinalBossId);
+                if (picks.Count == 0) pack._worldRaw.Remove("boss_picks");
+            }
+        }
+        if (Node("bosses.json") is JsonArray bossArray)
             foreach (var o in bossArray.OfType<JsonObject>())
             {
                 if ((string?)o["id"] == GameSession.FinalBossId) pack._final = o.DeepClone().AsObject();
                 else pack.Bosses.Add(o.DeepClone().AsObject());
             }
-        if (Read($"{Combat.EncounterSettings.Collection}.json") is { } enc && JsonNode.Parse(enc) is JsonArray arr
-            && arr.OfType<JsonObject>().FirstOrDefault(o => (string?)o["id"] == Combat.EncounterSettings.DefaultId) is { } e)
+        if (Node($"{Combat.EncounterSettings.Collection}.json") is JsonArray arr)
         {
-            pack.FirstLevel = (double?)e["first_level"] ?? pack.FirstLevel;
-            pack.LastLevel = (double?)e["last_level"] ?? pack.LastLevel;
+            pack._encountersRaw = arr.DeepClone().AsArray();
+            if (arr.OfType<JsonObject>().FirstOrDefault(o => (string?)o["id"] == Combat.EncounterSettings.DefaultId) is { } e)
+            {
+                pack.FirstLevel = (double?)e["first_level"] ?? pack.FirstLevel;
+                pack.LastLevel = (double?)e["last_level"] ?? pack.LastLevel;
+            }
         }
         return pack;
+    }
+
+    /// <summary>書き出した世界の、最下層の主のほかのボスの組(worlds.json の boss_picks)のモンスターの id を変える(ScenarioEdit.RenameMonster)。</summary>
+    internal void RenameInWorldBossPicks(string old, string id)
+    {
+        if (_worldRaw?["boss_picks"] is not JsonObject picks) return;
+        foreach (var (_, groups) in picks)
+            foreach (var g in (groups as JsonArray)?.OfType<JsonObject>() ?? [])
+                if ((string?)g["monster"] == old) g["monster"] = id;
     }
 
     /// <summary>
@@ -214,6 +283,8 @@ public sealed class ScenarioPack
     /// </summary>
     public void Save(ContentLibrary baseContent)
     {
+        if (LoadErrors.Count > 0)
+            throw new IOException($"読めなかったファイルがあるので、保存しません(読めたところだけで書くと、中身を失うため): {string.Join("、", LoadErrors.Distinct())}。ファイルを直してから開き直してください");
         System.IO.Directory.CreateDirectory(Path.Combine(Directory, "maps"));
         Manifest.Kind = ScenarioCatalog.Kind;
         Manifest.Format = ContentFormat.Current;
@@ -236,10 +307,14 @@ public sealed class ScenarioPack
         // 顔ぶれは階の数にそろえ、どの階も空なら書かない
         var rosters = Enumerable.Range(0, Floors.Count).Select(i => i < Rosters.Count ? Rosters[i] : []).ToList();
         if (rosters.All(r => r.Count == 0)) rosters = [];
-        WriteJson("dungeons.json", new[]
+        var dungeonNode = JsonSerializer.SerializeToNode(new[]
         {
             new DungeonLoader.DungeonDef { Id = Id, Name = Manifest.Name, Floors = files, Rosters = rosters, Named = Named, EventsPlaced = EventsPlaced, Note = _dungeonNote, Elevators = Elevators },
-        }, prune: true);
+        }, Indented)!;
+        Prune(dungeonNode);
+        // 名のある敵「なし」(空の並び)は空のまま書く(省くと「未指定」になり、新しいゲームのたびに抽選してしまう)
+        if (Named is { Count: 0 }) dungeonNode[0]!.AsObject()["named"] = new JsonArray();
+        File.WriteAllText(Path.Combine(Directory, "dungeons.json"), dungeonNode.ToJsonString(Indented));
         WriteJson("events.json", Events, prune: true);
         string rumors = Path.Combine(Directory, RumorDef.Collection + ".json");
         if (Rumors.Count > 0) WriteJson(RumorDef.Collection + ".json", Rumors, prune: true);
@@ -259,7 +334,11 @@ public sealed class ScenarioPack
         }
         // 世界の文は、書いてあるときだけ(空の worlds.json は、パックの決まった序文や AI の手伝いを止めてしまう)
         string worlds = Path.Combine(Directory, WorldPackDef.Collection + ".json");
-        if (HasText(Text)) WriteJson(WorldPackDef.Collection + ".json", new[] { new WorldPackDef { Id = Id, Text = Text } });
+        var world = _worldRaw?.DeepClone().AsObject() ?? new JsonObject { ["id"] = Id };
+        world["id"] = Id;
+        if (HasText(Text)) world["text"] = JsonSerializer.SerializeToNode(Text, Indented);
+        else world.Remove("text");
+        if (world.Count > 1) File.WriteAllText(worlds, new JsonArray(world).ToJsonString(Indented));   // 文も由来も無ければ書かない
         else if (File.Exists(worlds)) File.Delete(worlds);
         // 最下層の主: 読んだ final を残して、組だけを書き換える(名前・文言のキーはそのまま)。ほかのボスは Bosses のまま
         string bosses = Path.Combine(Directory, "bosses.json");
@@ -279,12 +358,19 @@ public sealed class ScenarioPack
         foreach (var b in Bosses) all.Add(b.DeepClone());
         if (all.Count > 0) File.WriteAllText(bosses, all.ToJsonString(Indented));
         else if (File.Exists(bosses)) File.Delete(bosses);
-        if (baseContent.Find(Combat.EncounterSettings.Collection, Combat.EncounterSettings.DefaultId) is { } item
-            && JsonNode.Parse(item.Data.GetRawText()) is JsonObject enc)
+        var encounters = _encountersRaw?.DeepClone().AsArray() ?? new JsonArray();
+        var enc = encounters.OfType<JsonObject>().FirstOrDefault(o => (string?)o["id"] == Combat.EncounterSettings.DefaultId);
+        if (enc == null && baseContent.Find(Combat.EncounterSettings.Collection, Combat.EncounterSettings.DefaultId) is { } item
+            && JsonNode.Parse(item.Data.GetRawText()) is JsonObject fromBase)
+        {
+            enc = fromBase;
+            encounters.Add(enc);
+        }
+        if (enc != null)
         {
             enc["first_level"] = FirstLevel;
             enc["last_level"] = LastLevel;
-            File.WriteAllText(Path.Combine(Directory, $"{Combat.EncounterSettings.Collection}.json"), new JsonArray(enc).ToJsonString(Indented));
+            File.WriteAllText(Path.Combine(Directory, $"{Combat.EncounterSettings.Collection}.json"), encounters.ToJsonString(Indented));
         }
     }
 
@@ -307,6 +393,8 @@ public sealed class ScenarioPack
     public void SaveAs(string dir, string id, ContentLibrary baseContent)
     {
         if (System.IO.Directory.Exists(dir)) throw new IOException($"{dir} はもうあります");
+        if (LoadErrors.Count > 0)
+            throw new IOException($"読めなかったファイルがあるので、保存しません: {string.Join("、", LoadErrors.Distinct())}。ファイルを直してから開き直してください");
         Copy(Directory, dir);
         // 元の迷宮のファイル(dungeons.json の、このシナリオの迷宮の階)は、新しい名前で書き直すので消す
         try

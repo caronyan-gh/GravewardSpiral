@@ -7,7 +7,7 @@ using static GravewardSpiral.Editor.Loc;
 namespace GravewardSpiral.Editor;
 
 /// <summary>
-/// エディタの設定: 画面の言語、AI のモデル、Claude の API キー。設定はゲームと別に持つ(EditorSettings)。
+/// エディタの設定: 画面の言語、AI のモデルとプロンプトキャッシュ、Claude の API キー。設定はゲームと別に持つ(EditorSettings)。
 /// API キーだけはゲームと共通(Windows の資格情報マネージャー GravewardSpiral/claude)。今のキーは先頭と末尾だけ見せ、
 /// 入れたキーは画面にも設定ファイルにも出さない。
 /// </summary>
@@ -53,7 +53,15 @@ public sealed class SettingsWindow : Window
             _settings.Save();
         };
         panel.Children.Add(Ui.Row(T("モデル", "Model"), model, 110));
-        panel.Children.Add(Ui.Note(T("物語のタブの「AI に書かせる」で使う(ゲームの AI 設定とは別)。", "Used by \"Write with AI\" on the Story tab (separate from the game's AI setting).")));
+        panel.Children.Add(Ui.Note(T("物語のタブの「AI に書かせる」と、イベント・データの「AI に頼む」で使う(ゲームの AI 設定とは別)。", "Used by \"Write with AI\" on the Story tab and \"Ask the AI\" on the Events and Data tabs (separate from the game's AI setting).")));
+        var cache = new CheckBox { Content = T("前置きをキャッシュする(続けて頼むと安くなる)", "Cache the preamble (cheaper when you ask several times in a row)"), IsChecked = settings.AiCache, Margin = new Thickness(0, 6, 0, 0) };
+        cache.Click += (_, _) =>
+        {
+            _settings.AiCache = cache.IsChecked == true;
+            _settings.Save();
+        };
+        panel.Children.Add(Ui.Row(T("キャッシュ", "Cache"), cache, 110));
+        panel.Children.Add(Ui.Note(EditorSettings.CacheExplanation));
         panel.Children.Add(Ui.Row(T("今のキー", "Current key"), _current, 110));
         panel.Children.Add(Ui.Row(T("新しいキー", "New key"), _key, 110));
         panel.Children.Add(Ui.Note(T("Claude の API キーは、ゲームと共通(Windows の資格情報マネージャーに入る)。", "The Claude API key is shared with the game (stored in Windows Credential Manager).")));

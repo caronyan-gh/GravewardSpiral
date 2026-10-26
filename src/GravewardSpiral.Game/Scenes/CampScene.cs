@@ -96,7 +96,7 @@ public sealed class CampScene : MenuScene
                 // 今のタブに出す呪文(上のスロットで強くなる呪文も)。タブがそのまま唱えるスロットのレベルなので、レベルと残りの数は出さない
                 bool castable = SpellTabs.CanCast(data, _caster!, _spellTab);
                 bool any = false;
-                foreach (var sp in CampSpells(_caster!).Where(x => SpellTabs.Shows(x, _spellTab)))
+                foreach (var sp in CampSpells(_caster!).Where(x => SpellTabs.Shows(data, _caster!, x, _spellTab)))
                 {
                     any = true;
                     yield return SpellText.CastItem(Services, _caster!, sp, null, castable);

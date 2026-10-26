@@ -152,8 +152,17 @@ public sealed class MonsterDef
     /// <summary>かからない状態。</summary>
     public List<Condition> ConditionImmune { get; set; } = [];
 
-    /// <summary>特徴(pack_tactics / undead_fortitude / legendary_resistance など)。</summary>
+    /// <summary>特徴(pack_tactics / undead_fortitude / legendary_resistance など)。ゲームが効き目を持つのは WorkingTraits だけで、ほかは名札。</summary>
     public List<string> Traits { get; set; } = [];
+
+    /// <summary>戦闘で効き目のある特徴(CombatEngine と Combatants が見るもの)。magic_resistance は呪文と魔法の効果へのセーヴに有利。</summary>
+    public static readonly string[] WorkingTraits = ["legendary_resistance", "magic_resistance", "pack_tactics", "undead_fortitude"];
+
+    /// <summary>再生: 自分の番の初めに戻す HP(HP が 1 以上のとき。0 なら再生しない)。</summary>
+    public int Regenerate { get; set; }
+
+    /// <summary>このダメージの種類を受けると、次の番の初めは再生しない(トロルの酸と火、ヴァンパイアの光輝)。</summary>
+    public List<string> RegenerateStop { get; set; } = [];
 
     /// <summary>行動(攻撃・ブレスなど)。</summary>
     public List<MonsterAction> Actions { get; set; } = [];

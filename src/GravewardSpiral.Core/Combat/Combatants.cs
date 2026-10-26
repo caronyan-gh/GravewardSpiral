@@ -68,8 +68,24 @@ public abstract class Combatant
 
     public bool Immune(Condition c) => ImmuneTo(c) || Modifiers.Any(m => m.Stat == "immune:" + c.ToString().ToLowerInvariant());
 
-    /// <summary>ダメージの倍率(完全耐性 0、抵抗 0.5、脆弱 2)。</summary>
-    public abstract double DamageMultiplier(string damageType, bool magical);
+    /// <summary>魔法への抵抗(呪文と魔法の効果へのセーヴに有利。モンスターの特徴 magic_resistance)。</summary>
+    public virtual bool MagicResistant => false;
+
+    /// <summary>もともとの(種族・装備・モンスターの)完全耐性・抵抗・脆弱。倍率にはせず、あるかどうかだけ返す。</summary>
+    protected abstract (bool Immune, bool Resist, bool Vulnerable) DamageTraits(string damageType, bool magical);
+
+    /// <summary>
+    /// ダメージの倍率(完全耐性 0、抵抗 0.5、脆弱 2、両方なら 1)。もともとの分と呪文などの効果(resist:/vulnerable:&lt;種類&gt;)を合わせ、
+    /// 抵抗と脆弱は出どころがいくつあっても1回だけ数える(5版)。
+    /// </summary>
+    public double DamageMultiplier(string damageType, bool magical)
+    {
+        var (immune, resist, vulnerable) = DamageTraits(damageType, magical);
+        if (immune) return 0;
+        resist |= Modifiers.Any(m => m.Stat == "resist:" + damageType);
+        vulnerable |= Modifiers.Any(m => m.Stat == "vulnerable:" + damageType);
+        return (resist ? 0.5 : 1) * (vulnerable ? 2 : 1);
+    }
 
     /// <summary>まだ戦える(HP が 0 でなく、死んでいない)。</summary>
     public abstract bool Standing { get; }
@@ -136,13 +152,12 @@ public sealed class PartyMember(Character character, GameData data) : Combatant
         Character.Passive(_data).Any(p => p.Type == EffectPart.ImmuneCondition && p.Condition == c);
 
     /// <summary>装備の抵抗と脆弱。</summary>
-    public override double DamageMultiplier(string damageType, bool magical)
+    protected override (bool Immune, bool Resist, bool Vulnerable) DamageTraits(string damageType, bool magical)
     {
         var passive = Character.Passive(_data).ToList();
-        double m = 1;
-        if (passive.Any(p => p.Type == EffectPart.Resist && p.DamageType == damageType)) m *= 0.5;
-        if (passive.Any(p => p.Type == EffectPart.Vulnerable && p.DamageType == damageType)) m *= 2;
-        return m;
+        return (false,
+            passive.Any(p => p.Type == EffectPart.Resist && p.DamageType == damageType),
+            passive.Any(p => p.Type == EffectPart.Vulnerable && p.DamageType == damageType));
     }
 
     public ItemInstance? WeaponItem => Character.Inventory[EquipSlot.MainHand];
@@ -222,6 +237,11 @@ public sealed class MonsterUnit : Combatant
     /// <summary>伝説的抵抗の残り(5版: 1日に3回、セーヴの失敗を成功に変える。この戦いのあいだで数える)。</summary>
     public int LegendaryResistLeft { get; set; }
 
+    /// <summary>止める種類のダメージ(Def.RegenerateStop)を受けたので、次の番の初めは再生しない。</summary>
+    public bool RegenerationStopped { get; set; }
+
+    public override bool MagicResistant => Def.Has("magic_resistance");
+
     /// <summary>深い階の強化。</summary>
     public MonsterScale Scale { get; }
 
@@ -255,15 +275,11 @@ public sealed class MonsterUnit : Combatant
     public override bool ImmuneTo(Condition c) => Def.ConditionImmune.Contains(c);
     public override bool Standing => _hp > 0;
 
-    public override double DamageMultiplier(string damageType, bool magical)
+    protected override (bool Immune, bool Resist, bool Vulnerable) DamageTraits(string damageType, bool magical)
     {
         bool nonmagicalPhysical = !magical && DamageTypes.IsPhysical(damageType);
         bool In(List<string> list) => list.Contains(damageType) || (nonmagicalPhysical && list.Contains(DamageTypes.NonmagicalPhysical));
-        if (In(Def.Immune)) return 0;
-        double m = 1;
-        if (In(Def.Resist)) m *= 0.5;
-        if (In(Def.Vulnerable)) m *= 2;
-        return m;
+        return (In(Def.Immune), In(Def.Resist), In(Def.Vulnerable));
     }
 
     public bool Ready(MonsterAction a) =>
@@ -309,6 +325,8 @@ public sealed class SummonUnit : Combatant
     public int HpEach { get; }
     public int MaxHpValue { get; }
 
+    public override bool MagicResistant => Def.Has("magic_resistance");
+
     /// <summary>残っている数。</summary>
     public int Count => _hp <= 0 ? 0 : (_hp + HpEach - 1) / HpEach;
 
@@ -324,14 +342,10 @@ public sealed class SummonUnit : Combatant
     public override bool ImmuneTo(Condition c) => Def.ConditionImmune.Contains(c);
     public override bool Standing => _hp > 0;
 
-    public override double DamageMultiplier(string damageType, bool magical)
+    protected override (bool Immune, bool Resist, bool Vulnerable) DamageTraits(string damageType, bool magical)
     {
         bool nonmagicalPhysical = !magical && DamageTypes.IsPhysical(damageType);
         bool In(List<string> list) => list.Contains(damageType) || (nonmagicalPhysical && list.Contains(DamageTypes.NonmagicalPhysical));
-        if (In(Def.Immune)) return 0;
-        double m = 1;
-        if (In(Def.Resist)) m *= 0.5;
-        if (In(Def.Vulnerable)) m *= 2;
-        return m;
+        return (In(Def.Immune), In(Def.Resist), In(Def.Vulnerable));
     }
 }

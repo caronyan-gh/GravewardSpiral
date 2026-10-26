@@ -12,6 +12,9 @@ public static class Ui
     public static readonly Brush Warn = Theme.Brush(Theme.Palette.Warn);
     public static readonly Brush Good = Theme.Brush(Theme.Palette.Good);
 
+    /// <summary>注意(黄色。わざとかもしれない、確かめてほしいもの)。</summary>
+    public static readonly Brush Caution = Theme.Brush("#B7791F");
+
     /// <summary>節の見出し(左に青い線)。</summary>
     public static Border Heading(string text) => new()
     {

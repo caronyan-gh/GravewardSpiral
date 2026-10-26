@@ -26,9 +26,6 @@ public sealed class StoryTab : IEditorTab
     private readonly CheckBox _overwrite = new() { Content = T("書いてある欄も書き直す", "Overwrite filled fields too"), Margin = new Thickness(8, 0, 0, 0), VerticalAlignment = VerticalAlignment.Center };
     private bool _busy;
 
-    /// <summary>確かめ用の偽の AI(--fake-ai)。本物の API を呼ばない。</summary>
-    public static IAiClient? FakeAi { get; set; }
-
     public StoryTab(EditorContext context, Action<string, bool> say)
     {
         _context = context;
@@ -351,16 +348,10 @@ public sealed class StoryTab : IEditorTab
     private async void Write()
     {
         if (_busy || _context.Pack is not { } pack) return;
-        IAiClient? client = FakeAi;
-        if (client == null)
+        if (_context.Ai(out var noKey) is not { } client)
         {
-            string? key = Game.Ai.ApiKeyStore.Load(Game.Ai.ApiKeyStore.Claude);
-            if (key == null)
-            {
-                _say(T("API キーがありません(上の帯の「設定」で入れる)", "No API key (set it in Settings on the top bar)"), true);
-                return;
-            }
-            client = new ClaudeClient(key, _context.Settings.AiModel);
+            _say(noKey!, true);
+            return;
         }
         var data = _context.BaseData;
         var dungeon = new Dungeon(pack.Id, pack.Floors);
@@ -467,6 +458,7 @@ public sealed class FakeAiClient : IAiClient
 
     public Task<AiJsonReply> GenerateJsonAsync(AiJsonRequest request, CancellationToken cancel)
     {
+        if (request.System.StartsWith("You write pack data", StringComparison.Ordinal)) return Task.FromResult(Draft(request.User));
         int floors = System.Text.RegularExpressions.Regex.Match(request.User, @"exactly (\d+) entries").Groups[1].Value is { Length: > 0 } n ? int.Parse(n) : 1;
         object T(string en, string ja) => new { en, ja };
         var reply = new
@@ -497,5 +489,48 @@ public sealed class FakeAiClient : IAiClient
             },
         };
         return Task.FromResult(new AiJsonReply(JsonSerializer.SerializeToElement(reply), null, 0, 0));
+    }
+
+    /// <summary>
+    /// 下書き(DraftWriter)の偽の返事: 元があれば写して名前か覚え書きを変え、無ければ短い文のイベント。
+    /// 希望に「わざと間違える」があれば、最初は知らない手順を混ぜる(直させる流れの確かめ)。
+    /// </summary>
+    private static AiJsonReply Draft(string user)
+    {
+        user = user.Replace("\r", "");
+        string Line(string label) => System.Text.RegularExpressions.Regex.Match(user, $"^{label}: (.+)$", System.Text.RegularExpressions.RegexOptions.Multiline).Groups[1].Value.Trim();
+        string id = Line("Use this id"), extend = Line("Extend from");
+        int at = user.IndexOf("# Base\n", StringComparison.Ordinal), end = user.IndexOf("\n# Request", StringComparison.Ordinal);
+        string baseText = at >= 0 && end > at ? user[(at + 7)..end].Trim().Replace("\r", "") : "";
+        JsonObject draft;
+        if (extend.Length > 0 && !extend.StartsWith('('))
+            draft = new JsonObject { ["id"] = id, ["extends"] = extend, ["name"] = new JsonObject { ["en"] = "Fake " + extend, ["ja"] = "偽の" + extend } };
+        else if (baseText.StartsWith('{') && JsonNode.Parse(baseText) is JsonObject b)
+        {
+            draft = b;
+            draft["id"] = id;
+            if (draft.ContainsKey("steps")) draft["note"] = "偽の AI が写した";
+            else draft["name"] = new JsonObject { ["en"] = "Fake copy", ["ja"] = "偽の写し" };
+        }
+        else draft = new JsonObject
+        {
+            ["id"] = id, ["place"] = "maze", ["once"] = "game",
+            ["steps"] = new JsonArray(new JsonObject { ["type"] = "text", ["text"] = new JsonObject { ["en"] = "A fake voice echoes.", ["ja"] = "偽の声が響く。" } }),
+        };
+        if (user.Contains("わざと間違える") && !user.Contains("# Your previous draft") && draft["steps"] is JsonArray steps)
+            steps.Add(new JsonObject { ["type"] = "dance" });
+        // 「先に動く」は作れない頼み事の見本: 希望と違うところを返す
+        string[] differences = user.Contains("先に動") ? ["先制を上げる部品が無いので、逃走 +3 に変えました(偽の AI)。"] : [];
+        // 「持ち帰」はゲームに無い品が要る頼み事の見本: 新しい品を一緒に書き、イベントで取り上げる
+        string[] items = [];
+        if (user.Contains("持ち帰") && draft["steps"] is JsonArray st)
+        {
+            string itemId = id + "_hammer_head";
+            items = [new JsonObject { ["id"] = itemId, ["kind"] = "key", ["name"] = new JsonObject { ["en"] = "Broken Hammer Head", ["ja"] = "折れた槌の頭" }, ["no_random"] = true }.ToJsonString()];
+            st.Add(new JsonObject { ["type"] = "take_item", ["id"] = itemId, ["count"] = 1 });
+            st.Add(new JsonObject { ["type"] = "gold", ["value"] = 100 });
+        }
+        var reply = new { json = draft.ToJsonString(), items, note = "偽の AI の下書き(確かめ用)。", differences };
+        return new AiJsonReply(JsonSerializer.SerializeToElement(reply), null, 0, 0);
     }
 }

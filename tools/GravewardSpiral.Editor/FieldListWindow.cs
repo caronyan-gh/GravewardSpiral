@@ -1,10 +1,6 @@
-using System.ComponentModel;
-using System.Reflection;
 using System.Text.Json;
-using System.Text.Json.Serialization;
 using System.Windows;
 using System.Windows.Controls;
-using System.Xml.Linq;
 using GravewardSpiral.Core.Content;
 using static GravewardSpiral.Editor.Loc;
 
@@ -168,38 +164,10 @@ public sealed class FieldListWindow : Window
     }
 
     /// <summary>型の項目を、中の部品の型もたどって並べる(部品ごとに1つの節)。</summary>
-    private static List<Field> Fields(Type root, (Dictionary<string, string> Top, Dictionary<string, string> Inner) examples)
-    {
-        var docs = Docs(root.Assembly);
-        var fields = new List<Field>();
-        var seen = new HashSet<Type>();
-        var queue = new Queue<Type>([root]);
-        while (queue.Count > 0)
-        {
-            var type = queue.Dequeue();
-            if (!seen.Add(type)) continue;
-            foreach (var p in type.GetProperties(BindingFlags.Public | BindingFlags.Instance))
-            {
-                if (p.SetMethod is not { IsPublic: true } || p.GetIndexParameters().Length > 0) continue;
-                if (p.GetCustomAttribute<JsonIgnoreAttribute>() is { Condition: JsonIgnoreCondition.Always }) continue;
-                if (p.GetCustomAttribute<EditorBrowsableAttribute>() is { State: EditorBrowsableState.Never }) continue;
-                string name = p.GetCustomAttribute<JsonPropertyNameAttribute>()?.Name ?? JsonNamingPolicy.SnakeCaseLower.ConvertName(p.Name);
-                string doc = docs.GetValueOrDefault($"P:{type.FullName!.Replace('+', '.')}.{p.Name}") ?? "";
-                var inner = Inner(p.PropertyType);
-                if (inner != null && inner != type) queue.Enqueue(inner);
-                fields.Add(new Field(type.Name.Replace("Def", ""), name, TypeName(p.PropertyType), doc, (type == root ? examples.Top : examples.Inner).GetValueOrDefault(name)));
-            }
-        }
-        return fields;
-    }
-
-    /// <summary>中の部品の型(Core の class。リストならその中身)。</summary>
-    private static Type? Inner(Type t)
-    {
-        var u = Nullable.GetUnderlyingType(t) ?? t;
-        if (u.IsGenericType && u.GetGenericTypeDefinition() == typeof(List<>)) u = u.GetGenericArguments()[0];
-        return u.IsClass && u != typeof(string) && u != typeof(LocalizedText) && u.Namespace?.StartsWith("GravewardSpiral.Core") == true ? u : null;
-    }
+    private static List<Field> Fields(Type root, (Dictionary<string, string> Top, Dictionary<string, string> Inner) examples) =>
+        FieldDocs.Walk(root, FieldDocs.Load())
+            .Select(f => new Field(f.Owner.Name.Replace("Def", ""), f.Name, TypeName(f.Type), f.Doc, (f.Owner == root ? examples.Top : examples.Inner).GetValueOrDefault(f.Name)))
+            .ToList();
 
     /// <summary>型の、読む人向けの名前(列挙は書ける値の一覧)。</summary>
     private static string TypeName(Type t)
@@ -235,21 +203,5 @@ public sealed class FieldListWindow : Window
         }
         foreach (var i in items) Walk(i, true);
         return (top, inner);
-    }
-
-    /// <summary>Core の説明書き(GravewardSpiral.Core.xml の summary)。</summary>
-    private static Dictionary<string, string> Docs(Assembly assembly)
-    {
-        var result = new Dictionary<string, string>(StringComparer.Ordinal);
-        string path = Path.ChangeExtension(assembly.Location, ".xml");
-        if (!File.Exists(path)) return result;
-        foreach (var member in XDocument.Load(path).Descendants("member"))
-        {
-            if (member.Attribute("name")?.Value is not { } name || member.Element("summary") is not { } summary) continue;
-            foreach (var see in summary.Descendants().Where(d => d.Name == "see" || d.Name == "paramref").ToList())
-                see.ReplaceWith((see.Attribute("cref") ?? see.Attribute("name"))?.Value.Split('.').Last() ?? "");
-            result[name] = System.Text.RegularExpressions.Regex.Replace(summary.Value.Trim(), @"\s*\n\s*", "");   // 日本語の行の折り返しは、空白なしでつなぐ
-        }
-        return result;
     }
 }

@@ -92,6 +92,7 @@ public sealed class EditorContext
     public (ScenarioFill.Parts Done, string? Problem) Fill(ScenarioFill.Parts parts, bool redo)
     {
         if (Pack is not { } pack) return (ScenarioFill.Parts.None, null);
+        if (pack.LoadErrors.Count > 0) return (ScenarioFill.Parts.None, Loc.T("読めなかったファイルがあるので保存できません: ", "Some files could not be read, so it cannot be saved: ") + string.Join(", ", pack.LoadErrors));
         pack.Save(BaseContent);
         var (content, data) = LoadScenario();
         if (data == null) return (ScenarioFill.Parts.None, string.Join(" / ", content.Problems.Take(3)));
@@ -105,7 +106,7 @@ public sealed class EditorContext
     /// <summary>散らしたイベントの印を消す(保存してから。手で置いた散らさないイベントは残す)。消した数。</summary>
     public int ClearScattered()
     {
-        if (Pack is not { } pack) return 0;
+        if (Pack is not { } pack || pack.LoadErrors.Count > 0) return 0;   // 読めなかったファイルがあれば保存しない(中身を失わないように)
         pack.Save(BaseContent);
         if (LoadScenario().Data is not { } data) return 0;
         int n = ScenarioFill.ClearScattered(pack, data);
@@ -159,6 +160,98 @@ public sealed class EditorContext
         {
             try { Directory.Delete(temp, true); } catch (IOException) { }
         }
+    }
+
+    /// <summary>
+    /// イベントの下書きを、ゲームと同じ検査にかける(保存しない。AI の下書きを当てる前に使う)。
+    /// まだ保存していない品・モンスター・ほかのイベントも見えるように、使い捨てのフォルダに今の中身を書いて読む。同じ id のイベントは下書きで置き換える。
+    /// items はイベントと一緒に書いた新しい品(品の中身に足して読み、その品の読み込みの問題と、知らない項目名も返す)。
+    /// </summary>
+    public List<string> CheckEvent(System.Text.Json.Nodes.JsonObject draft, IReadOnlyList<System.Text.Json.Nodes.JsonObject> items)
+    {
+        if (Pack is not { } pack) return [];
+        string id = (string?)draft["id"] ?? "";
+        string temp = Path.Combine(Path.GetTempPath(), "GravewardSpiralEditor", "check-" + Guid.NewGuid().ToString("N"));
+        try
+        {
+            Directory.CreateDirectory(temp);
+            foreach (var file in Directory.EnumerateFiles(pack.Directory, "*.json")) File.Copy(file, Path.Combine(temp, Path.GetFileName(file)));
+            var newIds = items.Select(i => (string?)i["id"] ?? "").ToHashSet();
+            foreach (var (collection, list) in pack.DataLists())
+            {
+                string file = Path.Combine(temp, collection + ".json");
+                // 新しい品は品の中身に足す(同じ id があれば、新しい方で置き換える)
+                var all = collection == "items" ? list.Where(o => !newIds.Contains((string?)o["id"] ?? "")).Concat(items).ToList() : list;
+                if (all.Count > 0) File.WriteAllText(file, new System.Text.Json.Nodes.JsonArray(all.Select(o => (System.Text.Json.Nodes.JsonNode)o.DeepClone()).ToArray()).ToJsonString());
+                else File.Delete(file);
+            }
+            File.WriteAllText(Path.Combine(temp, "events.json"), System.Text.Json.JsonSerializer.Serialize(pack.Events.Where(e => e.Id != id), Core.Content.ContentLibrary.JsonOptions));
+            var content = ContentLibrary.Load(ContentRoot, temp);
+            GameData data;
+            try { data = GameData.Load(content); }
+            catch (Exception ex) when (ex is System.Text.Json.JsonException or InvalidDataException or KeyNotFoundException) { return [ex.Message]; }
+            var json = System.Text.Json.JsonSerializer.SerializeToElement(draft);
+            var problems = Core.Events.EventDraftCheck.Check(data, content, [("AI", json)], allowExisting: true, handPlaced: true).Problems;
+            // 新しい品: 読み込みの問題と、知らない項目名(書き間違い)
+            foreach (var itemId in newIds)
+            {
+                problems.AddRange(content.Problems.Where(p => p.Contains($"'{itemId}'")).Select(p => Loc.T("新しい品: ", "New item: ") + p));
+                if (content.Find("items", itemId) is not { } found) continue;
+                try { _ = System.Text.Json.JsonSerializer.Deserialize<Core.Items.ItemDef>(found.Data.GetRawText(), Core.Events.EventDraftCheck.Strict); }
+                catch (System.Text.Json.JsonException ex) { problems.Add(Loc.T($"新しい品 '{itemId}': ", $"New item '{itemId}': ") + ex.Message); }
+            }
+            return problems.Distinct().ToList();
+        }
+        finally
+        {
+            try { Directory.Delete(temp, true); } catch (IOException) { }
+        }
+    }
+
+    /// <summary>
+    /// 品かモンスターの下書きを入れたゲームのデータ(保存しない。AI に頼む窓で、強さを試すのに使う)。
+    /// 使い捨てのフォルダに今の中身を書き、その1つを下書きにして読む。読めなければ null と理由。
+    /// </summary>
+    public (GameData? Data, string? Problem) DataWith(string collection, System.Text.Json.Nodes.JsonObject draft)
+    {
+        if (Pack is not { } pack) return (null, null);
+        string id = (string?)draft["id"] ?? "";
+        string temp = Path.Combine(Path.GetTempPath(), "GravewardSpiralEditor", "data-" + Guid.NewGuid().ToString("N"));
+        try
+        {
+            Directory.CreateDirectory(temp);
+            foreach (var file in Directory.EnumerateFiles(pack.Directory, "*.json")) File.Copy(file, Path.Combine(temp, Path.GetFileName(file)));
+            foreach (var (name, list) in pack.DataLists())
+            {
+                var all = name == collection ? list.Where(o => (string?)o["id"] != id).Append(draft).ToList() : list;
+                string file = Path.Combine(temp, name + ".json");
+                if (all.Count > 0) File.WriteAllText(file, new System.Text.Json.Nodes.JsonArray(all.Select(o => (System.Text.Json.Nodes.JsonNode)o.DeepClone()).ToArray()).ToJsonString());
+                else File.Delete(file);
+            }
+            var content = ContentLibrary.Load(ContentRoot, temp);
+            try { return (GameData.Load(content), null); }
+            catch (Exception ex) when (ex is System.Text.Json.JsonException or InvalidDataException or KeyNotFoundException) { return (null, ex.Message); }
+        }
+        finally
+        {
+            try { Directory.Delete(temp, true); } catch (IOException) { }
+        }
+    }
+
+    /// <summary>確かめ用の偽の AI(--fake-ai)。本物の API を呼ばない。</summary>
+    public static Core.Ai.IAiClient? FakeAi { get; set; }
+
+    /// <summary>AI の窓口(偽の AI か、API キーと設定のモデル)。キーが無ければ null と、画面に出す理由。</summary>
+    public Core.Ai.IAiClient? Ai(out string? error)
+    {
+        error = null;
+        if (FakeAi != null) return FakeAi;
+        if (Game.Ai.ApiKeyStore.Load(Game.Ai.ApiKeyStore.Claude) is not { } key)
+        {
+            error = Loc.T("API キーがありません(上の帯の「設定」で入れる)", "No API key (set it in Settings on the top bar)");
+            return null;
+        }
+        return new Core.Ai.ClaudeClient(key, Settings.AiModel);
     }
 
     /// <summary>開いているシナリオを標準のパックに重ねて読んだもの(検査とおすすめに使う。保存してから呼ぶ)。</summary>

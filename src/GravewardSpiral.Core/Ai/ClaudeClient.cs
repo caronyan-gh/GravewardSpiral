@@ -35,7 +35,9 @@ public sealed class ClaudeClient : IAiClient
             MaxTokens = request.MaxTokens,
             Betas = ["server-side-fallback-2026-07-01"],
             Fallbacks = new Default(),   // 断られたら、断りの種類に合わせてサーバーが代わりのモデルに回す
-            System = request.System,
+            System = request.Cached is { } cached
+                ? new List<BetaTextBlockParam> { new() { Text = request.System }, new() { Text = cached, CacheControl = new BetaCacheControlEphemeral() } }
+                : request.System,
             OutputConfig = new BetaOutputConfig
             {
                 Effort = Effort.Medium,
@@ -50,7 +52,8 @@ public sealed class ClaudeClient : IAiClient
             if (response.StopReason == "max_tokens") return AiJsonReply.Fail("max_tokens");
             string text = string.Concat(response.Content.Select(b => b.TryPickText(out var t) ? t.Text : ""));
             using var doc = JsonDocument.Parse(text);
-            return new AiJsonReply(doc.RootElement.Clone(), null, response.Usage.InputTokens, response.Usage.OutputTokens);
+            return new AiJsonReply(doc.RootElement.Clone(), null, response.Usage.InputTokens, response.Usage.OutputTokens,
+                response.Usage.CacheReadInputTokens ?? 0, response.Usage.CacheCreationInputTokens ?? 0);
         }
         catch (OperationCanceledException)
         {

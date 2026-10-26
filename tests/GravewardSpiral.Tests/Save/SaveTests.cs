@@ -73,6 +73,95 @@ public class SaveTests
     }
 
     [Fact]
+    public void AFailedClanWriteLeavesTheWorldAsBefore()
+    {
+        // 世界とクランは同じ時の組で残す(クランを書けなければ、世界も前のまま)
+        using var dir = new TestPaths.TempDir();
+        var store = new SaveStore(dir.Path);
+        var s = NewSession(2);
+        store.Save(s, Content);
+        s.Flags.Add("reward_claimed");
+        string clan = Directory.GetFiles(dir.Path, "clan.json", SearchOption.AllDirectories).Single();
+        File.SetAttributes(clan, FileAttributes.ReadOnly);   // クランの置き換えだけ失敗させる
+        try
+        {
+            Assert.ThrowsAny<Exception>(() => store.Save(s, Content));
+        }
+        finally
+        {
+            File.SetAttributes(clan, FileAttributes.Normal);
+        }
+        var back = store.Load(s.ClanId, s.WorldKey);
+        Assert.DoesNotContain("reward_claimed", back.Flags);
+    }
+
+    [Fact]
+    public void AWorldSavedWithoutItsClanGoesBackToTheLastPair()
+    {
+        // 世界を置き換えたあと、クランを置き換える前に落ちた形: 世界だけ新しい。読むと、世界を前の版に戻して組をそろえる(再レビューの R05)
+        using var dir = new TestPaths.TempDir();
+        var store = new SaveStore(dir.Path);
+        var s = NewSession(2);
+        store.Save(s, Content);
+        s.Flags.Add("reward_claimed");
+        store.Save(s, Content);
+        string clan = Path.Combine(dir.Path, s.ClanId, "clan.json");
+        File.Copy(Path.ChangeExtension(clan, ".bak.json"), clan, overwrite: true);
+        Assert.DoesNotContain("reward_claimed", store.Load(s.ClanId, s.WorldKey).Flags);
+
+        // ほかの世界で保存しても(クランを分け合う)、この世界の組は崩れない
+        var back = store.Load(s.ClanId, s.WorldKey);
+        back.Flags.Add("reward_claimed");
+        store.Save(back, Content);
+        var other = NewSession(3);
+        other.ClanId = s.ClanId;
+        other.Scenario = "world_b";
+        store.Save(other, Content);
+        Assert.Contains("reward_claimed", store.Load(s.ClanId, s.WorldKey).Flags);
+    }
+
+    [Fact]
+    public void AHalfSavedWorldIsRecoveredBeforeCountingWhoIsAway()
+    {
+        // 世界Aを町で保存 → 迷宮に入って保存し、クランを置き換える前に落ちた形。先に世界Bを始めても、Aのパーティは町にいる扱い
+        using var dir = new TestPaths.TempDir();
+        var store = new SaveStore(dir.Path);
+        var a = NewSession(1);
+        a.Scenario = "world_a";
+        store.Save(a, Content);
+        a.EnterMaze();
+        store.Save(a, Content);
+        string clan = Path.Combine(dir.Path, a.ClanId, "clan.json");
+        File.Copy(Path.ChangeExtension(clan, ".bak.json"), clan, overwrite: true);
+
+        Assert.Empty(store.Away(a.ClanId, "world_b"));   // 新しい世界Bを始めるときの、よその迷宮にいる人(Aは読み込まない)
+        Assert.Equal("town", System.Text.Json.Nodes.JsonNode.Parse(File.ReadAllText(store.WorldFile(a.ClanId, "world_a")))!["location"]!.GetValue<string>());
+    }
+
+    [Fact]
+    public void AnOldClanBringsItsSpentPactSlotsAlong()
+    {
+        // 協約魔術のスロットを分けて数える前のクラン: 使い切った2つは、読んだあとも使ったまま(再レビューの R01)
+        using var dir = new TestPaths.TempDir();
+        var store = new SaveStore(dir.Path);
+        var s = NewSession(1);
+        var warlock = CharacterFactory.QuickCreate(Data, "W", "human", "warlock", 5);
+        s.Roster.Characters.Add(warlock);
+        warlock.PactSlotsUsed = 2;
+        store.Save(s, Content);
+        string path = Path.Combine(dir.Path, s.ClanId, "clan.json");
+        var node = System.Text.Json.Nodes.JsonNode.Parse(File.ReadAllText(path))!;
+        var raw = node["characters"]!.AsArray().Single(c => (string?)c!["id"] == warlock.Id)!.AsObject();
+        raw.Remove("pact_slots_used");
+        raw["slots_used"] = new System.Text.Json.Nodes.JsonObject { ["3"] = 2 };
+        File.WriteAllText(path, node.ToJsonString());
+        var loaded = store.Load(s.ClanId, s.WorldKey).Roster.Find(warlock.Id)!;
+        Assert.Equal(0, Core.Magic.Spellcasting.SlotsLeft(Data.Classes["warlock"], loaded, 3));
+        Assert.Equal(2, loaded.PactSlotsUsed);
+        Assert.Empty(loaded.SlotsUsed);
+    }
+
+    [Fact]
     public void SaveAndLoadKeepsEverything()
     {
         using var dir = new TestPaths.TempDir();

@@ -1,5 +1,6 @@
 using System.Globalization;
 using System.Text.Json;
+using System.Text.Json.Nodes;
 using System.Windows;
 using System.Windows.Controls;
 using GravewardSpiral.Core.Content;
@@ -53,6 +54,7 @@ public sealed class EventsTab : IEditorTab
         addRow.Children.Add(Ui.Button(T("消す", "Delete"), RemoveEvent));
         leftTop.Children.Add(addRow);
         leftTop.Children.Add(Ui.Button(T("標準のイベントから写す…", "Copy a standard event…"), CopyFromBase, T("標準のパックのイベントを、名前と中身を見て選んで写す", "Pick an event from the standard pack by name and content, and copy it")));
+        leftTop.Children.Add(Ui.Button(T("AI に頼む…", "Ask the AI…"), () => AskAi(), T("選んでいるイベントを元に(無ければ新しく)、こうしたいことを書いて AI に下書きさせる", "Have the AI draft an event from the selected one (or a new one) and your request")));
         leftTop.Children.Add(_filter.Bar);
         leftTop.Children.Add(_showPlaced);
         _showPlaced.Click += (_, _) => RefreshList(Current);
@@ -625,14 +627,64 @@ public sealed class EventsTab : IEditorTab
 
     // ---------------- イベントの一覧 ----------------
 
+    /// <summary>新しいイベントの id(シナリオの id + _event + 番号)。</summary>
+    private static string NewEventId(ScenarioPack p)
+    {
+        int n = p.Events.Count + 1;
+        while (p.Events.Any(e => e.Id == $"{p.Id}_event{n}")) n++;
+        return $"{p.Id}_event{n}";
+    }
+
+    /// <summary>
+    /// AI に頼む窓を開く。元は選んでいるイベント(このシナリオのものは置き換えられる。迷宮に置いた標準のものは写して足す)。無ければ新しく作る。
+    /// baseId は確かめ用(--ai-draft): "new" なら元なし、ほかは標準のイベントのその id を元にする。
+    /// </summary>
+    public AiDraftWindow? AskAi(string? baseId = null)
+    {
+        if (_context.Pack is not { } p) return null;
+        if (baseId != null) _list.SelectedIndex = -1;
+        var source = baseId == null ? Current ?? SelectedStandard : _context.BaseData.Events.GetValueOrDefault(baseId);
+        string id = Current?.Id ?? (source != null && p.Events.All(x => x.Id != source.Id) ? source.Id : NewEventId(p));
+        var baseJson = source == null ? null : JsonNode.Parse(ScenarioPack.CleanJson(source)) as JsonObject;
+        string label = source == null ? T("なし(新しく作る)", "None (write a new one)")
+            : $"{EventList.Name(source) ?? source.Id}({source.Id})" + (Current == null ? T("(標準のイベント。写して足す)", " (standard event; added as a copy)") : "");
+        var window = new AiDraftWindow(_context, Core.Ai.DraftWriter.Kind.Event, baseJson, label, id, null, Current != null, _context.CheckEvent, (draft, items, replace) =>
+        {
+            EventDef parsed;
+            try { parsed = draft.Deserialize<EventDef>(ContentLibrary.JsonOptions)!; }
+            catch (JsonException ex)
+            {
+                MessageBox.Show(T("JSON を読めません: ", "Cannot read the JSON: ") + ex.Message);
+                return;
+            }
+            if (replace && Current is { } e && p.Events.IndexOf(e) is >= 0 and var i) p.Events[i] = parsed;
+            else
+            {
+                if (p.Events.Any(x => x.Id == parsed.Id)) parsed.Id = NewEventId(p);
+                p.Events.Add(parsed);
+            }
+            // イベントと一緒に書いた新しい品は、データの品に入れる(同じ id があれば置き換える。イベントはその id を指している)
+            if (items.Count > 0 && p.DataLists().FirstOrDefault(x => x.Collection == "items").List is { } own)
+                foreach (var item in items)
+                {
+                    int at = own.FindIndex(o => (string?)o["id"] == (string?)item["id"]);
+                    if (at >= 0) own[at] = item;
+                    else own.Add(item);
+                }
+            _selected = parsed;
+            _context.MarkEdited();
+            RefreshList(parsed);
+        }) { Owner = Application.Current.MainWindow };
+        window.Show();
+        return window;
+    }
+
     private void AddEvent()
     {
         if (_context.Pack is not { } p) return;
-        int n = p.Events.Count + 1;
-        while (p.Events.Any(e => e.Id == $"{p.Id}_event{n}")) n++;
         p.Events.Add(new EventDef
         {
-            Id = $"{p.Id}_event{n}", Place = "maze", Once = "game",
+            Id = NewEventId(p), Place = "maze", Once = "game",
             Steps = [new EventStep { Type = "text", Text = LocalizedText.Of("Something is here.", "ここに何かがある。") }],
         });
         _context.MarkEdited();
@@ -671,7 +723,7 @@ public sealed class EventsTab : IEditorTab
         RefreshList(p.Events.Count == 0 ? null : p.Events[Math.Min(i, p.Events.Count - 1)]);
     }
 
-    /// <summary>id を変える(このシナリオの迷宮の印と、run の手順も直す)。</summary>
+    /// <summary>id を変える(このシナリオの迷宮の印と、run の手順と、done の条件も直す)。</summary>
     private void RenameEvent(EventDef e, string id)
     {
         if (_context.Pack is not { } p || id.Length == 0 || id == e.Id) return;
@@ -680,20 +732,7 @@ public sealed class EventsTab : IEditorTab
             MessageBox.Show(T("その id はもうあります", "That id already exists"));
             return;
         }
-        string old = e.Id;
-        e.Id = id;
-        foreach (var f in p.Floors)
-            foreach (var c in f.AllCells())
-                if (f[c].Mark == EventPlacer.MarkPrefix + old) f[c].Mark = EventPlacer.MarkPrefix + id;
-        void Walk(List<EventStep> steps)
-        {
-            foreach (var s in steps)
-            {
-                if (s.Type == "run" && s.Id == old) s.Id = id;
-                foreach (var child in s.Children()) Walk(child);
-            }
-        }
-        foreach (var x in p.Events) Walk(x.Steps);
+        Core.Save.ScenarioEdit.RenameEvent(p, e.Id, id);   // 迷宮の印・run・done の条件も
         Changed();
         RefreshNames();
     }

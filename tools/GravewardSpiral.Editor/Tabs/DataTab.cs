@@ -20,6 +20,7 @@ public sealed class DataTab : IEditorTab
     private readonly EditorContext _context;
     private readonly Grid _view = new();
     private readonly ListBox _list = new();
+    private readonly WrapPanel _kinds = new();
     /// <summary>写す元(標準のパックの id)。窓で選ぶ。</summary>
     private string? _baseId;
     private readonly TextBlock _baseName = new() { TextWrapping = TextWrapping.Wrap, Margin = new Thickness(0, 2, 0, 2) };
@@ -36,14 +37,13 @@ public sealed class DataTab : IEditorTab
 
         var left = new DockPanel { Margin = new Thickness(8) };
         var top = new StackPanel();
-        var kinds = new WrapPanel();
         foreach (var (key, label) in Kinds())
         {
             var radio = new RadioButton { Content = label, GroupName = "kind", Margin = new Thickness(0, 0, 12, 4), IsChecked = key == _kind, Tag = key };
             radio.Checked += (_, _) => { _kind = (string)radio.Tag; Reload(); };
-            kinds.Children.Add(radio);
+            _kinds.Children.Add(radio);
         }
-        top.Children.Add(kinds);
+        top.Children.Add(_kinds);
         top.Children.Add(Ui.Button(T("写す元を選ぶ…", "Choose the original…"), PickBase, T("標準のパックのものを、名前と絞り込みで選ぶ", "Pick from the standard pack by name and filters")));
         top.Children.Add(_baseName);
         var buttons = new WrapPanel { Margin = new Thickness(0, 4, 0, 4) };
@@ -51,6 +51,8 @@ public sealed class DataTab : IEditorTab
         buttons.Children.Add(Ui.Button(T("全部写して作る", "Copy everything"), () => Add(extend: false), T("元の中身を全部書き写す(元が直されても変わらない)", "Copies the whole original (stays as is if the original is fixed)")));
         buttons.Children.Add(Ui.Button(T("消す", "Delete"), Remove));
         top.Children.Add(buttons);
+        top.Children.Add(Ui.Button(T("写す元から AI で作る…", "Make from the original with AI…"), () => AskAi(fromStandard: true),
+            T("選んだ写す元を元に、こうしたいことを書いて AI に新しく下書きさせる(選んでいるものを直すのは、右の「AI で直す」)", "Have the AI draft a new one from the chosen original and your request (to rework the selected one, use \"Rework with AI\" on the right)")));
         DockPanel.SetDock(top, Dock.Top);
         left.Children.Add(top);
         _list.SelectionChanged += (_, _) => { if (!_loading) ShowProps(); };
@@ -114,18 +116,75 @@ public sealed class DataTab : IEditorTab
         return $"{id}  {name}{(ext != null ? $"  (← {ext})" : "")}";
     }
 
+    /// <summary>標準のものを写して作るときの、新しい id(シナリオの id + _ + 元の id。重なれば番号を付ける)。</summary>
+    private string NewId(List<JsonObject> list, string srcId)
+    {
+        string id = _context.Pack!.Id + "_" + srcId;
+        for (int n = 2; list.Any(o => (string?)o["id"] == id); n++) id = $"{_context.Pack.Id}_{srcId}{n}";
+        return id;
+    }
+
+    /// <summary>
+    /// AI に頼む窓を開く。fromStandard なら選んだ写す元(標準のもの)から新しく作り、そうでなければ選んでいるものを元にする(置き換えられる)。
+    /// baseId を渡すと、その標準のものを写す元にする(--ai-draft。確かめ用)。
+    /// </summary>
+    public AiDraftWindow? AskAi(bool fromStandard, string? baseId = null, string? kind = null)
+    {
+        if (kind != null && kind != _kind) SetKind(kind);
+        if (_kind == ContentLibrary.SpellCollection || List is not { } list) return null;
+        if (baseId != null) _baseId = baseId;
+        JsonObject baseJson;
+        string label, id;
+        string? extend;
+        int index;
+        if (fromStandard)
+        {
+            if (_baseId == null) PickBase();
+            if (_baseId == null || _context.BaseContent.Find(_kind, _baseId) is not { } src) return null;
+            baseJson = JsonNode.Parse(src.Data.GetRawText())!.AsObject();
+            label = T($"標準の {BaseName(src.Id)}({src.Id})。写して新しく作る", $"Standard {BaseName(src.Id)} ({src.Id}); a new one is made from it");
+            id = NewId(list, src.Id);
+            extend = src.Id;
+            index = list.Count;
+        }
+        else
+        {
+            if (Current is not { } o) return null;
+            baseJson = o.DeepClone().AsObject();
+            label = Label(o);
+            id = (string?)o["id"] ?? "";
+            extend = (string?)o["extends"];
+            index = list.IndexOf(o);
+        }
+        var aiKind = _kind == "monsters" ? Core.Ai.DraftWriter.Kind.Monster : Core.Ai.DraftWriter.Kind.Item;
+        var window = new AiDraftWindow(_context, aiKind, baseJson, label, id, extend, !fromStandard, (draft, _) => _context.CheckData(_kind, draft, index), (draft, _, replace) =>
+        {
+            if (replace && index < list.Count) list[index] = draft;
+            else
+            {
+                if (list.Any(x => (string?)x["id"] == (string?)draft["id"])) draft["id"] = NewId(list, extend ?? (string?)draft["id"] ?? "new");
+                list.Add(draft);
+            }
+            _context.MarkEdited();
+            Refresh(replace ? index : list.Count - 1);
+        }) { Owner = Application.Current.MainWindow };
+        window.Show();
+        return window;
+    }
+
+    /// <summary>種類(品・モンスター・呪文の名前)を替える(上のラジオボタンも合わせる)。</summary>
+    private void SetKind(string kind)
+    {
+        foreach (var radio in _kinds.Children.OfType<RadioButton>()) if ((string)radio.Tag == kind) radio.IsChecked = true;
+    }
+
     private void Add(bool extend)
     {
         if (_baseId == null) PickBase();
         if (List is not { } list || _baseId == null || _context.BaseContent.Find(_kind, _baseId) is not { } src) return;
-        string id = src.Id;
-        if (_kind != ContentLibrary.SpellCollection)
-        {
-            // 新しい id(呪文は同じ id で名前だけ変える)
-            id = _context.Pack!.Id + "_" + src.Id;
-            for (int n = 2; list.Any(o => (string?)o["id"] == id); n++) id = $"{_context.Pack.Id}_{src.Id}{n}";
-        }
-        else if (list.Any(o => (string?)o["id"] == id)) return;
+        // 新しい id(呪文は同じ id で名前だけ変える)
+        string id = _kind != ContentLibrary.SpellCollection ? NewId(list, src.Id) : src.Id;
+        if (_kind == ContentLibrary.SpellCollection && list.Any(o => (string?)o["id"] == id)) return;
         var srcObj = JsonNode.Parse(src.Data.GetRawText())!.AsObject();
         JsonObject made = _kind == ContentLibrary.SpellCollection || extend
             ? new JsonObject { ["id"] = id, ["name"] = srcObj["name"]?.DeepClone() }
@@ -221,6 +280,8 @@ public sealed class DataTab : IEditorTab
             T("当てる前に、ゲームと同じ検査をする(書き間違えた項目名、無い呪文や元の品、ダイスの書き方など)。保存はしない", "Runs the game's checks before applying (misspelled fields, missing spells or base items, dice syntax, etc.). Does not save")));
         jsonButtons.Children.Add(Ui.Button(T("項目の一覧…", "Field list…"), () => FieldList(json),
             T("書ける項目と、その説明・書き方の例", "The fields you can write, with descriptions and examples")));
+        jsonButtons.Children.Add(Ui.Button(T("AI で直す…", "Rework with AI…"), () => AskAi(fromStandard: false),
+            T("これを元に、こうしたいことを書いて AI に下書きさせる(置き換えるか、新しく足すかを選べる)", "Have the AI draft from this one and your request (replace it or add as new)")));
         _props.Children.Add(jsonButtons);
         _props.Children.Add(_error);
         if ((string?)o["extends"] is { } ext && _context.BaseContent.Find(_kind, ext) is { } baseItem)
@@ -308,19 +369,13 @@ public sealed class DataTab : IEditorTab
         }
     }
 
-    /// <summary>id を変える(モンスターなら、階の顔ぶれと絵も直す)。</summary>
+    /// <summary>id を変える(モンスターなら、階の顔ぶれ・ボスとイベントの戦闘の組・extends・絵も直す)。</summary>
     private void Rename(JsonObject o, string id)
     {
         string old = (string?)o["id"] ?? "";
         if (id.Length == 0 || id == old || List!.Any(x => (string?)x["id"] == id)) return;
-        o["id"] = id;
-        if (_kind == "monsters" && _context.Pack is { } p)
-        {
-            foreach (var r in p.Rosters)
-                for (int k = 0; k < r.Count; k++) if (r[k] == old) r[k] = id;
-            string art = Path.Combine(p.Directory, "art", "monsters");
-            if (File.Exists(Path.Combine(art, old + ".png"))) File.Move(Path.Combine(art, old + ".png"), Path.Combine(art, id + ".png"), overwrite: true);
-        }
+        if (_kind == "monsters" && _context.Pack is { } p) Core.Save.ScenarioEdit.RenameMonster(p, old, id);   // 顔ぶれ・ボス・イベントの戦闘・絵も
+        else o["id"] = id;
         _context.MarkEdited();
         RefreshLabel();
         ShowProps();

@@ -145,13 +145,13 @@ public class MagicTests
     public void ShortRestSpendsHitDiceAndRestoresPactSlots()
     {
         var warlock = Make("warlock", 5);
-        warlock.SlotsUsed[3] = 2;
+        warlock.PactSlotsUsed = 2;
         warlock.Hp = 1;
         int dice = warlock.HitDice = 3;
         int used = warlock.ShortRest(Data, new Pcg32(1, 2));
         Assert.True(used >= 1 && used <= dice);
         Assert.True(warlock.Hp > 1);
-        Assert.Empty(warlock.SlotsUsed);
+        Assert.Equal(0, warlock.PactSlotsUsed);
     }
 
     [Fact]
@@ -288,5 +288,52 @@ public class MagicTests
         Assert.True(c.CanLevelUp);
         Assert.Equal(2, c.LevelUp(Data, "fighter"));   // 残りはまとめて
         Assert.Equal(4, c.Level);
+    }
+
+    [Fact]
+    public void AMulticlassLearnsSpellsByEachClassLevel()
+    {
+        // ウィザード 1 / クレリック 4: スロットは術者のレベル 5 でも、ウィザードとして覚えられるのは 1 レベルの呪文まで(5版)
+        var c = Multi(("cleric", 4), ("wizard", 1));
+        Assert.Equal(3, Spellcasting.MaxSpellLevel(Data.Classes["wizard"], c));
+        Assert.Equal(1, Spellcasting.ClassMaxSpellLevel(Data.Classes["wizard"], c));
+        Assert.Equal(2, Spellcasting.ClassMaxSpellLevel(Data.Classes["cleric"], c));
+        Assert.DoesNotContain(Spellcasting.ClassSpells(Data, Data.Classes["wizard"], c, cantrips: false), s => s.Id == "fireball");
+        Assert.All(Spellcasting.ClassSpells(Data, Data.Classes["wizard"], c, cantrips: false), s => Assert.Equal(1, s.Level));
+    }
+
+    [Fact]
+    public void AShortRestBringsBackOnlyThePactSlots()
+    {
+        // ウィザード 3 / ウォーロック 3: 2 レベルはふつうのスロット 2 と協約のスロット 2。小休憩で戻るのは協約の 2 だけ
+        var c = Multi(("wizard", 3), ("warlock", 3));
+        var wiz = Data.Classes["wizard"];
+        Assert.Equal(4, Spellcasting.SlotsLeft(wiz, c, 2));
+        for (int i = 0; i < 4; i++) Spellcasting.UseSlot(c, 2);
+        Assert.Equal(0, Spellcasting.SlotsLeft(wiz, c, 2));
+        c.ShortRest(Data, new Pcg32(1, 1));
+        Assert.Equal(2, Spellcasting.SlotsLeft(wiz, c, 2));
+        c.LongRest();
+        Assert.Equal(4, Spellcasting.SlotsLeft(wiz, c, 2));
+    }
+
+    [Fact]
+    public void ASpellThatDoesNotScaleStillShowsWhereItCanBePaid()
+    {
+        // ウォーロック 5 は 3 レベルの協約のスロットしか無い: 2 レベルのホールド・パーソンは 3 の欄に並ぶ
+        var w = Multi(("warlock", 5));
+        var hold = Data.Spells["hold_person"];
+        Assert.NotEqual("slot", hold.Scale);
+        Assert.Equal(0, Spellcasting.MaxSlots(Data.Classes["warlock"], w, 2));   // 2 の欄は持っていない(タブは黒)
+        Assert.True(Spellcasting.ListedAt(Data, w, hold, 3));
+
+        // ウィザード 3: 1 レベルを使い切ったら、強くならない 1 レベルの呪文は 2 の欄に並ぶ(残っているあいだは 1 の欄だけ)
+        var c = Multi(("wizard", 3));
+        var plain = Data.Spells.Values.First(s => s.Level == 1 && s.Scale != "slot" && s.Usable);
+        Assert.True(Spellcasting.ListedAt(Data, c, plain, 1));
+        Assert.False(Spellcasting.ListedAt(Data, c, plain, 2));
+        for (int i = 0; i < 4; i++) Spellcasting.UseSlot(c, 1);
+        Assert.True(Spellcasting.ListedAt(Data, c, plain, 2));
+        Assert.False(Spellcasting.ListedAt(Data, c, plain, 3));
     }
 }

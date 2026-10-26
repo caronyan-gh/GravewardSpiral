@@ -526,4 +526,53 @@ public class EventTests
             Assert.True(MazeBot.Explore(dungeon).Ok);
         }
     }
+
+    [Fact]
+    public void AnImportantItemNobodyCanCarryGoesToTheClanHouse()
+    {
+        // 荷物がいっぱいでも、大事な品(名指しでだけ出る品)は失わず、倉庫へ届く(レビューの E01)
+        var (s, state) = Room("lever_room.txt", 1, 1);
+        foreach (var c in s.Roster.PartyMembers)
+            while (c.Inventory.TryAdd(Core.Items.ItemInstance.Of("longsword"), Data.Items)) { }
+        var ev = System.Text.Json.JsonSerializer.Deserialize<EventDef>("""{ "id": "gift", "place": "maze", "once": "game", "steps": [{ "type": "give_item", "id": "bloodthirst" }] }""", ContentLibrary.JsonOptions)!;
+        Assert.True(Data.Items["bloodthirst"].NoRandom);
+        Drive(new EventRunner(ev, Ctx(s, state)));
+        Assert.Contains(s.ClanHouse.Storage, i => i.ItemId == "bloodthirst");
+    }
+
+    [Fact]
+    public void TakingAnItemAlsoTakesOneThatIsEquipped()
+    {
+        // 「持っているか」は装備も数えるので、取り上げるときも装備から取る(レビューの E03)
+        var (s, state) = Room("lever_room.txt", 1, 1);
+        foreach (var p in s.Roster.PartyMembers)   // 短剣は、1人が装備している1本だけにする
+        {
+            p.Inventory.Items.RemoveAll(i => i.ItemId == "dagger");
+            foreach (var slot in p.Inventory.Equipped.Where(kv => kv.Value.ItemId == "dagger").Select(kv => kv.Key).ToList()) p.Inventory.Equipped.Remove(slot);
+        }
+        var c = s.Roster.PartyMembers.First();
+        c.Inventory.Equipped[Core.Items.EquipSlot.MainHand] = Core.Items.ItemInstance.Of("dagger");
+        var ev = System.Text.Json.JsonSerializer.Deserialize<EventDef>("""{ "id": "trade", "place": "maze", "when": [{ "type": "item", "id": "dagger" }], "steps": [{ "type": "take_item", "id": "dagger" }, { "type": "gold", "value": 10 }] }""", ContentLibrary.JsonOptions)!;
+        Assert.True(EventRunner.Available(ev, Ctx(s, state)));
+        Drive(new EventRunner(ev, Ctx(s, state)));
+        Assert.DoesNotContain(s.Roster.PartyMembers.SelectMany(p => p.Inventory.Equipped.Values), i => i.ItemId == "dagger");
+    }
+
+    [Fact]
+    public void TakingOneArrowFromAnEquippedBundleLeavesTheRest()
+    {
+        // 束で装備した矢から1本取り上げても、残りの19本は残る。「持っているか」も本数で数える(再レビューの R03)
+        var (s, state) = Room("lever_room.txt", 1, 1);
+        foreach (var p in s.Roster.PartyMembers)
+        {
+            p.Inventory.Items.RemoveAll(i => i.ItemId == "iron_arrows");
+            foreach (var slot in p.Inventory.Equipped.Where(kv => kv.Value.ItemId == "iron_arrows").Select(kv => kv.Key).ToList()) p.Inventory.Equipped.Remove(slot);
+        }
+        var c = s.Roster.PartyMembers.First();
+        c.Inventory.Equipped[Core.Items.EquipSlot.Ammo] = Core.Items.ItemInstance.Of("iron_arrows", 20);
+        var ev = System.Text.Json.JsonSerializer.Deserialize<EventDef>("""{ "id": "toll", "place": "maze", "when": [{ "type": "item", "id": "iron_arrows", "count": 20 }], "steps": [{ "type": "take_item", "id": "iron_arrows", "count": 1 }] }""", ContentLibrary.JsonOptions)!;
+        Assert.True(EventRunner.Available(ev, Ctx(s, state)));
+        Drive(new EventRunner(ev, Ctx(s, state)));
+        Assert.Equal(19, c.Inventory.Equipped[Core.Items.EquipSlot.Ammo].Count);
+    }
 }

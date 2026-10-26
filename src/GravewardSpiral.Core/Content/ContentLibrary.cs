@@ -229,11 +229,13 @@ public sealed class ContentLibrary
             {
                 if (!items.TryGetValue(id, out var baseSpell))
                     Problems.Add($"{Rel(contentRoot, file)}: 呪文 '{id}' は標準のパックにありません(シナリオの呪文は、名前を変えることだけできます)");
+                else if (!element.TryGetProperty("name", out var newName))
+                    Problems.Add($"{Rel(contentRoot, file)}: 呪文 '{id}' に name がありません(シナリオの呪文は、名前を変えるために書きます)");
                 else if (element.EnumerateObject().Any(p => p.Name is not ("id" or "name")))
                     Problems.Add($"{Rel(contentRoot, file)}: 呪文 '{id}' に名前のほかの項目があります(シナリオの呪文は、名前を変えることだけできます)");
                 else if (System.Text.Json.Nodes.JsonNode.Parse(baseSpell.Data.GetRawText()) is System.Text.Json.Nodes.JsonObject renamed)
                 {
-                    renamed["name"] = System.Text.Json.Nodes.JsonNode.Parse(element.GetProperty("name").GetRawText());
+                    renamed["name"] = System.Text.Json.Nodes.JsonNode.Parse(newName.GetRawText());
                     items[id] = baseSpell with { Data = JsonDocument.Parse(renamed.ToJsonString()).RootElement.Clone() };   // 出どころは元のパックのまま
                 }
                 continue;

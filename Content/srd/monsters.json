@@ -18049,6 +18049,11 @@
    "keen_smell",
    "regeneration"
   ],
+  "regenerate": 10,
+  "regenerate_stop": [
+   "acid",
+   "fire"
+  ],
   "actions": [
    {
     "id": "bite",
@@ -18244,6 +18249,10 @@
    "regeneration",
    "spider_climb",
    "vampire_weaknesses"
+  ],
+  "regenerate": 10,
+  "regenerate_stop": [
+   "radiant"
   ],
   "actions": [
    {
@@ -20170,6 +20179,7 @@
    "magic_weapons",
    "regeneration"
   ],
+  "regenerate": 10,
   "actions": [
    {
     "id": "claw_oni_form_only",
@@ -20268,6 +20278,7 @@
    "regeneration",
    "spell_storing"
   ],
+  "regenerate": 10,
   "actions": [
    {
     "id": "fist",
@@ -24899,6 +24910,10 @@
    "spider_climb",
    "vampire_weaknesses"
   ],
+  "regenerate": 20,
+  "regenerate_stop": [
+   "radiant"
+  ],
   "actions": [
    {
     "id": "bite",
@@ -25001,6 +25016,10 @@
    "spider_climb",
    "vampire_weaknesses"
   ],
+  "regenerate": 20,
+  "regenerate_stop": [
+   "radiant"
+  ],
   "actions": [],
   "legendary": true,
   "needs": [
@@ -25058,6 +25077,10 @@
    "regeneration",
    "spider_climb",
    "vampire_weaknesses"
+  ],
+  "regenerate": 20,
+  "regenerate_stop": [
+   "radiant"
   ],
   "actions": [
    {

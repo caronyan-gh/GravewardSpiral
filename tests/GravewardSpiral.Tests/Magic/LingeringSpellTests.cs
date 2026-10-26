@@ -129,4 +129,47 @@ public class LingeringSpellTests
         Assert.Equal(0, s.Groups[0].Units[0].LegendaryResistLeft);
         Assert.Equal(3, s.Log.Count(e => e.Key == "combat.legendary_resist"));
     }
+
+    [Fact]
+    public void MagicResistanceGivesAdvantageOnSavesAgainstSpells()
+    {
+        // 同じ乱数で、魔法への抵抗のあるサテュロスと、それを外したサテュロスに、セイクリッド・フレイム(敏捷力のセーヴ)を 300 回
+        var satyr = Data.Monsters["satyr"];
+        Assert.Contains("magic_resistance", satyr.Traits);
+        int Saves()
+        {
+            var cleric = Make("cleric", 5);
+            var s = State([cleric], satyr, 1, hp: 100000);
+            var engine = new CombatEngine(Data, new Pcg32(8, 8));
+            for (int i = 0; i < 300; i++) engine.CastSpell(s, s.Party[0], new PlayerCommand(CommandKind.Cast, 0, SpellId: "sacred_flame", SlotLevel: 0));
+            return s.Log.Count(e => e.Key == "combat.save_ok");
+        }
+        int with = Saves();
+        satyr.Traits.Remove("magic_resistance");
+        int without;
+        try { without = Saves(); }
+        finally { satyr.Traits.Add("magic_resistance"); }
+        Assert.True(with > without + 30, $"抵抗あり {with} / なし {without}");
+    }
+
+    [Fact]
+    public void TrollsRegenerateUnlessBurned()
+    {
+        var troll = Data.Monsters["troll"];
+        Assert.Equal(10, troll.Regenerate);
+        Assert.Contains("fire", troll.RegenerateStop);
+        var s = State([Make("fighter", 10)], troll, 1, hp: 84);
+        var engine = new CombatEngine(Data, new Pcg32(9, 9));
+        var t = s.Groups[0].Units[0];
+        s.Order.Add(t);   // トロルの番だけ回す
+        t.Hp = 50;
+        engine.RunRound(s, Dodge(s));
+        Assert.Equal(60, t.Hp);   // 番の初めに 10 戻る
+        engine.Damage(s, t, 5, "fire", crit: false, magical: false);
+        engine.RunRound(s, Dodge(s));
+        Assert.Equal(55, t.Hp);   // 火を受けた次の番は戻らない
+        engine.RunRound(s, Dodge(s));
+        Assert.Equal(65, t.Hp);   // その次からまた戻る
+        Assert.Contains(s.Log, e => e.Key == "combat.regenerate");
+    }
 }

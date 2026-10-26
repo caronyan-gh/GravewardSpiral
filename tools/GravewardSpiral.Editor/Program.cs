@@ -9,6 +9,9 @@
 //   --screenshot PNG  窓の中身を PNG に保存して終わる(確かめ用。デスクトップは撮らない)
 //   --fake-ai         AI に書かせるとき、本物の API を呼ばずに決まった文を返す(確かめ用)
 //   --ai-write        開いたら、物語のタブの「AI に書かせる」を押す(--fake-ai と使う)
+//   --ai-draft 種類[@元]:希望  開いたら、AI に下書きを頼む窓(event / item / monster)で書かせて、その窓を撮る(--fake-ai と使う)。
+//                     --screenshot が無ければ、希望を入れて窓を開くだけ(書かせない)
+//   --ai-paste ファイル  --ai-draft で、書かせる代わりに、ファイルの中身をチャットの答えとして貼る
 //   --scenarios DIR   新しく作るシナリオの置き場所(省くと ドキュメント\GravewardSpiral\Scenarios)
 //   --select x,y[,x2,y2]  迷宮のタブで、そのマス(か四角)を選んでおく(確かめ用)
 //   --reopen N        開いたあと、全部のタブを N 回作り直す(名前を付けて保存などと同じ。確かめ用)
@@ -58,6 +61,15 @@ public sealed record EditorOptions(string? Open, string? NewId, string? Tab, int
     /// <summary>開いたら AI に書かせる(--ai-write)。</summary>
     public static bool AiWrite { get; private set; }
 
+    /// <summary>
+    /// 開いたら、AI に下書きを頼む窓を開いて書かせ、その窓を撮る(--ai-draft 種類[@元の id]:希望。種類は event / item / monster。確かめ用)。
+    /// 元の id は、データの標準の写す元(省くと、選んでいるもの)。
+    /// </summary>
+    public static string? AiDraft { get; private set; }
+
+    /// <summary>--ai-draft で、AI に書かせる代わりに、このファイルの中身をチャットの答えとして貼る(--ai-paste。確かめ用)。</summary>
+    public static string? AiPaste { get; private set; }
+
     /// <summary>迷宮のタブで選んでおくマス(--select x,y か x0,y0,x1,y1。確かめ用)。</summary>
     public static int[]? Select { get; private set; }
 
@@ -88,8 +100,10 @@ public sealed record EditorOptions(string? Open, string? NewId, string? Tab, int
                 case "--scenarios": scenarios = next; i++; break;
                 case "--seed": seed = Core.Rng.RngStreams.ParseSeed(next) ?? 0; i++; break;
                 case "--floors": floors = int.Parse(next); i++; break;
-                case "--fake-ai": Tabs.StoryTab.FakeAi = new Tabs.FakeAiClient(); break;
+                case "--fake-ai": EditorContext.FakeAi = new Tabs.FakeAiClient(); break;
                 case "--ai-write": AiWrite = true; break;
+                case "--ai-draft": AiDraft = next; i++; break;
+                case "--ai-paste": AiPaste = next; i++; break;
                 case "--select": Select = next.Split(',').Select(int.Parse).ToArray(); i++; break;
                 case "--reopen": Reopen = int.Parse(next); i++; break;
                 case "--picker": Picker = next; i++; break;

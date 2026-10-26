@@ -680,8 +680,7 @@ public sealed class MazeTab : IEditorTab
     {
         if (_context.Pack is not { } p || Current == null || p.Floors.Count <= 1) return;
         if (MessageBox.Show(T($"B{Floor + 1} を消しますか？", $"Delete B{Floor + 1}?"), T("迷宮", "Maze"), MessageBoxButton.YesNo) != MessageBoxResult.Yes) return;
-        p.Floors.RemoveAt(Floor);
-        if (Floor < p.Rosters.Count) p.Rosters.RemoveAt(Floor);   // 階の顔ぶれも一緒に
+        Core.Save.ScenarioEdit.RemoveFloor(p, Floor);   // 顔ぶれ・世界の文・名のある敵・行き先・縦穴も一緒に
         Floor = Math.Min(Floor, p.Floors.Count - 1);
         _context.MarkEdited();
         ShowFloor();
@@ -692,12 +691,7 @@ public sealed class MazeTab : IEditorTab
         if (_context.Pack is not { } p || Current is not { } f) return;
         int to = Floor + by;
         if (to < 0 || to >= p.Floors.Count) return;
-        p.Floors.RemoveAt(Floor);
-        p.Floors.Insert(to, f);
-        p.RosterOf(Math.Max(Floor, to));   // 階の顔ぶれも一緒に動かす(並びを階の数まで伸ばしてから)
-        var roster = p.Rosters[Floor];
-        p.Rosters.RemoveAt(Floor);
-        p.Rosters.Insert(to, roster);
+        Core.Save.ScenarioEdit.MoveFloor(p, Floor, to);   // 顔ぶれ・世界の文・名のある敵・行き先も一緒に動かす
         Floor = to;
         _context.MarkEdited();
         ShowFloor();

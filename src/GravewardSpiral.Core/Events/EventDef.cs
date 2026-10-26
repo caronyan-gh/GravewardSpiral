@@ -48,7 +48,10 @@ public sealed class EventDef
 /// <summary>迷宮に散らす決まり。where は any / dead_end(行き止まり) / room(3方向以上が開いたマス) / corridor。</summary>
 public sealed class EventScatter
 {
+    /// <summary>置いてよい一番浅い深さ。0〜1 の割合(0 が B1、1 が最下層。階の数ではない)。</summary>
     public double MinDepth { get; set; }
+
+    /// <summary>置いてよい一番深い深さ。0〜1 の割合(0 が B1、1 が最下層。階の数ではない)。</summary>
     public double MaxDepth { get; set; } = 1;
 
     /// <summary>

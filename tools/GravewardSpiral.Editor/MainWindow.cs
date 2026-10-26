@@ -189,12 +189,33 @@ public sealed class MainWindow : Window
         // 開き直し(名前を付けて保存や、別のシナリオを開いたときと同じく、全部のタブを作り直す)を何度か(--reopen。確かめ用)
         for (int i = 0; i < EditorOptions.Reopen && _context.Pack is { } again; i++) _context.Open(again);
         if (EditorOptions.AiWrite && _context.Pack != null) _tabList.OfType<StoryTab>().First().WriteNow();
+        // 画面の保存をしない起動では、AI に頼む窓を希望を入れて開くだけ(書かせない。チャット用のコピーなどを人が試す)
+        if (_options.Screenshot == null && EditorOptions.AiDraft is { } askOnly && _context.Pack != null)
+            Dispatcher.BeginInvoke(DispatcherPriority.ApplicationIdle, () => { if (OpenAiDraft(askOnly) is ({ } w, var wish)) w.SetWish(wish); });
         // 画面の保存で検査のタブを開くときは、検査を流してから撮る
         if (_options.Screenshot != null && _options.Tab == "check" && _context.Pack != null) _tabList.OfType<CheckTab>().First().RunChecks();
         if (_options.Screenshot is { } shot)
             Dispatcher.BeginInvoke(DispatcherPriority.ApplicationIdle, async () =>
             {
                 while (_tabList.OfType<StoryTab>().First().Busy) await Task.Delay(100);
+                if (EditorOptions.AiDraft is { } ask)
+                {
+                    // AI に下書きを頼む窓(--ai-draft event:希望 / item@元:希望 / monster@元:希望。確かめ用)
+                    var (window, wish) = OpenAiDraft(ask);
+                    if (window != null)
+                    {
+                        window.ShowActivated = false;
+                        if (EditorOptions.AiPaste is { } answer) window.PasteNow(wish, File.ReadAllText(answer));
+                        else await window.WriteNow(wish);
+                        if (window.Kind == Core.Ai.DraftWriter.Kind.Monster) await window.TestStrength();   // モンスターは強さも試して撮る
+                        await Dispatcher.Yield(DispatcherPriority.ApplicationIdle);
+                        SaveScreenshot(shot, window);
+                        File.WriteAllText(Path.ChangeExtension(shot, ".txt"), window.Report());
+                        window.CloseQuietly();
+                    }
+                    Close();
+                    return;
+                }
                 await Dispatcher.Yield(DispatcherPriority.ApplicationIdle);
                 if (EditorOptions.Scroll > 0 && (_tabs.SelectedItem as TabItem)?.Content is Border { Child: ScrollViewer view })
                 {
@@ -379,7 +400,10 @@ public sealed class MainWindow : Window
             return;
         }
         int floor = _tabList.OfType<MazeTab>().First().Floor + 1;
-        Process.Start(new ProcessStartInfo(exe) { ArgumentList = { "--start", $"scenario:{pack.Directory}:{floor}" }, UseShellExecute = false });
+        // 試し遊びは使い捨てのセーブの置き場所で起動する(本物のセーブを読んだり、古い形を移し替えたりしない)
+        string saves = Path.Combine(Path.GetTempPath(), "GravewardSpiralEditor", "playtest-saves");
+        Directory.CreateDirectory(saves);
+        Process.Start(new ProcessStartInfo(exe) { ArgumentList = { "--start", $"scenario:{pack.Directory}:{floor}", "--saves", saves }, UseShellExecute = false });
         Say(T($"試し遊び: B{floor} から(セーブしません)", $"Test play: from B{floor} (nothing is saved)"));
     }
 
@@ -392,6 +416,19 @@ public sealed class MainWindow : Window
         return new[] { "Debug", "Release" }
             .Select(c => Path.Combine(repo, "src", "GravewardSpiral.Game", "bin", c, "net10.0", "GravewardSpiral.exe"))
             .Where(File.Exists).OrderByDescending(File.GetLastWriteTime).FirstOrDefault();
+    }
+
+    /// <summary>
+    /// --ai-draft の「種類[@元]:希望」で、AI に頼む窓を開く(イベントのタブか、データのタブから)。窓と希望を返す。
+    /// </summary>
+    private (AiDraftWindow? Window, string Wish) OpenAiDraft(string ask)
+    {
+        int colon = ask.IndexOf(':');
+        string[] head = (colon > 0 ? ask[..colon] : ask).Split('@');
+        string wish = colon > 0 ? ask[(colon + 1)..] : "";
+        var window = head[0] == "event" ? _tabList.OfType<EventsTab>().First().AskAi(head.Length > 1 ? head[1] : null)
+            : _tabList.OfType<DataTab>().First().AskAi(fromStandard: head.Length > 1, head.Length > 1 ? head[1] : null, head[0] == "monster" ? "monsters" : "items");
+        return (window, wish);
     }
 
     /// <summary>窓の中身を PNG に書く(確かめ用)。</summary>
