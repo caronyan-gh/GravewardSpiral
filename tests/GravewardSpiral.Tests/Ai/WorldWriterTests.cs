@@ -89,6 +89,74 @@ public class WorldWriterTests
     }
 
     [Fact]
+    public void TheFreeDungeonMasterIsNamedByTheWorldText()
+    {
+        var (s, _) = World();
+        s.BossPicks["final"] = [new() { Monster = "goblin" }, new() { Monster = "wolf", Count = 2 }];
+        // AI の文が無ければ「迷宮の主」。従う者は元の名前のまま
+        var boss = s.Boss(Data, "final")!;
+        var fighters = boss.Fighters(Data.Monsters);
+        Assert.Equal("迷宮の主", fighters[0].Def.Name.Get("ja"));
+        Assert.Equal(Data.Monsters["wolf"].Name.Get("ja"), fighters[1].Def.Name.Get("ja"));
+        Assert.Null(boss.IntroText);
+        Assert.Null(s.BossPicks["final"][0].Name);   // セーブの組は書き換えない
+
+        // AI に頼むときは主の敵を伝え、主の名前と文も書かせる
+        var request = WorldWriter.BuildRequest(Data, WorldWriter.Prompt(Content)!, 2, null, 7, s);
+        Assert.Contains("master of the deepest floor", request.User);
+        Assert.Contains(Data.Monsters["goblin"].Name.Get("en"), request.User);
+        Assert.Contains("boss", request.Schema.GetProperty("required").EnumerateArray().Select(e => e.GetString()));
+        // シナリオの世界(主を選んでいない)には頼まない
+        Assert.DoesNotContain("boss", WorldWriter.BuildRequest(Data, WorldWriter.Prompt(Content)!, 2, null, 7).Schema
+            .GetProperty("required").EnumerateArray().Select(e => e.GetString()));
+
+        var json = Json($$"""
+            {
+              "prologue": {{T("Long ago.", "昔のこと。")}}, "floors": [],
+              "boss": { "name": {{T("The Lamp-Eater", "灯喰らい")}}, "intro": {{T("It turns.", "それが振り向いた。")}},
+                        "victory": {{T("It falls.", "それは崩れた。")}}, "escorts": [{{T("Wick Hounds", "芯の猟犬")}}] }
+            }
+            """);
+        s.World = WorldWriter.Parse(json, 2, "test");
+        boss = s.Boss(Data, "final")!;
+        Assert.Equal("灯喰らい", boss.Fighters(Data.Monsters)[0].Def.Name.Get("ja"));
+        Assert.Equal("それが振り向いた。", boss.IntroText!.Get("ja"));
+        Assert.Equal("それは崩れた。", boss.VictoryText!.Get("ja"));
+        Assert.Equal("芯の猟犬", boss.Fighters(Data.Monsters)[1].Def.Name.Get("ja"));   // 従う者にも AI の名前
+    }
+
+    [Fact]
+    public void BossesOnTheWayAreAskedForAndReadBack()
+    {
+        var troll = WorldWriter.MonsterDefInfo.Of(Data, [new() { Monster = "troll" }])!;
+        var request = WorldWriter.BuildRequest(Data, WorldWriter.Prompt(Content)!, 3, null, 7, others: [new WorldWriter.BossBrief("gate_troll", 1, troll)]);
+        Assert.Contains("id \"gate_troll\" on B2", request.User);
+        Assert.Contains(Data.Monsters["troll"].Name.Get("en"), request.User);
+        Assert.Contains("bosses", request.Schema.GetProperty("required").EnumerateArray().Select(e => e.GetString()));
+        Assert.DoesNotContain("bosses", WorldWriter.BuildRequest(Data, WorldWriter.Prompt(Content)!, 3, null, 7).Schema
+            .GetProperty("required").EnumerateArray().Select(e => e.GetString()));
+
+        var json = Json($$"""
+            {
+              "prologue": {{T("Long ago.", "昔のこと。")}}, "floors": [],
+              "bosses": [
+                { "id": "gate_troll", "name": {{T("Old Latch", "古かんぬき")}}, "intro": {{T("It rises.", "それが立ち上がった。")}}, "victory": {{T("It sinks.", "それは沈んだ。")}} },
+                { "id": "", "name": {{T("Nobody", "誰でもない")}}, "intro": {{T("x", "x")}}, "victory": {{T("x", "x")}} }
+              ]
+            }
+            """);
+        var world = WorldWriter.Parse(json, 3, "test");
+        Assert.Contains("exactly 4 things townsfolk say", WorldWriter.BuildRequest(Data, WorldWriter.Prompt(Content)!, 3, null, 7, rumors: 4).User);
+        var rumors = WorldWriter.Parse(Json($$"""{ "prologue": {{T("x", "x")}}, "floors": [], "rumors": [{{T("The well hums.", "井戸が鳴る。")}}, {{T("", "空")}}] }"""), 3, "test");
+        Assert.Equal("井戸が鳴る。", Assert.Single(rumors.Rumors).Get("ja"));   // 片方が空の噂は捨てる
+        var got = Assert.Single(world.OtherBosses);
+        Assert.Equal("gate_troll", got.Key);
+        Assert.Equal("古かんぬき", got.Value.Name!.Get("ja"));
+        Assert.Equal("それは沈んだ。", got.Value.Victory!.Get("ja"));
+        Assert.DoesNotContain("OtherBosses", JsonSerializer.Serialize(world), StringComparison.OrdinalIgnoreCase);   // セーブには書かない
+    }
+
+    [Fact]
     public async Task AFailedReplyGivesNoWorld()
     {
         var prompt = WorldWriter.Prompt(Content)!;

@@ -32,8 +32,23 @@ public static class EventPlacer
     /// <summary>このクランが前の世界で見たイベントの出やすさの倍率(またこれか、を減らす。ゼロにはしない)。</summary>
     public const double SeenWeight = 0.3;
 
+    /// <summary>クランが噂を聞いたイベント(伝説の噂)の出やすさの倍率。聞いた世界の数だけ倍になる(上限 16 倍)。</summary>
+    public static double HeardMultiplier(IReadOnlyDictionary<string, int>? heard, string id) =>
+        heard != null && heard.TryGetValue(id, out int n) && n > 0 ? Math.Min(16, Math.Pow(2, n)) : 1;
+
+    /// <param name="allow">散らしてよいイベント(省くと全部。シナリオが標準のイベントを混ぜないときは、シナリオのものだけ。ScenarioOnly)。</param>
+    /// <summary>
+    /// 選んでいるシナリオが標準のイベントを混ぜないなら、そのシナリオのパックのイベントだけを通すもの。混ぜるなら(か、シナリオが無ければ)null。
+    /// </summary>
+    public static Func<EventDef, bool>? ScenarioOnly(Content.ContentLibrary content)
+    {
+        if (content.Scenario is not { StandardEvents: false } scenario) return null;
+        var mine = content.All(EventDef.Collection).Where(i => i.Pack.Id == scenario.Id).Select(i => i.Id).ToHashSet(StringComparer.Ordinal);
+        return e => mine.Contains(e.Id);
+    }
+
     public static List<string> ScatterChains(GameData data, Dungeon dungeon, IntRange chains, ulong seed, Func<double, double>? levelAt = null,
-        int minQuests = 0, IReadOnlySet<string>? seen = null)
+        int minQuests = 0, IReadOnlySet<string>? seen = null, IReadOnlyDictionary<string, int>? heard = null, Func<EventDef, bool>? allow = null)
     {
         IRandom rng = RngStreams.Create(seed, "events/chains");
         int floors = dungeon.Floors.Count;
@@ -45,7 +60,7 @@ public static class EventPlacer
             // 帯より上の階にも置く(数字は EventScale で引き上げる)。帯より下には置かない
             return d >= sc.MinDepth - 1e-9 && d <= sc.MaxDepth + 1e-9 && (levelAt == null || lv >= sc.MinLevel - 1e-9);
         }
-        var groups = data.Events.Values.Where(e => e.Place == "maze" && e.Scatter?.Chain != null)
+        var groups = data.Events.Values.Where(e => e.Place == "maze" && e.Scatter?.Chain != null && (allow == null || allow(e)))
             .GroupBy(e => e.Scatter!.Chain!).OrderBy(g => g.Key, StringComparer.Ordinal)
             .Select(g => (Name: g.Key, Parts: g.OrderBy(e => e.Scatter!.Step).ThenBy(e => e.Id, StringComparer.Ordinal).ToList()))
             .Where(g => Enumerable.Range(0, floors).Any(i => Allowed(g.Parts[0], i))).ToList();
@@ -61,7 +76,8 @@ public static class EventPlacer
             // 迷宮の一番浅い階でも帯より上なら、出やすさを下げる
             double W(EventDef first) => first.Scatter!.EffectiveWeight
                 * (levelAt != null && levelAt(0) > first.Scatter.MaxLevel + 1e-9 ? EventScale.AboveBandWeight : 1)
-                * (seen != null && seen.Contains(first.Id) ? SeenWeight : 1);
+                * (seen != null && seen.Contains(first.Id) ? SeenWeight : 1)
+                * HeardMultiplier(heard, first.Id);
             double total = pool.Sum(g => W(g.Parts[0])), r = rng.NextDouble() * total;
             var chosen = pool[^1];
             foreach (var g in pool)
@@ -111,11 +127,13 @@ public static class EventPlacer
 
     /// <param name="levelAt">深さ(0〜1)からその階の目安のレベル。null ならレベルで絞らない。</param>
     /// <param name="seen">このクランが前の世界で見たイベント(出やすさを SeenWeight 倍にする)。</param>
+    /// <param name="heard">このクランが噂を聞いたイベント(聞いた回数だけ出やすくする。HeardMultiplier)。</param>
     /// <remarks>一度きり(once が place)のイベントは、max を書いていなければ1つの世界に1つまで(同じものを別の階に置かない)。</remarks>
     public static int Scatter(GameData data, Dungeon dungeon, IntRange perFloor, ulong seed, Func<double, double>? levelAt = null,
-        IReadOnlySet<string>? seen = null)
+        IReadOnlySet<string>? seen = null, IReadOnlyDictionary<string, int>? heard = null, Func<EventDef, bool>? allow = null)
     {
-        var pool = data.Events.Values.Where(e => e.Scatter != null && e.Scatter.Chain == null && e.Place == "maze").OrderBy(e => e.Id, StringComparer.Ordinal).ToList();
+        var pool = data.Events.Values.Where(e => e.Scatter != null && e.Scatter.Chain == null && e.Place == "maze" && (allow == null || allow(e)))
+            .OrderBy(e => e.Id, StringComparer.Ordinal).ToList();
         if (pool.Count == 0) return 0;
         var rng = RngStreams.Create(seed, "events/scatter");
         var used = new Dictionary<string, int>();
@@ -133,7 +151,8 @@ public static class EventPlacer
                     && used.GetValueOrDefault(e.Id) < MaxPerWorld(e)).ToList();
                 if (choices.Count == 0) break;
                 var ev = PickWeighted(choices, rng, e => (levelAt != null && level > e.Scatter!.MaxLevel + 1e-9 ? EventScale.AboveBandWeight : 1)
-                    * (seen != null && seen.Contains(e.Id) ? SeenWeight : 1));
+                    * (seen != null && seen.Contains(e.Id) ? SeenWeight : 1)
+                    * HeardMultiplier(heard, e.Id));
                 var cells = f.AllCells().Where(p => Fits(f, p, ev.Scatter!.Where)).ToList();
                 if (cells.Count == 0) cells = f.AllCells().Where(p => Fits(f, p, "any")).ToList();
                 if (cells.Count == 0) break;

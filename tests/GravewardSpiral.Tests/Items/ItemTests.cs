@@ -17,6 +17,30 @@ public class ItemTests
     private static Character Fighter(GameData data) => CharacterFactory.QuickCreate(data, "A", "human", "fighter");
 
     [Fact]
+    public void StacksFillUpBeforeTakingANewSlot()
+    {
+        var data = Fresh();
+        var inv = Fighter(data).Inventory;
+        int stack = data.Items["potion_of_healing"].Stack;
+        inv.Items.Clear();
+        inv.Items.Add(ItemInstance.Of("potion_of_healing", stack - 2));
+        while (inv.FreeSlots(data.Items) > 0) inv.Items.Add(ItemInstance.Of("dagger"));
+        // 袋は一杯でも、今ある束の空き(2個)までは入る
+        Assert.Equal(2, inv.Room(ItemInstance.Of("potion_of_healing", 5), data.Items));
+        Assert.False(inv.TryAdd(ItemInstance.Of("potion_of_healing", 5), data.Items));   // 全部は入らないので何もしない
+        Assert.Equal(stack - 2, inv.Items[0].Count);
+        Assert.True(inv.TryAdd(ItemInstance.Of("potion_of_healing", 2), data.Items));
+        Assert.Equal(stack, inv.Items[0].Count);
+
+        // 枠が空いていれば、束を埋めてから余りを新しい枠へ
+        inv.Items.RemoveAt(inv.Items.Count - 1);
+        inv.Items[0].Count = stack - 1;
+        Assert.True(inv.TryAdd(ItemInstance.Of("potion_of_healing", 4), data.Items));
+        Assert.Equal(stack, inv.Items[0].Count);
+        Assert.Equal(3, inv.Items[^1].Count);
+    }
+
+    [Fact]
     public void OnlyProficientArmorCanBeWorn()
     {
         var data = Fresh();

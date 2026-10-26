@@ -112,31 +112,37 @@
         "file": "maps/prefabs/twin_room.txt",
         "min_depth": 0.2,
         "max_depth": 0.6,
-        "once": true
+        "once": true,
+        "chance": 0.5
       },
       {
         "file": "maps/prefabs/sigil_sun.txt",
         "min_depth": 0.15,
         "max_depth": 0.4,
-        "once": true
+        "once": true,
+        "chance": 0.4,
+        "group": "sigil"
       },
       {
         "file": "maps/prefabs/sigil_moon.txt",
         "min_depth": 0.3,
         "max_depth": 0.6,
-        "once": true
+        "once": true,
+        "group": "sigil"
       },
       {
         "file": "maps/prefabs/sigil_star.txt",
         "min_depth": 0.45,
         "max_depth": 0.75,
-        "once": true
+        "once": true,
+        "group": "sigil"
       },
       {
         "file": "maps/prefabs/sealed_vault.txt",
         "min_depth": 0.6,
         "max_depth": 0.95,
-        "once": true
+        "once": true,
+        "group": "sigil"
       }
     ],
     "max_attempts": 30,

@@ -135,7 +135,7 @@ public static class Treasure
     /// <summary>その等級のアイテムを1つ作る。魔法の品は未鑑定。level は宝の目安のレベル(+4 より上の強化値に使う)。</summary>
     public static ItemInstance Roll(GameData data, TreasureSettings s, string rarity, IRandom rng, double level = 1)
     {
-        var all = data.Items.Values.OrderBy(i => i.Id, StringComparer.Ordinal).ToList();
+        var all = data.Items.Values.Where(i => !i.NoRandom).OrderBy(i => i.Id, StringComparer.Ordinal).ToList();   // 名指しでだけ出る品は、おまかせでは出さない
         T Pick<T>(List<T> list) => list[rng.Next(0, list.Count)];
         if (rarity == "mundane")
         {
@@ -163,11 +163,11 @@ public static class Treasure
         }
         if (rng.NextDouble() < s.CursedChance)
         {
-            var cursed = all.Where(i => i.Cursed && !i.DropOnly).ToList();
+            var cursed = all.Where(i => i.Cursed).ToList();
             if (cursed.Count > 0) return Make(Pick(cursed));
         }
-        var pool = all.Where(i => i.Rarity == rarity && !i.Cursed && !i.DropOnly && i.MinLevel <= level + 1e-9).ToList();
-        if (pool.Count == 0) pool = all.Where(i => i.IsMagic && !i.Cursed && !i.DropOnly).ToList();
+        var pool = all.Where(i => i.Rarity == rarity && !i.Cursed && i.MinLevel <= level + 1e-9).ToList();
+        if (pool.Count == 0) pool = all.Where(i => i.IsMagic && !i.Cursed).ToList();
         if (pool.Count == 0) return ItemInstance.Of(Pick(all).Id);
         return Make(Pick(pool));
     }

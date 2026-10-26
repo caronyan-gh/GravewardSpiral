@@ -31,7 +31,7 @@ public sealed class FloorTheme
 
 /// <summary>
 /// 階ごとのおすすめ(その深さの目安のレベルとテーマに合うモンスター、宝の等級の割合)。
-/// ゲームは階の顔ぶれの抽選に使い、シナリオのエディタは「この階のおすすめ」の一覧に使う。
+/// ゲームは階の顔ぶれの抽選に使い、シナリオエディタは「この階のおすすめ」の一覧に使う。
 /// </summary>
 public static class FloorAdvisor
 {
@@ -70,7 +70,7 @@ public static class FloorAdvisor
     public static List<ItemDef> Items(GameData data, TreasureSettings t, double depth)
     {
         var rarities = ItemRarities(t, depth);
-        return data.Items.Values.Where(i => i.IsMagic && rarities.ContainsKey(i.Rarity))
+        return data.Items.Values.Where(i => i.IsMagic && !i.NoRandom && rarities.ContainsKey(i.Rarity))
             .OrderByDescending(i => rarities[i.Rarity]).ThenBy(i => i.Id, StringComparer.Ordinal).ToList();
     }
 }

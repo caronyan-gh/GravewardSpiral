@@ -6,6 +6,8 @@
     "ja": "墓守の螺旋"
   },
   "version": "1.0",
+  "format": 1,
+  "guid": "6f1c0e2a-9d4b-4b8e-9a51-2f7d3c8e4a10",
   "depends": [
     "srd"
   ],

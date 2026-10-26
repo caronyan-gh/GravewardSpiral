@@ -31,6 +31,9 @@ public sealed class ClanFile
     /// <summary>このクランが見たイベント(新しい世界では出にくくする)。</summary>
     public List<string> EventsSeen { get; set; } = [];
 
+    /// <summary>酒場で聞いた伝説の噂(イベントの id → 聞いた世界の数。次に作る世界で出やすくなる)。</summary>
+    public Dictionary<string, int> LegendsHeard { get; set; } = [];
+
     public List<Character> Characters { get; set; } = [];
 
     /// <summary>パーティの並び(キャラの Id)。</summary>
@@ -51,6 +54,7 @@ public sealed class ClanFile
             Cleared = session.Flags.Contains("cleared"),
             Clears = session.Clears,
             EventsSeen = session.EventsSeen.Order(StringComparer.Ordinal).ToList(),
+            LegendsHeard = new(session.LegendsHeard, StringComparer.Ordinal),
             Characters = chars,
             Party = roster.Party.Where(id => chars.Any(c => c.Id == id)).ToList(),
             House = session.ClanHouse,
@@ -98,6 +102,7 @@ public sealed class ClanFile
                     Scenario = summary.Latest?.Scenario,
                     Clears = data.Clears,
                     EventsSeen = data.EventsSeen,
+                    LegendsHeard = data.LegendsHeard,
                     Characters = data.Characters,
                     House = data.House,
                 }));
@@ -140,5 +145,6 @@ public sealed class ClanFile
         if (Id != null) session.ClanId = Id;
         session.Clears = Clears;
         session.EventsSeen = EventsSeen.ToHashSet(StringComparer.Ordinal);
+        session.LegendsHeard = new(LegendsHeard, StringComparer.Ordinal);
     }
 }

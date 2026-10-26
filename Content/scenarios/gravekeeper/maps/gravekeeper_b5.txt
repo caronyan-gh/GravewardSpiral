@@ -88,7 +88,9 @@ antimagic
 ....................
 teleport 6 1 12 19
 teleport 8 6 13 6
+mark 11 0 event:ev5_shrine_cleanse_altar
 mark 6 4 key
+mark 18 4 event:ev_sagging_ceiling_lo
 mark 9 7 event:a_b5_master
 mark 9 8 gate:a_seal
 mark 9 9 event:a_b5_seal

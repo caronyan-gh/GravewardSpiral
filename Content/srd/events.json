@@ -76870,6 +76870,7 @@
   },
   {
     "id": "ev6_dead_court",
+    "rumor": {"en": "They say that at the bottom of some dungeon there is a throne hall with no roof, where a dead court still waits for its king. Whoever wants the crown must judge their petitions.", "ja": "どこかの迷宮の底に、屋根の無い玉座の間があるそうだ。死んだ宮廷が、今も王の帰りを待っている。冠を望む者には、訴えを裁かせるとか。"},
     "place": "maze",
     "once": "place",
     "note": "亡き王の宮廷。三つの訴えを裁く。誤りが少なければ冠を授かる、多ければ宮廷が拒む。最後の王の冠",
@@ -77883,6 +77884,7 @@
   },
   {
     "id": "ev6_fallen_star",
+    "rumor": {"en": "They say a star once fell down a shaft into the deep. A lump of silver lies at the bottom, humming one note, and every bit of metal you carry hums back.", "ja": "星が縦穴を落ちて、迷宮の底に届いたことがあるそうだ。銀の塊が一つの音で唸っていて、近づくと、身につけた金物がみな唸り返すという。"},
     "place": "maze",
     "once": "place",
     "note": "最下層の穴に落ちた星の欠片。触れて声を聞くか、削り取るか。星鉄の鎧",

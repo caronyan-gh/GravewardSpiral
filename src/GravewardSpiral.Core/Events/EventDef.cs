@@ -28,6 +28,11 @@ public sealed class EventDef
     /// <summary>迷宮に散らす(新しいゲームを作るとき、合う深さの階の空いたマスに置く)。</summary>
     public EventScatter? Scatter { get; set; }
 
+    /// <summary>
+    /// 伝説の噂(酒場で、ほかの世界の話として聞ける)。聞いたクランが次に作る世界では、このイベントが出やすくなる(聞いた世界の数だけ倍。EventPlacer.HeardMultiplier)。
+    /// </summary>
+    public LocalizedText? Rumor { get; set; }
+
     public string? Note { get; set; }
 
     /// <summary>
@@ -73,7 +78,7 @@ public sealed class EventScatter
 
     public static readonly Dictionary<string, double> RarityWeights = new()
     {
-        ["common"] = 1, ["uncommon"] = 0.5, ["rare"] = 0.2, ["legendary"] = 0.06,
+        ["common"] = 1, ["uncommon"] = 0.5, ["rare"] = 0.2, ["legendary"] = 0.12,
     };
 
     /// <summary>レア度を掛けた出やすさ。</summary>

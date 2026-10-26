@@ -20,7 +20,7 @@ public sealed class NamedMonsterDef
     /// <summary>元にする敵(monsters の id)。</summary>
     public string Monster { get; set; } = "";
 
-    /// <summary>落とす品(items の id。ふつうは drop_only のユニーク品)と、落とす確率。</summary>
+    /// <summary>落とす品(items の id。ふつうは no_random のユニーク品)と、落とす確率。</summary>
     public string Item { get; set; } = "";
     public double ItemChance { get; set; } = 0.5;
 

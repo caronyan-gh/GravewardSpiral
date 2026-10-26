@@ -1,0 +1,28 @@
+[
+  {
+    "id": "gravekeeper",
+    "note": "第1部の決まった物語の文(序文と最下層の主)。文の決まったシナリオなので、ゲームで AI に書き直させない",
+    "text": {
+      "model": "scenario",
+      "prologue": {
+        "en": "The town stands over a burial ground that winds down into the earth in a spiral. The dead are laid to rest far below, and generation after generation of gravekeepers have watched over their sleep.\n\nA month ago, the last gravekeeper took his lantern and went down the spiral. He has not come back.\nSince then, every night, graves open from within. The earth is pushed up from below, and the coffins lie empty.\n\nLene, the gravekeeper's apprentice, stands at the tavern door in her master's old cloak.\n\"Please find my master. ...And let the dead sleep again.\"",
+        "ja": "町は、地の底へ螺旋を描いて下る墓所の上に建っている。死者は螺旋の底へ深く葬られ、代々の墓守が、その眠りを見守ってきた。\n\nひと月前、最後の墓守が角灯を手に螺旋を下りた。それきり、戻らない。\nそのころから、夜ごと墓が内側から開くようになった。土は下から押し上げられ、棺は空のまま転がっている。\n\n墓守見習いのリーネは、師匠の古い外套を羽織ったまま、酒場の戸口に立っていた。\n「師匠を、探してください。……それから、死者たちを、もう一度眠らせてください」"
+      },
+      "floors": [],
+      "boss": {
+        "name": {
+          "en": "Ord, the First Warden",
+          "ja": "最初の墓守オルド"
+        },
+        "intro": {
+          "en": "Atop the altar stands a shadow holding up a guttering lantern. \"...Is it time for the watch to change? ...No. The Call says: the living go below. ...Sleep here.\"",
+          "ja": "祭壇の上に、消えかけた角灯を掲げた影が立っている。「……交代の刻か。……いや。呼び声が言う。生者は、下へ。……ここで、眠れ」"
+        },
+        "victory": {
+          "en": "As he crumbles, Ord, the First Warden, smiles faintly. \"...At last, I can sleep. ...The Call... still... in the drowned... city...\"\nFrom behind the altar rolls a stone heart, still beating. Carry it to the surface.",
+          "ja": "最初の墓守オルドは、崩れ落ちながら、かすかに笑った。「……ようやく、眠れる。……呼び声は、まだ……沈んだ、都に……」\n祭壇の奥から、脈打つ石の心臓が転がり出た。地上へ持ち帰ろう。"
+        }
+      }
+    }
+  }
+]

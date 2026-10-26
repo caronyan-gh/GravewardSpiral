@@ -120,7 +120,8 @@ public sealed class ShopScene : MenuScene
             {
                 var (def, it, sold) = _buying!.Value;
                 long price = Shown(Shop.BuyPrice, it);
-                var copy = new ItemInstance { ItemId = it.ItemId, Bonus = it.Bonus, Identified = true, Charges = it.Charges, Count = it.Count };
+                var copy = it.Copy();
+                copy.Identified = true;
                 if (!c.Inventory.TryAdd(copy, Data.Items)) Message = s.Format("inv.bag_full", c.Name);
                 else if (!PartyGold.Pay(Party, price))
                 {
@@ -141,16 +142,12 @@ public sealed class ShopScene : MenuScene
                 Go(Mode.Sell);
                 return;
             case (Mode.Sell, ItemInstance it):
-            {
-                long price = Shown(Shop.SellPrice, it);
-                _who!.Inventory.Items.Remove(it);
-                PartyGold.Share(Party, price);
-                Shop.Stock(Sold, it);
-                Services.Audio.PlaySe(Sounds.Coins);
-                Message = s.Format("shop.sold", ItemText.Name(Services, it), price);
-                Go(_who.Inventory.Items.Count > 0 ? Mode.Sell : Mode.Main);
+                // 重ねた品は、売る個数を小窓で選ぶ(値段はその個数の分)
+                if (it.Count > 1)
+                    Stack.Push(new CountScene(s.Format("shop.sell_count", ItemText.Name(Services, it, count: false)), it.Count,
+                        n => Sell(it, n), n => s.Format("shop.price", SellPriceOf(it, n))));
+                else Sell(it, 1);
                 return;
-            }
             case (Mode.IdentifyWho, Character c):
                 _who = c;
                 Go(Mode.Identify);
@@ -174,6 +171,30 @@ public sealed class ShopScene : MenuScene
                 Go(Mode.Main);
                 return;
         }
+    }
+
+    /// <summary>重ねた品のうち n 個の売値。</summary>
+    private long SellPriceOf(ItemInstance stack, int n)
+    {
+        var part = stack.SplitOne();
+        part.Count = n;
+        return Shown(Shop.SellPrice, part);
+    }
+
+    /// <summary>n 個を売る(重ねた品は分けて、残りは袋に残す)。売った分は店に並ぶ。</summary>
+    private void Sell(ItemInstance it, int n)
+    {
+        var s = Services.Strings;
+        var part = it.Count > n ? it.SplitOne() : it;
+        part.Count = n;
+        long price = Shown(Shop.SellPrice, part);
+        if (part == it) _who!.Inventory.Items.Remove(it);
+        else it.Count -= n;
+        PartyGold.Share(Party, price);
+        Shop.Stock(Sold, part);
+        Services.Audio.PlaySe(Sounds.Coins);
+        Message = s.Format("shop.sold", ItemText.Name(Services, part), price);
+        Go(_who!.Inventory.Items.Count > 0 ? Mode.Sell : Mode.Main);
     }
 
     protected override void Cancel()

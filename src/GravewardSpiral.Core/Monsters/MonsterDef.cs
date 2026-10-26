@@ -13,11 +13,22 @@ public enum ActionTarget { One, Row, Party }
 /// <summary>モンスターの行動1つ。to_hit があれば攻撃ロールで、命中したら effects を起こす。無ければ effects をそのまま起こす(セーヴの行動)。</summary>
 public sealed class MonsterAction
 {
+    /// <summary>行動の id(multiattack の action で指す)。</summary>
     public string Id { get; set; } = "";
+
+    /// <summary>行動の名前({"en": "...", "ja": "..."})。</summary>
     public LocalizedText Name { get; set; } = LocalizedText.Of("");
+
+    /// <summary>届く距離: melee(前列だけ)/ ranged / any。</summary>
     public ActionRange Range { get; set; } = ActionRange.Melee;
+
+    /// <summary>対象: one(1人)/ row(前列)/ party(全員)。</summary>
     public ActionTarget Target { get; set; } = ActionTarget.One;
+
+    /// <summary>攻撃ロールのボーナス。書けば攻撃(当たったら effects)、書かなければセーヴの行動(effects をそのまま起こす)。</summary>
     public int? ToHit { get; set; }
+
+    /// <summary>起こす効果(ダメージ・状態など)。</summary>
     public List<EffectPart> Effects { get; set; } = [];
 
     /// <summary>再使用の目(5 なら、自分の番の始めに d6 で 5 以上が出たらまた使える)。</summary>
@@ -38,7 +49,10 @@ public sealed class MonsterSpellcasting
     /// <summary>術者のレベル(初級呪文の強さ)。</summary>
     public int Level { get; set; } = 1;
 
+    /// <summary>呪文の能力値(int / wis / cha)。</summary>
     public string Ability { get; set; } = "int";
+
+    /// <summary>呪文のセーヴの難易度。</summary>
     public int Dc { get; set; } = 10;
 
     /// <summary>呪文の攻撃ボーナス。</summary>
@@ -47,12 +61,16 @@ public sealed class MonsterSpellcasting
     /// <summary>呪文レベルごとのスロットの数。</summary>
     public Dictionary<string, int> Slots { get; set; } = [];
 
+    /// <summary>唱える呪文の id。</summary>
     public List<string> Spells { get; set; } = [];
 }
 
 public sealed class MultiattackPiece
 {
+    /// <summary>行動の id(actions の id)。</summary>
     public string Action { get; set; } = "";
+
+    /// <summary>その行動を何回するか。</summary>
     public int Count { get; set; } = 1;
 }
 
@@ -68,41 +86,76 @@ public sealed class MonsterDef
         return copy;
     }
 
+    /// <summary>モンスターの id(英小文字と _)。</summary>
     public string Id { get; set; } = "";
+
+    /// <summary>名前({"en": "...", "ja": "..."})。</summary>
     public LocalizedText Name { get; set; } = LocalizedText.Of("");
 
     /// <summary>正体が分かる前の名前(「小さな人影」など)。</summary>
     public LocalizedText? UnknownName { get; set; }
 
+    /// <summary>大きさ: tiny / small / medium / large / huge / gargantuan。</summary>
     public string Size { get; set; } = "medium";
+
+    /// <summary>種類(undead / beast / humanoid / dragon など)。</summary>
     public string CreatureType { get; set; } = "monstrosity";
+
+    /// <summary>脅威度(0.125・0.25・0.5・1〜)。</summary>
     public double Cr { get; set; }
+
+    /// <summary>倒したときの経験値。</summary>
     public int Xp { get; set; }
+
+    /// <summary>習熟ボーナス。</summary>
     public int Proficiency { get; set; } = 2;
+
+    /// <summary>AC。</summary>
     public int Ac { get; set; } = 10;
 
     /// <summary>HP のダイス式。1体ずつ振る。</summary>
     public string Hp { get; set; } = "1d8";
 
+    /// <summary>HP の平均(表示とおすすめに使う)。</summary>
     public int HpAverage { get; set; }
+
+    /// <summary>移動の速さ(フィート。SRD の値)。</summary>
     public int Speed { get; set; } = 30;
+
+    /// <summary>飛ぶか(SRD の値)。</summary>
     public bool Flies { get; set; }
+
+    /// <summary>能力値({"str": 10, "dex": 14, ...})。</summary>
     public Dictionary<string, int> Abilities { get; set; } = [];
 
     /// <summary>習熟のあるセーヴのボーナス(無い能力値は修正値だけ)。</summary>
     public Dictionary<string, int> Saves { get; set; } = [];
 
+    /// <summary>技能のボーナス({"perception": 3, "stealth": 4})。</summary>
     public Dictionary<string, int> Skills { get; set; } = [];
+
+    /// <summary>受動知覚。</summary>
     public int PassivePerception { get; set; } = 10;
 
     /// <summary>1 グループに出る数のダイス式。</summary>
     public string Appearing { get; set; } = "1";
 
+    /// <summary>半分になるダメージの種類。</summary>
     public List<string> Resist { get; set; } = [];
+
+    /// <summary>倍になるダメージの種類。</summary>
     public List<string> Vulnerable { get; set; } = [];
+
+    /// <summary>効かないダメージの種類。</summary>
     public List<string> Immune { get; set; } = [];
+
+    /// <summary>かからない状態。</summary>
     public List<Condition> ConditionImmune { get; set; } = [];
+
+    /// <summary>特徴(pack_tactics / undead_fortitude / legendary_resistance など)。</summary>
     public List<string> Traits { get; set; } = [];
+
+    /// <summary>行動(攻撃・ブレスなど)。</summary>
     public List<MonsterAction> Actions { get; set; } = [];
 
     /// <summary>複数回攻撃の組み合わせ(どれか1つを選ぶ)。</summary>
@@ -114,14 +167,22 @@ public sealed class MonsterDef
     /// <summary>戦闘で使うのにまだ足りない仕組み(spells など)。空でなければ遭遇に出さない。</summary>
     public List<string> Needs { get; set; } = [];
 
+    /// <summary>伝説のモンスターか(SRD の印)。</summary>
     public bool Legendary { get; set; }
 
+    /// <summary>呪文を唱えるモンスターの、呪文の設定。</summary>
     public MonsterSpellcasting? Spellcasting { get; set; }
 
     /// <summary>画像の形(square = 512x512、wide = 768x512)。</summary>
     public string Art { get; set; } = "square";
 
+    /// <summary>絵を借りるモンスターの id(自分の絵 art/monsters/&lt;id&gt;.png が無いとき)。extends で写したモンスターは、元を指す。</summary>
+    public string? ArtFrom { get; set; }
+
+    /// <summary>分類の印。</summary>
     public List<string> Tags { get; set; } = [];
+
+    /// <summary>遭遇の抽選の重み(大きいほど出やすい。0 なら出ない)。</summary>
     public double Weight { get; set; } = 1;
 
     public bool Usable => Needs.Count == 0 && Actions.Count > 0;

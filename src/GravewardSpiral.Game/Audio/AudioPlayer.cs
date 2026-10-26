@@ -41,6 +41,9 @@ public sealed class AudioPlayer : IDisposable
     public int BgmBuffersSubmitted { get; private set; }
     public int BgmLoops { get; private set; }
 
+    /// <summary>その曲のファイルがあるか(パックのどれかに)。</summary>
+    public bool Has(string path) => _resolve(path) != null;
+
     /// <summary>BGM を鳴らす。同じ曲が鳴っていれば何もしない。path は Content からの相対パス。gain はその曲だけの音量の倍率(小さく流したい曲)。</summary>
     public void PlayBgm(string path, float fadeInSeconds = 1.5f, float gain = 1f)
     {

@@ -157,8 +157,17 @@ public sealed class PrefabRule
     /// <summary>その深さの階ではめ込む割合(1 なら必ず)。</summary>
     public double Chance { get; set; } = 1;
 
-    /// <summary>迷宮全体で1つだけ(深さの範囲の階から1つを選んで、必ずはめ込む)。物語のイベントの部屋に使う。</summary>
+    /// <summary>
+    /// 迷宮全体で1つだけ(深さの範囲の階から1つを選んで、はめ込む)。物語のイベントの部屋や、階をまたぐ仕掛けの部屋に使う。
+    /// chance は、その迷宮に入れるかの割合(1 なら必ず)。
+    /// </summary>
     public bool Once { get; set; }
+
+    /// <summary>
+    /// 仕掛けの組の名前(once の部屋だけ)。同じ組の部屋は、入れるかを1回の抽選でまとめて決める(割合は組の最初の部屋の chance)。
+    /// 紋章の祠と封印の扉のように、一部だけ入ると解けない仕掛けに使う。
+    /// </summary>
+    public string? Group { get; set; }
 
     [System.Text.Json.Serialization.JsonIgnore]
     public string ResolvedPath { get; set; } = "";

@@ -107,7 +107,8 @@ public sealed class NewGameScene : Scene
         }
         rows.Add(Row.Difficulty);
         if (_difficulty.Preset == Difficulty.Custom) rows.AddRange([Row.Bodies, Row.Revive, Row.Save]);
-        if (_aiAvailable) rows.Add(Row.UseAi);
+        // 文の決まったシナリオ(自由な迷宮から作ったもの)では、AI に書かせないので出さない
+        if (_aiAvailable && Core.Save.WorldPackDef.Of(Services.Content)?.Text == null) rows.Add(Row.UseAi);
         rows.AddRange([Row.Create, Row.Back]);
         return rows;
     }
@@ -250,32 +251,39 @@ public sealed class NewGameScene : Scene
         bool shared = SharedClan;
         string clanId = shared ? _clans[_clan].Clan.Id! : GameSession.NewClanId();
         string? scenario = Services.Content.Scenario?.Id;
-        string worldKey = scenario ?? $"free-{seed}";
+        // 自由な迷宮はシナリオに書き出す(id は free-シード。同じ id のシナリオがもうあれば番号を付ける)
+        string worldKey = scenario ?? Core.Save.ScenarioExport.NewId(seed, id => Directory.Exists(Path.Combine(Services.UserScenarios, id)));
         if (shared && Services.Saves.WorldExists(clanId, worldKey))
         {
             Stack.Push(new ConfirmScene(Services.Strings.Format("newgame.confirm_overwrite",
                 Services.ClanDisplayName(_clans[_clan].Clan.Name, clanId), Services.ScenarioDisplayName(scenario)), () =>
                 {
                     Services.Saves.DeleteWorld(clanId, worldKey);
-                    Start(request, clanId);
+                    Start(request, clanId, worldKey);
                 }));
             return;
         }
-        Start(request, clanId);
+        Start(request, clanId, worldKey);
     }
 
     /// <summary>セーブにあるクランを選んでいる(写さずに、そのクランの名簿で始める)。</summary>
     private bool SharedClan => _clan >= 0 && Rows().Contains(Row.Clan) && _clans[_clan].Path.StartsWith("clan:");
 
     /// <summary>迷宮を作り、新しい世界を始めて町へ。</summary>
-    private void Start(GenerationRequest request, string clanId)
+    private void Start(GenerationRequest request, string clanId, string worldKey)
     {
         try
         {
+            Services.PendingExport = null;
             // シナリオの迷宮があればそれを使う(シードは顔ぶれ・散らすイベントなどの抽選に使う)
             var dungeon = DungeonLoader.ScenarioDungeon(Services.Content);
             if (dungeon != null) request = DungeonLoader.RequestFor(dungeon, request.Seed);
-            else dungeon = new MazeGenerator(_settings).Generate(request).Dungeon;
+            else
+            {
+                dungeon = new MazeGenerator(_settings).Generate(request).Dungeon;
+                // シナリオに書き出すマップは、イベントや名のある敵を置く前の形
+                Services.PendingExport = (worldKey, Core.Save.ScenarioExport.MapTexts(dungeon));
+            }
             Console.WriteLine($"dungeon: seed {request.Seed}, {dungeon.Floors.Count} floors, clan {clanId}");
             Services.Session = GameSession.New(1, request, dungeon);
             Services.Session.Difficulty = _difficulty;
@@ -307,20 +315,31 @@ public sealed class NewGameScene : Scene
                 Services.Session.SetWorldLevel(enc, ClanPower(_clans[_clan].Clan));
             }
             Services.Session.ClanId = clanId;
-            Services.Session.ClanName ??= Services.ClanDisplayName(null, clanId);   // 名前が無ければ、決まった名前を付ける
+            Services.Session.ClanName ??= Services.ClanDisplayName(null, clanId);
+            Services.AttachItems();   // 連れてきたクランの品(よそのシナリオのオリジナルの品など)を、このシナリオのデータで使える形に   // 名前が無ければ、決まった名前を付ける
             // 自由な迷宮は、由来(場所・災い・底)を選び、出る敵と世界の文をそこから決める(AI が書けば、AI の文に置き換わる)
+            // 自由な迷宮から作ったシナリオなら、残した由来・文・主の組で始める(迷宮とレベル帯はパックから)
+            var pack = Core.Save.WorldPackDef.Of(Services.Content);
             if (Services.Content.Scenario == null)
                 Services.Session.Origin = Core.Ai.WorldBuilder.Pick(Services.Data, request.Seed);
+            else pack?.ApplyTo(Services.Session);
             Services.Session.BuildRosters(Services.Data, enc);
-            Services.Session.PlaceEvents(Services.Data, _settings, enc);
-            if (Services.Session.Origin is { } origin)
+            pack?.ApplyBossPicks(Services.Session);
+            // シナリオで決めた中身(顔ぶれ・名のある敵・置いたイベント)。書いていないものは、この世界のシードで選ぶ
+            Services.Session.ApplyScenario(Services.Data, Services.Content, enc, _settings);
+            if (Services.Session.Origin is { } origin && Services.Session.World == null)
                 Services.Session.World = Core.Ai.WorldBuilder.Build(Services.Data, origin, dungeon.Floors.Count, request.Seed);
             // AI の手伝いがあれば、この世界の文を書いてもらってから町へ(無ければパックの決まった文)
             // シナリオに決まった序文(文言の scenario.prologue)があれば、それを序文にする(AI が書けば置き換わる)
             Services.GiveScenarioPrologue(Services.Session);
-            if (_useAi && Services.AiClient() is { } ai) Stack.Replace(new WorldWritingScene(ai));
+            // 文の決まったシナリオ(自由な迷宮から作ったもの)は、AI に書き直させない
+            if (_useAi && pack?.Text == null && Services.AiClient() is { } ai) Stack.Replace(new WorldWritingScene(ai));
             else if (Services.Session.World?.Prologue != null) Stack.Replace(new WorldWritingScene(null));   // 部品で作った序文を見せる
-            else Stack.Replace(new TownScene());
+            else
+            {
+                Services.FinishNewWorld();
+                Stack.Replace(new TownScene());
+            }
         }
         catch (InvalidOperationException ex)
         {

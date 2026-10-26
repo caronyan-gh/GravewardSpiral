@@ -35,12 +35,12 @@ public static class ItemText
 
     /// <summary>
     /// 追加効果の語を付けた名前(「燃える 守りの ロングソード」/ "Flaming Longsword of Warding")。
-    /// 固有の品(drop_only)は、名前をそのまま出す(追加効果は説明の行で見せる)。
+    /// 固有の品(no_random)は、名前をそのまま出す(追加効果は説明の行で見せる)。
     /// </summary>
     private static string WithAffixes(GameServices sv, ItemInstance item, ItemDef def)
     {
         string baseName = sv.Name(def.Name);
-        if (def.DropOnly || item.Affixes.Count == 0) return baseName;
+        if (def.NoRandom || item.Affixes.Count == 0) return baseName;
         var affixes = item.Affixes.Select(a => sv.Data.Affixes.GetValueOrDefault(a.Id)).OfType<AffixDef>().ToList();
         // 日本語のように、追加効果の語を全部前に付ける言語(text の item.affix_order が "before")
         if (sv.Strings["item.affix_order"] == "before") return string.Concat(affixes.Select(a => sv.Name(a.Name) + " ")) + baseName;

@@ -19,6 +19,7 @@ public sealed class WorldWritingScene : Scene
     private double _elapsed;
     private string? _error;
     private string? _prologue;
+    private TaleView? _tale;
 
     /// <param name="client">AI の窓口。null なら AI に頼まず、いまの世界の文(部品で作ったもの)の序文を見せるだけ。</param>
     public WorldWritingScene(IAiClient? client) => _client = client;
@@ -30,6 +31,7 @@ public sealed class WorldWritingScene : Scene
         if (_client == null || prompt == null)
         {
             _prologue = session.World?.Prologue is { } p ? Services.Name(p) : null;
+            _tale = _prologue != null ? new TaleView(_prologue) : null;
             if (_prologue == null) Stack.Replace(new Town.TownScene());
             return;
         }
@@ -47,6 +49,7 @@ public sealed class WorldWritingScene : Scene
             {
                 Services.Session!.World = world;
                 _prologue = world.Prologue is { } p ? Services.Name(p) : null;
+                _tale = _prologue != null ? new TaleView(_prologue) : null;
                 Services.Audio.PlaySe(Sounds.Confirm);
                 if (_prologue == null) ToTown();
             }
@@ -70,12 +73,14 @@ public sealed class WorldWritingScene : Scene
             }
             return;
         }
-        if (next || input.Pressed(GameAction.Cancel)) ToTown();
+        // 序文は、決定でページを送り、最後まで読んだら町へ(取消はすぐ町へ)
+        if (input.Pressed(GameAction.Cancel) || (_tale != null ? _tale.Update(input, Services.Audio) : next)) ToTown();
     }
 
     private void ToTown()
     {
         _task = null;
+        Services.FinishNewWorld();   // 自由な迷宮は、文が決まったここでシナリオに書き出す
         Stack.Replace(new Town.TownScene());
     }
 
@@ -99,7 +104,7 @@ public sealed class WorldWritingScene : Scene
         {
             var area = new RectangleF(140, 40, 1000, 610);
             Theme.Panel(d, area);
-            StoryScene.DrawTale(d, _prologue, new Vector2(area.X + 40, area.Y + 36), area.Width - 100, area.Height - 60);   // 英語の行末がはみ出さないよう、少し余らせる
+            _tale?.Draw(d, new Vector2(area.X + 40, area.Y + 36), area.Width - 100, area.Height - 70);   // 英語の行末がはみ出さないよう、少し余らせる
         }
         d.Text(s["ai.world_next"], new Vector2(640, 668), 16, Theme.Dim, TextAlign.Center);
     }

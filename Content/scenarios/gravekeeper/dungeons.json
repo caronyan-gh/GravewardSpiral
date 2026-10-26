@@ -5,7 +5,6 @@
       "en": "The Gravekeeper's Spiral",
       "ja": "墓守の螺旋"
     },
-    "note": "MapCheck --seed 墓守の螺旋 で生成したものを保存した(シナリオの迷宮は、セーブと同じく固定)",
     "floors": [
       "maps/gravekeeper_b1.txt",
       "maps/gravekeeper_b2.txt",
@@ -13,6 +12,117 @@
       "maps/gravekeeper_b4.txt",
       "maps/gravekeeper_b5.txt",
       "maps/gravekeeper_b6.txt"
-    ]
+    ],
+    "rosters": [
+      [
+        "skeleton",
+        "zombie",
+        "shadow",
+        "giant_rat",
+        "giant_rat_diseased",
+        "swarm_of_rats",
+        "swarm_of_bats",
+        "swarm_of_centipedes",
+        "swarm_of_insects",
+        "giant_centipede",
+        "giant_bat",
+        "wolf",
+        "bandit",
+        "cultist"
+      ],
+      [
+        "zombie",
+        "skeleton",
+        "ghoul",
+        "shadow",
+        "specter",
+        "warhorse_skeleton",
+        "swarm_of_ravens",
+        "swarm_of_rats",
+        "giant_spider",
+        "giant_wolf_spider",
+        "giant_hyena",
+        "thug",
+        "acolyte",
+        "cult_fanatic"
+      ],
+      [
+        "ghoul",
+        "ghast",
+        "specter",
+        "shadow",
+        "skeleton",
+        "minotaur_skeleton",
+        "ogre_zombie",
+        "wight",
+        "gray_ooze",
+        "ochre_jelly",
+        "gelatinous_cube",
+        "swarm_of_spiders",
+        "swarm_of_beetles",
+        "darkmantle"
+      ],
+      [
+        "wight",
+        "ghast",
+        "specter",
+        "will_o_wisp",
+        "minotaur_skeleton",
+        "ogre_zombie",
+        "warhorse_skeleton",
+        "animated_armor",
+        "flying_sword",
+        "rug_of_smothering",
+        "gargoyle",
+        "mummy",
+        "shadow",
+        "ghoul"
+      ],
+      [
+        "mummy",
+        "wight",
+        "ghast",
+        "will_o_wisp",
+        "specter",
+        "ghost",
+        "ogre_zombie",
+        "minotaur_skeleton",
+        "imp",
+        "quasit",
+        "hell_hound",
+        "bearded_devil",
+        "animated_armor",
+        "shadow"
+      ],
+      [
+        "wight",
+        "ghost",
+        "mummy",
+        "vampire_spawn",
+        "ghast",
+        "specter",
+        "will_o_wisp",
+        "ogre_zombie",
+        "minotaur_skeleton",
+        "ghoul",
+        "shadow",
+        "warhorse_skeleton",
+        "gargoyle",
+        "flesh_golem"
+      ]
+    ],
+    "named": [
+      {
+        "id": "rat_king",
+        "floor": 2,
+        "lair": false,
+        "x": 0,
+        "y": 0,
+        "rumored": true,
+        "defeated": false
+      }
+    ],
+    "events_placed": true,
+    "note": "MapCheck --seed 墓守の螺旋 で生成したものを保存した(シナリオの迷宮は、セーブと同じく固定)"
   }
 ]

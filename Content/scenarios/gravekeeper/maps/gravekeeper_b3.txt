@@ -70,6 +70,7 @@ teleport 7 13 10 10
 mark 18 0 elevator:0
 mark 15 1 event:sigil_shrine_moon
 mark 2 2 key
+mark 1 11 event:ev4b_half_circle
 mark 14 11 event:twin_switch_a
 mark 16 11 gate:twin
 mark 18 11 event:twin_switch_b

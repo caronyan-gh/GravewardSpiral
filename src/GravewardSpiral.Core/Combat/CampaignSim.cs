@@ -104,9 +104,13 @@ public sealed class CampaignSim
             _session.SetWorldLevel(_enc, WorldLevel.ClanPower(data, Party));
             _enc = _session.WorldSettings(_enc);
         }
-        if (content.Scenario == null) _session.Origin = Ai.WorldBuilder.Pick(data, seed);   // 自由な迷宮は、由来で出る敵が決まる
+        // 自由な迷宮は、由来で出る敵が決まる。自由な迷宮から作ったシナリオは、残した由来と主の組で始める
+        var pack = Save.WorldPackDef.Of(content);
+        if (content.Scenario == null) _session.Origin = Ai.WorldBuilder.Pick(data, seed);
+        else pack?.ApplyTo(_session);
         _session.BuildRosters(data, _enc);
-        _session.PlaceEvents(data, gen, _enc);
+        pack?.ApplyBossPicks(_session);
+        _session.ApplyScenario(data, content, _enc, gen);   // シナリオで決めた顔ぶれ・名のある敵・置いたイベント
         _state = _session.EnterMaze();
         _rng = new Pcg32(seed, 77);
     }
@@ -584,8 +588,8 @@ public sealed class CampaignSim
     {
         var drops = Loot.RollDrops(_data, _treasure, defeated, _enc.TargetLevel(DepthOf(floor)), _rng, boss, _session.DropBoostOf(_data, floor));
         Drops += drops.Count;
-        Uniques += drops.Count(d => _data.Items[d.ItemId].DropOnly);
-        foreach (var d in drops.Where(d => _data.Items[d.ItemId].DropOnly)) Log($"固有の品を拾った: {d.ItemId}(平均 L{AverageLevel:F1})");
+        Uniques += drops.Count(d => _data.Items[d.ItemId].NoRandom);
+        foreach (var d in drops.Where(d => _data.Items[d.ItemId].NoRandom)) Log($"固有の品を拾った: {d.ItemId}(平均 L{AverageLevel:F1})");
         if (drops.Count > 0 || (randomChest && _rng.NextDouble() < (room ? _treasure.RoomChestChance : _treasure.ChestChance))) OpenChest(floor, drops);
     }
 

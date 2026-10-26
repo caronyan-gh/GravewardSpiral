@@ -22,7 +22,12 @@
 //   --parties A;B;...  編成を並べる(1つは fighter,cleric,... の形)。省略すると、いろいろな編成を試す
 //   --verbose          1回ごとの流れも出す
 //   --simple           単純なボット(逃げない・水薬なし・装備を替えない)で遊ばせる(比べる用)
-//   --scenario ID      重ねて読むシナリオ(Content/scenarios/ID)。省略すると第1部 gravekeeper、none なら自由な迷宮(標準のパックだけ)
+//   --event-census     新しいゲームと同じ手順で世界を --runs N 個(シード 1〜N)作り、置かれたイベントを数える(--floors F で階の数、--level L で強いクランの世界、--heard K で伝説の噂を K 回聞いたクラン)
+//   --ai-world         本物の AI(資格情報マネージャーか ANTHROPIC_API_KEY のキー)に、自由な迷宮の世界の文を書かせて出す
+//                      (--seed S、--floors F、--model M で AI のモデルを替える。お金がかかるので確かめるときだけ。--scenario none と一緒に使う)
+//   --fill-scenario    --scenario のシナリオ(フォルダ)の、決めていない中身(出る敵・名のある敵・散らすイベント)を選んで書き込む
+//                      (シナリオエディタの「決めていないところを全部埋める」と同じ。--seed S で選び方を変える。フォルダを書き換える)
+//   --scenario ID      重ねて読むシナリオ(Content/scenarios/ID か、シナリオのフォルダ)。省略すると第1部 gravekeeper、none なら自由な迷宮(標準のパックだけ)
 using GravewardSpiral.Core.Characters;
 using GravewardSpiral.Core.Combat;
 using GravewardSpiral.Core.Content;
@@ -31,11 +36,13 @@ using GravewardSpiral.Core.Monsters;
 Console.OutputEncoding = System.Text.Encoding.UTF8;
 
 int level = 1, fights = 500, floors = 0, gear = 0, affixes = 0;
-bool atLevel = false, campaign = false, verbose = false, simple = false;
+int heardTimes = 0;
+bool atLevel = false, campaign = false, verbose = false, simple = false, aiWorld = false, eventCensus = false;
 int runs = 20;
 string? partiesArg = null;
+string? aiModel = null;
 var checkFiles = new List<string>();
-bool allowExisting = false;
+bool allowExisting = false, fillScenario = false;
 string? bossId = null;
 string scenarioId = ScenarioCatalog.Gravekeeper;
 ulong seed = 1;
@@ -59,8 +66,13 @@ for (int i = 0; i < args.Length; i++)
         case "--at-level": atLevel = true; break;
         case "--boss": bossId = next; i++; break;
         case "--campaign": campaign = true; break;
+        case "--ai-world": aiWorld = true; break;
+        case "--event-census": eventCensus = true; break;
+        case "--heard": heardTimes = int.Parse(next); i++; break;
+        case "--model": aiModel = next; i++; break;
         case "--scenario": scenarioId = next; i++; break;
         case "--allow-existing": allowExisting = true; break;
+        case "--fill-scenario": fillScenario = true; break;
         case "--check-events":
             while (i + 1 < args.Length && !args[i + 1].StartsWith("--")) checkFiles.Add(args[++i]);
             break;
@@ -84,7 +96,7 @@ for (int i = 0; i < args.Length; i++)
 string contentRoot = FindContent();
 var content = scenarioId == "none"
     ? ContentLibrary.Load(contentRoot)
-    : ContentLibrary.Load(contentRoot, Path.Combine(contentRoot, "scenarios", scenarioId));
+    : ContentLibrary.Load(contentRoot, Directory.Exists(scenarioId) ? scenarioId : Path.Combine(contentRoot, "scenarios", scenarioId));   // フォルダを渡せば、そのシナリオのパック
 if (!content.IsValid)
 {
     foreach (var p in content.Problems) Console.Error.WriteLine(p);
@@ -92,73 +104,29 @@ if (!content.IsValid)
 }
 var data = GameData.Load(content);
 
+if (fillScenario)
+{
+    // シナリオの中身を書き込む(ScenarioFill。エディタと同じもの)
+    string folder = Directory.Exists(scenarioId) ? scenarioId : Path.Combine(contentRoot, "scenarios", scenarioId);
+    var fillProblems = new List<string>();
+    var pack = GravewardSpiral.Core.Save.ScenarioPack.Load(folder, fillProblems);
+    foreach (var x in fillProblems) Console.Error.WriteLine(x);
+    var baseContent = ContentLibrary.Load(contentRoot);
+    var done = GravewardSpiral.Core.Save.ScenarioFill.Fill(pack, data, baseContent, seed == 0 ? 1 : seed, GravewardSpiral.Core.Save.ScenarioFill.Parts.All);
+    pack.Save(baseContent);
+    Console.WriteLine($"埋めたもの: {done}(顔ぶれ {pack.Rosters.Count(r => r.Count > 0)} 階、名のある敵 {pack.Named?.Count}、散らすイベントの印 {pack.Floors.Sum(f => f.AllCells().Count(c => f[c].Mark?.StartsWith("event:") == true))})");
+    return 0;
+}
+
 if (checkFiles.Count > 0)
 {
-    // 下書きの検査: 知らない項目名は誤りにする(書き間違いで部品が黙って無視されないように)
-    var strict = new System.Text.Json.JsonSerializerOptions(ContentLibrary.JsonOptions)
-    {
-        UnmappedMemberHandling = System.Text.Json.Serialization.JsonUnmappedMemberHandling.Disallow,
-    };
+    // 下書きの検査(中身は Core の EventDraftCheck。シナリオエディタも同じものを使う)
     var problems = new List<string>();
-    var seen = allowExisting ? new HashSet<string>() : new HashSet<string>(data.Events.Keys);
-    int count = 0;
-    foreach (var file in checkFiles)
-    {
-        List<System.Text.Json.JsonElement> list;
-        try { list = System.Text.Json.JsonSerializer.Deserialize<List<System.Text.Json.JsonElement>>(File.ReadAllText(file)) ?? []; }
-        catch (Exception ex) when (ex is System.Text.Json.JsonException or IOException)
-        {
-            problems.Add($"{file}: 読めません: {ex.Message}");
-            continue;
-        }
-        foreach (var el in list)
-        {
-            string id = el.TryGetProperty("id", out var idEl) ? idEl.GetString() ?? "?" : "?";
-            GravewardSpiral.Core.Events.EventDef e;
-            try { e = System.Text.Json.JsonSerializer.Deserialize<GravewardSpiral.Core.Events.EventDef>(el, strict)!; }
-            catch (System.Text.Json.JsonException ex)
-            {
-                problems.Add($"{file} '{id}': {ex.Message}");
-                continue;
-            }
-            count++;
-            if (!seen.Add(e.Id)) problems.Add($"{file} '{e.Id}': id が既にあります");
-            if (e.Place == "maze" && e.Scatter == null) problems.Add($"{file} '{e.Id}': 迷宮のイベントに scatter がありません");
-            if (e.Place == "town" && e.Title == null) problems.Add($"{file} '{e.Id}': 町のイベントに title がありません");
-            problems.AddRange(GravewardSpiral.Core.Events.EventCheck.Check(data, e, content).Select(x => $"{file} '{e.Id}': {x}"));
-            // 払う選択肢(gold が負)には、所持金の条件を付ける(足りなくても払えたことになって、ただで賭けられてしまう)
-            foreach (var (label, need) in PayingOptions(e.Steps).Where(x => x.Need > 0))
-                problems.Add($"{file} '{e.Id}': 選択肢「{label}」は {need} G を払うのに、when に gold {need} 以上の条件がありません");
-        }
-    }
-    // 連動する組: 下書きとパックを合わせて、部品が2つ以上、step が重ならない。町などが見る chain: のフラグの組があること
-    var drafts = checkFiles.SelectMany(f =>
-    {
-        try { return System.Text.Json.JsonSerializer.Deserialize<List<GravewardSpiral.Core.Events.EventDef>>(File.ReadAllText(f), ContentLibrary.JsonOptions) ?? []; }
-        catch (System.Text.Json.JsonException) { return []; }
-    }).ToList();
-    var all = data.Events.Values.Where(e => !drafts.Any(d => d.Id == e.Id)).Concat(drafts).ToList();
-    var chainGroups = all.Where(e => e.Scatter?.Chain != null).GroupBy(e => e.Scatter!.Chain!).ToList();
-    foreach (var g in chainGroups.Where(g => g.Any(e => drafts.Contains(e))))
-    {
-        if (g.Count() < 2) problems.Add($"組 '{g.Key}': 部品が1つしかありません");
-        foreach (var dup in g.GroupBy(e => e.Scatter!.Step).Where(x => x.Count() > 1))
-            problems.Add($"組 '{g.Key}': step {dup.Key} が重なっています({string.Join(", ", dup.Select(e => e.Id))})");
-    }
-    var chainNames = chainGroups.Select(g => g.Key).ToHashSet();
-    static IEnumerable<GravewardSpiral.Core.Events.EventCondition> Conds(GravewardSpiral.Core.Events.EventDef e)
-    {
-        IEnumerable<GravewardSpiral.Core.Events.EventCondition> Walk(List<GravewardSpiral.Core.Events.EventStep> steps) =>
-            steps.SelectMany(st => st.When.Concat(st.Options.SelectMany(o => o.When.Concat(Walk(o.Steps)))).Concat(st.Children().SelectMany(Walk)));
-        return e.When.Concat(Walk(e.Steps));
-    }
-    foreach (var e in drafts)
-    {
-        foreach (var c in Conds(e).Where(c => c.Type == "flag" && c.Id?.StartsWith("chain:") == true && !chainNames.Contains(c.Id["chain:".Length..])))
-            problems.Add($"'{e.Id}': フラグ {c.Id} の組がありません");
-    }
+    var drafts = checkFiles.SelectMany(f => GravewardSpiral.Core.Events.EventDraftCheck.ReadFile(f, problems)).ToList();
+    var result = GravewardSpiral.Core.Events.EventDraftCheck.Check(data, content, drafts, allowExisting);
+    problems.AddRange(result.Problems);
     foreach (var x in problems) Console.WriteLine(x);
-    Console.WriteLine(problems.Count == 0 ? $"OK: {count} 個のイベントに問題はありません" : $"問題 {problems.Count} 件({count} 個のイベント)");
+    Console.WriteLine(problems.Count == 0 ? $"OK: {result.Count} 個のイベントに問題はありません" : $"問題 {problems.Count} 件({result.Count} 個のイベント)");
     return problems.Count == 0 ? 0 : 1;
 }
 var settings = EncounterSettings.Load(content);
@@ -195,6 +163,114 @@ List<Character> Party(GravewardSpiral.Core.Rng.IRandom _) => PartyAt(level);
 
 void Report(string label, SimulationResult r) =>
     Console.WriteLine($"{label,-24} 勝ち {r.WinRate,6:P1}  全滅 {(double)r.Defeats / r.Fights,6:P1}  平均 {r.AverageRounds,4:F1} ラウンド  死者 {r.AverageDeaths,4:F2}  残り HP {r.AverageHpLeft,6:P0}");
+
+if (eventCensus)
+{
+    // 置かれたイベントを数える: 迷宮に組み込まれたもの(生成した直後の印)と、散らしたもの(PlaceEvents のあとに増えた印)に分ける
+    var gen = GravewardSpiral.Core.MazeGen.MazeGenSettings.Load(content);
+    var enc = EncounterSettings.Load(content);
+    var scenarioDungeon = GravewardSpiral.Core.Maze.DungeonLoader.ScenarioDungeon(content);
+    var pack = GravewardSpiral.Core.Save.WorldPackDef.Of(content);
+    const string mark = GravewardSpiral.Core.Events.EventPlacer.MarkPrefix;
+    var built = new List<int>();
+    var scattered = new List<int>();
+    var perFloor = new Dictionary<int, List<int>>();
+    var used = new Dictionary<string, int>(StringComparer.Ordinal);
+    var byRarity = new Dictionary<string, int>(StringComparer.Ordinal);
+    for (int run = 1; run <= runs; run++)
+    {
+        ulong sd = (ulong)run;
+        var dungeon = scenarioDungeon != null ? GravewardSpiral.Core.Maze.DungeonLoader.ScenarioDungeon(content)! : null;
+        var request = dungeon != null ? GravewardSpiral.Core.Maze.DungeonLoader.RequestFor(dungeon, sd)
+            : floors > 0 ? GravewardSpiral.Core.MazeGen.GenerationRequest.Default(gen, sd) with { Floors = floors }
+            : GravewardSpiral.Core.MazeGen.GenerationRequest.Default(gen, sd);
+        dungeon ??= new GravewardSpiral.Core.MazeGen.MazeGenerator(gen).Generate(request).Dungeon;
+        List<string> Marks() => dungeon.Floors.SelectMany(f => f.AllCells().Select(c => f[c].Mark)).OfType<string>().Where(m => m.StartsWith(mark)).ToList();
+        int before = Marks().Count;
+        var session = GravewardSpiral.Core.Save.GameSession.New(0, request, dungeon);
+        var worldEnc = enc;
+        if (level > 1)
+        {
+            // 強いクランで始めた世界(--level L のクランの強さに、世界のレベル帯を合わせる)
+            session.SetWorldLevel(enc, level);
+            worldEnc = session.WorldSettings(enc);
+        }
+        if (content.Scenario == null) session.Origin = GravewardSpiral.Core.Ai.WorldBuilder.Pick(data, sd);
+        else pack?.ApplyTo(session);
+        // 伝説の噂を、どれも heardTimes 個の世界で聞いたクランにする
+        if (heardTimes > 0)
+            foreach (var e in data.Events.Values.Where(e => e.Rumor != null)) session.LegendsHeard[e.Id] = heardTimes;
+        session.BuildRosters(data, worldEnc);
+        session.ApplyScenario(data, content, worldEnc, gen);
+        var marks = Marks();
+        built.Add(before);
+        scattered.Add(marks.Count - before);
+        for (int f = 0; f < dungeon.Floors.Count; f++)
+        {
+            var fl = dungeon.Floors[f];
+            int n = fl.AllCells().Count(c => fl[c].Mark?.StartsWith(mark) == true);
+            if (!perFloor.TryGetValue(f, out var list)) perFloor[f] = list = [];
+            list.Add(n);
+        }
+        foreach (var m in marks)
+        {
+            string id = m[mark.Length..];
+            used[id] = used.GetValueOrDefault(id) + 1;
+            string rarity = data.Events.TryGetValue(id, out var ev) ? ev.Scatter?.Rarity ?? "-" : "?";
+            byRarity[rarity] = byRarity.GetValueOrDefault(rarity) + 1;
+        }
+    }
+    string Stat(List<int> xs) => $"平均 {xs.Average():0.0}(最少 {xs.Min()}、最多 {xs.Max()})";
+    Console.WriteLine($"{(content.Scenario?.Id ?? "自由な迷宮")}: 世界 {runs} 個、{built.Count} 個の世界を数えた");
+    Console.WriteLine($"1つの世界のイベント: {Stat(built.Zip(scattered, (a, b) => a + b).ToList())}");
+    Console.WriteLine($"  迷宮に組み込まれたもの: {Stat(built)}");
+    Console.WriteLine($"  散らしたもの: {Stat(scattered)}");
+    foreach (var (f, list) in perFloor.OrderBy(x => x.Key)) Console.WriteLine($"  B{f + 1}: {Stat(list)}");
+    int mazeEvents = data.Events.Values.Count(e => e.Place == "maze");
+    Console.WriteLine($"迷宮のイベント {mazeEvents} 種のうち、一度でも置かれたもの {used.Count} 種({100.0 * used.Count / Math.Max(1, mazeEvents):0}%)");
+    Console.WriteLine($"レア度ごと(置かれた数): {string.Join("、", byRarity.OrderByDescending(x => x.Value).Select(x => $"{x.Key} {x.Value}"))}");
+    Console.WriteLine($"よく置かれたもの: {string.Join("、", used.OrderByDescending(x => x.Value).Take(10).Select(x => $"{x.Key} {x.Value}"))}");
+    return 0;
+}
+
+if (aiWorld)
+{
+    string? key = GravewardSpiral.Game.Ai.ApiKeyStore.Load(GravewardSpiral.Game.Ai.ApiKeyStore.Claude);
+    if (key == null)
+    {
+        Console.Error.WriteLine("API キーがありません(資格情報マネージャーの GravewardSpiral/claude か ANTHROPIC_API_KEY)");
+        return 1;
+    }
+    var gen = GravewardSpiral.Core.MazeGen.MazeGenSettings.Load(content);
+    var request = GravewardSpiral.Core.MazeGen.GenerationRequest.Default(gen, seed);
+    if (floors > 0) request = request with { Floors = floors };
+    var dungeon = new GravewardSpiral.Core.MazeGen.MazeGenerator(gen).Generate(request).Dungeon;
+    var session = GravewardSpiral.Core.Save.GameSession.New(0, request, dungeon);
+    var enc = EncounterSettings.Load(content);
+    if (content.Scenario == null) session.Origin = GravewardSpiral.Core.Ai.WorldBuilder.Pick(data, seed);
+    session.BuildRosters(data, enc);
+    if (session.Origin is { } origin) session.World = GravewardSpiral.Core.Ai.WorldBuilder.Build(data, origin, dungeon.Floors.Count, seed);
+    var prompt = GravewardSpiral.Core.Ai.WorldWriter.Prompt(content)!;
+    var client = new GravewardSpiral.Core.Ai.ClaudeClient(key, aiModel);
+    Console.WriteLine($"世界 seed {seed}、{dungeon.Floors.Count} 階、モデル {client.Model} に頼んでいます…");
+    if (GravewardSpiral.Core.Ai.WorldWriter.AutoBoss(data, session) is { } master)
+        Console.WriteLine($"主に選んだ敵: {master.Name.Get("ja")}({master.Type}、脅威度 {master.Cr})" + (master.Escorts.Count > 0 ? $"、従う者 {string.Join("・", master.Escorts.Select(e => e.Get("ja")))}" : ""));
+    var (world, error) = await GravewardSpiral.Core.Ai.WorldWriter.WriteAsync(client, data, prompt, dungeon.Floors.Count, null, CancellationToken.None, seed, session);
+    if (world == null)
+    {
+        Console.Error.WriteLine($"失敗: {error}");
+        return 1;
+    }
+    string T(GravewardSpiral.Core.Content.LocalizedText? t) => t == null ? "(無し)" : $"{t.Get("ja")} / {t.Get("en")}";
+    Console.WriteLine();
+    Console.WriteLine("序文: " + T(world.Prologue));
+    for (int f = 0; f < world.Floors.Count; f++) Console.WriteLine($"B{f + 1}: {T(world.Floors[f].Name)}");
+    Console.WriteLine();
+    Console.WriteLine("主の名前: " + T(world.Boss?.Name));
+    Console.WriteLine("出会い: " + T(world.Boss?.Intro));
+    Console.WriteLine("倒したとき: " + T(world.Boss?.Victory));
+    return 0;
+}
 
 if (campaign)
 {
@@ -255,22 +331,6 @@ else
 return 0;
 
 // 選択肢のうち、最初の手順で金を払うのに、所持金の条件が足りないもの(ラベルと、要る金額)
-static IEnumerable<(string Label, int Need)> PayingOptions(List<GravewardSpiral.Core.Events.EventStep> steps)
-{
-    foreach (var st in steps)
-    {
-        foreach (var o in st.Options)
-        {
-            var pay = o.Steps.FirstOrDefault(x => x.Type == "gold" && x.Value < 0);
-            int have = o.When.Where(w => w.Type == "gold" && !w.Not).Select(w => w.Value).DefaultIfEmpty(0).Max();
-            if (pay != null && have < -pay.Value) yield return (o.Label?.Get("ja") ?? "?", -pay.Value);
-            foreach (var x in PayingOptions(o.Steps)) yield return x;
-        }
-        foreach (var child in st.Children().Where(c => c != null))
-            foreach (var x in PayingOptions(child)) yield return x;
-    }
-}
-
 static string FindContent()
 {
     for (var dir = new DirectoryInfo(AppContext.BaseDirectory); dir != null; dir = dir.Parent)

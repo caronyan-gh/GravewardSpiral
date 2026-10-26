@@ -14,9 +14,22 @@ public enum ArmorType { Light, Medium, Heavy }
 /// </summary>
 public sealed class ItemDef
 {
+    /// <summary>品の id(英小文字と _。パックの中で重ならないもの)。</summary>
     public string Id { get; set; } = "";
+
+    /// <summary>
+    /// シナリオのパックで定義した品(オリジナルの品)なら、そのシナリオの id と GUID(読み込みで入れる。JSON には書かない)。
+    /// オリジナルの品は、セーブに中身を写す(OriginalItems)。
+    /// </summary>
+    [System.Text.Json.Serialization.JsonIgnore] public string? OriginScenario { get; set; }
+    [System.Text.Json.Serialization.JsonIgnore] public string? OriginGuid { get; set; }
+    /// <summary>種類: weapon / armor / shield / backpack / consumable / gear / accessory / key / ammo。</summary>
     public ItemKind Kind { get; set; }
+
+    /// <summary>名前({"en": "...", "ja": "..."})。</summary>
     public LocalizedText Name { get; set; } = LocalizedText.Of("");
+
+    /// <summary>説明の文({"en": "...", "ja": "..."})。</summary>
     public LocalizedText? Description { get; set; }
 
     /// <summary>値段(金貨)。売値はこの半分。</summary>
@@ -53,24 +66,41 @@ public sealed class ItemDef
     public LooksLike? LooksLike { get; set; }
 
     // 武器
+    /// <summary>武器の分類: simple(単純武器)/ martial(軍用武器)。習熟に使う。</summary>
     public string? Category { get; set; }
+
+    /// <summary>飛び道具か(弓・クロスボウ・投げるもの)。</summary>
     public bool Ranged { get; set; }
+
+    /// <summary>ダメージのダイス(1d8 など)。</summary>
     public string? Damage { get; set; }
+
+    /// <summary>ダメージの種類(slashing / piercing / bludgeoning / fire など)。</summary>
     public string? DamageType { get; set; }
+
+    /// <summary>両手で持ったときのダメージ(versatile の武器)。</summary>
     public string? VersatileDamage { get; set; }
+
+    /// <summary>武器の性質(finesse / light / heavy / two_handed / versatile / thrown / reach / ammunition / loading など)。</summary>
     public List<string> Properties { get; set; } = [];
 
     /// <summary>当たったときに足す効果(フレイム・タンの 2d6 の火など)。</summary>
     public List<EffectPart> OnHit { get; set; } = [];
 
     // 鎧と盾
+    /// <summary>鎧の重さ: light / medium / heavy。</summary>
     public ArmorType? ArmorType { get; set; }
+
+    /// <summary>AC(鎧は基本の AC、盾は足す値)。</summary>
     public int ArmorClass { get; set; }
 
     /// <summary>敏捷力の修正値を AC に足せる上限(中装鎧は 2、重装鎧は 0)。null なら上限なし。</summary>
     public int? DexCap { get; set; }
 
+    /// <summary>着るのに要る筋力(5版の重装鎧の筋力の条件)。</summary>
     public int StrengthRequired { get; set; }
+
+    /// <summary>隠密に不利が付く鎧か。</summary>
     public bool StealthDisadvantage { get; set; }
 
     // 装身具
@@ -83,6 +113,7 @@ public sealed class ItemDef
     public List<EffectPart> Passive { get; set; } = [];
 
     // バックパック
+    /// <summary>バックパックの枠の数。</summary>
     public int Slots { get; set; }
 
     // 使うもの(水薬・巻物・ワンドなど)
@@ -122,12 +153,20 @@ public sealed class ItemDef
         _ => null,
     };
 
+    /// <summary>作った人のための覚え書き(ゲームでは使わない)。</summary>
     public string? Note { get; set; }
 
     /// <summary>
-    /// 宝箱の等級の抽選では出ず、落とし物の表(drops.json)から決まった品として出るだけのもの(固有のレア品)。
+    /// おまかせでは出ない品(no_random)。宝の抽選(戦闘のあとの宝箱・イベントの treasure)にも、商店にも出ず、
+    /// 名指しのとき(落とし物の表の item、名のある敵の品、イベントの give_item)だけ手に入る。固有のレア品とイベントの品。
     /// </summary>
-    public bool DropOnly { get; set; }
+    public bool NoRandom { get; set; }
+
+    /// <summary>no_random の古い名前(drop_only)。読むだけで、書くときは no_random。</summary>
+    [System.ComponentModel.EditorBrowsable(System.ComponentModel.EditorBrowsableState.Never)]
+    [System.Text.Json.Serialization.JsonPropertyName("drop_only")]
+    [System.Text.Json.Serialization.JsonIgnore(Condition = System.Text.Json.Serialization.JsonIgnoreCondition.WhenWritingDefault)]
+    public bool DropOnlyOldName { get => false; set => NoRandom |= value; }
 
     /// <summary>宝箱の抽選で、この目安のレベルより下では出ない(浅い階で出すぎる便利な品に)。</summary>
     public double MinLevel { get; set; }
@@ -150,6 +189,12 @@ public sealed class ItemInstance
 {
     public string ItemId { get; set; } = "";
     public int Count { get; set; } = 1;
+
+    /// <summary>
+    /// オリジナルの品(シナリオのパックで定義した品)の出どころと、セーブに写した中身(OriginalItems が入れる)。
+    /// 標準のパックの品は、どれも null。出どころのシナリオを読んでいない世界では、写しの中身を「GUID:元の id」の名前で使う。
+    /// </summary>
+    public ItemOrigin? Origin { get; set; }
 
     /// <summary>正体が分かっているか(未鑑定なら false。魔法のアイテムは、拾ったときは分からない)。</summary>
     public bool Identified { get; set; } = true;
@@ -202,8 +247,17 @@ public sealed class ItemInstance
     public ItemInstance SplitOne() => new()
     {
         ItemId = ItemId, Count = 1, Identified = Identified, Bonus = Bonus, Charges = Charges, Element = Element, CurseKnown = CurseKnown,
-        Affixes = [.. Affixes],
+        Affixes = [.. Affixes], Origin = Origin,
     };
+
+    /// <summary>同じ品の写し(数も同じ)。</summary>
+    public ItemInstance Copy()
+    {
+        var c = SplitOne();
+        c.Count = Count;
+        c.Attuned = Attuned;
+        return c;
+    }
 
     /// <summary>重ねて持てるか(同じ種類で、鑑定と上乗せと回数が同じ)。</summary>
     public bool SameKind(ItemInstance o) => ItemId == o.ItemId && Identified == o.Identified && Bonus == o.Bonus && Charges == o.Charges && Element == o.Element
@@ -273,21 +327,50 @@ public sealed class Inventory
         }
     }
 
-    /// <summary>袋に入れる。重ねて持てるものは同じものに重ねる。入らなければ false。</summary>
+    /// <summary>
+    /// この品を何個まで袋に入れられるか。重ねて持てるものは、今ある束の上限までの空きと、空いた枠ごとに上限の数。
+    /// 重ねられないものは、空いた枠があれば丸ごと。
+    /// </summary>
+    public int Room(ItemInstance item, IReadOnlyDictionary<string, ItemDef> defs)
+    {
+        if (!defs.TryGetValue(item.ItemId, out var def)) return 0;
+        int free = Math.Max(0, FreeSlots(defs));
+        if (def.Stack <= 1) return free > 0 ? item.Count : 0;
+        return Items.Where(i => i.SameKind(item)).Sum(i => Math.Max(0, def.Stack - i.Count)) + free * def.Stack;
+    }
+
+    /// <summary>
+    /// 袋に入れる。重ねて持てるものは、同じものの束を上限まで埋めてから、余りを新しい枠に入れる(上限ごとに分ける)。
+    /// 全部は入らなければ、何もせずに false。
+    /// </summary>
     public bool TryAdd(ItemInstance item, IReadOnlyDictionary<string, ItemDef> defs)
     {
         if (!defs.TryGetValue(item.ItemId, out var def)) return false;
-        if (def.Stack > 1)
+        if (def.Stack <= 1)
         {
-            var same = Items.FirstOrDefault(i => i.SameKind(item) && i.Count < def.Stack);
-            if (same != null && same.Count + item.Count <= def.Stack)
-            {
-                same.Count += item.Count;
-                return true;
-            }
+            if (FreeSlots(defs) <= 0) return false;
+            Items.Add(item);
+            return true;
         }
-        if (FreeSlots(defs) <= 0) return false;
-        Items.Add(item);
+        if (Room(item, defs) < item.Count) return false;
+        int left = item.Count;
+        foreach (var same in Items.Where(i => i.SameKind(item) && i.Count < def.Stack))
+        {
+            int take = Math.Min(left, def.Stack - same.Count);
+            same.Count += take;
+            left -= take;
+            if (left == 0) return true;
+        }
+        // 余りは新しい枠へ(最初の枠には、渡された品そのものを入れる)
+        bool first = true;
+        while (left > 0)
+        {
+            var part = first ? item : item.SplitOne();
+            part.Count = Math.Min(left, def.Stack);
+            Items.Add(part);
+            left -= part.Count;
+            first = false;
+        }
         return true;
     }
 
@@ -409,3 +492,19 @@ public enum EquipResult { Ok, NotFound, WrongSlot, BagTooSmall, BagFull, HandsFu
 
 /// <summary>呪いの品の見せかけ(id の品に、bonus の上乗せで見える)。</summary>
 public sealed record LooksLike(string Id, int Bonus = 0);
+
+/// <summary>オリジナルの品の出どころ(シナリオの id と GUID、元の品の id)と、写した中身(JSON と、写したときのデータの形の版)。</summary>
+public sealed class ItemOrigin
+{
+    public string Scenario { get; set; } = "";
+    public string Guid { get; set; } = "";
+
+    /// <summary>シナリオの中での品の id(ItemId は、読む世界によって「GUID:id」になる)。</summary>
+    public string Id { get; set; } = "";
+
+    /// <summary>写した品の中身(items.json の1つと同じ形)。</summary>
+    public System.Text.Json.Nodes.JsonObject? Def { get; set; }
+
+    /// <summary>写したときのデータの形の版(Content.ContentFormat.Current)。読むときに今の形へ直す。</summary>
+    public int Format { get; set; } = 1;
+}

@@ -91,6 +91,8 @@ public sealed class GravewardGame : Microsoft.Xna.Framework.Game
             Options = startOptions,
             KeepVolume = _options.Volume != null,
             PersistOptions = _options.ScreenshotPath == null,
+            // --saves のとき(確かめの起動)は、自由な迷宮から作るシナリオも、その横の使い捨ての場所に書く
+            UserScenarios = _options.SavesDir is { } savesDir ? Path.Combine(savesDir, "scenarios") : AppPaths.Scenarios,
         };
         _services.ApplyOptions();
         _services.Audio.NextBgmStart = _options.BgmStart;
@@ -108,6 +110,7 @@ public sealed class GravewardGame : Microsoft.Xna.Framework.Game
         else if (_options.Start == "town") DebugStart.Town(_services);
         else if (_options.Start == "chest") DebugStart.Chest(_services);
         else if (_options.Start == "ending") DebugStart.Ending(_services);
+        else if (_options.Start?.StartsWith("scenario:") == true) DebugStart.Scenario(_services, _options.Start["scenario:".Length..]);
         else if (_options.Start?.StartsWith("genmap") == true) DebugStart.GenMap(_services, _options.Start.Length > 7 ? _options.Start[7..] : null);
         else if (_options.Start?.StartsWith("named") == true) DebugStart.Named(_services, _options.Start.Length > 6 ? _options.Start[6..] : null);
         else if (_options.Start?.StartsWith("combat") == true) DebugStart.Combat(_services, _options.Start.Length > 7 ? _options.Start[7..] : null);

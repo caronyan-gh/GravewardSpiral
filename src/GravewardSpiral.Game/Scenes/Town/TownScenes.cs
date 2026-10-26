@@ -225,14 +225,15 @@ public sealed class TavernScene : MenuScene
     }
 
     /// <summary>
-    /// 酒場の噂: この世界にいる名のある敵のうち、噂に乗っていて、まだ倒されていないもの。
-    /// 階は「あたり」でぼかす(本当の階か、1つ上か下)。噂が無ければ、ありふれた話。
+    /// 酒場の噂を1つ聞く。候補は、この世界にいる名のある敵のうち噂に乗っていてまだ倒されていないもの(階は「あたり」でぼかす。
+    /// 本当の階か、1つ上か下)、シナリオの噂(条件に合うもの。出やすさの重み)、伝説の噂。聞くたびに重みで1つ選び、
+    /// 候補が2つ以上あれば、すぐ前と同じものは選ばない。候補が無ければ、ありふれた話。
     /// </summary>
     private string Rumors()
     {
         var s = Services.Strings;
         var session = Services.Session!;
-        var lines = new List<string>();
+        var lines = new List<(string Text, double Weight, Action? Heard)>();
         foreach (var n in session.Named.Where(n => n.Rumored && !n.Defeated))
         {
             if (!Services.Data.NamedMonsters.TryGetValue(n.Id, out var def)) continue;
@@ -240,10 +241,26 @@ public sealed class TavernScene : MenuScene
             int floors = session.Dungeon.Floors.Count;
             int shift = (n.Id.Sum(ch => ch) + n.Floor) % 3 - 1;
             int shown = Math.Clamp(n.Floor + shift, 0, floors - 1) + 1;
-            lines.Add(s.Format(n.Lair ? "tavern.rumor_lair" : "tavern.rumor_wander", shown, Services.Name(def.Name)));
+            lines.Add((s.Format(n.Lair ? "tavern.rumor_lair" : "tavern.rumor_wander", shown, Services.Name(def.Name)), 1, null));
         }
-        return lines.Count > 0 ? string.Join("\n", lines) : s["tavern.rumor_none"];
+        // シナリオの噂(条件に合うもの。文はかぎ括弧なしで書く)
+        var rng = session.Rng[Core.Rng.RngStreams.Names.Loot];
+        var ctx = new Core.Events.EventContext { Data = Services.Data, Session = session, Rng = rng };
+        foreach (var said in Core.Events.RumorDef.Available(Services.Data, ctx)) lines.Add((s.Format("tavern.rumor_said", Services.Name(said.Text)), said.Weight, null));
+        // 伝説の噂(ほかの世界の話)。聞くと、クランが覚えて、次に作る世界で出やすくなる
+        if (session.LegendRumor(Services.Data) is { Rumor: { } rumor } legend)
+            lines.Add((s.Format("tavern.rumor_legend", Services.Name(rumor)), 1, () => session.HearLegend(legend.Id)));
+        if (lines.Count > 1) lines.RemoveAll(l => l.Text == _lastRumor);
+        if (lines.Count == 0) return s["tavern.rumor_none"];
+        double x = rng.NextDouble() * lines.Sum(l => l.Weight);
+        int i = 0;
+        while (i < lines.Count - 1 && (x -= lines[i].Weight) >= 0) i++;
+        lines[i].Heard?.Invoke();
+        return _lastRumor = lines[i].Text;
     }
+
+    /// <summary>すぐ前に聞いた噂(続けて同じ話をしない)。</summary>
+    private string? _lastRumor;
 
     /// <summary>並べ直しの途中の文(ここまでの並びと、次は何番目か)。</summary>
     private string OrderMessage()
@@ -438,6 +455,7 @@ public sealed class TrainingScene : MenuScene
                 Stack.Push(new TextEntryScene(s["training.clan_name"], Services.Session!.ClanName ?? "", NewGameScene.ClanNameLength, name =>
                 {
                     Services.Session!.ClanName ??= name;   // 名前の無いクランなら、書き出した名前をクランの名前にする
+                    Core.Save.OriginalItems.Snapshot(Services.Data, Core.Save.OriginalItems.All(Services.Session!));   // オリジナルの品は中身も書く
                     var clan = ClanFile.From(Services.Session!, name, Services.Content.Scenario?.Id);
                     try
                     {

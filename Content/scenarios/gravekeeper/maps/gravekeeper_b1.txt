@@ -44,8 +44,11 @@ walls
 + + +-+-+-+-+-+-+-+-+-+-+-+-+-+-+ + +-+-+
 |   |#|#|#|#|#|#|#|#|#|#|#|#|#|#|d  |#|#|
 +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+mark 5 2 event:ev2_rival_scouts
 mark 17 4 elevator:0
 mark 7 10 event:a_b1_footprints
+mark 9 12 event:ev3_plank_bridge_planks
+mark 13 16 event:remains
 room 9 4 3 5
 room 2 10 3 4
 room 14 10 5 5

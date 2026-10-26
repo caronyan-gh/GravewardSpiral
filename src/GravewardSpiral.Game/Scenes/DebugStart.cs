@@ -1,4 +1,5 @@
 using GravewardSpiral.Core.Characters;
+using GravewardSpiral.Core.Content;
 using GravewardSpiral.Core.Combat;
 using GravewardSpiral.Core.Maze;
 using GravewardSpiral.Core.MazeGen;
@@ -30,6 +31,43 @@ public static class DebugStart
         var pos = session.Exploration!.Position;
         var ahead = session.Dungeon.Floors[pos.Floor].Neighbor(pos.Cell, pos.Facing) ?? pos.Cell;
         session.Named = [new Core.Monsters.NamedSpawn { Id = def, Floor = pos.Floor, Lair = true, X = ahead.X, Y = ahead.Y, Rumored = true }];
+    }
+
+    /// <summary>
+    /// シナリオの試し遊び(エディタの「試し遊び」): spec は "シナリオのフォルダか id[:階]"(階は 1 から。省くと B1)。
+    /// そのシナリオを読み、おまかせの6人で、その階の着く場所から始める。散らすイベントと、シナリオの物語・主も入れる。セーブしない。
+    /// </summary>
+    public static void Scenario(GameServices services, string spec)
+    {
+        int floor = 0;
+        int colon = spec.LastIndexOf(':');
+        if (colon > 1 && int.TryParse(spec[(colon + 1)..], out int f))
+        {
+            floor = f - 1;
+            spec = spec[..colon];
+        }
+        ScenarioInfo? info = null;
+        if (Directory.Exists(spec) && ContentLibrary.ReadManifest(spec, out _) is { } m) info = new ScenarioInfo(m, spec, spec);
+        info ??= services.FindScenarios().FirstOrDefault(x => x.Id == spec);
+        if (info == null || services.UseScenario(info) is { Count: > 0 })
+        {
+            services.Scenes.Push(new ProblemsScene([$"シナリオ {spec} を読めません"]));
+            return;
+        }
+        var dungeon = DungeonLoader.ScenarioDungeon(services.Content)
+            ?? new MazeGenerator(MazeGenSettings.Load(services.Content)).Generate(GenerationRequest.Default(MazeGenSettings.Load(services.Content), 1)).Dungeon;
+        Party(services, dungeon, DungeonLoader.RequestFor(dungeon, 1));
+        var session = services.Session!;
+        session.Scenario = info.Id;
+        var enc = EncounterSettings.Load(services.Content);
+        var pack = WorldPackDef.Of(services.Content);
+        pack?.ApplyTo(session);
+        session.BuildRosters(services.Data, enc);
+        pack?.ApplyBossPicks(session);
+        session.ApplyScenario(services.Data, services.Content, enc, MazeGenSettings.Load(services.Content));
+        floor = Math.Clamp(floor, 0, dungeon.Floors.Count - 1);
+        var start = dungeon.Floors[floor];
+        session.Exploration!.Position = new PartyPosition(floor, start.Start, start.StartFacing);
     }
 
     /// <summary>仕掛けの見本の階(散らすイベントと、連動する仕掛けを並べたもの)に入る。</summary>
@@ -121,6 +159,8 @@ public static class DebugStart
             c.Xp = Core.Rules.Progression.XpForLevel(c.Level + 1);   // 訓練場のレベルアップ(上げるクラスを選ぶ)を試せるように
             foreach (var it in Core.Items.Treasure.RollMany(services.Data, s, 0.5, 2, rng)) c.Inventory.TryAdd(it, services.Data.Items);
         }
+        // 重ねた品(売る個数や渡す個数を試せるように)
+        session.Roster.PartyMembers.First().Inventory.TryAdd(new Core.Items.ItemInstance { ItemId = "potion_of_healing", Count = 10, Identified = true }, services.Data.Items);
         services.Scenes.Replace(new Town.TownScene());
     }
 

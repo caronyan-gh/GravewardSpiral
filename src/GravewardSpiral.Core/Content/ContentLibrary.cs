@@ -13,6 +13,9 @@ public sealed class ContentLibrary
 {
     public const string ManifestFile = "manifest.json";
 
+    /// <summary>呪文の種類の名前(シナリオでは名前だけ変えられる)。</summary>
+    public const string SpellCollection = "spells";
+
     public static readonly JsonSerializerOptions JsonOptions = new()
     {
         PropertyNamingPolicy = JsonNamingPolicy.SnakeCaseLower,
@@ -64,7 +67,38 @@ public sealed class ContentLibrary
             lib.Packs.Add(m);
             lib.LoadPack(contentRoot, m);
         }
+        lib.ResolveExtends();
         return lib;
+    }
+
+    /// <summary>
+    /// "extends": "元の id" と書いた物を、同じ種類の元の物の中身に、書いた項目を上書きしたものにする(名前だけ変えた品やモンスターなど)。
+    /// 元をたどって全部のパックを読んだあとに直す。元が無い・自分を元にしている・輪になっているものは問題にする。
+    /// </summary>
+    private void ResolveExtends()
+    {
+        foreach (var (collection, items) in _collections)
+        {
+            var done = new Dictionary<string, ContentItem>(StringComparer.Ordinal);
+            ContentItem Resolve(ContentItem item, HashSet<string> path)
+            {
+                if (done.TryGetValue(item.Id, out var r)) return r;
+                if (!item.Data.TryGetProperty("extends", out var ext) || ext.ValueKind != JsonValueKind.String) return done[item.Id] = item;
+                string baseId = ext.GetString()!;
+                if (!path.Add(item.Id) || baseId == item.Id || !items.TryGetValue(baseId, out var baseItem))
+                {
+                    Problems.Add($"{item.Pack.Id}/{collection}.json の '{item.Id}': extends の元 '{baseId}' が無いか、輪になっています");
+                    return done[item.Id] = item;
+                }
+                var merged = System.Text.Json.Nodes.JsonNode.Parse(Resolve(baseItem, path).Data.GetRawText())!.AsObject();
+                foreach (var (key, value) in System.Text.Json.Nodes.JsonNode.Parse(item.Data.GetRawText())!.AsObject())
+                    if (key != "extends") merged[key] = value?.DeepClone();
+                // 写したモンスターは、自分の絵が無ければ元の絵を使う
+                if (collection == "monsters" && merged["art_from"] == null) merged["art_from"] = baseId;
+                return done[item.Id] = item with { Data = JsonDocument.Parse(merged.ToJsonString()).RootElement.Clone() };
+            }
+            foreach (var id in items.Keys.ToList()) items[id] = Resolve(items[id], new HashSet<string>(StringComparer.Ordinal));
+        }
     }
 
     /// <summary>フォルダの manifest.json を読む。無ければ null(error も null)、読めなければ null と理由。</summary>
@@ -121,6 +155,11 @@ public sealed class ContentLibrary
 
     private void LoadPack(string contentRoot, PackManifest pack)
     {
+        if (pack.Format > ContentFormat.Current)
+        {
+            Problems.Add($"パック '{pack.Id}' はデータの形の版 {pack.Format} で、今のゲーム(版 {ContentFormat.Current})より新しいので読めません。ゲームを新しくしてください");
+            return;
+        }
         foreach (var file in Directory.EnumerateFiles(pack.Directory, "*.json").Order(StringComparer.Ordinal))
         {
             string name = Path.GetFileNameWithoutExtension(file);
@@ -185,8 +224,28 @@ public sealed class ContentLibrary
                 Problems.Add($"{Rel(contentRoot, file)}: id '{id}' が2回あります");
                 continue;
             }
+            // シナリオの呪文は、標準の呪文の名前だけ変えられる(新しい呪文や、効果の違う呪文は作れない。キャラが覚えてシナリオの外へ出るため)
+            if (pack.Kind == ScenarioCatalog.Kind && collection == SpellCollection)
+            {
+                if (!items.TryGetValue(id, out var baseSpell))
+                    Problems.Add($"{Rel(contentRoot, file)}: 呪文 '{id}' は標準のパックにありません(シナリオの呪文は、名前を変えることだけできます)");
+                else if (element.EnumerateObject().Any(p => p.Name is not ("id" or "name")))
+                    Problems.Add($"{Rel(contentRoot, file)}: 呪文 '{id}' に名前のほかの項目があります(シナリオの呪文は、名前を変えることだけできます)");
+                else if (System.Text.Json.Nodes.JsonNode.Parse(baseSpell.Data.GetRawText()) is System.Text.Json.Nodes.JsonObject renamed)
+                {
+                    renamed["name"] = System.Text.Json.Nodes.JsonNode.Parse(element.GetProperty("name").GetRawText());
+                    items[id] = baseSpell with { Data = JsonDocument.Parse(renamed.ToJsonString()).RootElement.Clone() };   // 出どころは元のパックのまま
+                }
+                continue;
+            }
             bool disabled = element.TryGetProperty("disabled", out var dis) && dis.ValueKind == JsonValueKind.True;
             if (disabled) items.Remove(id);
+            else if (pack.Format < ContentFormat.Current && System.Text.Json.Nodes.JsonNode.Parse(element.GetRawText()) is System.Text.Json.Nodes.JsonObject old)
+            {
+                // 古い形のパックは、今の形に直してから持つ
+                var upgraded = ContentFormat.Upgrade(collection, old, pack.Format);
+                items[id] = new ContentItem(collection, id, JsonDocument.Parse(upgraded.ToJsonString()).RootElement.Clone(), pack);
+            }
             else items[id] = new ContentItem(collection, id, element.Clone(), pack);
         }
     }
@@ -222,6 +281,15 @@ public sealed class PackManifest
     public string Id { get; set; } = "";
     public LocalizedText? Name { get; set; }
     public string Version { get; set; } = "0";
+
+    /// <summary>データの形の版(ContentFormat.Current)。省くと 1。古ければ読むときに今の形へ直し、新しすぎれば読まない。</summary>
+    public int Format { get; set; } = 1;
+
+    /// <summary>
+    /// シナリオを見分ける GUID(エディタが作るときに付ける)。id は人が決めるので重なり得るが、これは重ならない。
+    /// オリジナルの品の出どころは、この GUID と品の id の組で見分ける。
+    /// </summary>
+    public string? Guid { get; set; }
     public List<string> Depends { get; set; } = [];
 
     /// <summary>依存の無いパックどうしの読む順番(小さい方が先)。</summary>
@@ -245,6 +313,11 @@ public sealed class PackManifest
 
     /// <summary>クランを連れて入れるか(シナリオ)。</summary>
     public bool AllowImport { get; set; } = true;
+
+    /// <summary>
+    /// シナリオの迷宮に、標準のパック(srd など)の散らすイベントと連動する組も混ぜるか(シナリオ)。false なら、このシナリオのイベントだけを散らす。
+    /// </summary>
+    public bool StandardEvents { get; set; } = true;
 
     [JsonIgnore]
     public string Directory { get; set; } = "";

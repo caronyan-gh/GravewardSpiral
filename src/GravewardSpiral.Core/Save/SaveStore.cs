@@ -263,6 +263,7 @@ public sealed class ClanData
     public ClanHouse House { get; set; } = new();
     public int Clears { get; set; }
     public List<string> EventsSeen { get; set; } = [];
+    public Dictionary<string, int> LegendsHeard { get; set; } = [];
 
     public static ClanData From(GameSession s) => new()
     {
@@ -272,6 +273,7 @@ public sealed class ClanData
         House = s.ClanHouse,
         Clears = s.Clears,
         EventsSeen = s.EventsSeen.Order(StringComparer.Ordinal).ToList(),
+        LegendsHeard = new(s.LegendsHeard, StringComparer.Ordinal),
     };
 }
 
@@ -481,6 +483,7 @@ public sealed class SaveData
             LevelShift = LevelShift,
             Clears = clan.Clears,
             EventsSeen = clan.EventsSeen.ToHashSet(StringComparer.Ordinal),
+            LegendsHeard = new(clan.LegendsHeard, StringComparer.Ordinal),
             Location = Location == "maze" ? Save.Location.Maze : Save.Location.Town,
             CreatedAt = CreatedAt,
         };

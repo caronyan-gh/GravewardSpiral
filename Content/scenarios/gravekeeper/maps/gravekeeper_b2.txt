@@ -67,11 +67,14 @@ zones
 ....................
 teleport 16 5 15 1
 mark 15 2 event:a_b2_remains
+mark 13 4 event:ev4c_skeleton_sentry
+mark 6 6 event:ev5_shrine_cleanse_font
 mark 7 10 elevator:0
 mark 11 11 event:sigil_shrine_sun
 mark 16 14 event:vault
 mark 16 15 gate:riddle
 mark 16 16 event:riddle_door
+mark 10 19 event:ev4a_epitaph_riddle
 room 4 3 3 5
 room 2 10 4 2
 room 10 8 4 2

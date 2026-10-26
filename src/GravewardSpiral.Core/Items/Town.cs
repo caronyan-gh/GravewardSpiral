@@ -67,7 +67,7 @@ public static class Shop
 {
     /// <summary>いつも置いている品。</summary>
     public static IEnumerable<ItemDef> Standard(GameData data) => data.Items.Values
-        .Where(i => !i.IsMagic && i.Base == null && i.Kind != ItemKind.Key || i.Id is "potion_of_healing")
+        .Where(i => !i.NoRandom && (!i.IsMagic && i.Base == null && i.Kind != ItemKind.Key || i.Id is "potion_of_healing"))
         .OrderBy(i => i.Kind).ThenBy(i => i.Price).ThenBy(i => i.Id, StringComparer.Ordinal);
 
     /// <summary>買値。売られた大事なものは、売値の Buyback 倍(うっかり売ると高くつく)。</summary>

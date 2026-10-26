@@ -78,7 +78,26 @@ public sealed class GameServices
     public SceneStack Scenes { get; }
 
     /// <summary>遊んでいるゲーム(タイトル画面と試しの迷宮では null)。</summary>
-    public GameSession? Session { get; set; }
+    public GameSession? Session
+    {
+        get => _session;
+        set
+        {
+            _session = value;
+            AttachItems();
+        }
+    }
+
+    private GameSession? _session;
+
+    /// <summary>
+    /// 持っている品を、いまのデータで使える形にする(よそのシナリオのオリジナルの品は写しから、中身の無い品は「失われた品」で)。
+    /// ゲームを入れ替えたときと、シナリオを読み直したときと、名簿を入れ替えたときに呼ぶ。
+    /// </summary>
+    public void AttachItems()
+    {
+        if (_session != null) Core.Save.OriginalItems.Attach(Data, Core.Save.OriginalItems.All(_session));
+    }
 
     /// <summary>前の戦闘のログ(キャンプで読み返す。セーブには書かない)。</summary>
     public List<(string Text, Microsoft.Xna.Framework.Color? Color)> LastCombatLog { get; set; } = [];
@@ -116,9 +135,41 @@ public sealed class GameServices
 
     public GameServices() => Scenes = new SceneStack(this);
 
+    /// <summary>ユーザーのシナリオを置く場所(ふだんはドキュメント\GravewardSpiral\Scenarios。自由な迷宮から作ったシナリオもここに書く)。</summary>
+    public string UserScenarios { get; init; } = AppPaths.Scenarios;
+
     /// <summary>置かれているシナリオ(ゲームに入れて配るものと、ユーザーが置いたもの)。</summary>
     public List<ScenarioInfo> FindScenarios(List<string>? problems = null) =>
-        ScenarioCatalog.Find([AppPaths.BundledScenarios, AppPaths.Scenarios], AppPaths.ScenarioCache, problems);
+        ScenarioCatalog.Find([AppPaths.BundledScenarios, UserScenarios], AppPaths.ScenarioCache, problems);
+
+    /// <summary>新しく作った自由な迷宮の、まだ書き出していないシナリオ(id と、イベントを置く前のマップ)。</summary>
+    public (string Id, List<string> Maps)? PendingExport { get; set; }
+
+    /// <summary>
+    /// 新しい世界を始めて町へ入る前に呼ぶ。自由な迷宮なら、世界をシナリオのパックに書き出し、そのシナリオを遊んでいる形にする
+    /// (世界の文が決まってから書くので、AI が書くときは書き終わったあと)。書けなければ、今までどおりシナリオの無い自由な迷宮のまま。
+    /// </summary>
+    public void FinishNewWorld()
+    {
+        if (PendingExport is not { } pending || Session is not { } session) return;
+        PendingExport = null;
+        if (session.Scenario != null) return;
+        try
+        {
+            // マップは今の迷宮(散らしたイベントの印も入れて、出来上がった世界のまま残す)
+            Core.Save.ScenarioExport.Write(Path.Combine(UserScenarios, pending.Id), pending.Id, session, Core.Save.ScenarioExport.MapTexts(session.Dungeon), Encounters(), Content, Data);
+        }
+        catch (Exception ex) when (ex is IOException or UnauthorizedAccessException)
+        {
+            Console.WriteLine($"scenario export failed: {ex.Message}");
+            return;
+        }
+        _scenarioNames = null;
+        if (FindScenarios().FirstOrDefault(x => x.Id == pending.Id) is not { } info || UseScenario(info).Count > 0) return;
+        session.Scenario = pending.Id;
+        session.ScenarioVersion = Core.Save.ScenarioExport.Version;
+        Console.WriteLine($"scenario exported: {pending.Id}");
+    }
 
     /// <summary>
     /// シナリオを選ぶ(null なら標準のパックだけ)。パックを読み直し、データと文言を入れ替える。
@@ -135,7 +186,19 @@ public sealed class GameServices
         Data = data;
         Strings = MakeStrings(content);
         Console.WriteLine($"packs: {string.Join(", ", content.Packs.Select(p => p.Id))}");
+        AttachItems();
         return [];
+    }
+
+    /// <summary>
+    /// その階の曲。パックに「名前_b階.mp3」(例: audio/bgm/maze_b3.mp3、battle_b3.mp3)があればそれを、無ければ元の曲を使う。
+    /// 曲はパックの audio/bgm に置く(同じ名前の曲を置けば、標準の曲も差し替わる)。
+    /// </summary>
+    public string BgmFor(string path, int? floor)
+    {
+        if (floor is not int f || !path.EndsWith(".mp3", StringComparison.OrdinalIgnoreCase)) return path;
+        string perFloor = $"{path[..^4]}_b{f + 1}.mp3";
+        return Audio.Has(perFloor) ? perFloor : path;
     }
 
     /// <summary>遭遇の設定(今のゲームの世界のレベル帯を当てたもの)。</summary>
@@ -153,11 +216,25 @@ public sealed class GameServices
         name is { Length: > 0 } ? name : Core.Save.ClanNameParts.Load(Content).Pick(clanId, Language) ?? clanId;
 
     /// <summary>
-    /// シナリオに決まった序文(文言の scenario.prologue)があり、世界にまだ序文が無ければ付ける。
-    /// 新しく始めるときと、序文の無いころに始めた世界を続きから読むときに使う。
+    /// シナリオに決まった序文があり、世界にまだ序文が無ければ付ける。新しく始めるときと、序文の無いころに始めた世界を続きから読むときに使う。
+    /// 決まった文は、パックの worlds.json の文(序文と最下層の主)。古い形の、文言の scenario.prologue も読む。
+    /// worlds.json の文は、世界に無い欄だけを埋める(第1部を前の形で始めたセーブにも、主の名前と文が付く)。
     /// </summary>
     public void GiveScenarioPrologue(Core.Save.GameSession session)
     {
+        if (Core.Save.WorldPackDef.Of(Content)?.Text is { } fixedText)
+        {
+            session.World ??= new Core.Ai.WorldText { Model = fixedText.Model };
+            session.World.Prologue ??= fixedText.Prologue;
+            if (fixedText.Boss is { } boss)
+            {
+                session.World.Boss ??= new Core.Ai.WorldBossText();
+                session.World.Boss.Name ??= boss.Name;
+                session.World.Boss.Intro ??= boss.Intro;
+                session.World.Boss.Victory ??= boss.Victory;
+            }
+            return;
+        }
         if (session.World != null || !Content.Texts("en").TryGetValue("scenario.prologue", out var en)) return;
         session.World = new Core.Ai.WorldText
         {
@@ -188,7 +265,9 @@ public sealed class GameServices
     }
 
     /// <summary>モンスターの画像(後から読んだパックを優先。art/monsters/&lt;id&gt;.png)。無ければ null。</summary>
-    public Microsoft.Xna.Framework.Graphics.Texture2D? MonsterArt(Core.Monsters.MonsterDef def) => Art("monsters", def.Id);
+    public Microsoft.Xna.Framework.Graphics.Texture2D? MonsterArt(Core.Monsters.MonsterDef def, int depth = 0) =>
+        Art("monsters", def.Id)
+        ?? (depth < 4 && def.ArtFrom != null && Data.Monsters.GetValueOrDefault(def.ArtFrom) is { } from && from != def ? MonsterArt(from, depth + 1) : null);   // 借りる先をたどる(輪にならないよう4つまで)
 
     /// <summary>呪文のアイコン(効果の種類ごと。art/spells/&lt;icon&gt;.png)。無ければ null。</summary>
     public Microsoft.Xna.Framework.Graphics.Texture2D? SpellIcon(Core.Magic.SpellDef spell) => Art("spells", spell.Icon ?? "buff");
@@ -216,6 +295,7 @@ public sealed class GameServices
         if (Session == null || Session.Slot == 0) return false;   // 枠 0 は確認用の起動(セーブしない)
         try
         {
+            Core.Save.OriginalItems.Snapshot(Data, Core.Save.OriginalItems.All(Session));   // オリジナルの品は中身も書く
             Saves.Save(Session, Content);
             return true;
         }

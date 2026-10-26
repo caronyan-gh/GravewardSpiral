@@ -93,30 +93,41 @@ public sealed class Draw2D
         FontStyle style = FontStyle.Ui)
     {
         float y = position.Y;
+        foreach (var line in WrapLines(text, width, size, style))
+        {
+            Text(line, new Vector2(position.X, y), size, color, style: style);
+            y += size + lineGap;
+        }
+        return y;
+    }
+
+    /// <summary>
+    /// 幅に収まるように折り返した行(日本語は1文字ずつ、英語などは語の切れ目で。改行はそのまま、空の段落は空の行)。
+    /// 句読点や閉じ括弧は行の頭に出さず、前の行の終わりにぶら下げる(禁則)。
+    /// </summary>
+    public List<string> WrapLines(string text, float width, float size, FontStyle style = FontStyle.Ui)
+    {
+        var lines = new List<string>();
         foreach (var paragraph in text.Split('\n'))
         {
             var line = new System.Text.StringBuilder();
-            // 空白で区切る言語(英語など)は語の切れ目で、日本語は1文字ずつ折り返す
             bool byWord = paragraph.Contains(' ') && !paragraph.Any(c => c >= 0x3000);
             var pieces = byWord ? paragraph.Split(' ').Select((w, i) => i == 0 ? w : " " + w) : paragraph.Select(c => c.ToString());
             foreach (var piece in pieces)
             {
-                // 句読点や閉じ括弧は行の頭に出さず、前の行の終わりにぶら下げる(禁則)
                 bool hang = !byWord && piece.Length == 1 && NoLineStart.Contains(piece[0]);
                 if (line.Length > 0 && !hang && Fonts.Measure(line.ToString() + piece, size, style).X > width)
                 {
-                    Text(line.ToString(), new Vector2(position.X, y), size, color, style: style);
-                    y += size + lineGap;
+                    lines.Add(line.ToString());
                     line.Clear();
                     line.Append(piece.TrimStart());
                     continue;
                 }
                 line.Append(piece);
             }
-            Text(line.ToString(), new Vector2(position.X, y), size, color, style: style);
-            y += size + lineGap;
+            lines.Add(line.ToString());
         }
-        return y;
+        return lines;
     }
 
     /// <summary>行の頭に置かない文字(句読点、閉じ括弧、小さい仮名、長音など)。</summary>

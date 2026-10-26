@@ -17,7 +17,7 @@ public class LootTests
         Assert.True(Content.IsValid, string.Join("\n", Content.Problems));
         Assert.NotEmpty(Data.Affixes);
         Assert.NotEmpty(Data.Drops);
-        Assert.True(Data.Items["bloodthirst"].DropOnly);
+        Assert.True(Data.Items["bloodthirst"].NoRandom);
     }
 
     [Fact]
@@ -116,7 +116,7 @@ public class LootTests
         var s = TreasureSettings.Load(Content);
         var groups = Data.Bosses["final"].Groups.Select(g => (Data.Monsters[g.Monster], g.Count)).ToList();
         var drops = Loot.RollDrops(Data, s, groups, 5, new Pcg32(7, 7), boss: "final");
-        Assert.Contains(drops, d => Data.Items[d.ItemId].DropOnly);
+        Assert.Contains(drops, d => Data.Items[d.ItemId].NoRandom);
     }
 
     [Fact]
@@ -141,14 +141,48 @@ public class LootTests
     }
 
     [Fact]
-    public void DropOnlyItemsNeverComeFromChestRolls()
+    public void NoRandomItemsNeverComeFromChestRolls()
     {
         var s = TreasureSettings.Load(Content);
         var rng = new Pcg32(9, 9);
-        foreach (var rarity in new[] { "rare", "very_rare", "legendary" })
+        foreach (var rarity in new[] { "mundane", "common", "rare", "very_rare", "legendary" })
         {
-            for (int i = 0; i < 300; i++) Assert.False(Data.Items[Treasure.Roll(Data, s, rarity, rng, 15).ItemId].DropOnly);
+            for (int i = 0; i < 300; i++) Assert.False(Data.Items[Treasure.Roll(Data, s, rarity, rng, 15).ItemId].NoRandom);
         }
+    }
+
+    [Fact]
+    public void StandardItemsAndMonstersHaveNoUnknownFields()
+    {
+        // エディタの「JSON を確かめる」は知らない項目を問題にする。標準の品とモンスターを写したものが、そこで引っかからないこと
+        var problems = new List<string>();
+        foreach (var i in Content.All("items"))
+        {
+            try { System.Text.Json.JsonSerializer.Deserialize<ItemDef>(i.Data.GetRawText(), Core.Events.EventDraftCheck.Strict); }
+            catch (System.Text.Json.JsonException ex) { problems.Add($"{i.Id}: {ex.Message}"); }
+        }
+        foreach (var m in Content.All("monsters"))
+        {
+            try { System.Text.Json.JsonSerializer.Deserialize<Core.Monsters.MonsterDef>(m.Data.GetRawText(), Core.Events.EventDraftCheck.Strict); }
+            catch (System.Text.Json.JsonException ex) { problems.Add($"{m.Id}: {ex.Message}"); }
+        }
+        Assert.True(problems.Count == 0, string.Join("\n", problems.Take(10)));
+    }
+
+    [Fact]
+    public void ANoRandomPlainWeaponIsNotRolledNorSold()
+    {
+        // イベントの品にした、魔法でない剣: ふつうの品にも、+N の元にも、商店にも出ない
+        var data = GameData.Load(Content);
+        var sword = System.Text.Json.JsonSerializer.Deserialize<ItemDef>("""{ "id": "event_sword", "kind": "weapon", "rarity": "mundane", "drop_only": true, "price": 15 }""", ContentLibrary.JsonOptions)!;
+        Assert.True(sword.NoRandom);   // 古い名前でも読める
+        data.Items[sword.Id] = sword;
+        var s = TreasureSettings.Load(Content);
+        var rng = new Pcg32(3, 3);
+        foreach (var rarity in new[] { "mundane", "uncommon", "rare" })
+            for (int i = 0; i < 500; i++) Assert.NotEqual("event_sword", Treasure.Roll(data, s, rarity, rng, 5).ItemId);
+        Assert.DoesNotContain(Shop.Standard(data), i => i.Id == "event_sword");
+        Assert.DoesNotContain("drop_only", System.Text.Json.JsonSerializer.Serialize(sword, ContentLibrary.JsonOptions));
     }
 
     [Fact]

@@ -45,8 +45,13 @@ public sealed class MazeGenerator
         // 迷宮で1つだけの部屋は、深さの範囲の階から1つを先に選ぶ
         var onceRng = RngStreams.Create(req.Seed, "mazegen/once");
         var onceFloor = new Dictionary<PrefabRule, int>();
+        // 入れるかは、組ごとに1回だけ抽選する(組の無い部屋は1つずつ)
+        var groupIn = new Dictionary<string, bool>(StringComparer.Ordinal);
         foreach (var rule in _s.Prefabs.Where(r => r.Once))
         {
+            string key = rule.Group ?? rule.File;
+            if (!groupIn.TryGetValue(key, out bool included)) groupIn[key] = included = rule.Chance >= 1 || ((Rng.IRandom)onceRng).NextDouble() < rule.Chance;
+            if (!included) continue;
             var eligible = Enumerable.Range(0, floors).Where(i =>
             {
                 double d = floors == 1 ? 1.0 : i / (double)(floors - 1);

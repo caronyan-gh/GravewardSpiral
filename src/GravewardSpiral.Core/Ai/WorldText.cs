@@ -18,7 +18,31 @@ public sealed class WorldText
     /// <summary>階ごとの文(0 が B1)。</summary>
     public List<WorldFloorText> Floors { get; set; } = [];
 
+    /// <summary>自由な迷宮の主(名前・出会ったときの文・倒したときの文)。無ければ「迷宮の主」とパックの決まった文。</summary>
+    public WorldBossText? Boss { get; set; }
+
+    /// <summary>
+    /// 途中の階のボス(id → 名前と文)。シナリオエディタが AI に書かせて、パックのボス(bosses.json と文言)に入れる。
+    /// ゲームの世界の文には持たない(セーブにも worlds.json にも書かない)。
+    /// </summary>
+    [System.Text.Json.Serialization.JsonIgnore]
+    public Dictionary<string, WorldBossText> OtherBosses { get; set; } = new(StringComparer.Ordinal);
+
+    /// <summary>酒場の噂(シナリオエディタが AI に書かせて、パックの rumors.json に入れる。世界の文には持たない)。</summary>
+    [System.Text.Json.Serialization.JsonIgnore]
+    public List<LocalizedText> Rumors { get; set; } = [];
+
     public WorldFloorText? Floor(int index) => index >= 0 && index < Floors.Count ? Floors[index] : null;
+}
+
+public sealed class WorldBossText
+{
+    public LocalizedText? Name { get; set; }
+    public LocalizedText? Intro { get; set; }
+    public LocalizedText? Victory { get; set; }
+
+    /// <summary>従う者の組の名前(主の組の2組目から順に。足りない組は元の敵の名前)。</summary>
+    public List<LocalizedText?> Escorts { get; set; } = [];
 }
 
 public sealed class WorldFloorText

@@ -22,6 +22,10 @@ public sealed class BossDef
     /// <summary>出会ったときと倒したときの文言のキー。</summary>
     public string? Intro { get; set; }
     public string? Victory { get; set; }
+
+    /// <summary>世界の文が書いた出会ったときと倒したときの文(あればキーの文より先に使う。セーブの世界の文から入れる)。</summary>
+    [System.Text.Json.Serialization.JsonIgnore] public LocalizedText? IntroText { get; set; }
+    [System.Text.Json.Serialization.JsonIgnore] public LocalizedText? VictoryText { get; set; }
     public string? Note { get; set; }
 
     /// <summary>ボスの強化(HP とダメージの倍率、AC と命中の上乗せ)。</summary>

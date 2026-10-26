@@ -103,6 +103,9 @@ public sealed class GameData
     /// <summary>名のある敵(1つの世界に 0〜2 体。決まったユニーク品を必ず落とす)。</summary>
     public Dictionary<string, NamedMonsterDef> NamedMonsters { get; } = new(StringComparer.Ordinal);
     public Dictionary<string, Events.EventDef> Events { get; } = new(StringComparer.Ordinal);
+
+    /// <summary>シナリオの噂(酒場で聞く。条件付き)。</summary>
+    public Dictionary<string, Events.RumorDef> Rumors { get; } = new(StringComparer.Ordinal);
     public Dictionary<string, Combat.FloorTheme> FloorThemes { get; } = new(StringComparer.Ordinal);
     public Dictionary<string, AffixDef> Affixes { get; } = new(StringComparer.Ordinal);
     public Dictionary<string, DropTable> Drops { get; } = new(StringComparer.Ordinal);
@@ -129,6 +132,9 @@ public sealed class GameData
                 try
                 {
                     var v = item.As<T>();
+                    // シナリオのパックで定義した品は、出どころを覚える(セーブに中身を写すため)
+                    if (v is Items.ItemDef def && item.Pack.Kind == Content.ScenarioCatalog.Kind)
+                        (def.OriginScenario, def.OriginGuid) = (item.Pack.Id, item.Pack.Guid ?? "id:" + item.Pack.Id);
                     into[id(v)] = v;
                     order?.Add(id(v));
                 }
@@ -149,6 +155,7 @@ public sealed class GameData
         Read("bosses", d.Bosses, null, b => b.Id);
         Read(NamedMonsterDef.Collection, d.NamedMonsters, null, n => n.Id);
         Read(Core.Events.EventDef.Collection, d.Events, null, e => e.Id);
+        Read(Core.Events.RumorDef.Collection, d.Rumors, null, r => r.Id);
         Read(Combat.FloorTheme.Collection, d.FloorThemes, null, t => t.Id);
         Read(AffixDef.Collection, d.Affixes, null, a => a.Id);
         Read(DropTable.Collection, d.Drops, null, t => t.Id);
@@ -221,6 +228,7 @@ public sealed class GameData
         foreach (var w in Wishes.Values)
             CheckEffects(content, $"wishes '{w.Id}'", w.Effects);
         foreach (var e in Events.Values) content.Problems.AddRange(Core.Events.EventCheck.Check(this, e, content));
+        foreach (var r in Rumors.Values) content.Problems.AddRange(Core.Events.RumorDef.Check(r));
         foreach (var e in Events.Values.Where(e => e.Scatter != null && !Core.Events.EventScatter.RarityWeights.ContainsKey(e.Scatter.Rarity)))
             content.Problems.Add($"events '{e.Id}': rarity '{e.Scatter!.Rarity}' は common / uncommon / rare / legendary のどれかです");
         // 連動する組: 部品が2つ以上(1つなら組にする意味が無い)、step が重ならない

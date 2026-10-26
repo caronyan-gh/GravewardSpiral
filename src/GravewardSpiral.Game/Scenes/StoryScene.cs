@@ -14,24 +14,13 @@ public sealed class StoryScene : Scene
     /// <summary>読み返せる序文があるか。</summary>
     public static bool Available(GameServices services) => services.Session?.World?.Prologue != null;
 
-    /// <summary>
-    /// 物語の文を、枠に収まるいちばん大きな字(28 から 20 まで)で折り返して描く。序文と、この迷宮のいわれで使う。
-    /// </summary>
-    public static void DrawTale(Draw2D d, string text, Vector2 at, float width, float height)
-    {
-        float size = 28f;
-        for (; size > 20f; size -= 1f)
-        {
-            float gap = size * 0.5f;
-            int rows = text.Split('\n').Sum(l => Math.Max(1, (int)Math.Ceiling(d.Fonts.Measure(l, size, FontStyle.Story).X / width)));
-            if (rows * (size + gap) <= height) break;
-        }
-        d.TextWrapped(text, at, width, size, Color.White, size * 0.5f, FontStyle.Story);
-    }
+    private TaleView? _tale;
 
     public override void Update(GameTime time, InputState input)
     {
-        if (input.Pressed(GameAction.Confirm) || input.Pressed(GameAction.Cancel) || input.LeftClicked)
+        // 長いいわれはスクロールする(決定でページを送り、最後まで来たら閉じる。取消はすぐ閉じる)
+        bool done = input.Pressed(GameAction.Cancel) || (_tale?.Update(input, Services.Audio) ?? (input.Pressed(GameAction.Confirm) || input.LeftClicked));
+        if (done)
         {
             Services.Audio.PlaySe(Sounds.Cancel);
             Stack.Pop();
@@ -46,7 +35,10 @@ public sealed class StoryScene : Scene
         Theme.Panel(d, area);
         d.Text(s["story.title"], new Vector2(area.X + 40, area.Y + 24), 26, Theme.Title, style: FontStyle.Story);
         if (Services.Session?.World?.Prologue is { } p)
-            DrawTale(d, Services.Name(p), new Vector2(area.X + 40, area.Y + 76), area.Width - 100, area.Height - 100);
+        {
+            _tale ??= new TaleView(Services.Name(p));
+            _tale.Draw(d, new Vector2(area.X + 40, area.Y + 76), area.Width - 100, area.Height - 110);
+        }
         d.Text(s["story.close"], new Vector2(640, 668), 16, Theme.Dim, TextAlign.Center);
     }
 }

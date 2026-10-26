@@ -1,0 +1,27 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <ItemGroup>
+    <ProjectReference Include="..\..\src\GravewardSpiral.Core\GravewardSpiral.Core.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <!-- AI に書かせるとき、ゲームと同じ置き場所から API キーを読む -->
+    <Compile Include="..\..\src\GravewardSpiral.Game\Ai\ApiKeyStore.cs" Link="ApiKeyStore.cs" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <!-- WPF の暗黙の using には System.IO が入らない -->
+    <Using Include="System.IO" />
+  </ItemGroup>
+
+  <PropertyGroup>
+    <OutputType>WinExe</OutputType>
+    <TargetFramework>net10.0-windows</TargetFramework>
+    <UseWPF>true</UseWPF>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <Nullable>enable</Nullable>
+    <AssemblyName>GravewardSpiralEditor</AssemblyName>
+    <RootNamespace>GravewardSpiral.Editor</RootNamespace>
+  </PropertyGroup>
+
+</Project>

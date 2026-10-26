@@ -33,6 +33,10 @@ InfoBeforeFile={#RepoDir}\Content\CREDITS.txt
 Name: "japanese"; MessagesFile: "compiler:Languages\Japanese.isl"
 Name: "english"; MessagesFile: "compiler:Default.isl"
 
+[CustomMessages]
+japanese.EditorName=GRAVEWARD SPIRAL シナリオエディタ
+english.EditorName=GRAVEWARD SPIRAL Scenario Editor
+
 [Tasks]
 Name: "desktopicon"; Description: "{cm:CreateDesktopIcon}"; GroupDescription: "{cm:AdditionalIcons}"; Flags: unchecked
 
@@ -45,6 +49,7 @@ Source: "{#SourceDir}\*"; DestDir: "{app}"; Excludes: "*.pdb"; Flags: ignorevers
 
 [Icons]
 Name: "{group}\GRAVEWARD SPIRAL"; Filename: "{app}\GravewardSpiral.exe"
+Name: "{group}\{cm:EditorName}"; Filename: "{app}\GravewardSpiralEditor.exe"
 Name: "{group}\{cm:UninstallProgram,GRAVEWARD SPIRAL}"; Filename: "{uninstallexe}"
 Name: "{autodesktop}\GRAVEWARD SPIRAL"; Filename: "{app}\GravewardSpiral.exe"; Tasks: desktopicon
 

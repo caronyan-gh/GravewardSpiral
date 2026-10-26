@@ -47,6 +47,35 @@ public sealed class GameSession
     /// <summary>このクランが見たイベント(前の世界の分はクランファイルから。新しい世界では出にくくする)。</summary>
     public HashSet<string> EventsSeen { get; set; } = new(StringComparer.Ordinal);
 
+    /// <summary>
+    /// このクランが酒場で聞いた伝説の噂(イベントの id → 聞いた世界の数)。クランファイルに入り、次に作る世界で、
+    /// 聞いた回数だけ出やすくなる(EventPlacer.HeardMultiplier)。同じ世界で何度聞いても1回に数える。
+    /// </summary>
+    public Dictionary<string, int> LegendsHeard { get; set; } = new(StringComparer.Ordinal);
+
+    /// <summary>伝説の噂を聞いたことにする(この世界でまだ数えていなければ、回数を1つ足す)。足したら true。</summary>
+    public bool HearLegend(string eventId)
+    {
+        if (!Flags.Add("legend_heard:" + eventId)) return false;
+        LegendsHeard[eventId] = LegendsHeard.GetValueOrDefault(eventId) + 1;
+        return true;
+    }
+
+    /// <summary>伝説の噂が酒場で聞ける割合(世界ごと)。</summary>
+    public const double LegendRumorChance = 0.5;
+
+    /// <summary>
+    /// この世界の酒場で聞ける伝説の噂(噂の文を持つイベントから、世界のシードで決める。無ければ null)。
+    /// 噂はほかの世界の話なので、この世界に置いたかどうかとは関係ない。
+    /// </summary>
+    public Events.EventDef? LegendRumor(Characters.GameData data)
+    {
+        Rng.IRandom rng = RngStreams.Create(Request.Seed, "legend-rumor");
+        if (rng.NextDouble() >= LegendRumorChance) return null;
+        var pool = data.Events.Values.Where(e => e.Rumor != null).OrderBy(e => e.Id, StringComparer.Ordinal).ToList();
+        return pool.Count == 0 ? null : pool[rng.Next(0, pool.Count)];
+    }
+
     /// <summary>このクランがクリアした世界の数(クランファイルから引き継ぎ、エンディングで 1 増える)。</summary>
     public int Clears { get; set; }
 
@@ -55,6 +84,23 @@ public sealed class GameSession
         FirstLevel is double f && LastLevel is double l ? s.WithLevels(f, l) : s;
 
     /// <summary>階ごとの顔ぶれを抽選する(6人のパーティの予算で)。</summary>
+    /// <summary>
+    /// シナリオで決めた階ごとの顔ぶれにする(空の階はそのまま。BuildRosters のあとに呼ぶ)。
+    /// 決めた敵は必ず入れ、種類の項目(type:種類:数)は、この世界のシードでその種類から選ぶ(Combat.RosterSpec)。
+    /// </summary>
+    public void ApplyRosters(Characters.GameData data, Combat.EncounterSettings s, IReadOnlyList<List<string>> fixedRosters)
+    {
+        s = WorldSettings(s);
+        var rng = RngStreams.Create(Request.Seed, "rosters-fixed");
+        int floors = Dungeon.Floors.Count;
+        for (int i = 0; i < fixedRosters.Count && i < FloorRosters.Count; i++)
+        {
+            if (fixedRosters[i].Count == 0) continue;
+            double depth = floors <= 1 ? 0 : (double)i / (floors - 1);
+            FloorRosters[i] = Combat.RosterSpec.Resolve(data, s, depth, Characters.Roster.MaxParty, fixedRosters[i], rng);
+        }
+    }
+
     public void BuildRosters(Characters.GameData data, Combat.EncounterSettings s)
     {
         s = WorldSettings(s);
@@ -85,11 +131,26 @@ public sealed class GameSession
             BossPicks[boss.Id] = Monsters.BossDef.PickGroups(data, s.LastLevel, deepest, rng, ThemeAt(data, 1.0));
     }
 
+    /// <summary>最下層の主の id(bosses.json)。世界の文の主の名前・出会い・倒したときの文は、この主に当てる。</summary>
+    public const string FinalBossId = "final";
+
     /// <summary>ボス(auto のボスは、この世界で選んだ組に差し替えた写し)。無ければ null。</summary>
     public Monsters.BossDef? Boss(Characters.GameData data, string id)
     {
         if (!data.Bosses.TryGetValue(id, out var boss)) return null;
-        return boss.Auto && BossPicks.TryGetValue(id, out var groups) ? boss.WithGroups(groups) : boss;
+        var groups = boss.Auto && BossPicks.TryGetValue(id, out var picked) ? picked : boss.Groups;
+        // 最下層の主に世界の文が無ければ、パックのまま(auto でなければ、決まった名前と文言のキー)
+        if (!boss.Auto && (id != FinalBossId || World?.Boss == null)) return boss;
+        if (boss.Auto && !BossPicks.ContainsKey(id)) return boss;
+        // 主(最初の組)は、世界の文が付けた名前か、組の名前か、「迷宮の主」で出す
+        // 従う者は、組の名前(シナリオで付けたもの)か、世界の文の名前
+        var escorts = World?.Boss?.Escorts ?? [];
+        var named = groups.Select((g, i) => i == 0 ? new Monsters.BossDef.BossGroup { Monster = g.Monster, Count = g.Count, Name = World?.Boss?.Name ?? g.Name ?? (boss.Auto ? boss.Name : null) }
+            : g.Name == null && i - 1 < escorts.Count && escorts[i - 1] is { } escort ? new Monsters.BossDef.BossGroup { Monster = g.Monster, Count = g.Count, Name = escort } : g).ToList();
+        var copy = boss.WithGroups(named);
+        copy.IntroText = World?.Boss?.Intro;
+        copy.VictoryText = World?.Boss?.Victory;
+        return copy;
     }
 
     /// <summary>この世界にいる名のある敵(0〜2 体)。</summary>
@@ -129,17 +190,21 @@ public sealed class GameSession
             var spawn = new Monsters.NamedSpawn { Id = def.Id, Floor = floor, Lair = lair, Rumored = rng.NextDouble() < 0.5 };
             if (lair)
             {
-                // ねぐら: 部屋の中か行き止まりの、何も無いマス(階段や印のある所は避ける)
-                var f = Dungeon.Floors[floor];
-                var cells = f.AllCells().Where(p => !f[p].IsSolid && f[p].Feature == CellFeature.None && f[p].Mark == null
-                    && (f.RoomAt(p) != null || DirectionExtensions.All.Count(d => f[p][d] != EdgeType.Wall) == 1)).ToList();
-                if (cells.Count == 0) cells = f.AllCells().Where(p => !f[p].IsSolid && f[p].Feature == CellFeature.None && f[p].Mark == null).ToList();
+                var cells = LairCells(Dungeon.Floors[floor]);
                 if (cells.Count == 0) continue;
                 var at = cells[rng.Next(0, cells.Count)];
                 (spawn.X, spawn.Y) = (at.X, at.Y);
             }
             Named.Add(spawn);
         }
+    }
+
+    /// <summary>名のある敵のねぐらにできるマス: 部屋の中か行き止まりの、何も無いマス(階段や印のある所は避ける。無ければ何も無いマス)。</summary>
+    public static List<GridPos> LairCells(MazeFloor f)
+    {
+        var cells = f.AllCells().Where(p => !f[p].IsSolid && f[p].Feature == CellFeature.None && f[p].Mark == null
+            && (f.RoomAt(p) != null || DirectionExtensions.All.Count(d => f[p][d] != EdgeType.Wall) == 1)).ToList();
+        return cells.Count > 0 ? cells : f.AllCells().Where(p => !f[p].IsSolid && f[p].Feature == CellFeature.None && f[p].Mark == null).ToList();
     }
 
     /// <summary>そのマスをねぐらにしている、まだ倒していない名のある敵。</summary>
@@ -149,15 +214,42 @@ public sealed class GameSession
     /// <summary>その階をさまよっている、まだ倒していない名のある敵。</summary>
     public Monsters.NamedSpawn? NamedWandering(int floor) => Named.FirstOrDefault(n => !n.Lair && !n.Defeated && n.Floor == floor);
 
+    /// <summary>
+    /// 新しい世界に、シナリオで決めた中身を当てる(BuildRosters のあとに呼ぶ)。シナリオは出来上がった世界なので、書いてあるものはそのまま使う:
+    /// 階の顔ぶれ(書いた階)、名のある敵(書いてあれば)、散らすイベント(置いてあれば、散らさずに印から連動する組のフラグを立てる)。
+    /// 書いていないもの(古いシナリオ・自由な迷宮)は、今までどおり、この世界のシードで選ぶ。
+    /// </summary>
+    public void ApplyScenario(Characters.GameData data, Content.ContentLibrary content, Combat.EncounterSettings enc, MazeGenSettings gen)
+    {
+        var def = Maze.DungeonLoader.ScenarioDef(content);
+        ApplyRosters(data, enc, def?.Rosters ?? []);
+        if (def?.Named is { } named)
+            Named = named.Select(n => new Monsters.NamedSpawn { Id = n.Id, Floor = n.Floor, Lair = n.Lair, X = n.X, Y = n.Y, Rumored = n.Rumored })
+                .Where(n => data.NamedMonsters.ContainsKey(n.Id) && n.Floor < Dungeon.Floors.Count).ToList();
+        if (def?.EventsPlaced == true) MarkPlacedChains(data);
+        else PlaceEvents(data, gen, enc, Events.EventPlacer.ScenarioOnly(content));
+    }
+
+    /// <summary>迷宮に置いてある連動する組のイベントの印から、組のフラグ(chain:名前)を立てる(町の人の依頼などが見る)。</summary>
+    public void MarkPlacedChains(Characters.GameData data)
+    {
+        foreach (var f in Dungeon.Floors)
+            foreach (var p in f.AllCells())
+                if (f[p].Mark is { } m && m.StartsWith(Events.EventPlacer.MarkPrefix)
+                    && data.Events.GetValueOrDefault(m[Events.EventPlacer.MarkPrefix.Length..])?.Scatter?.Chain is { } chain)
+                    Flags.Add(Events.EventPlacer.ChainFlag(chain));
+    }
+
     /// <summary>迷宮にイベント(壁の文字、遺品、墓石など)を散らす。新しいゲームで1回だけ。</summary>
-    public int PlaceEvents(Characters.GameData data, MazeGenSettings s, Combat.EncounterSettings enc)
+    /// <param name="allow">散らしてよいイベント(シナリオが標準のイベントを混ぜないとき。EventPlacer.ScenarioOnly)。</param>
+    public int PlaceEvents(Characters.GameData data, MazeGenSettings s, Combat.EncounterSettings enc, Func<Events.EventDef, bool>? allow = null)
     {
         // 連動する組を先に置き、置いた組のフラグを立てる(町の人の依頼などが見る)
         var level = WorldSettings(enc).TargetLevel;
         var seen = EventsSeen.ToHashSet(StringComparer.Ordinal);   // 前の世界で見たもの(この世界で見る分は含まない)
-        var chains = Events.EventPlacer.ScatterChains(data, Dungeon, s.ChainsPerDungeon, Request.Seed, level, s.QuestChainsMin, seen);
+        var chains = Events.EventPlacer.ScatterChains(data, Dungeon, s.ChainsPerDungeon, Request.Seed, level, s.QuestChainsMin, seen, LegendsHeard, allow);
         foreach (var c in chains) Flags.Add(Events.EventPlacer.ChainFlag(c));
-        return Events.EventPlacer.Scatter(data, Dungeon, s.EventsPerFloor, Request.Seed, level, seen);
+        return Events.EventPlacer.Scatter(data, Dungeon, s.EventsPerFloor, Request.Seed, level, seen, LegendsHeard, allow);
     }
 
     public IReadOnlyCollection<string>? RosterOf(int floor) => floor < FloorRosters.Count ? FloorRosters[floor] : null;

@@ -8,11 +8,7 @@
     "groups": [
       {
         "monster": "wraith",
-        "count": 1,
-        "name": {
-          "en": "Ord, the First Warden",
-          "ja": "最初の墓守オルド"
-        }
+        "count": 1
       },
       {
         "monster": "wight",
@@ -24,9 +20,7 @@
       }
     ],
     "reward_flag": "has_spiral_heart",
-    "intro": "boss.final.intro",
-    "victory": "boss.final.victory",
-    "note": "第1部 A のラスボス。最初の墓守(レイス)と、従う墓守たち(ワイト)。シミュレータで L5 の6人が 8割強、L6 で 9割5分勝つ強さ(L4 ではほぼ勝てない)",
+    "note": "第1部 A のラスボス。最初の墓守(レイス)と、従う墓守たち(ワイト)。シミュレータで L5 の6人が 8割強、L6 で 9割5分勝つ強さ(L4 ではほぼ勝てない)。名前と出会い・倒したときの文は worlds.json",
     "hp_mult": 2.5,
     "damage_mult": 1.2,
     "ac_bonus": 1,

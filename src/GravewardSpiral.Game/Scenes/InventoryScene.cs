@@ -20,7 +20,7 @@ namespace GravewardSpiral.Game.Scenes;
 /// </summary>
 public sealed class InventoryScene(Character owner) : MenuScene
 {
-    private enum Mode { List, Actions, GiveTo, GiveCount, UseOn, SlotPick }
+    private enum Mode { List, Actions, GiveTo, UseOn, SlotPick }
 
     /// <summary>部位を選んだときの、右の欄の候補(外す・付けられる品)。</summary>
     private readonly MenuList _slotMenu = new(new RectangleF(InfoArea.X + 20, InfoArea.Y + 64, InfoArea.Width - 40, 190), 36f, 21f);
@@ -33,7 +33,6 @@ public sealed class InventoryScene(Character owner) : MenuScene
 
     private static RectangleF TabRect(Tab t) => new(ListArea.X - 12 + (int)t * 190, 90, 180, 32);
     private object? _picked;   // 選んだもの(EquipSlot か、袋の中の ItemInstance)
-    private Character? _giveTo;   // 重ねた品を渡す相手(個数を選ぶあいだ)
 
     private Inventory Inv => owner.Inventory;
     private GameData Data => Services.Data;
@@ -87,11 +86,6 @@ public sealed class InventoryScene(Character owner) : MenuScene
                     // 大事なもの(鍵・紋章など)は捨てられない
                     yield return new MenuItem(s["inv.drop"], def.Kind == ItemKind.Key ? s["inv.key_item"] : null, def.Kind != ItemKind.Key, "drop");
                 }
-                yield return new MenuItem(s["common.back"], Tag: "back");
-                break;
-            case Mode.GiveCount when _picked is ItemInstance stack:
-                for (int n = 1; n <= Math.Min(stack.Count, 10); n++) yield return new MenuItem(s.Format("inv.give_n", n), Tag: n);
-                if (stack.Count > 10) yield return new MenuItem(s.Format("inv.give_all", stack.Count), Tag: stack.Count);
                 yield return new MenuItem(s["common.back"], Tag: "back");
                 break;
             case Mode.GiveTo:
@@ -170,19 +164,13 @@ public sealed class InventoryScene(Character owner) : MenuScene
             case (Mode.GiveTo, Character to):
             {
                 var it = (ItemInstance)_picked!;
+                // 重ねた品は、渡す個数を小窓で選ぶ
                 if (it.Count > 1)
-                {
-                    _giveTo = to;
-                    Go(Mode.GiveCount);
-                    return;
-                }
-                Give(to, it, 1);
+                    Stack.Push(new CountScene(Services.Strings.Format("inv.give_count", ItemText.Name(Services, it, count: false), to.Name), it.Count,
+                        n => Give(to, it, n)));
+                else Give(to, it, 1);
                 return;
             }
-            case (Mode.GiveCount, "back"): Go(Mode.GiveTo); return;
-            case (Mode.GiveCount, int n):
-                Give(_giveTo!, (ItemInstance)_picked!, n);
-                return;
             case (Mode.UseOn, Character target):
                 Use(target);
                 return;
@@ -195,10 +183,14 @@ public sealed class InventoryScene(Character owner) : MenuScene
         var s = Services.Strings;
         var part = it.SplitOne();
         part.Count = n;
-        if (to.Inventory.TryAdd(part, Data.Items))
+        // 相手の袋に入りきらなければ、入るぶんだけ渡す
+        int fit = Math.Min(n, to.Inventory.Room(part, Data.Items));
+        part.Count = fit;
+        if (fit > 0 && to.Inventory.TryAdd(part, Data.Items))
         {
-            Message = s.Format("inv.given", ItemText.Name(Services, part), to.Name);
-            it.Count -= n;
+            Message = fit < n ? s.Format("inv.given_some", ItemText.Name(Services, part), to.Name, fit)
+                : s.Format("inv.given", ItemText.Name(Services, part), to.Name);
+            it.Count -= fit;
             if (it.Count <= 0) Inv.Items.Remove(it);
         }
         else Message = s.Format("inv.bag_full", to.Name);

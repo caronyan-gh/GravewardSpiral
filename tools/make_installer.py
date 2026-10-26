@@ -2,6 +2,7 @@
 
 使い方: python tools/make_installer.py [--version 0.1.0] [--skip-publish]
   1. dotnet publish で、.NET を入れていない PC でも動く形(win-x64、self-contained)を out/publish に作る。
+     ゲームとシナリオエディタを同じフォルダに入れる(エディタは横の Content とゲームを使う。.NET の部品は同じ版なので共用する)。
   2. Inno Setup 6 の ISCC で tools/installer/GravewardSpiral.iss を通し、out/installer/GravewardSpiral-Setup-<版>.exe を作る。
   Inno Setup 6 が要る(winget install JRSoftware.InnoSetup)。ISCC.exe はいつもの場所から探す。
 """
@@ -17,6 +18,7 @@ PUBLISH = ROOT / "out" / "publish"
 OUT = ROOT / "out" / "installer"
 ISS = ROOT / "tools" / "installer" / "GravewardSpiral.iss"
 PROJECT = ROOT / "src" / "GravewardSpiral.Game"
+EDITOR = ROOT / "tools" / "GravewardSpiral.Editor"
 
 
 def find_iscc():
@@ -41,8 +43,9 @@ def main():
     if not args.skip_publish:
         if PUBLISH.exists():
             shutil.rmtree(PUBLISH)
-        subprocess.run(["dotnet", "publish", str(PROJECT), "-c", "Release", "-r", "win-x64", "--self-contained", "true",
-                        f"-p:Version={args.version}", "-o", str(PUBLISH)], check=True)
+        for project in (PROJECT, EDITOR):
+            subprocess.run(["dotnet", "publish", str(project), "-c", "Release", "-r", "win-x64", "--self-contained", "true",
+                            f"-p:Version={args.version}", "-o", str(PUBLISH)], check=True)
 
     OUT.mkdir(parents=True, exist_ok=True)
     subprocess.run([iscc, f"/DAppVersion={args.version}", f"/DSourceDir={PUBLISH}", f"/DOutputDir={OUT}", f"/DRepoDir={ROOT}", str(ISS)], check=True)

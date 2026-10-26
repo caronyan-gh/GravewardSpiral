@@ -11,7 +11,10 @@ namespace GravewardSpiral.Core.Ai;
 /// </summary>
 public sealed class ClaudeClient : IAiClient
 {
-    public const string DefaultModel = "claude-opus-5-5";
+    public const string DefaultModel = "claude-sonnet-5-5";   // 世界の文は Sonnet がいちばん良かった(Opus・Haiku と同じ世界で比べた)
+
+    /// <summary>選べるモデル(ゲームの AI 設定とシナリオエディタで同じもの)。</summary>
+    public static readonly string[] Models = ["claude-opus-5-5", "claude-sonnet-5-5", "claude-haiku-5-5"];
 
     private readonly AnthropicClient _client;
 

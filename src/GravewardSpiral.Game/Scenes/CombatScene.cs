@@ -91,7 +91,8 @@ public sealed class CombatScene : Scene
     {
         _previousBgm ??= Services.Audio.CurrentBgm;
         _previousGain = Services.Audio.CurrentBgmGain;
-        Services.Audio.PlayBgm(_bgm, fadeInSeconds: 0.3f);
+        // ふつうの戦闘は、その階の戦闘の曲があればそれ(battle_b3.mp3 など)
+        Services.Audio.PlayBgm(_bgm == Bgm ? Services.BgmFor(Bgm, Services.Session?.Exploration?.Position.Floor) : _bgm, fadeInSeconds: 0.3f);
         var session = Services.Session;
         IRandom rng = session?.Rng[RngStreams.Names.Combat] ?? new Pcg32((ulong)Environment.TickCount64, 11);
         _engine = new CombatEngine(Services.Data, rng);

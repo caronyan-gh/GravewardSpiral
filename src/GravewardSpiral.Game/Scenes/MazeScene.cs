@@ -61,7 +61,6 @@ public sealed class MazeScene : Scene
 
     public override void Enter()
     {
-        Services.Audio.PlayBgm(Bgm, gain: BgmGain);
         Say(Services.Strings.Format("maze.enter", FloorLabel()));
         SayFloorEnter();
         _version = Stack.Version;
@@ -370,14 +369,16 @@ public sealed class MazeScene : Scene
             && Services.Session.Boss(Services.Data, mark["boss:".Length..]) is { } boss)
         {
             // 決まった場所の敵。倒すまで、来るたびに戦う
-            if (boss.Intro != null) Say(s[boss.Intro]);
+            if (boss.IntroText != null) Say(Services.Name(boss.IntroText));
+            else if (boss.Intro != null) Say(s[boss.Intro]);
             var groups = boss.Fighters(Services.Data.Monsters);
             Stack.Push(new CombatScene(groups, noMagic: State.Cell.Zone.HasFlag(Zone.AntiMagic), scale: boss.Scale.Times(Services.Session!.FixedScale(_encounters ??= Services.Encounters())), bgm: CombatScene.BossBgm, onEnd: outcome =>
             {
                 if (outcome != CombatOutcome.Victory) return;
                 State.UsedMarks.Add(here);
                 if (boss.RewardFlag != null) Services.Session!.Flags.Add(boss.RewardFlag);
-                if (boss.Victory != null) Say(s[boss.Victory]);
+                if (boss.VictoryText != null) Say(Services.Name(boss.VictoryText));
+                else if (boss.Victory != null) Say(s[boss.Victory]);
                 MaybeChest(Depth, (_encounters ??= Services.Encounters()).TargetLevel(Depth), groups, randomChest: false, boss: boss.Id);
             }));
         }
@@ -677,8 +678,10 @@ public sealed class MazeScene : Scene
     }
 
     /// <summary>テーマのある階に着いたら、その階の様子を一文で知らせる。</summary>
+    /// <summary>階に入ったとき: その階の曲にして(階ごとの曲があれば)、入ったときの文を出す。</summary>
     private void SayFloorEnter()
     {
+        Services.Audio.PlayBgm(Services.BgmFor(Bgm, State.Position.Floor), gain: BgmGain);
         if (State.Floor.NameJa == null && State.Floor.NameEn == null && (WorldFloor?.Enter ?? CurrentTheme?.Enter) is { } text) Say(Services.Name(text));
     }
 
