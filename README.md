@@ -45,6 +45,8 @@ Three scenarios with handmade dungeons and stories are included. One clan can pl
 
 Download `GravewardSpiral-Setup-<version>.exe` from [Releases](../../releases) and install it (Windows 64-bit; no .NET install or admin rights needed). Saves live in `%LOCALAPPDATA%\GravewardSpiral` and survive uninstalling.
 
+遊び方は [ヘルプ](HELP.md) にあります(ゲームの中の Esc のメニューの「ヘルプ」と同じ)。 / How to play: see the [Help](HELP.en.md) (the same as Help in the in-game Esc menu).
+
 インストーラーには署名をしていないので、Windows が警告を出すことがあります。
 - ブラウザ(Edge など)で「一般的にダウンロードされていません」などと出たら、「…」のメニューから「保存」(「保持する」)を選びます。
 - 起動したときに青い画面で「Windows によって PC が保護されました」と出たら、「詳細情報」を押してから「実行」を押します。
