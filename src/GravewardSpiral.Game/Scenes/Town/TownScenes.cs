@@ -584,15 +584,29 @@ public sealed class TrainingScene : MenuScene
     }
 }
 
-/// <summary>キャラクターの詳しい状態。決定か取消で閉じる。</summary>
+/// <summary>
+/// キャラクターの詳しい状態。決定か取消で閉じる。左は要約、右は左右で「技能・能力」「呪文」(術者だけ)「装備」「持ち物」のページを切り替える
+/// (高いレベルの術者の呪文の一覧や、全部の枠に付けた装備、大きな袋の中身は、同じ欄に並べると枠からはみ出すため)。
+/// </summary>
 public sealed class StatusScene : Scene
 {
     private readonly Character _c;
+    private int _page;
 
     public StatusScene(Character c) => _c = c;
 
+    /// <summary>右側のページ(呪文のページは術者だけ)。</summary>
+    private string[] Pages => Spellcasting.Castable(Services.Data, _c).Any() ? ["skills", "spells", "equipment", "bag"] : ["skills", "equipment", "bag"];
+
     public override void Update(GameTime time, Input.InputState input)
     {
+        int step = input.Pressed(Input.GameAction.Right) ? 1 : input.Pressed(Input.GameAction.Left) ? -1 : 0;
+        if (step != 0)
+        {
+            _page = (_page + step + Pages.Length) % Pages.Length;
+            Services.Audio.PlaySe(Audio.Sounds.Cursor);
+            return;
+        }
         if (input.Pressed(Input.GameAction.Confirm) || input.Pressed(Input.GameAction.Cancel) || input.LeftClicked || input.RightClicked)
         {
             Services.Audio.PlaySe(Audio.Sounds.Cancel);
@@ -637,7 +651,7 @@ public sealed class StatusScene : Scene
         Theme.Panel(d, area);
         float y = DrawSummary(d, Services, _c, new Vector2(area.X + 30, area.Y + 24));
 
-        // 右側: 技能・セーヴ・装備・持ち物
+        // 右側: 技能・セーヴ・クラスの能力か、呪文(術者は左右で切り替える)
         float x2 = area.X + 600;
         float y2 = area.Y + 24;
         void Text2(string t, Color color, float size = 18f)
@@ -645,12 +659,75 @@ public sealed class StatusScene : Scene
             d.Text(t, new Vector2(x2, y2), size, color);
             y2 += size + 8;
         }
+        var castable = Spellcasting.Castable(data, _c).ToList();
+        var pages = Pages;
+        _page = Math.Clamp(_page, 0, pages.Length - 1);
+        string page = pages[_page];
+        // ページの見出し(今のページを明るく)
+        float hx = x2;
+        d.Text("◀", new Vector2(hx, y2 + 2), 16, Theme.Dim);
+        hx += 24;
+        for (int i = 0; i < pages.Length; i++)
+        {
+            if (i > 0)
+            {
+                d.Text("/", new Vector2(hx, y2), 18, Theme.Dim);
+                hx += 16;
+            }
+            string name = s["status.page_" + pages[i]];
+            d.Text(name, new Vector2(hx, y2), 18, i == _page ? Theme.Title : Theme.Dim);
+            hx += d.Fonts.Measure(name, 18).X + 10;
+        }
+        d.Text("▶", new Vector2(hx, y2 + 2), 16, Theme.Dim);
+        y2 += 34;
+        if (page == "equipment")
+        {
+            // 付けているものだけを出す(名前は見える姿で。未鑑定や、呪いがまだ分からない品の正体は出さない)
+            Text2(s["status.equipment"], Theme.Title, 22);
+            foreach (var slot in Enum.GetValues<EquipSlot>())
+            {
+                if (_c.Inventory[slot] is not { } it) continue;
+                y2 = d.TextWrapped($"{s[$"slot.{slot.ToString().ToLowerInvariant()}"]}: {UI.ItemText.Name(Services, it)}", new Vector2(x2, y2),
+                    area.X + area.Width - x2 - 24, 17, Theme.Text, 7);
+            }
+        }
+        else if (page == "bag")
+        {
+            // 1つずつの行で2列に(一番大きな袋の 30 個まで収まる)。長い名前は欄に収まるまで字を小さくする
+            Text2(s.Format("status.bag", _c.Inventory.Items.Count, _c.Inventory.Capacity(data.Items)), Theme.Title, 22);
+            var items = _c.Inventory.Items;
+            int rows = Math.Max(1, (items.Count + 1) / 2);
+            float colW = (area.X + area.Width - x2 - 24) / 2;
+            for (int i = 0; i < items.Count; i++)
+            {
+                string name = UI.ItemText.Name(Services, items[i]);
+                float size = Math.Min(17f, 17f * (colW - 12) / Math.Max(1f, d.Fonts.Measure(name, 17).X));
+                d.Text(name, new Vector2(x2 + (i / rows) * colW, y2 + (i % rows) * 24 + (17 - size) / 2), size, Theme.Text);
+            }
+        }
+        else if (page == "spells")
+        {
+            // 呪文の難易度と攻撃の修正は、術者のクラスごと
+            foreach (var cls in Spellcasting.CasterClasses(data, _c))
+                Text2((Spellcasting.CasterClasses(data, _c).Count() > 1 ? Services.Name(cls.Name) + " " : "")
+                    + s.Format("status.spells", Spellcasting.SaveDc(cls, _c), Signed(Spellcasting.AttackBonus(cls, _c))), Theme.Title, 22);
+            foreach (var group in castable.GroupBy(x => x.Level))
+            {
+                // 呪文の名前は長いので、欄の幅で折り返す
+                string line = $"{UI.SpellText.Level(s, group.First())}: {Services.Strings.List(group.Select(x => Services.Name(x.Name)))}";
+                y2 = d.TextWrapped(line, new Vector2(x2, y2), area.X + area.Width - x2 - 24, 16, Theme.Text, 6);
+            }
+        }
+        else
+        {
         Text2(s["status.skills"], Theme.Title, 22);
         foreach (var id in _c.Skills)
             Text2($"{Services.Name(data.Skills[id].Name)}  {Signed(_c.SkillBonus(data, id))}", Theme.Text);
         y2 += 8;
         Text2(s["status.saves"], Theme.Title, 22);
-        Text2(string.Join("  ", Abilities.All.Select(a => $"{s[$"ability.{a.Code()}"]} {Signed(_c.SaveBonus(data, a))}")), Theme.Text);
+        // 6つ並ぶと欄の幅を越えるので、3つずつ2行に(体の能力値と、心の能力値)
+        foreach (var three in Abilities.All.Chunk(3))
+            Text2(string.Join("  ", three.Select(a => $"{s[$"ability.{a.Code()}"]} {Signed(_c.SaveBonus(data, a))}")), Theme.Text);
         // クラスの能力(マルチクラスでは全部のクラスのもの): 回数の残りと、勝手に効く能力の名前
         var pools = ClassFeatures.Pools.Where(p => ClassFeatures.MaxUses(_c, p) > 0).ToList();
         var passives = ClassFeatures.Passives(_c).Distinct().Select(id => s["passive." + id]).ToList();
@@ -665,41 +742,9 @@ public sealed class StatusScene : Scene
             if (passives.Count > 0)
                 y2 = d.TextWrapped(s.List(passives), new Vector2(x2, y2), area.X + area.Width - x2 - 24, 16, Theme.Dim, 6);
         }
-        var castable = Spellcasting.Castable(data, _c).ToList();
-        if (castable.Count > 0)
-        {
-            y2 += 8;
-            // 呪文の難易度と攻撃の修正は、術者のクラスごと
-            foreach (var cls in Spellcasting.CasterClasses(data, _c))
-                Text2((Spellcasting.CasterClasses(data, _c).Count() > 1 ? Services.Name(cls.Name) + " " : "")
-                    + s.Format("status.spells", Spellcasting.SaveDc(cls, _c), Signed(Spellcasting.AttackBonus(cls, _c))), Theme.Title, 22);
-            foreach (var group in castable.GroupBy(x => x.Level))
-            {
-                // 呪文の名前は長いので、欄の幅で折り返す
-                string line = $"{UI.SpellText.Level(s, group.First())}: {Services.Strings.List(group.Select(x => Services.Name(x.Name)))}";
-                y2 = d.TextWrapped(line, new Vector2(x2, y2), area.X + area.Width - x2 - 24, 16, Theme.Text, 6);
-            }
         }
 
-        y += 10;
-        void Text1(string t, Color color, float size = 18f)
-        {
-            d.Text(t, new Vector2(area.X + 30, y), size, color);
-            y += size + 8;
-        }
-        // 付けているものだけを出す(名前は見える姿で。未鑑定や、呪いがまだ分からない品の正体は出さない)
-        Text1(s["status.equipment"], Theme.Title, 22);
-        foreach (var slot in Enum.GetValues<EquipSlot>())
-        {
-            if (_c.Inventory[slot] is not { } it) continue;
-            Text1($"{s[$"slot.{slot.ToString().ToLowerInvariant()}"]}: {UI.ItemText.Name(Services, it)}", Theme.Text);
-        }
-        y += 4;
-        Text1(s.Format("status.bag", _c.Inventory.Items.Count, _c.Inventory.Capacity(data.Items)), Theme.Title, 20);
-        if (_c.Inventory.Items.Count > 0)
-            d.TextWrapped(Services.Strings.List(_c.Inventory.Items.Select(it => UI.ItemText.Name(Services, it))), new Vector2(area.X + 40, y),
-                x2 - area.X - 70, 18, Theme.Text, 6);
-        d.Text(s["status.close"], new Vector2(640, 690), 15, Theme.Dim, TextAlign.Center);
+        d.Text(s["status.close_pages"], new Vector2(640, 690), 15, Theme.Dim, TextAlign.Center);
     }
 
     /// <summary>鎧と武器の習熟の一覧(クラスを合わせて。分類は名前で、決まった武器は品の名前で)。</summary>

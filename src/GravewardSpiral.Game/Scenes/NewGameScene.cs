@@ -284,8 +284,10 @@ public sealed class NewGameScene : Scene
                 : Services.Strings.Format("newgame.confirm_overwrite_lost", clanName, world, Services.Strings.List(lostNames));
             Stack.Push(new ConfirmScene(message, () =>
                 {
+                    // 消す前に、世界ごとのパーティを読んでおく(消した世界のパーティも引き継げるように)
+                    var parties = WorldParties(clanId);
                     Services.Saves.DeleteWorld(clanId, worldKey);
-                    Start(request, clanId, worldKey, lost);
+                    Start(request, clanId, worldKey, lost, parties);
                 }));
             return;
         }
@@ -296,8 +298,14 @@ public sealed class NewGameScene : Scene
     private bool SharedClan => _clan >= 0 && Rows().Contains(Row.Clan) && _clans[_clan].Path.StartsWith("clan:");
 
     /// <summary>迷宮を作り、新しい世界を始めて町へ。</summary>
+    /// <summary>クランの世界ごとのパーティ(最近遊んだ順)。</summary>
+    private List<IReadOnlyList<string>> WorldParties(string clanId) =>
+        Services.Saves.ListClans().FirstOrDefault(x => x.Id == clanId)?.Worlds.Select(w => w.PartyIds).ToList() ?? [];
+
     /// <param name="lost">名簿から外す人(始め直した世界の迷宮に残っていて、ロストした人)。</param>
-    private void Start(GenerationRequest request, string clanId, string worldKey, IReadOnlyCollection<string>? lost = null)
+    /// <param name="parties">引き継ぐパーティの候補(世界を上書きするときは、消す前に読んだもの)。省くと今のセーブから読む。</param>
+    private void Start(GenerationRequest request, string clanId, string worldKey, IReadOnlyCollection<string>? lost = null,
+        List<IReadOnlyList<string>>? parties = null)
     {
         try
         {
@@ -335,9 +343,10 @@ public sealed class NewGameScene : Scene
                 Services.Saves.MarkAway(session);
                 // 最近遊んだ世界から順に、使える人(ほかの世界の迷宮にいない人)のいるパーティを引き継ぐ
                 // (最後の世界がパーティを組む前に閉じた世界や、全員がその迷宮の中にいる世界でも、空のまま始めない)
-                foreach (var world in Services.Saves.ListClans().FirstOrDefault(x => x.Id == clanId)?.Worlds ?? [])
+                // (同じシナリオを始め直すときは、上書きして消した世界のパーティも候補に入る)
+                foreach (var party in parties ?? WorldParties(clanId))
                 {
-                    foreach (var id in world.PartyIds)
+                    foreach (var id in party)
                         if (session.Roster.Find(id) is { } c) session.Roster.AddToParty(c);
                     if (session.Roster.Party.Count > 0) break;
                 }

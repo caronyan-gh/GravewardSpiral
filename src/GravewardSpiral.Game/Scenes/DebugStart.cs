@@ -22,10 +22,13 @@ public static class DebugStart
 
     /// <summary>
     /// 試しの迷宮に、クラスを決めた仲間で入る。spec は "クラス,クラス,...[@レベル]"(人間。6人まで。レベルを省くと 1)。
-    /// 例: party:fighter,barbarian,monk,sorcerer,druid,bard@5
+    /// 例: party:fighter,barbarian,monk,sorcerer,druid,bard@5。最後に +full を付けると、先頭の人の装備を全部の枠に付け、
+    /// 一番大きな袋をいっぱいにする(状態の画面の見た目の確かめ用)。
     /// </summary>
     public static void PartyOf(GameServices services, string spec)
     {
+        bool full = spec.EndsWith("+full");
+        if (full) spec = spec[..^"+full".Length];
         int level = 1;
         int at = spec.LastIndexOf('@');
         if (at >= 0 && int.TryParse(spec[(at + 1)..], out int lv))
@@ -37,6 +40,23 @@ public static class DebugStart
             .Where(services.Data.Classes.ContainsKey).Take(6).Select(c => ("human", c)).ToArray();
         var dungeon = DungeonLoader.Load(services.Content, MazeScene.TestDungeonId);
         Party(services, dungeon, new GenerationRequest(1, dungeon.Floors.Count, FloorSizeMode.Fixed(10, 10)), classes.Length > 0 ? classes : null, level);
+        if (full) FillGear(services, services.Session!.Roster.Characters[0]);
+    }
+
+    /// <summary>全部の装備の枠に、それぞれ一番高い品を付け、一番大きな袋を、名前の長い品でいっぱいにする。</summary>
+    private static void FillGear(GameServices services, Character c)
+    {
+        var items = services.Data.Items.Values.OrderByDescending(d => d.Price).ToList();
+        var inv = c.Inventory;
+        foreach (var slot in Enum.GetValues<Core.Items.EquipSlot>())
+        {
+            var def = items.FirstOrDefault(d => Core.Items.Inventory.Fits(d, slot) && (slot is not (Core.Items.EquipSlot.MainHand or Core.Items.EquipSlot.OffHand) || !d.Ranged)
+                && (slot != Core.Items.EquipSlot.Backpack || d.Slots == items.Where(x => x.Kind == Core.Items.ItemKind.Backpack).Max(x => x.Slots)));
+            if (def != null) inv.Equipped[slot] = new Core.Items.ItemInstance { ItemId = def.Id, Identified = true };
+        }
+        inv.Items.Clear();
+        foreach (var def in items.Where(d => d.Kind is Core.Items.ItemKind.Weapon or Core.Items.ItemKind.Armor).OrderByDescending(d => services.Name(d.Name).Length).Take(inv.Capacity(services.Data.Items)))
+            inv.Items.Add(new Core.Items.ItemInstance { ItemId = def.Id, Identified = true });
     }
 
     /// <summary>
@@ -155,8 +175,9 @@ public static class DebugStart
         leader.Inventory.TryAdd(unique, services.Data.Items);
         // 未鑑定の見本(キャンプの小休憩で調べられる)
         leader.Inventory.TryAdd(new Core.Items.ItemInstance { ItemId = "ring_of_protection", Identified = false }, services.Data.Items);
-        session.Roster.Characters[3].Inventory.TryAdd(new Core.Items.ItemInstance { ItemId = "longsword", Bonus = 1, Identified = false }, services.Data.Items);
-        session.Roster.Characters[1].Inventory.TryAdd(new Core.Items.ItemInstance { ItemId = "cursed_longsword_of_misfortune", Identified = false }, services.Data.Items);   // 呪い(鑑定しても +1 に見える)
+        var roster = session.Roster.Characters;   // 仲間を決めた起動では、人数が少ないこともある
+        roster[Math.Min(3, roster.Count - 1)].Inventory.TryAdd(new Core.Items.ItemInstance { ItemId = "longsword", Bonus = 1, Identified = false }, services.Data.Items);
+        roster[Math.Min(1, roster.Count - 1)].Inventory.TryAdd(new Core.Items.ItemInstance { ItemId = "cursed_longsword_of_misfortune", Identified = false }, services.Data.Items);   // 呪い(鑑定しても +1 に見える)
         services.Session = session;
         session.BuildRosters(services.Data, EncounterSettings.Load(services.Content));   // 試しの迷宮(イベントは手で置いてある)
         var b1 = dungeon.Floors[0];

@@ -42,6 +42,7 @@ public sealed class ClanHouseScene : MenuScene
             case Mode.Main:
             {
                 yield return new MenuItem(s["town.items"], Enabled: Party.Count > 0, Tag: "items");
+                yield return new MenuItem(s["camp.status"], Enabled: Party.Count > 0, Tag: "status");
                 if (House.Has(_levels, ClanHouseLevel.Bed))
                     yield return new MenuItem(s["house.sleep"], s[House.Has(_levels, ClanHouseLevel.BedFull) ? "house.sleep_full" : "house.sleep_half"], Tag: "sleep");
                 yield return new MenuItem(s["house.deposit"], Enabled: Party.Any(c => c.Inventory.Items.Count > 0), Tag: Mode.DepositWho);
@@ -102,6 +103,10 @@ public sealed class ClanHouseScene : MenuScene
             case (Mode.Main, "items"):
                 // 持ち物の整理(装備の付け替え、仲間に渡す)
                 Stack.Push(new MemberPickScene(Services.Strings["town.items"], _ => true, c => Stack.Push(new InventoryScene(c))));
+                return;
+            case (Mode.Main, "status"):
+                // 仲間の詳しい状態(訓練場やキャンプと同じ画面)
+                Stack.Push(new MemberPickScene(s["camp.status"], _ => true, c => Stack.Push(new StatusScene(c))));
                 return;
             case (Mode.Main, Mode m): Go(m); return;
             case (Mode.Main, "sleep"):

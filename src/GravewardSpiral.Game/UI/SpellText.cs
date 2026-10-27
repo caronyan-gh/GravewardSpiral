@@ -99,7 +99,7 @@ public static class SpellText
 
     /// <summary>
     /// スロットの残りを、perLine レベルずつの行に分けたもの(高いレベルの術者で、横にはみ出さないように)。
-    /// 1行目に「スロット」を付け、2行目からは字下げする。術者でなければ null。
+    /// 1行目に「呪文」を付け、2行目からは字下げする。術者でなければ null。
     /// </summary>
     public static List<string>? SlotLines(Strings s, GameData data, Character c, int perLine = 5)
     {
@@ -109,7 +109,7 @@ public static class SpellText
         if (parts.Count == 0) return [s["spell.no_slots"]];
         var lines = parts.Chunk(perLine).Select(chunk => string.Join("  ", chunk)).ToList();
         string head = s.Format("spell.slots", lines[0]);
-        // 頭の「スロット」の幅だけ字下げ(全角の字は半角の空白2つぶん)
+        // 頭の「呪文」の幅だけ字下げ(全角の字は半角の空白2つぶん)
         string indent = string.Concat(head[..(head.Length - lines[0].Length)].Select(ch => ch < 128 ? " " : "  "));
         return [head, .. lines.Skip(1).Select(l => indent + l)];
     }
