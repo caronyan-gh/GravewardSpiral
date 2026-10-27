@@ -93,6 +93,12 @@ public static class ClassFeatures
         return f.Pool == null || UsesLeft(c, f.Pool) >= f.Cost;
     }
 
+    /// <summary>
+    /// 獣の姿でも使える技か。武器や素手の打撃に乗せる技(連打・朦朧打撃・スマイト)は、獣の攻撃では使えない
+    /// (使っても気やスロットだけが減るので、選べないようにする)。
+    /// </summary>
+    public static bool UsableInBeastForm(FeatureDef f) => f.Id is not ("flurry_of_blows" or "stunning_strike" or "divine_smite");
+
     /// <summary>スマイトに使うスロット(4 レベルまでの、空いている一番上。5版ではそれより上でもダメージは 5d8 で止まる)。</summary>
     public static int? SmiteSlot(GameData data, Character c)
     {

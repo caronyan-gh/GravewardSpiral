@@ -130,6 +130,47 @@ public class ClassFeatureTests
         Assert.Equal(99, ClassFeatures.MaxUses(Make("druid", 20), "wild_shape"));
     }
 
+    private static Character Multi(params (string Class, int Level)[] classes)
+    {
+        var c = Make(classes[0].Class, classes[0].Level);
+        foreach (var (cls, lv) in classes.Skip(1)) c.Classes.Add(new ClassLevel { ClassId = cls, Level = lv });
+        c.Level = classes.Sum(x => x.Level);
+        return c;
+    }
+
+    [Fact]
+    public void StrikeTechniquesAreNotUsableInBeastForm()
+    {
+        // ドルイド 4 / モンク 2 の狼: 連打は選べず、使おうとしても気は減らない
+        var c = Multi(("druid", 4), ("monk", 2));
+        var (e, s) = Fight([c]);
+        var p = s.Party[0];
+        p.Shape = Data.Monsters["wolf"];
+        p.ShapeHp = p.Shape.HpAverage;
+        Assert.False(ClassFeatures.UsableInBeastForm(ClassFeatures.Active.First(f => f.Id == "flurry_of_blows")));
+        Round(e, s, p, new PlayerCommand(CommandKind.Feature, 0, FeatureId: "flurry_of_blows"));
+        Assert.Equal(2, ClassFeatures.UsesLeft(c, "ki"));
+        Assert.DoesNotContain(s.Log, l => l.Key == "combat.flurry");
+    }
+
+    [Fact]
+    public void ActionSurgeDoesNotRepeatTheBonusAction()
+    {
+        // ファイター 2 / モンク 2 の素手: ふつうは攻撃1回 + 武術1回、サージでは 攻撃2回 + 武術1回 = 3回
+        int Attacks(PlayerCommand cmd)
+        {
+            var c = Multi(("fighter", 2), ("monk", 2));
+            c.Inventory.Equipped.Clear();
+            var (e, s) = Fight([c], "ogre", 1, 4);
+            s.Groups[0].Units[0].Conditions.Add(new ActiveCondition { Condition = Condition.Incapacitated });
+            s.Groups[0].Units[0].Hp = 999;
+            Round(e, s, s.Party[0], cmd);
+            return s.Log.Count(l => l.Key is "combat.hit" or "combat.crit" or "combat.miss" && l.Args[0] is LocalizedText t && t.Get("en") == c.Name);
+        }
+        Assert.Equal(2, Attacks(new PlayerCommand(CommandKind.Attack, 0)));
+        Assert.Equal(3, Attacks(new PlayerCommand(CommandKind.Feature, 0, FeatureId: "action_surge")));
+    }
+
     [Fact]
     public void ABeastKeepsAttackingWhenItsGroupFalls()
     {

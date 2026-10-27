@@ -527,7 +527,15 @@ public sealed class DataForm(EditorContext context, JsonObject o, JsonObject? ba
         var on = new CheckBox { Content = T("呪文を唱える", "Casts spells"), IsChecked = sc != null };
         on.Click += (_, _) =>
         {
-            Set("spellcasting", on.IsChecked == true ? new JsonObject { ["level"] = 1, ["ability"] = "int", ["dc"] = 11, ["attack"] = 3, ["slots"] = new JsonObject { ["1"] = 2 }, ["spells"] = new JsonArray() } : null);
+            if (on.IsChecked == true)
+                Set("spellcasting", new JsonObject { ["level"] = 1, ["ability"] = "int", ["dc"] = 11, ["attack"] = 3, ["slots"] = new JsonObject { ["1"] = 2 }, ["spells"] = new JsonArray() });
+            else if (baseObj?["spellcasting"] is JsonObject)
+            {
+                // 写したもので元が呪文を唱えるなら、消すのではなく null を書いて「唱えない」にする(消すと読むときに元の呪文が戻る)
+                o["spellcasting"] = null;
+                edited();
+            }
+            else Set("spellcasting", null);
             rebuild();
         };
         panel.Children.Add(on);

@@ -45,6 +45,14 @@ Three scenarios with handmade dungeons and stories are included. One clan can pl
 
 Download `GravewardSpiral-Setup-<version>.exe` from [Releases](../../releases) and install it (Windows 64-bit; no .NET install or admin rights needed). Saves live in `%LOCALAPPDATA%\GravewardSpiral` and survive uninstalling.
 
+インストーラーには署名をしていないので、Windows が警告を出すことがあります。
+- ブラウザ(Edge など)で「一般的にダウンロードされていません」などと出たら、「…」のメニューから「保存」(「保持する」)を選びます。
+- 起動したときに青い画面で「Windows によって PC が保護されました」と出たら、「詳細情報」を押してから「実行」を押します。
+
+The installer is not signed, so Windows may warn you.
+- If your browser (Edge, for example) says the file "isn't commonly downloaded", choose "Keep" from the "..." menu.
+- If a blue "Windows protected your PC" screen appears when you run it, click "More info", then "Run anyway".
+
 ## シナリオを作る / Make scenarios
 
 インストーラーには、シナリオエディタ(スタートメニューの「GRAVEWARD SPIRAL シナリオエディタ」)も入っています。迷宮を描くか自動で作り、出る敵・ボス・イベント・物語の文・品やモンスターを決めて、そのまま試し遊びできます。作ったシナリオは `%LOCALAPPDATA%\GravewardSpiral\Scenarios` に保存され、ゲームの「新しいゲーム」で選べます。zip に書き出して配ることもできます。Claude の API キーを入れると、物語の文を AI に書かせることもできます(任意)。

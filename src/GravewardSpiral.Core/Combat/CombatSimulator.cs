@@ -54,7 +54,8 @@ public static class CombatSimulator
     private static PlayerCommand? AutoFeature(CombatState s, GameData data, PartyMember p)
     {
         var c = p.Character;
-        var have = ClassFeatures.ActiveFor(c).Where(f => ClassFeatures.CanUse(data, c, f)).Select(f => f.Id).ToHashSet();
+        var have = ClassFeatures.ActiveFor(c).Where(f => ClassFeatures.CanUse(data, c, f) && (p.Shape == null || ClassFeatures.UsableInBeastForm(f)))
+            .Select(f => f.Id).ToHashSet();
         if (have.Count == 0) return null;
         var targets = s.AttackableGroups(p).ToList();
         int target = targets.Count > 0 ? targets[0] : -1;

@@ -168,7 +168,8 @@ public sealed class CombatScene : Scene
             items.Add(new(S.Format("combat.cmd.empower", ClassFeatures.UsesLeft(c, "sorcery_points")),
                 Enabled: canCast && c.ArmorProficient(Services.Data) && EmpowerSpells().Any(x => x.Slot != null), Tag: "empower"));
         if (ClassFeatures.ActiveFor(c).Any())
-            items.Add(new(S["combat.cmd.feature"], Enabled: ClassFeatures.ActiveFor(c).Any(f => ClassFeatures.CanUse(Services.Data, c, f)), Tag: CommandKind.Feature));
+            items.Add(new(S["combat.cmd.feature"], Enabled: ClassFeatures.ActiveFor(c).Any(f => ClassFeatures.CanUse(Services.Data, c, f)
+                && (Current.Shape == null || ClassFeatures.UsableInBeastForm(f))), Tag: CommandKind.Feature));
         items.AddRange(
         [
             new(S["combat.cmd.item"], Enabled: Current.Shape == null && UsableItems().Any(), Tag: CommandKind.Item),
@@ -206,7 +207,8 @@ public sealed class CombatScene : Scene
         SetMenu(ClassFeatures.ActiveFor(c).Select(f =>
         {
             string? left = f.Pool != null ? S.Format("combat.feature_left", ClassFeatures.UsesLeft(c, f.Pool)) : null;
-            return new MenuItem(S["feature." + f.Id], left, ClassFeatures.CanUse(Services.Data, c, f), f);
+            bool usable = ClassFeatures.CanUse(Services.Data, c, f) && (Current.Shape == null || ClassFeatures.UsableInBeastForm(f));   // 獣の姿では打撃の技は使えない
+            return new MenuItem(S["feature." + f.Id], left, usable, f);
         }));
     }
 

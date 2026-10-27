@@ -1,3 +1,4 @@
+using GravewardSpiral.Core.Characters;
 using GravewardSpiral.Core.Content;
 using GravewardSpiral.Core.Maze;
 
@@ -132,4 +133,20 @@ public class ContentLibraryTests
         Assert.Contains(lib.Packs, p => p.Id == "srd");
         Assert.NotNull(lib.Find(DungeonLoader.Collection, "devtest"));
     }
+
+    [Fact]
+    public void ACopyCanTurnOffWhatTheOriginalHas()
+    {
+        // 写したモンスターで "spellcasting": null と書けば、元が呪文を唱えても、写したものは唱えない(エディタの「呪文を唱える」を外したとき)
+        using var dir = new TestPaths.TempDir();
+        var baseMage = Data.Monsters.Values.First(m => m.Spellcasting != null && m.Usable);
+        dir.Write("copy/manifest.json", """{"id": "copy", "depends": ["srd"]}""");
+        dir.Write("copy/monsters.json", $$"""[{"id": "quiet_mage", "extends": "{{baseMage.Id}}", "spellcasting": null}]""");
+        var content = ContentLibrary.Load(TestPaths.Content, Path.Combine(dir.Path, "copy"));
+        var data = GameData.Load(content);
+        Assert.Null(data.Monsters["quiet_mage"].Spellcasting);
+        Assert.NotNull(data.Monsters[baseMage.Id].Spellcasting);
+    }
+
+    private static readonly GameData Data = GameData.Load(ContentLibrary.Load(TestPaths.Content));
 }

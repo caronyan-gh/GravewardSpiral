@@ -292,7 +292,8 @@ public sealed class CombatEngine(GameData data, IRandom rng)
     /// 二刀流(5版): 近接で、両手とも軽い武器を持っていれば、もう片方の手の武器でも1回攻撃する(ボーナスアクション)。
     /// もう片方の手の攻撃のダメージには、能力値の修正を足さない(負なら足す)。
     /// </summary>
-    private void PlayerAttack(CombatState s, PartyMember p, int groupIndex, StrikeTechnique technique = StrikeTechnique.None)
+    /// <param name="bonusAction">ボーナスアクションの打撃(武術・連打・二刀流)もするか。アクション・サージの2回目はしない(ボーナスアクションは1ターンに1回)。</param>
+    private void PlayerAttack(CombatState s, PartyMember p, int groupIndex, StrikeTechnique technique = StrikeTechnique.None, bool bonusAction = true)
     {
         if (p.Shape != null)
         {
@@ -454,7 +455,7 @@ public sealed class CombatEngine(GameData data, IRandom rng)
             if (!Strike(n == 0, offHand: false)) return;
         }
         // ボーナスアクション: 連打は素手で2回、武術は素手で1回、どちらでもなければ二刀流
-        if (s.Outcome != CombatOutcome.Ongoing) return;
+        if (s.Outcome != CombatOutcome.Ongoing || !bonusAction) return;
         if (technique == StrikeTechnique.Flurry && martial)
         {
             s.Add("combat.flurry", p.Name);
@@ -509,7 +510,7 @@ public sealed class CombatEngine(GameData data, IRandom rng)
     {
         var c = p.Character;
         var f = ClassFeatures.Active.FirstOrDefault(x => x.Id == cmd.FeatureId);
-        if (f == null || !ClassFeatures.CanUse(_data, c, f))
+        if (f == null || !ClassFeatures.CanUse(_data, c, f) || (p.Shape != null && !ClassFeatures.UsableInBeastForm(f)))
         {
             p.Dodging = true;
             s.Add("combat.dodge", p.Name);
@@ -527,7 +528,7 @@ public sealed class CombatEngine(GameData data, IRandom rng)
                 ClassFeatures.Spend(c, "action_surge");
                 s.Add("combat.feature", p.Name, name);
                 PlayerAttack(s, p, cmd.TargetGroup);
-                if (s.Outcome == CombatOutcome.Ongoing) PlayerAttack(s, p, cmd.TargetGroup);
+                if (s.Outcome == CombatOutcome.Ongoing) PlayerAttack(s, p, cmd.TargetGroup, bonusAction: false);
                 break;
             case "rage":
                 if (!p.Raging)
