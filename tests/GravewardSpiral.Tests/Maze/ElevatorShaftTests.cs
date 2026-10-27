@@ -106,13 +106,14 @@ public class ElevatorShaftTests
     }
 
     [Fact]
-    public void PartOneHasTwoShafts()
+    public void PartOneHasTheCoffinLift()
     {
+        // 棺下ろしの籠: B1 の入口のそばから B5 まで、1本の縦穴
         var content = ContentLibrary.Load(TestPaths.Content, Path.Combine(TestPaths.Content, "scenarios", ScenarioCatalog.Gravekeeper));
         var dungeon = DungeonLoader.ScenarioDungeon(content)!;
         var stops = dungeon.Floors.SelectMany((f, i) => f.AllCells().Where(p => f[p].Feature == CellFeature.Elevator).Select(p => (i, p))).ToList();
-        Assert.Equal(2, stops.Select(x => x.p).Distinct().Count());
-        Assert.Equal(6, stops.Count);   // B1〜B4 と B5〜B6
+        Assert.Equal([new GridPos(12, 3)], stops.Select(x => x.p).Distinct());
+        Assert.Equal([0, 1, 2, 3, 4], stops.Select(x => x.i).Order());
     }
 
     [Fact]

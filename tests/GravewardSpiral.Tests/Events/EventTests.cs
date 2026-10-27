@@ -69,6 +69,75 @@ public class EventTests
     private static EventRunner Run(string id, GameSession s, ExplorationState state, ulong seed = 1) => new(Data.Events[id], Ctx(s, state, seed));
 
     [Fact]
+    public void FacingAndTurningChooseWhatHappens()
+    {
+        var (s, state) = Room("lever_room.txt", 1, 1);   // 北を向いている
+        EventContext Turning() => new() { Data = Data, Session = s, Maze = state, At = (0, state.Position.Cell), Rng = new Pcg32(1, 3), Depth = 0.5, TargetLevel = 5, Treasure = TreasureSettings.Load(Content), Turned = true };
+        Assert.True(EventRunner.Test([new EventCondition { Type = "facing", Id = "north" }], Ctx(s, state)));
+        Assert.False(EventRunner.Test([new EventCondition { Type = "facing", Id = "east" }], Ctx(s, state)));
+        Assert.False(EventRunner.Test([new EventCondition { Type = "turned" }], Ctx(s, state)));
+        Assert.True(EventRunner.Test([new EventCondition { Type = "turned" }], Turning()));
+
+        // 「振り向くな」: 着いただけなら書き付けだけ、そこで向きを変えると霊が出る
+        Assert.True(Data.Events["dont_look_back"] is { OnEnter: true, OnTurn: true });
+        Assert.DoesNotContain(Drive(Run("dont_look_back", s, state)), o => o is EventCombat);
+        Assert.Contains(Drive(new EventRunner(Data.Events["dont_look_back"], Turning())), o => o is EventCombat);
+
+        // 北を指す針: 北を向いていれば隠し物、ほかの向きなら何も無い(また来れば起こる)
+        var nav = new MazeNavigator(state);
+        nav.TurnRight();
+        Assert.DoesNotContain(Drive(Run("lodestone_needle", s, state)), o => o is EventSound);
+        nav.TurnLeft();
+        Assert.Contains(Drive(Run("lodestone_needle", s, state)), o => o is EventSound { Id: "secret_found" });
+
+        // 像の通路(見本): 像(東)を向いて進むと、試しがやり直しになる
+        s.Flags.Add("gaze_ok");
+        nav.TurnLeft();   // 西
+        Drive(Run("gaze_watch", s, state));
+        Assert.Contains("gaze_ok", s.Flags);
+        nav.TurnAround();   // 東
+        Drive(Run("gaze_watch", s, state));
+        Assert.DoesNotContain("gaze_ok", s.Flags);
+    }
+
+    [Fact]
+    public void AWorldNoteCanBeChosenByNumber()
+    {
+        // 同じ階の2か所に置く書き付けは、1つ目と2つ目を指定して別々のものを出す(抽選だと同じになることがある)
+        var (s, state) = Room("lever_room.txt", 1, 1);
+        s.World = new GravewardSpiral.Core.Ai.WorldText { Floors = [new() { Documents = [LocalizedText.Of("first", "一つ目"), LocalizedText.Of("second", "二つ目")] }] };
+        string Shown(int value) => Drive(new EventRunner(new EventDef { Id = "w", Steps = [new EventStep { Type = "world_doc", Value = value }] }, Ctx(s, state)))
+            .OfType<EventMessage>().Single().Text!.Get("en");
+        Assert.Equal("first", Shown(1));
+        Assert.Equal("second", Shown(2));
+        Assert.Contains(Shown(0), new[] { "first", "second" });
+    }
+
+    [Fact]
+    public void EndingStepClearsTheWorld()
+    {
+        var (s, state) = Room("lever_room.txt", 1, 1);
+        Assert.False(s.EndingDue(Data));
+        var def = new EventDef { Id = "finale", Steps = [new EventStep { Type = "ending" }, new EventStep { Type = "gold", Value = 100 }] };
+        Assert.Empty(EventCheck.Check(Data, def));
+        var outs = Drive(new EventRunner(def, Ctx(s, state)));
+        Assert.Contains(outs, o => o is EventToTown);
+        Assert.True(s.EndingDue(Data));
+        Assert.True(s.RecordClear(new PackManifest { Id = "puzzle" }));
+        Assert.Equal(1, s.ClearedScenarios[ScenarioClears.Key(new PackManifest { Id = "puzzle" })]);
+        Assert.False(s.EndingDue(Data));   // 一度クリアしたら、もう流さない
+    }
+
+    [Fact]
+    public void FacingAndTriggerAreChecked()
+    {
+        var bad = new EventDef { Id = "x", Trigger = "look", Steps = [new EventStep { Type = "if", When = [new EventCondition { Type = "facing", Id = "up" }], Then = [new EventStep { Type = "end" }] }] };
+        var problems = EventCheck.Check(Data, bad);
+        Assert.Contains(problems, p => p.Contains("trigger 'look'"));
+        Assert.Contains(problems, p => p.Contains("facing の id 'up'"));
+    }
+
+    [Fact]
     public void OnlyRepeatingEventsCanBeNoted()
     {
         var (s, state) = Room("lever_room.txt", 1, 1);
@@ -458,15 +527,24 @@ public class EventTests
         Drive(Run("a_b5_seal", s, state), [0]);
         Assert.True(state.IsUnlocked(0, new GridPos(1, 1), Direction.South));
 
-        var (s2, stele) = Room("a_b4_stele.txt", 1, 2, TestPaths.Gravekeeper);
+        var (s2, stele) = Room("a_b4_stele.txt", 1, 3, TestPaths.Gravekeeper);
         Drive(Run("a_b4_stele", s2, stele), [0]);
-        Assert.False(stele.IsUnlocked(0, new GridPos(1, 1), Direction.South));   // 名前を知らない
+        Assert.False(stele.IsUnlocked(0, new GridPos(1, 2), Direction.South));   // 名前を知らない
         s2.Flags.Add("a_found_remains");
         var town = new EventContext { Data = StoryData, Session = s2, Rng = new Pcg32(1, 1) };
         Drive(new EventRunner(StoryData.Events["a_priest"], town));
         Assert.Contains("a_priest_name", s2.Flags);
         Drive(Run("a_b4_stele", s2, stele), [0]);   // オルド
-        Assert.True(stele.IsUnlocked(0, new GridPos(1, 1), Direction.South));
+        Assert.True(stele.IsUnlocked(0, new GridPos(1, 2), Direction.South));
+
+        // 弔いの鐘: 二度では何も起こらず、墓掘りの老人に聞けば「三度」が先頭に出て、奥が開く
+        var (s3, bell) = Room("a_b3_bell.txt", 1, 2, TestPaths.Gravekeeper);
+        Drive(Run("a_b3_bell", s3, bell), [1]);   // 二度
+        Assert.False(bell.IsUnlocked(0, new GridPos(1, 1), Direction.South));
+        Drive(new EventRunner(StoryData.Events["a_gravedigger"], new EventContext { Data = StoryData, Session = s3, Rng = new Pcg32(1, 1) }));
+        Assert.Contains("a_bell_lore", s3.Flags);
+        Drive(Run("a_b3_bell", s3, bell), [0]);   // 教わったとおり三度
+        Assert.True(bell.IsUnlocked(0, new GridPos(1, 1), Direction.South));
     }
 
     [Fact]

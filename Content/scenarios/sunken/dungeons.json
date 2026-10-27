@@ -1,0 +1,146 @@
+[
+  {
+    "id": "sunken",
+    "name": {
+      "en": "The Sunken Capital",
+      "ja": "沈んだ王都"
+    },
+    "floors": [
+      "maps/sunken_b1.txt",
+      "maps/sunken_b2.txt",
+      "maps/sunken_b3.txt",
+      "maps/sunken_b4.txt",
+      "maps/sunken_b5.txt",
+      "maps/sunken_b6.txt"
+    ],
+    "rosters": [
+      [
+        "zombie",
+        "ghoul",
+        "ghast",
+        "specter",
+        "giant_crab",
+        "giant_frog",
+        "giant_toad",
+        "crocodile",
+        "swarm_of_quippers",
+        "lizardfolk",
+        "sahuagin",
+        "giant_constrictor_snake",
+        "swarm_of_poisonous_snakes",
+        "ogre_zombie"
+      ],
+      [
+        "ghoul",
+        "ghast",
+        "specter",
+        "sea_hag",
+        "merrow",
+        "sahuagin",
+        "swarm_of_quippers",
+        "giant_octopus",
+        "ochre_jelly",
+        "gray_ooze",
+        "will_o_wisp",
+        "crocodile",
+        "ogre_zombie",
+        "green_hag"
+      ],
+      [
+        "ghast",
+        "specter",
+        "ghost",
+        "wight",
+        "will_o_wisp",
+        "gargoyle",
+        "mummy",
+        "merrow",
+        "sea_hag",
+        "gelatinous_cube",
+        "ochre_jelly",
+        "animated_armor",
+        "minotaur_skeleton",
+        "green_hag"
+      ],
+      [
+        "animated_armor",
+        "gargoyle",
+        "flesh_golem",
+        "wight",
+        "ghost",
+        "merrow",
+        "giant_constrictor_snake",
+        "plesiosaurus",
+        "black_pudding",
+        "otyugh",
+        "mummy",
+        "green_hag",
+        "ochre_jelly",
+        "shambling_mound"
+      ],
+      [
+        "knight",
+        "veteran",
+        "wight",
+        "wraith",
+        "ghost",
+        "mummy",
+        "vampire_spawn",
+        "animated_armor",
+        "gargoyle",
+        "water_elemental",
+        "night_hag",
+        "shambling_mound",
+        "black_pudding",
+        "giant_crocodile"
+      ],
+      [
+        "knight",
+        "veteran",
+        "wight",
+        "wraith",
+        "ghost",
+        "vampire_spawn",
+        "water_elemental",
+        "giant_crocodile",
+        "night_hag",
+        "flesh_golem",
+        "mummy",
+        "black_pudding",
+        "otyugh",
+        "gargoyle"
+      ]
+    ],
+    "named": [
+      {
+        "id": "sk_lake_lord",
+        "floor": 1,
+        "lair": false,
+        "x": 0,
+        "y": 0,
+        "rumored": true,
+        "defeated": false
+      },
+      {
+        "id": "sk_bellringer",
+        "floor": 2,
+        "lair": false,
+        "x": 0,
+        "y": 0,
+        "rumored": true,
+        "defeated": false
+      }
+    ],
+    "events_placed": true,
+    "elevators": [
+      {
+        "x": 18,
+        "y": 16,
+        "from": 1,
+        "to": 5,
+        "power": "sk_lift_power"
+      }
+    ],
+    "note": "MapCheck --scenario sunken --seed 沈んだ王都 で生成したものを保存した。B5 の南西に暗闇を足し、王家の昇降機は B1〜B5 の縦穴 (18,16) に1本だけ(B4 のレバーで動く)"
+  }
+]

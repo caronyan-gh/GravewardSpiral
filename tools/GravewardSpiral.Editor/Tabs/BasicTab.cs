@@ -35,6 +35,7 @@ public sealed class BasicTab(EditorContext context, Action<string, bool> say) : 
         var import = new CheckBox { Content = T("クランを連れて入れる", "Allow bringing a clan in"), IsChecked = m.AllowImport };
         import.Click += (_, _) => { m.AllowImport = import.IsChecked == true; context.MarkEdited(); };
         panel.Children.Add(Ui.Row(T("持ち込み", "Import"), import));
+        panel.Children.Add(Ui.Row(T("始める条件", "Required clears"), RequiredClears(m)));
 
         panel.Children.Add(Ui.Heading(T("レベル帯", "Level range")));
         panel.Children.Add(Ui.Note(T("B1 の目安のレベルと、最下層の目安のレベル。階ごとの敵の強さと宝はここから決まる(敵と宝のタブで見られる)。強いクランで入ると、帯はクランに合わせて上がる。", "The target level at B1 and at the bottom floor. Enemy strength and treasure per floor follow from these (see the Enemies & loot tab). If a strong clan enters, the range rises to match.")));
@@ -99,6 +100,46 @@ public sealed class BasicTab(EditorContext context, Action<string, bool> say) : 
         fillAll.Style = (Style)Application.Current.FindResource("AccentButton");
         all.Children.Add(fillAll);
         panel.Children.Add(Ui.Row("", all));
+    }
+
+    /// <summary>始める条件: ここに並べたシナリオを全部クリアしたクランを連れていくときだけ、このシナリオを始められる。</summary>
+    private StackPanel RequiredClears(Core.Content.PackManifest m)
+    {
+        var box = new StackPanel();
+        var others = context.OtherScenarios();
+        string NameOf(Core.Save.RequiredClear r) =>
+            Name(r.Name) ?? (others.FirstOrDefault(s => r.Guid != null && s.Manifest.Guid == r.Guid || s.Id == r.Id) is { } sc ? Name(sc.Manifest.Name) : null) ?? r.Id;
+        if (m.RequiresClear.Count == 0)
+            box.Children.Add(Ui.Note(T("無し(どのクランでも、新しいクランでも始められる)", "None (any clan, or a new one, can start)")));
+        foreach (var r in m.RequiresClear.ToList())
+        {
+            var line = new WrapPanel();
+            line.Children.Add(new TextBlock { Text = T($"「{NameOf(r)}」をクリアしたクラン", $"A clan that has cleared \"{NameOf(r)}\""), VerticalAlignment = VerticalAlignment.Center, Margin = new Thickness(0, 0, 12, 0) });
+            line.Children.Add(Ui.Button(T("外す", "Remove"), () => { m.RequiresClear.Remove(r); context.MarkEdited(); Reload(); }));
+            box.Children.Add(line);
+        }
+        var choices = others.Where(s => !m.RequiresClear.Any(r => r.Guid != null && r.Guid == s.Manifest.Guid || r.Id == s.Id)).ToList();
+        if (choices.Count > 0)
+        {
+            var add = new WrapPanel { Margin = new Thickness(0, 4, 0, 0) };
+            var pick = new ComboBox { MinWidth = 260, Margin = new Thickness(0, 0, 8, 0) };
+            foreach (var s in choices) pick.Items.Add(new ComboBoxItem { Content = Name(s.Manifest.Name) ?? s.Id, Tag = s });
+            pick.SelectedIndex = 0;
+            add.Children.Add(pick);
+            add.Children.Add(Ui.Button(T("をクリアしたクランだけにする", "must be cleared first"), () =>
+            {
+                if ((pick.SelectedItem as ComboBoxItem)?.Tag is not Core.Content.ScenarioInfo s) return;
+                m.RequiresClear.Add(new Core.Save.RequiredClear { Guid = s.Manifest.Guid, Id = s.Id, Name = s.Manifest.Name });
+                context.MarkEdited();
+                Reload();
+            }));
+            box.Children.Add(add);
+        }
+        box.Children.Add(Ui.Note(T("クリアは、クランがそのシナリオのエンディングを見たときに付く。条件のあるシナリオは、条件を満たすクランを連れていかないと始められない(新しいクランでは入れない)。",
+            "A clear is recorded when a clan sees that scenario's ending. A scenario with conditions can only be started with a clan that meets them (not with a new clan).")));
+        if (m.RequiresClear.Count > 0 && !m.AllowImport)
+            box.Children.Add(new TextBlock { Text = T("⚠ クランを連れて入れないので、誰も始められません(「クランを連れて入れる」を入れる)", "⚠ Clans cannot be brought in, so nobody can start this (check \"Allow bringing a clan in\")"), Foreground = Ui.Warn, TextWrapping = TextWrapping.Wrap });
+        return box;
     }
 
     private TextBox Number(double value, Action<double> set) =>

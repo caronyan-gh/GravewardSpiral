@@ -79,6 +79,31 @@ public sealed class GameSession
     /// <summary>このクランがクリアした世界の数(クランファイルから引き継ぎ、エンディングで 1 増える)。</summary>
     public int Clears { get; set; }
 
+    /// <summary>このクランのクリアの印(ScenarioClears。シナリオ → クリアした世界の数)。</summary>
+    public Dictionary<string, int> ClearedScenarios { get; set; } = new(StringComparer.Ordinal);
+
+    /// <summary>イベントの手順 ending で立つ印。町に戻るとエンディングになる。</summary>
+    public const string EndingFlag = "ending";
+
+    /// <summary>
+    /// エンディングを流すとき: まだクリアしておらず、最下層の主(final)を倒した証を持つか、イベントで ending に着いた。
+    /// </summary>
+    public bool EndingDue(Characters.GameData data) => !Flags.Contains("cleared")
+        && (Flags.Contains(EndingFlag) || data.Bosses.GetValueOrDefault(FinalBossId)?.RewardFlag is { } heart && Flags.Contains(heart));
+
+    /// <summary>この世界をクリアした(エンディング)。クリアの数を増やし、シナリオならクリアの印を付ける。初めてなら true。</summary>
+    public bool RecordClear(Content.PackManifest? scenario)
+    {
+        if (!Flags.Add("cleared")) return false;
+        Clears++;
+        if (scenario != null)
+        {
+            string key = ScenarioClears.Key(scenario);
+            ClearedScenarios[key] = ClearedScenarios.GetValueOrDefault(key) + 1;
+        }
+        return true;
+    }
+
     /// <summary>遭遇の設定に、この世界のレベル帯を当てたもの。</summary>
     public Combat.EncounterSettings WorldSettings(Combat.EncounterSettings s) =>
         FirstLevel is double f && LastLevel is double l ? s.WithLevels(f, l) : s;

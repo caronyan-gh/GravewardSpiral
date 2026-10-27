@@ -1,0 +1,38 @@
+[
+  {
+    "id": "sk_lake_lord",
+    "name": {
+      "en": "The Lord of the Lake",
+      "ja": "湖の主"
+    },
+    "monster": "giant_crocodile",
+    "item": "dragonscale_mail",
+    "item_chance": 0.6,
+    "min_depth": 0.15,
+    "max_depth": 0.5,
+    "weight": 1,
+    "placement": "wander",
+    "hp_mult": 1.6,
+    "damage_mult": 1.2,
+    "ac_bonus": 1,
+    "hit_bonus": 1
+  },
+  {
+    "id": "sk_bellringer",
+    "name": {
+      "en": "The Drowned Bell-Ringer",
+      "ja": "溺れた鐘撞き"
+    },
+    "monster": "ghost",
+    "item": "mindsplitter",
+    "item_chance": 0.6,
+    "min_depth": 0.35,
+    "max_depth": 0.7,
+    "weight": 1,
+    "placement": "wander",
+    "hp_mult": 2.2,
+    "damage_mult": 1.3,
+    "ac_bonus": 1,
+    "hit_bonus": 2
+  }
+]

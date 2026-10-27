@@ -444,6 +444,7 @@ public sealed class ScenarioPack
             {
                 var v = o[key];
                 if (v == null || v is JsonArray { Count: 0 } || key == "done_flag") o.Remove(key);   // done_flag は id から決まる(読まない)
+                else if (key == "trigger" && v is JsonValue t && t.TryGetValue<string>(out var trigger) && trigger == "enter") o.Remove(key);   // 既定(着いたとき)は書かない
                 else Prune(v);
             }
         }

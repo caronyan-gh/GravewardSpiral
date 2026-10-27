@@ -254,6 +254,7 @@ public sealed class DraftSummary(EditorContext context)
         "run" => T($"イベント {s.Id} へ続く", $"Continue with event {s.Id}"),
         "end" => T("終わる", "End"),
         "again" => T("終わる(また起こる)", "End (can happen again)"),
+        "ending" => T("エンディングへ(クリア)", "Go to the ending (clear)"),
         _ => PartNames.Name(PartNames.Steps, s.Type),
     };
 
@@ -270,6 +271,8 @@ public sealed class DraftSummary(EditorContext context)
             "flag" => T($"フラグ {c.Id}", $"flag {c.Id}"),
             "done" => T($"イベント {c.Id} が済んだ", $"event {c.Id} done"),
             "counter" => T($"数 {c.Id} {c.Op} {c.Value}", $"counter {c.Id} {c.Op} {c.Value}"),
+            "turned" => T("向きを変えたとき", "on turning"),
+            "facing" => T($"{PartNames.Name(PartNames.Facings, c.Id ?? "")}を向いている", $"facing {PartNames.Name(PartNames.Facings, c.Id ?? "")}"),
             _ => PartNames.Name(PartNames.Conditions, c.Type),
         };
         return c.Not ? T($"{what}ではない", $"not {what}") : what;

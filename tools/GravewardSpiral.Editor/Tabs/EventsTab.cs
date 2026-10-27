@@ -279,7 +279,7 @@ public sealed class EventsTab : IEditorTab
         _ => $"{PartNames.Name(PartNames.Steps, s.Type)} {s.Id}",
     };
 
-    private static string Describe(EventCondition c) => $"{(c.Not ? T("でない: ", "not: ") : "")}{PartNames.Name(PartNames.Conditions, c.Type)} {c.Id} {(c.Type == "counter" ? c.Op : "")}{(c.Type is "gold" or "level" or "counter" or "chance" or "depth" ? c.Value.ToString() : "")}";
+    private static string Describe(EventCondition c) => $"{(c.Not ? T("でない: ", "not: ") : "")}{PartNames.Name(PartNames.Conditions, c.Type)} {(c.Type == "facing" ? PartNames.Name(PartNames.Facings, c.Id ?? "") : c.Id)} {(c.Type == "counter" ? c.Op : "")}{(c.Type is "gold" or "level" or "counter" or "chance" or "depth" ? c.Value.ToString() : "")}";
 
     private static string Short(string? s) => s == null ? "" : s.Length > 28 ? s[..28] + "…" : s;
 
@@ -470,12 +470,15 @@ public sealed class EventsTab : IEditorTab
         _props.Children.Add(Ui.Row("id", id, 90));
         _props.Children.Add(Ui.Row(T("起こる場所", "Place"), Combo(EventCheck.Places, e.Place, v => { e.Place = v; Changed(); RefreshNames(); }, PartNames.Places), 90));
         _props.Children.Add(Ui.Row(T("一度きり", "Once only"), Combo(["", .. EventCheck.OnceKinds], e.Once ?? "", v => { e.Once = v.Length == 0 ? null : v; Changed(false); }, PartNames.Once), 90));
+        if (e.Place == "maze")
+            _props.Children.Add(Ui.Row(T("起こるとき", "Trigger"), Combo(EventCheck.Triggers, e.Trigger, v => { e.Trigger = v; Changed(false); }, PartNames.Triggers), 90));
                 _props.Children.Add(Ui.Row(T("題(町)", "Title (town)"), Ui.Localized(e.Title, v => { e.Title = v; Changed(false); }), 90));
         _props.Children.Add(Ui.Row(T("メモ", "Note"), Ui.Text(e.Note, v => { e.Note = v.Length == 0 ? null : v; Changed(false); }), 90));
         // イベントのあいだ流す曲(このシナリオの曲と、標準の曲。空なら変えない)
         var songs = new List<string> { "" };
         foreach (var dir in new[] { Path.Combine(_context.Pack!.Directory, "audio", "bgm"), Path.Combine(_context.ContentRoot, "srd", "audio", "bgm") })
             if (Directory.Exists(dir)) songs.AddRange(Directory.EnumerateFiles(dir, "*.mp3").Select(f => "audio/bgm/" + Path.GetFileName(f)));
+        songs.AddRange(_context.Pack.Manifest.Music.Keys.Select(n => $"audio/bgm/{n}.mp3"));   // 棚の曲を割り当てた名前
         var bgm = new ComboBox { IsEditable = true, ItemsSource = songs.Distinct().Order().ToList(), Text = e.Bgm ?? "" };
         bgm.LostFocus += (_, _) => { e.Bgm = Null(bgm.Text); Changed(false); };
         bgm.SelectionChanged += (_, _) => { if (bgm.SelectedItem is string v) { e.Bgm = Null(v); Changed(false); } };
@@ -511,7 +514,7 @@ public sealed class EventsTab : IEditorTab
         ["give_item"] = ["id", "count"], ["take_item"] = ["id", "count"], ["treasure"] = ["count"], ["gold"] = ["value"], ["xp"] = ["value"],
         ["heal"] = ["dice"], ["damage"] = ["dice", "damage_type", "ability", "dc"], ["condition"] = ["id", "value", "ability", "dc"],
         ["cure"] = ["id"], ["light"] = ["value"], ["combat"] = ["groups", "boss"], ["open"] = ["id"], ["sound"] = ["id"], ["run"] = ["id"],
-        ["town"] = [], ["end"] = [], ["again"] = [], ["world_doc"] = [],
+        ["town"] = [], ["end"] = [], ["again"] = [], ["ending"] = [], ["world_doc"] = ["value"],
     };
 
     private void StepProps(EventStep s)
@@ -556,7 +559,8 @@ public sealed class EventsTab : IEditorTab
         ["condition"] = T("id は状態の名前、value は分(0 なら治すまで)", "id is the condition name, value is minutes (0 lasts until cured)"),
         ["run"] = T("id のイベントを続けて行う", "Then runs the event with that id"), ["open"] = T("印 gate:<id> のマスの錠を開ける(この階)", "Opens the lock on the cell marked gate:<id> (this floor)"),
         ["again"] = T("ここで終わり、一度きりでも済んだことにしない", "Ends here without marking a once-only event as done"),
-        ["world_doc"] = T("AI がこの世界に書いた書き付けを1つ見せる。AI を使っていない世界では else", "Shows one note the AI wrote for this world. In a world without AI, else runs"),
+        ["ending"] = T("この世界をクリアにして町へ戻り、エンディングを流す(クランにクリアの印が付く)", "Clears this world: returns to town and plays the ending (the clan gets the clear mark)"),
+        ["world_doc"] = T("この階の書き付けを1つ見せる。value は何番目か(1 から。0 なら場所ごとに抽選で、同じ階の2か所が同じになることがある)。書き付けの無い世界では else", "Shows one of this floor's notes. value picks which (from 1; 0 draws one per place, so two places on a floor may show the same). In a world without notes, else runs"),
     };
 
     private UIElement IdBox(EventStep s)
@@ -582,12 +586,15 @@ public sealed class EventsTab : IEditorTab
     {
         _props.Children.Add(Ui.Heading(T("条件: ", "Condition: ") + PartNames.Name(PartNames.Conditions, c.Type)));
         _props.Children.Add(Ui.Row(T("種類", "Type"), Combo(EventCondition.KnownTypes, c.Type, v => { c.Type = v; Changed(); ShowProps(); }, PartNames.Conditions), 90));
-        _props.Children.Add(Ui.Row("id", Ui.Text(c.Id, v => { c.Id = Null(v); Changed(); }), 90));
+        if (c.Type == "facing")
+            _props.Children.Add(Ui.Row(T("方角", "Direction"), Combo(EventCheck.Facings, c.Id ?? "", v => { c.Id = v; Changed(); }, PartNames.Facings), 90));
+        else _props.Children.Add(Ui.Row("id", Ui.Text(c.Id, v => { c.Id = Null(v); Changed(); }), 90));
         _props.Children.Add(Ui.Row("value", Number(c.Value, v => c.Value = (int)v), 90));
         _props.Children.Add(Ui.Row("count", Number(c.Count, v => c.Count = (int)v), 90));
         _props.Children.Add(Ui.Row(T("比べ方", "Compare"), Combo([">=", "<=", "==", "!=", ">", "<"], c.Op, v => { c.Op = v; Changed(); }), 90));
         _props.Children.Add(Ui.Row(T("反対", "Invert"), Check(T("合わないとき", "When not matching"), c.Not, v => c.Not = v), 90));
-        _props.Children.Add(Ui.Note(T("flag/done/key: id、item: id と count、gold/level/depth: value、class/race: id、counter: id と比べ方と value、chance: value(%)", "flag/done/key: id; item: id and count; gold/level/depth: value; class/race: id; counter: id, compare and value; chance: value (%)")));
+        _props.Children.Add(Ui.Note(T("flag/done/key: id、item: id と count、gold/level/depth: value、class/race: id、counter: id と比べ方と value、chance: value(%)、facing: 方角(迷宮でパーティが向いている方角。地図の上が北。向きを変えたときに起こすのは、イベントの「起こるとき」)、turned: 向きを変えて起きた(「起こるとき」が両方のイベントで、着いたときと分ける)",
+            "flag/done/key: id; item: id and count; gold/level/depth: value; class/race: id; counter: id, compare and value; chance: value (%); facing: direction the party faces in the maze (north is up on the map; to fire on turning, set the event's Trigger); turned: fired by turning (tells turning from entering when the Trigger is both)")));
     }
 
     private void OptionProps(EventOption o)

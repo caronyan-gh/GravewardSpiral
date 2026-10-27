@@ -1,0 +1,15 @@
+# 第1部 A の B2: 墓荒らしの一団が棺をこじ開けている
+floor prefab_a_b2_robbers
+size 3 3
+wrap none
+start 1 2 N
+walls
++-+-+-+
+|     |
++ + + +
+|     |
++-+D+-+
+|     |
++-+-+-+
+mark 1 0 event:a_b2_robbers
+entrance 1 2 S

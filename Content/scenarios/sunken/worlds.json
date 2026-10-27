@@ -1,0 +1,155 @@
+[
+  {
+    "id": "sunken",
+    "note": "第2部の決まった物語の文(序文・階の名前と入ったときの文・書き付け・最下層の主)。文の決まったシナリオなので、ゲームで AI に書き直させない",
+    "text": {
+      "model": "scenario",
+      "prologue": {
+        "en": "The town of the Dike stands at the edge of a great lake. For years its people have been draining it, ditch by ditch, to turn the water into fields.\n\nAs the water went down, roofs and spires rose from the lake bed: an old capital that no map remembers. The fishermen's nets began to come up heavy with the dead. Their skin has not rotted. They look as if they drowned yesterday.\n\nThis spring, a letter and a stone heart came from the gravekeepers' town in the south. The heart beats toward the lake, and its broken edge points down into the water.\n\nThe sluice still stands open. Every night, the lake is a little lower, and the city a little closer.",
+        "ja": "大きな湖のほとりに、堤の町がある。町の人々は何年もかけて、溝を一本ずつ掘り、湖の水を抜いて畑にしようとしてきた。\n\n水が引くにつれて、湖の底から屋根と尖塔が現れた。どの地図にも残っていない、古い王都だった。漁の網には、溺れた死者がかかるようになった。肌は腐っていない。昨日溺れたばかりのように見える。\n\nこの春、南の墓守の町から、手紙と石の心臓が届いた。心臓は湖の方へ脈打ち、欠けた縁は水の底を指している。\n\n水門は、まだ開いたままだ。夜ごと湖は少しずつ低くなり、都は少しずつ近づいてくる。"
+      },
+      "floors": [
+        {
+          "name": {
+            "en": "The Drained Streets Below the Dike",
+            "ja": "干上がった堤下の街"
+          },
+          "enter": {
+            "en": "Mud sucks at your boots. Fish lie dried in the open doorways.",
+            "ja": "泥が靴に吸いつく。開いたままの戸口に、魚が干からびている。"
+          },
+          "documents": [
+            {
+              "en": "A fisherman's tally, scratched into a board: \"Three dead in the net today. Same as yesterday. Same faces? I'm not sure any more.\"",
+              "ja": "板に刻まれた漁師の勘定。「今日は網に三人。昨日と同じだ。同じ顔か？\u3000もう、よくわからない」"
+            },
+            {
+              "en": "A ditch-digger's note: \"Under the mud there's a paved road. Under the road, another one. How deep does this city go?\"",
+              "ja": "溝掘りの書き付け。「泥の下に、石畳の道がある。道の下に、また道がある。この都は、どこまで深いんだ」"
+            }
+          ]
+        },
+        {
+          "name": {
+            "en": "The Sunken Market",
+            "ja": "沈んだ市場"
+          },
+          "enter": {
+            "en": "Stalls stand in rows. Somewhere a door bell rings, with no wind.",
+            "ja": "店が並んだままだ。風も無いのに、どこかで戸口の鈴が鳴った。"
+          },
+          "documents": [
+            {
+              "en": "A price board: \"Lamp oil, two coppers. Eels, one. Prayers at the cathedral, free — the bells ring at dusk.\"",
+              "ja": "値札の板。「灯り油、銅貨二枚。鰻、一枚。大聖堂の祈り、ただ――鐘は日暮れに鳴る」"
+            },
+            {
+              "en": "A child's slate: \"Mother says the queen will keep the water out. Mother says not to be afraid.\"",
+              "ja": "子どもの石板。「女王さまが、水を入れないようにしてくれるって、母さんが言った。こわがらなくていいって」"
+            }
+          ]
+        },
+        {
+          "name": {
+            "en": "The Drowned Cathedral",
+            "ja": "水底の大聖堂"
+          },
+          "enter": {
+            "en": "Water hangs in the vaults like glass. The great bells are silent.",
+            "ja": "天井に、水がガラスのように留まっている。大きな鐘は黙っている。"
+          },
+          "documents": [
+            {
+              "en": "A hymnal page: \"When the Call rises, the bells answer, and the dead lie down.\" Someone has written beneath it: \"The bells are broken.\"",
+              "ja": "聖歌集の一枚。「呼び声上るとき、鐘答え、死者は伏す」。下に、誰かが書き足している。「鐘は、割れた」"
+            },
+            {
+              "en": "A priest's last entry: \"The queen came to the altar alone tonight and asked forgiveness. For what, she did not say. In the morning, the sluice was open.\"",
+              "ja": "司祭の最後の記録。「今宵、女王陛下がおひとりで祭壇に来られ、赦しを乞われた。何の赦しかは、おっしゃらなかった。朝には、水門が開いていた」"
+            }
+          ]
+        },
+        {
+          "name": {
+            "en": "The Engines of the Great Sluice",
+            "ja": "大水門の機関"
+          },
+          "enter": {
+            "en": "Gears as tall as houses. One of them turns. Nobody turns it.",
+            "ja": "家ほどもある歯車が並ぶ。一つだけ、誰も回さないのに回っている。"
+          },
+          "documents": [
+            {
+              "en": "A sluice-keeper's log, a thousand years old: \"By order of the queen: open the great sluice at dawn. All of it. God forgive me.\"",
+              "ja": "千年前の水門守の記録。「女王陛下の命により、夜明けに大水門を開く。すべて。神よ、赦したまえ」"
+            },
+            {
+              "en": "A new note, pinned to a gear with a nail: \"Per, if you read this, wait for me by the big wheel. — Father\"",
+              "ja": "歯車に釘で留めた、新しい書き付け。「ペルへ。これを読んだら、大きな車輪のところで待っていろ。――父さん」"
+            }
+          ]
+        },
+        {
+          "name": {
+            "en": "The Palace Galleries",
+            "ja": "王宮の回廊"
+          },
+          "enter": {
+            "en": "The air is dry and too still. Ahead, armored feet march in step.",
+            "ja": "空気が乾いて、静かすぎる。先で、鎧の足音が揃って行進している。"
+          },
+          "documents": [
+            {
+              "en": "A guard's roster. Every name has been struck through except one: \"Vail, Commander.\" Beside it: \"Will not leave his post.\"",
+              "ja": "親衛の点呼簿。一つを除いて、すべての名に線が引かれている。「騎士団長ヴェイル」。その横に「持ち場を離れず」"
+            },
+            {
+              "en": "Scratched into a pillar at shoulder height: \"She drowned us. She drowned us. She drowned us.\"",
+              "ja": "柱の、肩の高さに刻まれた文字。「あの女が沈めた。あの女が沈めた。あの女が沈めた」"
+            }
+          ]
+        },
+        {
+          "name": {
+            "en": "The Throne Room",
+            "ja": "玉座の間"
+          },
+          "enter": {
+            "en": "A woman sits on a silver throne. Between you, the knights stand.",
+            "ja": "白銀の玉座に、女の人が座っている。そのあいだに、騎士が並んでいる。"
+          },
+          "documents": [
+            {
+              "en": "A torn banner of Selem. On the back, in faded ink: \"To whoever drains the lake: please, let it fill again.\"",
+              "ja": "破れたセレムの旗。裏に、薄れた墨で。「湖を干す者へ。どうか、また満たしてほしい」"
+            },
+            {
+              "en": "An oath card from a knight's glove: \"I will stand between the queen and every harm.\" The word \"queen\" has been scraped out.",
+              "ja": "騎士の籠手から出てきた誓いの札。「我は、陛下とあらゆる害のあいだに立つ」。「陛下」の字だけが、削り取られている。"
+            }
+          ]
+        }
+      ],
+      "boss": {
+        "name": {
+          "en": "Vail, Knight-Commander of Selem",
+          "ja": "騎士団長ヴェイル"
+        },
+        "intro": {
+          "en": "The ranks part. A knight in black-rusted armor steps forward, water running from his visor. \"Majesty. My horn was never sounded. The gate was still full of people. ...And you sit on that throne still. Give me the stone. Let the Deep take us all, and be done.\"",
+          "ja": "列が割れた。黒く錆びた鎧の騎士が進み出る。面頬から水が流れ落ちている。「陛下。角笛は、まだ吹いていなかった。門には、まだ民がいた。……それでも、その玉座に座っておられる。石を、渡せ。底にみな呑ませて、それで終わりにしよう」"
+        },
+        "victory": {
+          "en": "Vail falls to one knee, and his armor fills with water. \"...Majesty... why... us...\"\nFrom the throne, Ilda answers only: \"I do not think I will be forgiven.\"\nThe queen breaks a shard from the stone in her arms and holds it out to you. Set against the stone heart, the edges almost meet. Something is still missing, further down. She stays on the throne, holding the rest against the Deep. Carry the shard to the surface.",
+          "ja": "ヴェイルは片膝をつき、鎧の中に水が満ちていく。「……陛下、なぜ、我らを……」\n玉座の上から、イルダはただこう答えた。「許されるとは、思わぬ」\n女王は胸に抱いた石から欠片を一つ割り取り、あなたに差し出した。石の心臓と合わせると、縁がほとんど重なる。それでもまだ、もっと下のどこかが欠けている。女王は玉座に残り、残りの石で底を塞ぎ続ける。欠片を、地上へ持ち帰ろう。"
+        },
+        "escorts": [
+          {
+            "en": "Drowned Knight",
+            "ja": "溺れた騎士"
+          }
+        ]
+      }
+    }
+  }
+]

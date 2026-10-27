@@ -68,7 +68,55 @@ public sealed class ContentLibrary
             lib.LoadPack(contentRoot, m);
         }
         lib.ResolveExtends();
+        lib.CheckMusic();
         return lib;
+    }
+
+    /// <summary>
+    /// パックの中のファイルの場所(後から読んだパックを優先)。無ければ null。
+    /// audio/bgm/&lt;名前&gt;.mp3 は、パックの曲の割り当て(manifest の music。後から読んだパックを優先)があれば、棚の曲(music.json)のファイルになる。
+    /// </summary>
+    public string? FindFile(string relative)
+    {
+        if (MappedTrack(relative) is { } track) return track;
+        for (int i = Packs.Count - 1; i >= 0; i--)
+        {
+            string full = Path.Combine(Packs[i].Directory, relative);
+            if (File.Exists(full)) return full;
+        }
+        return null;
+    }
+
+    /// <summary>曲の割り当てで決まる棚の曲のファイル(割り当てが無ければ null)。</summary>
+    private string? MappedTrack(string relative)
+    {
+        const string Prefix = "audio/bgm/";
+        string rel = relative.Replace('\\', '/');
+        if (!rel.StartsWith(Prefix, StringComparison.Ordinal) || !rel.EndsWith(".mp3", StringComparison.OrdinalIgnoreCase)) return null;
+        string name = rel[Prefix.Length..^4];
+        if (name.Contains('/')) return null;
+        for (int i = Packs.Count - 1; i >= 0; i--)
+        {
+            if (!Packs[i].Music.TryGetValue(name, out var id)) continue;
+            return Find(MusicTrack.Collection, id) is { } item && TrackFile(item) is { } full && File.Exists(full) ? full : null;
+        }
+        return null;
+    }
+
+    /// <summary>棚の曲のファイルの場所(その曲を書いたパックの中)。</summary>
+    public static string? TrackFile(ContentItem item) =>
+        item.As<MusicTrack>().File is { Length: > 0 } f ? Path.Combine(item.Pack.Directory, f) : null;
+
+    /// <summary>棚の曲のファイルと、パックの曲の割り当ての行き先があるかを見る。</summary>
+    private void CheckMusic()
+    {
+        foreach (var item in All(MusicTrack.Collection))
+            if (TrackFile(item) is not { } f || !File.Exists(f))
+                Problems.Add($"{item.Pack.Id}/music.json の '{item.Id}': 曲のファイル '{item.As<MusicTrack>().File}' がありません");
+        foreach (var pack in Packs)
+            foreach (var (name, id) in pack.Music)
+                if (!Has(MusicTrack.Collection, id))
+                    Problems.Add($"{pack.Id}/manifest.json の music '{name}': 棚の曲 '{id}' がありません");
     }
 
     /// <summary>
@@ -316,10 +364,19 @@ public sealed class PackManifest
     /// <summary>クランを連れて入れるか(シナリオ)。</summary>
     public bool AllowImport { get; set; } = true;
 
+    /// <summary>始める条件(シナリオ)。ここにあるシナリオを全部クリアしたクランを連れていくときだけ始められる。</summary>
+    public List<Save.RequiredClear> RequiresClear { get; set; } = [];
+
     /// <summary>
     /// シナリオの迷宮に、標準のパック(srd など)の散らすイベントと連動する組も混ぜるか(シナリオ)。false なら、このシナリオのイベントだけを散らす。
     /// </summary>
     public bool StandardEvents { get; set; } = true;
+
+    /// <summary>
+    /// 曲の割り当て(流すところ → 標準の曲の棚 music.json の id)。流すところは audio/bgm の曲の名前(town、maze、maze_b3、battle_b2、
+    /// イベントの bgm に書く名前など)。割り当てた曲は、パックに同じ名前のファイルがあっても、そちらより先に使う。
+    /// </summary>
+    public Dictionary<string, string> Music { get; set; } = new(StringComparer.Ordinal);
 
     [JsonIgnore]
     public string Directory { get; set; } = "";

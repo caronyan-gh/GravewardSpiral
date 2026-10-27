@@ -142,6 +142,12 @@ public sealed class GameServices
     public List<ScenarioInfo> FindScenarios(List<string>? problems = null) =>
         ScenarioCatalog.Find([AppPaths.BundledScenarios, UserScenarios], AppPaths.ScenarioCache, problems);
 
+    /// <summary>このフレームに窓へ落とされたファイルとフォルダ(フレームの終わりに空にする。拾うのはタイトル画面だけ)。</summary>
+    public List<string> DroppedFiles { get; } = [];
+
+    /// <summary>シナリオを置いたり消したりしたあとに呼ぶ(名前の覚えを捨てる)。</summary>
+    public void ForgetScenarioNames() => _scenarioNames = null;
+
     /// <summary>新しく作った自由な迷宮の、まだ書き出していないシナリオ(id と、イベントを置く前のマップ)。</summary>
     public (string Id, List<string> Maps)? PendingExport { get; set; }
 

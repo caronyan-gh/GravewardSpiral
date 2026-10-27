@@ -63,13 +63,14 @@ public static class PartNames
         ("give_item", "品を渡す", "Give item"), ("take_item", "品を取る", "Take item"), ("treasure", "宝", "Treasure"), ("gold", "お金", "Gold"), ("xp", "経験値", "Experience"),
         ("heal", "回復", "Heal"), ("damage", "ダメージ", "Damage"), ("condition", "状態にする", "Inflict condition"), ("cure", "状態を治す", "Cure condition"), ("light", "明かり", "Light"),
         ("combat", "戦闘", "Combat"), ("open", "門を開ける", "Open gate"), ("sound", "効果音", "Sound effect"), ("run", "別のイベント", "Run another event"), ("world_doc", "AI の書き付け", "AI-written note"),
-        ("town", "町へ戻る", "Return to town"), ("end", "終わる", "End"), ("again", "終わる(また起こる)", "End (can happen again)"));
+        ("town", "町へ戻る", "Return to town"), ("end", "終わる", "End"), ("again", "終わる(また起こる)", "End (can happen again)"),
+        ("ending", "エンディングへ", "Go to the ending"));
 
     /// <summary>手順の部品の組(足すとき、まず組を選んで絞る)。</summary>
     public static readonly (string Ja, string En, string[] Keys)[] StepGroups =
     [
         ("文と選択", "Text & choices", ["text", "choice", "world_doc"]),
-        ("流れ", "Flow", ["if", "check", "random", "run", "end", "again", "town"]),
+        ("流れ", "Flow", ["if", "check", "random", "run", "end", "again", "town", "ending"]),
         ("フラグと数", "Flags & counters", ["flag", "unflag", "counter", "counter_set"]),
         ("品とお金", "Items & gold", ["give_item", "take_item", "treasure", "gold", "xp"]),
         ("パーティ", "Party", ["heal", "damage", "condition", "cure", "light"]),
@@ -79,7 +80,14 @@ public static class PartNames
     public static readonly IReadOnlyDictionary<string, string> Conditions = new PartTable<string>(
         ("flag", "フラグが立っている", "Flag is set"), ("done", "イベントが済んだ", "Event is done"), ("item", "品を持っている", "Has item"), ("gold", "お金がある", "Has gold"),
         ("level", "レベル", "Level"), ("class", "クラスの人がいる", "Class in party"), ("race", "種族の人がいる", "Race in party"), ("counter", "数を比べる", "Compare counter"),
-        ("chance", "確率", "Chance"), ("key", "この階の鍵", "Key for this floor"), ("alive", "動ける人の数", "Members able to act"), ("depth", "階の深さ", "Floor depth"));
+        ("chance", "確率", "Chance"), ("key", "この階の鍵", "Key for this floor"), ("alive", "動ける人の数", "Members able to act"), ("depth", "階の深さ", "Floor depth"),
+        ("facing", "向いている方角", "Facing"), ("turned", "向きを変えて起きた", "Fired by turning"));
+
+    public static readonly IReadOnlyDictionary<string, string> Facings = new PartTable<string>(
+        ("north", "北(地図の上)", "North (up on the map)"), ("east", "東", "East"), ("south", "南", "South"), ("west", "西", "West"));
+
+    public static readonly IReadOnlyDictionary<string, string> Triggers = new PartTable<string>(
+        ("enter", "マスに着いたとき", "On entering the cell"), ("turn", "そのマスで向きを変えたとき", "On turning in the cell"), ("both", "着いたときと、向きを変えたとき", "On entering and on turning"));
 
     public static readonly IReadOnlyDictionary<string, string> Places = new PartTable<string>(("maze", "迷宮", "Maze"), ("town", "町", "Town"));
     public static readonly IReadOnlyDictionary<string, string> Once = new PartTable<string>(("", "何度でも", "Any number of times"), ("game", "世界で一度", "Once per world"), ("place", "そのマスで一度", "Once per cell"));

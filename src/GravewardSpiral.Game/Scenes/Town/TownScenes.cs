@@ -38,9 +38,8 @@ public sealed class TownScene : MenuScene
             Message = notice;
             Services.Session.TownNotice = null;
         }
-        // 最下層のボス(final)を倒した証を持って戻ったら、エンディング
-        var flags = Services.Session.Flags;
-        if (Services.Data.Bosses.GetValueOrDefault("final")?.RewardFlag is { } heart && flags.Contains(heart) && !flags.Contains("cleared")) Stack.Push(new EndingScene());
+        // 最下層のボス(final)を倒した証を持って戻るか、イベントで ending に着いたら、エンディング
+        if (Services.Session.EndingDue(Services.Data)) Stack.Push(new EndingScene());
     }
 
     private bool PartyCanEnter => Services.Session!.Roster.PartyMembers.Any(c => c.CanAct);

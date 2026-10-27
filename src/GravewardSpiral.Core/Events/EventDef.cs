@@ -7,6 +7,7 @@ namespace GravewardSpiral.Core.Events;
 /// イベント1つ(パックの events.json)。条件 (when) が合えば、手順 (steps) を上から順に行う。
 /// 起こる場所 (place):
 /// - "maze": 迷宮のマスの印 event:&lt;id&gt; を踏んだとき。手作りのマップ・はめ込む部屋に書くか、scatter で迷宮に散らす。
+///   trigger を "turn" にすると、そのマスで向きを変えたとき(回転・振り向き)に起こる。"both" なら着いたときと向きを変えたときの両方。
 /// - "town": 町の「人を訪ねる」に、題 (title) を出す。
 /// 一度きり (once): "game" ならゲームで1回、"place" なら置いた場所ごとに1回(散らした遺品など)。省くと何度でも起こる。
 /// エディタで組めるよう、条件と手順はすべて決まった種類の部品で書く(種類は EventCondition.KnownTypes / EventStep.KnownTypes)。
@@ -19,8 +20,18 @@ public sealed class EventDef
     public LocalizedText? Title { get; set; }
     public string Place { get; set; } = "maze";
     public string? Once { get; set; }
+
+    /// <summary>迷宮で起こるとき: enter(マスに着いたとき。既定)/ turn(そのマスで向きを変えたとき)/ both(どちらでも)。</summary>
+    public string Trigger { get; set; } = "enter";
+
     public List<EventCondition> When { get; set; } = [];
     public List<EventStep> Steps { get; set; } = [];
+
+    [System.Text.Json.Serialization.JsonIgnore]
+    public bool OnEnter => Trigger != "turn";
+
+    [System.Text.Json.Serialization.JsonIgnore]
+    public bool OnTurn => Trigger is "turn" or "both";
 
     /// <summary>イベントのあいだ流す BGM(パックの中のパス。例: audio/bgm/story.mp3)。終わったら、前の曲に戻す。</summary>
     public string? Bgm { get; set; }
@@ -92,11 +103,13 @@ public sealed class EventScatter
 /// 条件の部品。not で逆にする。
 /// flag(id が立っている) / done(イベント id が済んだ) / item(id を count 以上持つ) / gold(value 以上) / level(誰かが value 以上) /
 /// class(id のクラスの人がいる) / race(id の種族の人がいる) / counter(id を op で value と比べる) / chance(value % で) /
-/// key(この階の鍵を持つ) / alive(動ける人が value 以上) / depth(今の階の深さが value % 以上)
+/// key(この階の鍵を持つ) / alive(動ける人が value 以上) / depth(今の階の深さが value % 以上) /
+/// facing(迷宮でパーティが id の向き north / east / south / west を向いている。地図の上が north) /
+/// turned(向きを変えて起きた。trigger が both のイベントで、着いたときと分ける)
 /// </summary>
 public sealed class EventCondition
 {
-    public static readonly HashSet<string> KnownTypes = ["flag", "done", "item", "gold", "level", "class", "race", "counter", "chance", "key", "alive", "depth"];
+    public static readonly HashSet<string> KnownTypes = ["flag", "done", "item", "gold", "level", "class", "race", "counter", "chance", "key", "alive", "depth", "facing", "turned"];
 
     public string Type { get; set; } = "";
     public string? Id { get; set; }
@@ -139,9 +152,11 @@ public sealed class EventOption
 /// - sound: id(効果音)
 /// - run: id のイベントを続けて行う
 /// - town: 町へ戻る
+/// - ending: この世界をクリアにする。町へ戻り、エンディングを流す(最下層の主を倒さずに終わるシナリオに。クランにクリアの印が付く)
 /// - end: ここで終わる
 /// - again: ここで終わり、一度きりでも済んだことにしない(立ち去る、など。また来れば起こる)
-/// - world_doc: AI がこの世界のために書いた、この階の書き付けを1つ見せる(同じ迷宮の同じマスでは毎回同じもの)。
+/// - world_doc: この世界の、この階の書き付け(AI が書いたものか、シナリオの worlds.json の documents)を1つ見せる。
+///   value が 1 以上ならその番目、0 なら同じ迷宮の同じマスで毎回同じものを抽選する(同じ階の2か所は、同じものになることがある)。
 ///   AI を使っていない世界では else の手順を行う(決まった文を書いておく)
 /// </summary>
 public sealed class EventStep
@@ -150,7 +165,7 @@ public sealed class EventStep
     [
         "text", "choice", "if", "check", "random", "flag", "unflag", "counter", "counter_set", "give_item", "take_item", "treasure", "gold",
         "xp", "heal", "damage", "condition", "cure", "light", "combat", "open", "sound", "run", "town", "end", "again",
-        "world_doc",
+        "world_doc", "ending",
     ];
 
     public string Type { get; set; } = "";

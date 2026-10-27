@@ -110,6 +110,7 @@ public sealed class MazeScene : Scene
         }
         if (Services.Debug && DebugKeys()) return;
         bool walk = !_waitMoveRelease;   // 押しっぱなしのまま戻ってきたあいだは、歩かない(回転やメニューはできる)
+        bool backTurns = BackTurns(input);
         if (walk && input.Repeat(GameAction.Up))
         {
             bool door = ThroughDoor(State.Position.Facing);   // 動く前に、これから通る辺を見る
@@ -117,7 +118,8 @@ public sealed class MazeScene : Scene
             _stepFrom = State.Position.Cell;
             Report(_nav.Forward(), door);
         }
-        else if (walk && input.Repeat(GameAction.Down))
+        else if (backTurns && input.Pressed(GameAction.Down)) Turned(_nav.TurnAround());
+        else if (!backTurns && walk && input.Repeat(GameAction.Down))
         {
             bool door = ThroughDoor(State.Position.Facing.Opposite());
             _moveDir = State.Position.Facing.Opposite();
@@ -132,8 +134,8 @@ public sealed class MazeScene : Scene
             _stepFrom = State.Position.Cell;
             Report(dir == State.Position.Facing.Left() ? _nav.StrafeLeft() : _nav.StrafeRight(), door);
         }
-        else if (input.Pressed(GameAction.Left)) _nav.TurnLeft();
-        else if (input.Pressed(GameAction.Right)) _nav.TurnRight();
+        else if (input.Pressed(GameAction.Left)) Turned(_nav.TurnLeft());
+        else if (input.Pressed(GameAction.Right)) Turned(_nav.TurnRight());
         else if (input.Pressed(GameAction.Confirm)) UseOrSearch();
         else if (input.Pressed(GameAction.Map) && !Services.Options.AllowMap) Say(Services.Strings["maze.no_map"]);
         else if (input.Pressed(GameAction.Map))
@@ -157,6 +159,9 @@ public sealed class MazeScene : Scene
     }
 
     private bool InFog => State.Cell.Zone.HasFlag(Zone.Fog);
+
+    /// <summary>後ろのキーで振り向くか(設定で「振り向く」なら振り向き、Shift か L2 を押しながらだと逆)。</summary>
+    private bool BackTurns(InputState input) => (Services.Options.BackKey == "turn") != input.Held(GameAction.Reverse);
 
     private void OpenCamp() => Stack.Push(new CampScene(RestInterrupted, () =>
     {
@@ -364,6 +369,14 @@ public sealed class MazeScene : Scene
         }
     }
 
+    /// <summary>向きを変えた。このマスのイベントが向きを変えたときに起こるもの(trigger が turn / both)なら始める。</summary>
+    private void Turned(MoveResult result)
+    {
+        if (result != MoveResult.Turned || Services.Session == null) return;
+        if (State.Cell.Mark is { } mark && mark.StartsWith(EventPlacer.MarkPrefix)
+            && Services.Data.Events.TryGetValue(mark[EventPlacer.MarkPrefix.Length..], out var ev) && ev.OnTurn) StartEvent(ev, turned: true);
+    }
+
     /// <summary>着いたマスの印(鍵を拾う、メッセージ)。一度で済むものは済んだと覚える。</summary>
     private void CheckMark()
     {
@@ -380,7 +393,7 @@ public sealed class MazeScene : Scene
         }
         else if (mark.StartsWith("message:")) Say(s[mark["message:".Length..]]);
         else if (mark.StartsWith(EventPlacer.MarkPrefix) && Services.Session != null
-            && Services.Data.Events.TryGetValue(mark[EventPlacer.MarkPrefix.Length..], out var ev)) StartEvent(ev);
+            && Services.Data.Events.TryGetValue(mark[EventPlacer.MarkPrefix.Length..], out var ev) && ev.OnEnter) StartEvent(ev);
         else if (mark.StartsWith("boss:") && !State.UsedMarks.Contains(here) && Services.Session != null
             && Services.Session.Boss(Services.Data, mark["boss:".Length..]) is { } boss)
         {
@@ -417,8 +430,8 @@ public sealed class MazeScene : Scene
         }
     }
 
-    /// <summary>このマスのイベントを始める(条件が合わない・済んだものは何もしない)。</summary>
-    private void StartEvent(EventDef def)
+    /// <summary>このマスのイベントを始める(条件が合わない・済んだものは何もしない)。turned は向きを変えて起こしたとき。</summary>
+    private void StartEvent(EventDef def, bool turned = false)
     {
         var session = Services.Session!;
         _encounters ??= Services.Encounters();
@@ -433,10 +446,13 @@ public sealed class MazeScene : Scene
             Depth = Depth,
             TargetLevel = _encounters.TargetLevel(Depth),
             Treasure = _treasure,
+            Turned = turned,
         };
         // 書き留めた場所では起こさず、見覚えがあることだけを言う(メモの最初の文を添えて)
         if (State.Notes.FirstOrDefault(n => n.Floor == ctx.At.Value.Floor && n.Cell == ctx.At.Value.Cell && n.EventId == def.Id) is { } note)
         {
+            // 向きを変えるたびに言うとうるさいので、向きを変えたときは黙っている
+            if (turned) return;
             string first = note.Lines.Count > 0 ? Services.Name(note.Lines[0]) : "";
             Say(Services.Strings.Format("memo.recall", first));
             return;
@@ -737,7 +753,7 @@ public sealed class MazeScene : Scene
             DrawWrapped(d, _messages[i], new Vector2(InfoArea.X + 16, InfoArea.Y + 44 + (i - start) * 30), InfoArea.Width - 32, 19,
                 latest ? Color.White : Theme.Dim);
         }
-        d.Text(s["maze.help"], new Vector2(InfoArea.X + 16, InfoArea.Y + InfoArea.Height - 40), 13, Theme.Dim);
+        d.Text(s.Format("maze.help", s[Services.Options.BackKey == "turn" ? "maze.help.turn" : "maze.help.step"]), new Vector2(InfoArea.X + 16, InfoArea.Y + InfoArea.Height - 40), 13, Theme.Dim);
 
         PartyPanel.Draw(d, Services, PartyArea);
     }

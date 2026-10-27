@@ -1,14 +1,135 @@
 [
   {
     "id": "gravekeeper",
-    "note": "第1部の決まった物語の文(序文と最下層の主)。文の決まったシナリオなので、ゲームで AI に書き直させない",
+    "note": "第1部の決まった物語の文(序文・階の名前と入ったときの文・書き付け・最下層の主)。文の決まったシナリオなので、ゲームで AI に書き直させない",
     "text": {
       "model": "scenario",
       "prologue": {
-        "en": "The town stands over a burial ground that winds down into the earth in a spiral. The dead are laid to rest far below, and generation after generation of gravekeepers have watched over their sleep.\n\nA month ago, the last gravekeeper took his lantern and went down the spiral. He has not come back.\nSince then, every night, graves open from within. The earth is pushed up from below, and the coffins lie empty.\n\nLene, the gravekeeper's apprentice, stands at the tavern door in her master's old cloak.\n\"Please find my master. ...And let the dead sleep again.\"",
+        "en": "The town stands over a burial ground that winds down into the earth in a spiral. The dead are laid to rest far below, and generation after generation of gravekeepers have watched over their sleep.\n\nA month ago, the last gravekeeper took his lantern and went down the spiral. He has not come back.\nSince then, every night, graves open from within. The earth is pushed up from below, and the coffins lie empty.\n\nRiine, the gravekeeper's apprentice, stands at the tavern door in her master's old cloak.\n\"Please find my master. ...And let the dead sleep again.\"",
         "ja": "町は、地の底へ螺旋を描いて下る墓所の上に建っている。死者は螺旋の底へ深く葬られ、代々の墓守が、その眠りを見守ってきた。\n\nひと月前、最後の墓守が角灯を手に螺旋を下りた。それきり、戻らない。\nそのころから、夜ごと墓が内側から開くようになった。土は下から押し上げられ、棺は空のまま転がっている。\n\n墓守見習いのリーネは、師匠の古い外套を羽織ったまま、酒場の戸口に立っていた。\n「師匠を、探してください。……それから、死者たちを、もう一度眠らせてください」"
       },
-      "floors": [],
+      "floors": [
+        {
+          "name": {
+            "en": "New Graves",
+            "ja": "新しい墓"
+          },
+          "enter": {
+            "en": "The smell of earth is thick. Freshly dug graves gape open all around.",
+            "ja": "土の匂いが濃い。掘り返されたばかりの墓穴が、いくつも口を開けている。"
+          },
+          "documents": [
+            {
+              "en": "A gravedigger's tally scratched on a spade handle: \"Third morning running. Yesterday's grave open again. Earth pushed up from below. Warden still not back.\"",
+              "ja": "墓掘りのシャベルの柄に刻まれた勘定。「三日続けて、昨日埋めた墓が朝には開いている。土は下から押し上げられている。墓守さんは、まだ戻らない」"
+            },
+            {
+              "en": "A fresh headstone: \"Hans the baker lies here. His debts he will settle in heaven.\" Someone has scratched beneath it: \"We'll hold you to that.\"",
+              "ja": "新しい墓石。「パン屋のハンス、ここに眠る。借りは天国で返す」。その下に、誰かが引っかいて書き足している。「待ってるぞ」"
+            }
+          ]
+        },
+        {
+          "name": {
+            "en": "Common Grounds",
+            "ja": "共同墓地"
+          },
+          "enter": {
+            "en": "Nameless grave markers stretch on and on, all leaning the same way.",
+            "ja": "名もない死者たちの墓標が、どこまでも並んでいる。どれも同じ方向に傾いている。"
+          },
+          "documents": [
+            {
+              "en": "A page from the common-grave register: \"Nameless. Nameless. Nameless. Twelve at the end of winter. The warden gave each one a name before he closed the earth.\"",
+              "ja": "共同墓地の名簿の一枚。「名無し。名無し。名無し。冬の終わりに十二人。墓守さんが、土をかける前に一人ずつ名を付けてやった」"
+            },
+            {
+              "en": "A child's writing on a slate by a small grave: \"Grandma, I'm leaving flowers. And a candle, so you won't be scared.\"",
+              "ja": "小さな墓のそばの石板に、子どもの字。「おばあちゃんへ。お花をおいていきます。こわくないように、ろうそくも」"
+            }
+          ]
+        },
+        {
+          "name": {
+            "en": "The Old Ossuary",
+            "ja": "古い納骨堂"
+          },
+          "enter": {
+            "en": "Every wall is built of bones. The empty sockets of skulls seem to watch you.",
+            "ja": "壁という壁が骨で組まれている。頭蓋骨の眼窩が、こちらを見ている気がする。"
+          },
+          "documents": [
+            {
+              "en": "A wooden sign by the bell rope, worn smooth: \"The funeral bell is struck three times. Two for the living, one for the dead.\"",
+              "ja": "鐘の綱のそばの、すり減った木の札。「弔いの鐘は三つ打つ。二つは生者に、一つは死者に」"
+            },
+            {
+              "en": "Chalk on a skull, in an apprentice's careful hand: \"Shelf nine full. Started shelf ten. Master says the bones don't mind being moved, so long as you tell them.\"",
+              "ja": "頭蓋骨に、見習いの几帳面な白墨の字。「九段目、満杯。十段目に移る。骨は動かしても怒らない、声をかけてやればいい、と師匠が言う」"
+            }
+          ]
+        },
+        {
+          "name": {
+            "en": "Hall of Wardens",
+            "ja": "歴代墓守の回廊"
+          },
+          "enter": {
+            "en": "Statues of past wardens line the hall, lanterns raised. Their flames died long ago.",
+            "ja": "歴代の墓守の像が、ランタンを掲げて並んでいる。火はとうに消えている。"
+          },
+          "documents": [
+            {
+              "en": "Beneath a warden's statue: \"I kept the seal forty years and never once saw what was under it. I was glad.\"",
+              "ja": "墓守の像の台座に。「四十年、封じを結び直してきた。その下にあるものを、一度も見なかった。それでよかった」"
+            },
+            {
+              "en": "A rota of the wardens' duties, the last line in fresh ink: \"Lantern oil — enough for one more descent.\"",
+              "ja": "墓守の務めの当番表。最後の一行だけ、新しい墨で。「角灯の油――もう一度下りる分は、ある」"
+            }
+          ]
+        },
+        {
+          "name": {
+            "en": "Sealing Chambers",
+            "ja": "封じの間"
+          },
+          "enter": {
+            "en": "Sealing runes cover the floor. Most have been scraped away from the inside.",
+            "ja": "床一面に、封じの文字が刻まれている。そのほとんどが、内側から削り取られている。"
+          },
+          "documents": [
+            {
+              "en": "Scratched into the floor among the runes, deep and uneven: \"It is not angry. It is tired. So am I.\"",
+              "ja": "封じの文字のあいだに、深く不揃いに刻んである。「あれは怒ってはいない。疲れているのだ。わたしもだ」"
+            },
+            {
+              "en": "A burned-out lantern wick, and a scrap of oilcloth: \"If you are reading this, the seal held one more night.\"",
+              "ja": "燃え尽きた角灯の芯と、油紙の切れ端。「これを読んでいるなら、封じはもう一晩もった」"
+            }
+          ]
+        },
+        {
+          "name": {
+            "en": "The First Grave",
+            "ja": "最初の墓"
+          },
+          "enter": {
+            "en": "The air is frozen. From the bottom of the spiral comes a sound like a beating heart.",
+            "ja": "空気が凍りついている。螺旋の底から、心臓の鼓動のような音が響いてくる。"
+          },
+          "documents": [
+            {
+              "en": "On the oldest stone of all, almost worn away: \"Ord, first of the wardens. I go down so that no one else need.\"",
+              "ja": "いちばん古い石に、ほとんど擦り切れて。「最初の墓守オルド。わたしが下りる。ほかの誰も、下りずにすむように」"
+            },
+            {
+              "en": "A child's carved toy lantern, far older than the town: someone brought it all the way down here and left it at the edge of the dark.",
+              "ja": "町より古い、子どもの彫った木の角灯。誰かがこんな底まで持ってきて、闇のふちに置いていった。"
+            }
+          ]
+        }
+      ],
       "boss": {
         "name": {
           "en": "Ord, the First Warden",
@@ -21,7 +142,8 @@
         "victory": {
           "en": "As he crumbles, Ord, the First Warden, smiles faintly. \"...At last, I can sleep. ...The Call... still... in the drowned... city...\"\nFrom behind the altar rolls a stone heart, still beating. Carry it to the surface.",
           "ja": "最初の墓守オルドは、崩れ落ちながら、かすかに笑った。「……ようやく、眠れる。……呼び声は、まだ……沈んだ、都に……」\n祭壇の奥から、脈打つ石の心臓が転がり出た。地上へ持ち帰ろう。"
-        }
+        },
+        "escorts": []
       }
     }
   }

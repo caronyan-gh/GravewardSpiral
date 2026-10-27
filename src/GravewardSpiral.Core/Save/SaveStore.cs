@@ -44,9 +44,9 @@ public sealed class SaveStore
     /// <summary>世界のファイル(テストと確かめ用)。</summary>
     public string WorldFile(string clanId, string worldKey) => Path.Combine(WorldDir(clanId, worldKey), WorldFileName);
 
-    /// <summary>世界の見出し(続きからの一覧用)。</summary>
+    /// <summary>世界の見出し(続きからの一覧用)。DeepestFloor は地図を描いた一番深い階、CurrentFloor は迷宮の中で中断した今の階(1 が B1。町なら 0)。</summary>
     public sealed record WorldSummary(string ClanId, string Key, DateTime SavedAt, string Location, IReadOnlyList<string> Party, int DeepestFloor, int Floors, ulong Seed,
-        string? Scenario, IReadOnlyList<string> PartyIds);
+        string? Scenario, IReadOnlyList<string> PartyIds, int CurrentFloor = 0);
 
     /// <summary>クランの見出し。Worlds は最近遊んだ順。</summary>
     public sealed record ClanSummary(string Id, string? Name, DateTime SavedAt, int Characters, IReadOnlyList<WorldSummary> Worlds)
@@ -87,7 +87,8 @@ public sealed class SaveStore
     {
         var party = data.Roster.Party.Select(id => clan.Characters.FirstOrDefault(c => c.Id == id)?.Name ?? "?").ToList();
         int deepest = data.Exploration?.AutoMap.Select(m => m.Floor).DefaultIfEmpty(0).Max() ?? 0;
-        return new WorldSummary(clan.Id, key, data.SavedAt, data.Location, party, deepest + 1, data.Dungeon.Floors.Count, data.Generation.Seed, data.Scenario, data.Roster.Party);
+        int current = data.Location == "maze" && data.Exploration is { } e ? e.Floor + 1 : 0;
+        return new WorldSummary(clan.Id, key, data.SavedAt, data.Location, party, deepest + 1, data.Dungeon.Floors.Count, data.Generation.Seed, data.Scenario, data.Roster.Party, current);
     }
 
     /// <summary>クランの世界のファイルを読む(見出しと、よそにいる人を数えるのに使う)。組の合わない世界は、読む前に戻す(RecoverWorld)。</summary>
@@ -120,6 +121,8 @@ public sealed class SaveStore
         var clan = node.Deserialize<ClanData>(Json) ?? throw new InvalidDataException("クランが読めません");
         foreach (var c in clan.Characters) c.NormalizeClasses();
         MovePactSlots(node["characters"], clan.Characters);
+        // クリアの印を持つ前のクランは、クリアした世界から拾う
+        clan.ClearedScenarios ??= ScenarioClears.FromWorlds(ReadWorlds(clanId).Select(w => w.Data));
         return clan;
     }
 
@@ -141,12 +144,17 @@ public sealed class SaveStore
         foreach (var (key, data) in ReadWorlds(clanId))
         {
             if (key == exceptWorld) continue;
-            if (data.Location == "maze")
-                foreach (var id in data.Roster.Party) away[id] = data.Scenario ?? key;
-            foreach (var id in data.Roster.LeftInMaze.Keys) away[id] = data.Scenario ?? key;
+            foreach (var id in InMaze(data)) away[id] = data.Scenario ?? key;
         }
         return away;
     }
+
+    /// <summary>その世界の迷宮にいる人の id(迷宮の中で中断したパーティと、置いてきた死体)。世界を始め直すと、この人たちはロストする。</summary>
+    public List<string> InMaze(string clanId, string worldKey) =>
+        ReadWorlds(clanId).Where(w => w.Key == worldKey).SelectMany(w => InMaze(w.Data)).Distinct().ToList();
+
+    private static IEnumerable<string> InMaze(SaveData data) =>
+        (data.Location == "maze" ? data.Roster.Party : []).Concat(data.Roster.LeftInMaze.Keys);
 
     /// <summary>その世界を消す。クランに世界が無くなっても、クラン(名簿)は残す(消すなら DeleteClan)。</summary>
     public void DeleteWorld(string clanId, string worldKey)
@@ -339,6 +347,9 @@ public sealed class ClanData
     public List<Character> Characters { get; set; } = [];
     public ClanHouse House { get; set; } = new();
     public int Clears { get; set; }
+
+    /// <summary>クリアの印(ScenarioClears)。null は印を持つ前のファイル(読むときに、クリアした世界から拾う)。</summary>
+    public Dictionary<string, int>? ClearedScenarios { get; set; }
     public List<string> EventsSeen { get; set; } = [];
     public Dictionary<string, int> LegendsHeard { get; set; } = [];
     /// <summary>世界ごとの、最後にこのクランと一緒に保存した印(世界の key → SaveData.SaveId)。食い違いを見つけるのに使う。</summary>
@@ -351,6 +362,7 @@ public sealed class ClanData
         Characters = s.Roster.Characters,
         House = s.ClanHouse,
         Clears = s.Clears,
+        ClearedScenarios = new(s.ClearedScenarios, StringComparer.Ordinal),
         EventsSeen = s.EventsSeen.Order(StringComparer.Ordinal).ToList(),
         LegendsHeard = new(s.LegendsHeard, StringComparer.Ordinal),
     };
@@ -563,6 +575,7 @@ public sealed class SaveData
             LastLevel = LastLevel,
             LevelShift = LevelShift,
             Clears = clan.Clears,
+            ClearedScenarios = new(clan.ClearedScenarios ?? [], StringComparer.Ordinal),
             EventsSeen = clan.EventsSeen.ToHashSet(StringComparer.Ordinal),
             LegendsHeard = new(clan.LegendsHeard, StringComparer.Ordinal),
             Location = Location == "maze" ? Save.Location.Maze : Save.Location.Town,

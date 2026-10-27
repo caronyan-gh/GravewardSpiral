@@ -27,37 +27,57 @@ public static class ScenarioCatalog
     public static List<ScenarioInfo> Find(IEnumerable<string> searchDirs, string cacheDir, List<string>? problems = null)
     {
         var found = new Dictionary<string, ScenarioInfo>(StringComparer.Ordinal);
-        foreach (var dir in searchDirs.Where(System.IO.Directory.Exists))
-        {
-            foreach (var sub in System.IO.Directory.EnumerateDirectories(dir).Order(StringComparer.Ordinal))
-                Add(sub, sub);
-            foreach (var zip in System.IO.Directory.EnumerateFiles(dir, "*.zip").Order(StringComparer.Ordinal))
-            {
-                try
-                {
-                    Add(zip, Extract(zip, cacheDir));
-                }
-                catch (Exception ex) when (ex is IOException or InvalidDataException or UnauthorizedAccessException)
-                {
-                    problems?.Add($"{Path.GetFileName(zip)}: 展開できません: {ex.Message}");
-                }
-            }
-        }
+        // 同じ id が2つあれば、後から見つけた方(ユーザーが置いたもの)を使う
+        foreach (var dir in searchDirs)
+            foreach (var info in Scan(dir, cacheDir, problems)) found[info.Id] = info;
         return found.Values.OrderBy(s => s.Manifest.Order).ThenBy(s => s.Id, StringComparer.Ordinal).ToList();
+    }
 
-        void Add(string source, string folder)
+    /// <summary>1つの場所にあるシナリオを、全部返す(同じ id も重ねずに全部)。</summary>
+    public static IEnumerable<ScenarioInfo> Scan(string dir, string cacheDir, List<string>? problems = null)
+    {
+        if (!System.IO.Directory.Exists(dir)) yield break;
+        // . で始まるもの(置いている途中の仮のフォルダなど)は見ない
+        foreach (var sub in System.IO.Directory.EnumerateDirectories(dir).Where(d => !Path.GetFileName(d).StartsWith('.')).Order(StringComparer.Ordinal))
         {
-            var m = ContentLibrary.ReadManifest(folder, out var error);
-            if (m == null)
+            if (Read(sub, sub, problems) is { } info) yield return info;
+        }
+        foreach (var zip in System.IO.Directory.EnumerateFiles(dir, "*.zip").Where(f => !Path.GetFileName(f).StartsWith('.')).Order(StringComparer.Ordinal))
+        {
+            string folder;
+            try
             {
-                if (error != null) problems?.Add($"{Path.GetFileName(source)}: {error}");
-                return;
+                folder = Extract(zip, cacheDir);
             }
-            if (m.Kind != Kind) return;
-            // 同じ id が2つあれば、後から見つけた方(ユーザーが置いたもの)を使う
-            found[m.Id] = new ScenarioInfo(m, source, folder);
+            catch (Exception ex) when (ex is IOException or InvalidDataException or UnauthorizedAccessException)
+            {
+                problems?.Add($"{Path.GetFileName(zip)}: 展開できません: {ex.Message}");
+                continue;
+            }
+            if (Read(zip, folder, problems) is { } info) yield return info;
         }
     }
+
+    /// <summary>フォルダをシナリオとして読む。シナリオでなければ null(読めないときと迷宮が無いときは problems に理由)。</summary>
+    private static ScenarioInfo? Read(string source, string folder, List<string>? problems)
+    {
+        var m = ContentLibrary.ReadManifest(folder, out var error);
+        if (m == null)
+        {
+            if (error != null) problems?.Add($"{Path.GetFileName(source)}: {error}");
+            return null;
+        }
+        if (m.Kind != Kind) return null;
+        // シナリオは迷宮まで決まった世界(決めたこと #91・#104)。迷宮の無いシナリオは一覧に出さない(毎回迷宮を作るのは、シナリオなしの自由な迷宮だけ)
+        if (!HasDungeon(m))
+        {
+            problems?.Add($"{Path.GetFileName(source)}: 迷宮がありません(manifest.json の dungeon)。シナリオは迷宮を持つ必要があります");
+            return null;
+        }
+        return new ScenarioInfo(m, source, folder);
+    }
+
+    public static bool HasDungeon(PackManifest m) => !string.IsNullOrWhiteSpace(m.Dungeon);
 
     /// <summary>
     /// zip を展開する(済んでいれば何もしない)。中身は、一番上に manifest.json があるか、1つのフォルダの中にあるかのどちらか。

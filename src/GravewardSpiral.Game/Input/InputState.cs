@@ -55,8 +55,17 @@ public sealed class InputState
     /// <summary>全画面の切り替え(F11 か Alt+Enter)。割り当ては変えられない。</summary>
     public bool ToggleFullscreen { get; private set; }
 
-    /// <summary>次の Update で、この動作が押されたことにする(起動引数の自動操作用)。</summary>
-    public void Inject(GameAction action) => _injected.Add(action);
+    /// <summary>
+    /// 次の Update で、この動作が押されたことにする(起動引数の自動操作用)。
+    /// Reverse は押しながら使うので、次に入れる動作のあいだ押していたことにする。
+    /// </summary>
+    public void Inject(GameAction action)
+    {
+        if (action == GameAction.Reverse) _reverseNext = true;
+        else _injected.Add(action);
+    }
+
+    private bool _reverseNext;
 
     private readonly HashSet<GameAction> _injected = [];
 
@@ -132,6 +141,11 @@ public sealed class InputState
         {
             _pressed.Add(action);
             _repeated.Add(action);
+        }
+        if (_reverseNext && _injected.Count > 0)
+        {
+            _held.Add(GameAction.Reverse);
+            _reverseNext = false;
         }
         _injected.Clear();
 

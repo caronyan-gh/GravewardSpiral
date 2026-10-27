@@ -35,6 +35,8 @@ public sealed class InputBindings
         // 迷宮の横歩き(一覧の送りと同じキー。迷宮では一覧が無いので重ならない)
         [GameAction.StrafeLeft] = ["Key:Q", "Pad:LeftShoulder"],
         [GameAction.StrafeRight] = ["Key:E", "Pad:RightShoulder"],
+        // 押しながら後ろのキーで、設定と逆の動き(R2 は空けておく)
+        [GameAction.Reverse] = ["Key:LeftShift", "Key:RightShift", "Pad:LeftTrigger"],
     };
 
     public static InputBindings LoadOrCreate(string path)

@@ -52,6 +52,61 @@ public class SaveTests
     }
 
     [Fact]
+    public void ClearingAScenarioMarksTheClanAndTheMarkTravels()
+    {
+        using var dir = new TestPaths.TempDir();
+        var store = new SaveStore(dir.Path);
+        var part1 = new PackManifest { Id = "gravekeeper", Guid = "g-1", Kind = ScenarioCatalog.Kind };
+        var s = NewSession(1);
+        s.Scenario = part1.Id;
+        Assert.True(s.RecordClear(part1));
+        Assert.False(s.RecordClear(part1));   // 同じ世界で2回は数えない
+        Assert.Equal(1, s.Clears);
+        Assert.Equal(1, s.ClearedScenarios["g-1"]);
+        store.Save(s, Content);
+
+        // セーブのクランにも、書き出したクランファイルにも印が残る
+        var part2 = new PackManifest { Id = "sunken", Kind = ScenarioCatalog.Kind, RequiresClear = [new RequiredClear { Guid = "g-1", Id = "gravekeeper" }] };
+        var (_, saved) = Assert.Single(ClanFile.FromSaves(store, id => id));
+        Assert.Empty(ScenarioClears.Missing(part2, saved.ClearedScenarios));
+        string file = ClanFile.From(s, "灰の手", s.Scenario).Save(Path.Combine(dir.Path, "export"));
+        Assert.Empty(ScenarioClears.Missing(part2, ClanFile.Load(file).ClearedScenarios));
+
+        // 新しいクラン(連れていかない)とクリアしていないクランは入れない
+        Assert.Single(ScenarioClears.Missing(part2, null));
+        Assert.Single(ScenarioClears.Missing(part2, NewSession(2).ClearedScenarios));
+        Assert.Empty(ScenarioClears.Missing(part1, null));
+    }
+
+    [Fact]
+    public void ClansFromBeforeTheMarksGetThemFromTheirClearedWorlds()
+    {
+        using var dir = new TestPaths.TempDir();
+        var store = new SaveStore(dir.Path);
+        var s = NewSession(1);
+        s.Scenario = "gravekeeper";
+        s.Flags.Add("cleared");
+        s.Clears = 1;
+        store.Save(s, Content);
+        // 印を持つ前の clan.json(cleared_scenarios が無い)
+        string clanFile = Path.Combine(dir.Path, s.ClanId, "clan.json");
+        var node = System.Text.Json.Nodes.JsonNode.Parse(File.ReadAllText(clanFile))!.AsObject();
+        Assert.True(node.Remove("cleared_scenarios"));
+        File.WriteAllText(clanFile, node.ToJsonString());
+
+        var required = new PackManifest { Id = "sunken", RequiresClear = [new RequiredClear { Guid = "g-1", Id = "gravekeeper" }] };
+        Assert.Equal(1, store.LoadClan(s.ClanId)!.ClearedScenarios!["id:gravekeeper"]);
+        Assert.Empty(ScenarioClears.Missing(required, store.Load(s.ClanId, s.WorldKey).ClearedScenarios));
+
+        // 書き出したクランファイルは、書き出したときのシナリオとクリアから拾う
+        string export = Path.Combine(dir.Path, "old" + ClanFile.Extension);
+        File.WriteAllText(export, """{ "version": 1, "name": "古いクラン", "scenario": "gravekeeper", "cleared": true, "clears": 1, "characters": [] }""");
+        Assert.Empty(ScenarioClears.Missing(required, ClanFile.Load(export).ClearedScenarios));
+        File.WriteAllText(export, """{ "version": 1, "name": "古いクラン", "scenario": "gravekeeper", "cleared": false, "characters": [] }""");
+        Assert.Single(ScenarioClears.Missing(required, ClanFile.Load(export).ClearedScenarios));
+    }
+
+    [Fact]
     public void SaveKeepsTheWorldLevelAndClearsAndOffersItsClan()
     {
         using var dir = new TestPaths.TempDir();
@@ -136,6 +191,38 @@ public class SaveTests
 
         Assert.Empty(store.Away(a.ClanId, "world_b"));   // 新しい世界Bを始めるときの、よその迷宮にいる人(Aは読み込まない)
         Assert.Equal("town", System.Text.Json.Nodes.JsonNode.Parse(File.ReadAllText(store.WorldFile(a.ClanId, "world_a")))!["location"]!.GetValue<string>());
+    }
+
+    [Fact]
+    public void TheSummaryTellsTheFloorThePartyIsOn()
+    {
+        // 一覧の「迷宮の中」は今いる階(地図を描いた一番深い階ではなく)。町なら 0
+        using var dir = new TestPaths.TempDir();
+        var store = new SaveStore(dir.Path);
+        var a = NewSession(1);
+        store.Save(a, Content);
+        Assert.Equal(0, store.ListClans().Single().Worlds.Single().CurrentFloor);
+        a.EnterMaze();
+        store.Save(a, Content);
+        var w = store.ListClans().Single().Worlds.Single();
+        Assert.Equal(("maze", 1), (w.Location, w.CurrentFloor));
+    }
+
+    [Fact]
+    public void ThoseLeftInAWorldsMazeAreCountedForThatWorld()
+    {
+        // 始め直すとロストする人: その世界の迷宮に置いてきた死体(ほかの世界の人は数えない)
+        using var dir = new TestPaths.TempDir();
+        var store = new SaveStore(dir.Path);
+        var a = NewSession(1);
+        a.Scenario = "world_a";
+        store.Save(a, Content);
+        Assert.Empty(store.InMaze(a.ClanId, "world_a"));
+        var dead = a.Roster.PartyMembers.First();
+        a.Roster.LeftInMaze[dead.Id] = new Core.Maze.PartyPosition(0, new Core.Maze.GridPos(1, 1), Core.Maze.Direction.North);
+        store.Save(a, Content);
+        Assert.Equal([dead.Id], store.InMaze(a.ClanId, "world_a"));
+        Assert.Empty(store.InMaze(a.ClanId, "world_b"));
     }
 
     [Fact]

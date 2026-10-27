@@ -1,0 +1,91 @@
+[
+  {
+    "id": "final",
+    "name": {
+      "en": "Vail, Knight-Commander",
+      "ja": "騎士団長ヴェイル"
+    },
+    "groups": [
+      {
+        "monster": "knight",
+        "count": 1,
+        "name": null
+      },
+      {
+        "monster": "wight",
+        "count": 2,
+        "name": {
+          "en": "Drowned Knight",
+          "ja": "溺れた騎士"
+        }
+      }
+    ],
+    "reward_flag": "sk_keystone",
+    "note": "第2部 B のラスボス。騎士団長ヴェイル(騎士を強めたもの)と、溺れた騎士(ワイト)2体。シミュレータ(標準の6人)で L7 3割、L8 5割、L9 9割7分(L7〜L8 は勝率がほとんど伸びないので、L9 で安全にした。ボットは L9 前後で着く)。名前と出会い・倒したときの文は worlds.json",
+    "hp_mult": 4.5,
+    "damage_mult": 1.8,
+    "ac_bonus": 3,
+    "hit_bonus": 2,
+    "auto": false
+  },
+  {
+    "id": "cathedral_warden",
+    "name": {
+      "en": "Cathedral Warden",
+      "ja": "聖堂の番人"
+    },
+    "groups": [
+      {
+        "monster": "gargoyle",
+        "count": 1,
+        "name": {
+          "en": "Cathedral Warden",
+          "ja": "聖堂の番人"
+        }
+      },
+      {
+        "monster": "specter",
+        "count": 3,
+        "name": {
+          "en": "Choir Shade",
+          "ja": "聖歌隊の霊"
+        }
+      }
+    ],
+    "note": "第2部 B の B3(途中の階のボス)。sk_b3_warden の戦闘。番人(ガーゴイル)と聖歌隊の霊(スペクター)3体。シミュレータで L5 9割、L6 9割7分(ボットは道中で消耗して着くので、寄り道のボスとして少し甘め)",
+    "hp_mult": 3.6,
+    "damage_mult": 1.5,
+    "ac_bonus": 1,
+    "hit_bonus": 2
+  },
+  {
+    "id": "dorn",
+    "name": {
+      "en": "Dorn, the Sluice-Keeper",
+      "ja": "水門守ドルン"
+    },
+    "groups": [
+      {
+        "monster": "ghost",
+        "count": 1,
+        "name": {
+          "en": "Dorn",
+          "ja": "水門守ドルン"
+        }
+      },
+      {
+        "monster": "animated_armor",
+        "count": 3,
+        "name": {
+          "en": "Engine Guardian",
+          "ja": "機関の番"
+        }
+      }
+    ],
+    "note": "第2部 B の B4(途中の階のボス)。sk_b4_dorn で舟を見せなかったときの戦闘。ドルン(ゴースト)と機関の番(動く鎧)3体。シミュレータで L6 8割強、L7 9割6分",
+    "hp_mult": 4.0,
+    "damage_mult": 1.8,
+    "ac_bonus": 1,
+    "hit_bonus": 2
+  }
+]

@@ -636,11 +636,13 @@ public sealed class CampaignSim
         if (!EventRunner.Available(def, ctx)) return null;
         _events++;
         var outcome = Drive(new EventRunner(def, ctx), floor);
+        if (def.Scatter == null) Log($"イベント {def.Id}(B{floor + 1}){(outcome == CombatOutcome.Defeat ? " で全滅" : "")}");   // 手で置いたイベント(物語の部屋など)を通れたか
         if (outcome == CombatOutcome.Defeat)
         {
             _visited.Remove((floor, cell));   // 全滅したイベントは、また来る
             return Outcome.Wiped;
         }
+        if (_session.Flags.Contains(GameSession.EndingFlag)) return Outcome.Cleared;   // 手順 ending に着いた
         // 一度きりでない・まだ済んでいないイベント(紋章が足りない扉など)は、あとでまた来る
         if (EventRunner.Available(def, ctx) && def.Once != null) _later.Add((floor, cell));
         return null;

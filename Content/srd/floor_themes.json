@@ -4,12 +4,12 @@
     "min_depth": 0,
     "max_depth": 0.1,
     "name": {
-      "en": "New Graves",
-      "ja": "新しい墓"
+      "en": "The Upper Depths",
+      "ja": "浅い階"
     },
     "enter": {
-      "en": "The smell of earth is thick. Freshly dug graves gape open all around.",
-      "ja": "土の匂いが濃い。掘り返されたばかりの墓穴が、いくつも口を開けている。"
+      "en": "The air smells of wet stone. The sounds of the world above still reach you, faintly.",
+      "ja": "湿った石の匂いがする。上の世界の音が、まだかすかに届く。"
     },
     "types": {
       "undead": 4,
@@ -24,12 +24,12 @@
     "min_depth": 0.1,
     "max_depth": 0.3,
     "name": {
-      "en": "Common Grounds",
-      "ja": "共同墓地"
+      "en": "The Long Passages",
+      "ja": "長い通路"
     },
     "enter": {
-      "en": "Nameless grave markers stretch on and on, all leaning the same way.",
-      "ja": "名もない死者たちの墓標が、どこまでも並んでいる。どれも同じ方向に傾いている。"
+      "en": "Passages run on and on, all turning the same way.",
+      "ja": "通路がどこまでも続いている。どれも同じ向きへ曲がっていく。"
     },
     "types": {
       "undead": 5,
@@ -44,12 +44,12 @@
     "min_depth": 0.3,
     "max_depth": 0.5,
     "name": {
-      "en": "The Old Ossuary",
-      "ja": "古い納骨堂"
+      "en": "The Middle Depths",
+      "ja": "中ほどの階"
     },
     "enter": {
-      "en": "Every wall is built of bones. The empty sockets of skulls seem to watch you.",
-      "ja": "壁という壁が骨で組まれている。頭蓋骨の眼窩が、こちらを見ている気がする。"
+      "en": "Old bones lie in the corners. Something has been here before you.",
+      "ja": "隅に古い骨が転がっている。先に、何かが来ている。"
     },
     "types": {
       "undead": 6,
@@ -63,12 +63,12 @@
     "min_depth": 0.5,
     "max_depth": 0.7,
     "name": {
-      "en": "Hall of Wardens",
-      "ja": "歴代墓守の回廊"
+      "en": "The Silent Halls",
+      "ja": "黙した広間"
     },
     "enter": {
-      "en": "Statues of past wardens line the hall, lanterns raised. Their flames died long ago.",
-      "ja": "歴代の墓守の像が、ランタンを掲げて並んでいる。火はとうに消えている。"
+      "en": "Statues stand along the walls. Their faces have been worn away.",
+      "ja": "壁ぞいに像が並んでいる。顔はどれも擦り切れている。"
     },
     "types": {
       "undead": 6,
@@ -81,12 +81,12 @@
     "min_depth": 0.7,
     "max_depth": 0.9,
     "name": {
-      "en": "Sealing Chambers",
-      "ja": "封じの間"
+      "en": "The Deep Chambers",
+      "ja": "深い部屋"
     },
     "enter": {
-      "en": "Sealing runes cover the floor. Most have been scraped away from the inside.",
-      "ja": "床一面に、封じの文字が刻まれている。そのほとんどが、内側から削り取られている。"
+      "en": "Old marks cover the floor. Most have been scraped away from the inside.",
+      "ja": "床一面に、古い印が刻まれている。そのほとんどが、内側から削り取られている。"
     },
     "types": {
       "undead": 8,
@@ -99,12 +99,12 @@
     "min_depth": 0.9,
     "max_depth": 1,
     "name": {
-      "en": "The First Grave",
-      "ja": "最初の墓"
+      "en": "The Bottom",
+      "ja": "底"
     },
     "enter": {
-      "en": "The air is frozen. From the bottom of the spiral comes a sound like a beating heart.",
-      "ja": "空気が凍りついている。螺旋の底から、心臓の鼓動のような音が響いてくる。"
+      "en": "The air is frozen. From far below comes a sound like a beating heart.",
+      "ja": "空気が凍りついている。はるか下から、心臓の鼓動のような音が響いてくる。"
     },
     "types": {
       "undead": 10,

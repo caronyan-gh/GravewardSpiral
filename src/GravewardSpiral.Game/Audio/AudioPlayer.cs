@@ -47,9 +47,11 @@ public sealed class AudioPlayer : IDisposable
     /// <summary>BGM を鳴らす。同じ曲が鳴っていれば何もしない。path は Content からの相対パス。gain はその曲だけの音量の倍率(小さく流したい曲)。</summary>
     public void PlayBgm(string path, float fadeInSeconds = 1.5f, float gain = 1f)
     {
-        if (!Enabled || _bgm?.Path == path) return;
-        StopBgm();
+        if (!Enabled) return;
         string? full = _resolve(path);
+        // 同じ曲でも、読むファイルが変わった(シナリオを読み直した・標準に戻した)なら、鳴らし直す(古いシナリオのファイルを開いたままにしない)
+        if (_bgm?.Path == path && (full == null || _bgm.File == full)) return;
+        StopBgm();
         if (full == null)
         {
             Console.Error.WriteLine($"BGM がありません: {path}");
@@ -182,6 +184,9 @@ public sealed class AudioPlayer : IDisposable
     {
         private readonly string _file;
         private readonly AudioPlayer _owner;
+
+        /// <summary>読んでいるファイル(パックの中の場所を解いたもの)。</summary>
+        public string File => _file;
         private readonly DynamicSoundEffectInstance _instance;
         private readonly float[] _floats;
         private MpegFile _mp3;

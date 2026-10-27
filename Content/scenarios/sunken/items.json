@@ -1,0 +1,41 @@
+[
+  {
+    "id": "sk_stone_heart",
+    "kind": "key",
+    "name": {
+      "en": "Stone Heart",
+      "ja": "石の心臓"
+    },
+    "price": 0,
+    "description": {
+      "en": "The stone heart brought up from the bottom of the gravekeepers' spiral. It still beats, faintly, toward the lake. Its broken edge points down into the water.",
+      "ja": "墓守の螺旋の底から持ち帰られた、石の心臓。今もかすかに、湖の方へ脈打っている。欠けた縁は、水の底を指している。"
+    }
+  },
+  {
+    "id": "sk_wooden_boat",
+    "kind": "key",
+    "name": {
+      "en": "Carved Toy Boat",
+      "ja": "木彫りの舟"
+    },
+    "price": 0,
+    "description": {
+      "en": "A small toy boat carved from driftwood. \"PER\" is cut into the keel in a child's hand.",
+      "ja": "流木を彫った、小さなおもちゃの舟。舟底に、子どもの字で「ペル」と刻んである。"
+    }
+  },
+  {
+    "id": "sk_royal_seal",
+    "kind": "key",
+    "name": {
+      "en": "Royal Seal",
+      "ja": "王家の印章"
+    },
+    "price": 0,
+    "description": {
+      "en": "A heavy signet of the kings of Selem, green with the lake. It opens the gates of the royal guard.",
+      "ja": "湖の水で青く錆びた、セレムの王家の重い印章。親衛の門を開く。"
+    }
+  }
+]

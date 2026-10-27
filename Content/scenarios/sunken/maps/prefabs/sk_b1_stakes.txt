@@ -1,0 +1,15 @@
+# 第2部 B の B1: 干拓の杭と、網にかかった溺死者。石の心臓が強く脈打つ
+floor prefab_sk_b1_stakes
+size 3 3
+wrap none
+start 1 2 N
+walls
++-+-+-+
+|     |
++ + + +
+|     |
++ + + +
+|     |
++-+-+-+
+mark 1 0 event:sk_b1_stakes
+entrance 1 2 S

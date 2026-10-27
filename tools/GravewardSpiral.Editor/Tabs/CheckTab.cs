@@ -52,8 +52,8 @@ public sealed class CheckTab : IEditorTab
         bar.Children.Add(_party);
         DockPanel.SetDock(bar, Dock.Top);
         _view.Children.Add(bar);
-        var note = Ui.Note(T("書き出し: 上の「zip に書き出す」で zip にする。ドキュメント\\GravewardSpiral\\Scenarios に置くと、ゲームの「新しく始める」のシナリオに出る(エディタで作ったフォルダは、もうそこにある)。",
-            "Export: use \"Export zip\" above to make a zip. Put it in Documents\\GravewardSpiral\\Scenarios and it appears in the game's New Game scenario list (folders made in the editor are already there)."));
+        var note = Ui.Note(T("書き出し: 上の「zip に書き出す」で zip にする。シナリオの置き場所(上の「置き場所」で開く)に置くか、ゲームのタイトル画面に落とすと、ゲームの「新しく始める」のシナリオに出る(エディタで作ったフォルダは、もうそこにある)。",
+            "Export: use \"Export zip\" above to make a zip. Put it in the scenario folder (\"Folder\" above opens it) or drop it on the game's title screen, and it appears in the New Game scenario list (folders made in the editor are already there)."));
         DockPanel.SetDock(note, Dock.Bottom);
         _view.Children.Add(note);
         _view.Children.Add(_results);
@@ -163,7 +163,7 @@ public sealed class CheckTab : IEditorTab
             if (!texts.ContainsKey(key)) Problem(T($"文言の印のキー {key} の文が無い(文言のタブで書く)", $"No text for message mark key {key} (write it in the Text tab)"));
         // イベントの曲
         foreach (var e in pack.Events.Where(e => e.Bgm != null))
-            if (!File.Exists(Path.Combine(pack.Directory, e.Bgm!)) && !File.Exists(Path.Combine(_context.ContentRoot, "srd", e.Bgm!)))
+            if (content.FindFile(e.Bgm!) == null)
                 Problem(T($"イベント {e.Id} の曲 {e.Bgm} が無い(曲のタブで足す)", $"Event {e.Id}: track {e.Bgm} does not exist (add it in the Music tab)"));
         // モンスターの絵(無くても遊べる)
         foreach (var o in pack.Monsters)
@@ -213,9 +213,14 @@ public sealed class CheckTab : IEditorTab
             warn(T("最下層の主が迷宮にいない(物語のタブの「迷宮に置く」。いないと、主を倒して終わる物語にならない)", "The final boss is not in the maze (Story tab, \"Place in the maze\"; without it the story has no final fight)"));
         foreach (var m in marks.Where(m => m.Mark == final && m.Floor != floors.Count - 1))
             warn(T($"最下層の主が最下層ではなく {At(m.Floor, m.Cell)} にいる", $"The final boss is at {At(m.Floor, m.Cell)}, not on the bottom floor"));
+        // イベントの戦闘(combat の boss)で出すボスは、迷宮に印が無くてよい
+        var fought = data.Events.Values.SelectMany(e => AllSteps(e.Steps)).Where(s => s.Type == "combat" && s.Boss != null).Select(s => s.Boss!).ToHashSet(StringComparer.Ordinal);
         foreach (var o in pack.Bosses)
-            if ((string?)o["id"] is { } id && marks.All(m => m.Mark != "boss:" + id))
-                warn(T($"ボス {BossName(id)} が迷宮にいない(物語のタブの「迷宮に置く」。置かなければ戦わない)", $"Boss {BossName(id)} is not in the maze (Story tab, \"Place in the maze\"; unplaced bosses are never fought)"));
+            if ((string?)o["id"] is { } id && marks.All(m => m.Mark != "boss:" + id) && !fought.Contains(id))
+                warn(T($"ボス {BossName(id)} が迷宮にもイベントの戦闘にもいない(物語のタブの「迷宮に置く」か、イベントの戦闘の boss。どちらも無ければ戦わない)", $"Boss {BossName(id)} is neither in the maze nor in an event fight (Story tab, \"Place in the maze\", or an event combat's boss; otherwise it is never fought)"));
+
+        static IEnumerable<EventStep> AllSteps(IEnumerable<EventStep> steps) =>
+            steps.SelectMany(s => s.Children().SelectMany(AllSteps).Prepend(s));
 
         // 名のある敵: 無い敵、無い階、ねぐらのマスがおかしい
         foreach (var n in pack.Named ?? [])

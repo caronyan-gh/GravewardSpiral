@@ -11,6 +11,8 @@ public static class EventCheck
     public static readonly HashSet<string> Places = ["maze", "town"];
     public static readonly HashSet<string> OnceKinds = ["game", "place"];
     public static readonly HashSet<string> ScatterWhere = ["any", "dead_end", "room", "corridor"];
+    public static readonly HashSet<string> Triggers = ["enter", "turn", "both"];
+    public static readonly HashSet<string> Facings = ["north", "east", "south", "west"];
 
     public static List<string> Check(GameData data, EventDef e, ContentLibrary? content = null)
     {
@@ -20,13 +22,14 @@ public static class EventCheck
         if (!Places.Contains(e.Place)) Add($"place '{e.Place}' は {string.Join(" / ", Places)} のどれかです");
         if (e.Once != null && !OnceKinds.Contains(e.Once)) Add($"once '{e.Once}' は game / place のどちらかです");
         if (e.Place == "town" && e.Title == null) Add("町のイベントには title が要ります");
+        if (!Triggers.Contains(e.Trigger)) Add($"trigger '{e.Trigger}' は {string.Join(" / ", Triggers)} のどれかです");
         if (e.Scatter != null && !ScatterWhere.Contains(e.Scatter.Where)) Add($"scatter の where '{e.Scatter.Where}' は {string.Join(" / ", ScatterWhere)} のどれかです");
         // 深さは階の数ではなく割合(1〜5 と書くと、最下層にしか置かれない)
         if (e.Scatter is { } sc && (sc.MinDepth is < 0 or > 1 || sc.MaxDepth is < 0 or > 1))
             Add($"scatter の min_depth / max_depth({sc.MinDepth} / {sc.MaxDepth})は 0〜1 の割合です(0 が B1、1 が最下層。階の数ではない)");
         else if (e.Scatter is { } s2 && s2.MinDepth > s2.MaxDepth) Add($"scatter の min_depth({s2.MinDepth})が max_depth({s2.MaxDepth})より大きい");
         if (e.Steps.Count == 0) Add("steps がありません");
-        if (e.Bgm != null && content != null && !content.Packs.Any(p => File.Exists(Path.Combine(p.Directory, e.Bgm))))
+        if (e.Bgm != null && content != null && content.FindFile(e.Bgm) == null)
             Add($"bgm '{e.Bgm}' がどのパックにもありません");
         var texts = content?.Texts("ja");
 
@@ -40,6 +43,7 @@ public static class EventCheck
                 if (c.Type == "class" && c.Id != null && !data.Classes.ContainsKey(c.Id)) Add($"条件 class: classes に '{c.Id}' がありません");
                 if (c.Type == "race" && c.Id != null && !data.Races.ContainsKey(c.Id)) Add($"条件 race: races に '{c.Id}' がありません");
                 if (c.Type == "done" && c.Id != null && !data.Events.ContainsKey(c.Id)) Add($"条件 done: events に '{c.Id}' がありません");
+                if (c.Type == "facing" && !Facings.Contains(c.Id ?? "")) Add($"条件 facing の id '{c.Id}' は {string.Join(" / ", Facings)} のどれかです");
             }
         }
 

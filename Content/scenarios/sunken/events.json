@@ -1,0 +1,5799 @@
+[
+  {
+    "id": "sk_b1_stakes",
+    "place": "maze",
+    "once": "game",
+    "steps": [
+      {
+        "type": "text",
+        "text": {
+          "en": "Rows of draining stakes stand in the mud, each one tall as a man. Old fishing nets hang between them, heavy and dark.",
+          "ja": "泥の中に、干拓の杭が人の背丈ほどの高さで並んでいる。杭のあいだに、古い漁の網が重たく垂れ下がっている。"
+        },
+        "per_place": false,
+        "dc": 10,
+        "value": 0,
+        "count": 1
+      },
+      {
+        "type": "text",
+        "text": {
+          "en": "Caught in the nets are the dead. Their clothes are a thousand years out of fashion, and their skin has not rotted. They look as if they drowned yesterday.",
+          "ja": "網にかかっているのは、死者だ。着ているものは千年も昔の仕立てで、肌は腐っていない。昨日溺れたばかりのように見える。"
+        },
+        "per_place": false,
+        "dc": 10,
+        "value": 0,
+        "count": 1
+      },
+      {
+        "type": "if",
+        "per_place": false,
+        "when": [
+          {
+            "type": "item",
+            "id": "sk_stone_heart",
+            "value": 1,
+            "count": 1,
+            "op": ">=",
+            "not": false
+          }
+        ],
+        "then": [
+          {
+            "type": "sound",
+            "per_place": false,
+            "dc": 10,
+            "id": "secret_found",
+            "value": 0,
+            "count": 1
+          },
+          {
+            "type": "text",
+            "text": {
+              "en": "In your pack, the stone heart beats hard, once. Its broken edge turns toward the depths, toward the city under the mud.",
+              "ja": "荷の中で、石の心臓が一度、強く打った。欠けた縁が、泥の下の都の方へ、深みへと向いている。"
+            },
+            "per_place": false,
+            "dc": 10,
+            "value": 0,
+            "count": 1
+          }
+        ],
+        "else": [
+          {
+            "type": "text",
+            "text": {
+              "en": "One of the dead grips a shard of grey stone in its fist. It crumbles to sand when you touch it.",
+              "ja": "死者の一人が、灰色の石のかけらを握りしめていた。触れると、砂になって崩れた。"
+            },
+            "per_place": false,
+            "dc": 10,
+            "value": 0,
+            "count": 1
+          }
+        ],
+        "dc": 10,
+        "value": 0,
+        "count": 1
+      },
+      {
+        "type": "flag",
+        "per_place": false,
+        "dc": 10,
+        "id": "sk_b1_seen",
+        "value": 0,
+        "count": 1
+      }
+    ],
+    "bgm": "audio/bgm/story.mp3",
+    "note": "B B1: 干拓の杭と、網にかかった溺死者。石の心臓が初めて強く脈打つ",
+    "memo": true
+  },
+  {
+    "id": "sk_b2_merchant",
+    "place": "maze",
+    "once": "game",
+    "steps": [
+      {
+        "type": "text",
+        "text": {
+          "en": "Under a fallen awning, a pale merchant is still laying out wares that are no longer there. He does not look up.",
+          "ja": "崩れた日除けの下で、青白い商人が、もう無い品物をまだ並べている。顔を上げようとしない。"
+        },
+        "per_place": false,
+        "dc": 10,
+        "value": 0,
+        "count": 1
+      },
+      {
+        "type": "text",
+        "text": {
+          "en": "\"Fish, bread, lamp oil... The bells rang, and then the water came. Everyone ran up the streets. The water was faster.\"",
+          "ja": "「魚に、パンに、灯り油……。鐘が鳴って、それから水が来た。みんな坂を駆け上がった。水のほうが、速かった」"
+        },
+        "speaker": {
+          "en": "Drowned merchant",
+          "ja": "溺れた商人"
+        },
+        "per_place": false,
+        "dc": 10,
+        "value": 0,
+        "count": 1
+      },
+      {
+        "type": "text",
+        "text": {
+          "en": "\"My wife sang the little one to sleep that night. The paper is still there, in the mud. Take it. I can't read it any more.\"",
+          "ja": "「あの晩も、女房は子守歌で、ちびを寝かしつけてた。書いた紙が、まだ泥の中にある。持っていけ。おれには、もう読めない」"
+        },
+        "speaker": {
+          "en": "Drowned merchant",
+          "ja": "溺れた商人"
+        },
+        "per_place": false,
+        "dc": 10,
+        "value": 0,
+        "count": 1
+      },
+      {
+        "type": "sound",
+        "per_place": false,
+        "dc": 10,
+        "id": "search",
+        "value": 0,
+        "count": 1
+      },
+      {
+        "type": "text",
+        "text": {
+          "en": "From the mud you draw a waxed scrap of paper. Only the second half of a song is left on it:\n\"Sleep in the tide, the light fades away.\nFinding your peace at the end of the day.\"",
+          "ja": "泥の中から、蝋を引いた紙切れを引き出した。歌の後半だけが残っている。\n「潮に眠れ 光は消えて\n日の終わりに 安らぎを」"
+        },
+        "per_place": false,
+        "dc": 10,
+        "value": 0,
+        "count": 1
+      },
+      {
+        "type": "flag",
+        "per_place": false,
+        "dc": 10,
+        "id": "sk_lullaby_b",
+        "value": 0,
+        "count": 1
+      },
+      {
+        "type": "text",
+        "text": {
+          "en": "When you look up, the merchant is gone. The empty stall smells faintly of lamp oil.",
+          "ja": "顔を上げると、商人はいなかった。空の店先に、かすかに灯り油の匂いが残っている。"
+        },
+        "per_place": false,
+        "dc": 10,
+        "value": 0,
+        "count": 1
+      }
+    ],
+    "note": "B B2: 溺れた商人の霊。泥に埋もれた子守歌の書き付け(歌の後半)",
+    "memo": true
+  },
+  {
+    "id": "sk_b2_boat",
+    "place": "maze",
+    "once": "game",
+    "steps": [
+      {
+        "type": "text",
+        "text": {
+          "en": "Behind the stall, caught on a nail, is a small toy boat carved from driftwood. It is new. It has not been in the water for a thousand years, only for a season.",
+          "ja": "店の奥、釘に引っかかって、流木を彫った小さなおもちゃの舟がある。新しい。千年ではなく、ひと夏ほどしか水に浸かっていない。"
+        },
+        "per_place": false,
+        "dc": 10,
+        "value": 0,
+        "count": 1
+      },
+      {
+        "type": "text",
+        "text": {
+          "en": "\"PER\" is cut into the keel in a child's hand.",
+          "ja": "舟底に、子どもの字で「ペル」と刻んである。"
+        },
+        "per_place": false,
+        "dc": 10,
+        "value": 0,
+        "count": 1
+      },
+      {
+        "type": "give_item",
+        "per_place": false,
+        "dc": 10,
+        "id": "sk_wooden_boat",
+        "value": 0,
+        "count": 1
+      },
+      {
+        "type": "flag",
+        "per_place": false,
+        "dc": 10,
+        "id": "sk_boat",
+        "value": 0,
+        "count": 1
+      }
+    ],
+    "note": "B B2: 水門守ドルンの息子の木彫りの舟(B4 で見せると戦わずに済む)",
+    "memo": true
+  },
+  {
+    "id": "sk_b3_choir",
+    "place": "maze",
+    "once": "place",
+    "steps": [
+      {
+        "type": "text",
+        "text": {
+          "en": "In the nave of the drowned cathedral stands a choir in rotted robes. Their mouths open and close, but no sound comes out. Only the water in your ears seems to hum.",
+          "ja": "沈んだ大聖堂の身廊に、朽ちた法衣の聖歌隊が並んでいる。口は開いたり閉じたりしているが、声は出ていない。耳の奥で、水だけが鳴っている。"
+        },
+        "per_place": false,
+        "dc": 10,
+        "value": 0,
+        "count": 1
+      },
+      {
+        "type": "text",
+        "text": {
+          "en": "They block the door to the choir loft. As you come closer, they all turn to you at once.",
+          "ja": "聖歌隊は、奥の扉の前をふさいでいる。近づくと、全員が一度にこちらを向いた。"
+        },
+        "per_place": false,
+        "dc": 10,
+        "value": 0,
+        "count": 1
+      },
+      {
+        "type": "choice",
+        "text": {
+          "en": "What do you do?",
+          "ja": "どうする？"
+        },
+        "options": [
+          {
+            "label": {
+              "en": "Sing the lullaby",
+              "ja": "子守歌を歌う"
+            },
+            "when": [
+              {
+                "type": "flag",
+                "id": "sk_lullaby_a",
+                "value": 1,
+                "count": 1,
+                "op": ">=",
+                "not": false
+              },
+              {
+                "type": "flag",
+                "id": "sk_lullaby_b",
+                "value": 1,
+                "count": 1,
+                "op": ">=",
+                "not": false
+              }
+            ],
+            "steps": [
+              {
+                "type": "text",
+                "text": {
+                  "en": "\"Sleep in the tide, the city is still.\nBow to the waves and accept their will.\nSleep in the tide, the light fades away.\nFinding your peace at the end of the day.\"",
+                  "ja": "「潮に眠れ 都は静か\n波に頭を垂れ その心のままに\n潮に眠れ 光は消えて\n日の終わりに 安らぎを」"
+                },
+                "per_place": false,
+                "dc": 10,
+                "value": 0,
+                "count": 1
+              },
+              {
+                "type": "text",
+                "text": {
+                  "en": "One by one, the choir close their mouths. Some of them nod, as if they remember the song. They sit down in the pews, bow their heads, and are still.",
+                  "ja": "聖歌隊は、一人また一人と口を閉じた。歌を思い出したように、うなずく者もいる。みな長椅子に腰を下ろし、頭を垂れて、動かなくなった。"
+                },
+                "per_place": false,
+                "dc": 10,
+                "value": 0,
+                "count": 1
+              },
+              {
+                "type": "sound",
+                "per_place": false,
+                "dc": 10,
+                "id": "door",
+                "value": 0,
+                "count": 1
+              },
+              {
+                "type": "open",
+                "per_place": false,
+                "dc": 10,
+                "id": "sk_choir",
+                "value": 0,
+                "count": 1
+              },
+              {
+                "type": "flag",
+                "per_place": false,
+                "dc": 10,
+                "id": "sk_choir_quiet",
+                "value": 0,
+                "count": 1
+              },
+              {
+                "type": "xp",
+                "per_place": false,
+                "dc": 10,
+                "value": 400,
+                "count": 1
+              }
+            ],
+            "weight": 1
+          },
+          {
+            "label": {
+              "en": "Force your way through",
+              "ja": "押し通る"
+            },
+            "steps": [
+              {
+                "type": "text",
+                "text": {
+                  "en": "The choir raise their arms, and the silent song becomes a scream.",
+                  "ja": "聖歌隊が腕を上げた。声の無い歌が、叫びに変わる。"
+                },
+                "per_place": false,
+                "dc": 10,
+                "value": 0,
+                "count": 1
+              },
+              {
+                "type": "combat",
+                "per_place": false,
+                "dc": 10,
+                "value": 0,
+                "count": 1,
+                "groups": [
+                  {
+                    "monster": "ghost",
+                    "count": 3
+                  },
+                  {
+                    "monster": "wight",
+                    "count": 2
+                  }
+                ],
+                "win": [
+                  {
+                    "type": "text",
+                    "text": {
+                      "en": "The last of the choir sinks into the floor like water into sand. The door to the loft stands open.",
+                      "ja": "最後の一人が、砂に染みる水のように床へ沈んだ。奥の扉が開いている。"
+                    },
+                    "per_place": false,
+                    "dc": 10,
+                    "value": 0,
+                    "count": 1
+                  },
+                  {
+                    "type": "open",
+                    "per_place": false,
+                    "dc": 10,
+                    "id": "sk_choir",
+                    "value": 0,
+                    "count": 1
+                  }
+                ],
+                "lose": [
+                  {
+                    "type": "again",
+                    "per_place": false,
+                    "dc": 10,
+                    "value": 0,
+                    "count": 1
+                  }
+                ]
+              }
+            ],
+            "weight": 1
+          },
+          {
+            "label": {
+              "en": "Leave",
+              "ja": "立ち去る"
+            },
+            "steps": [
+              {
+                "type": "if",
+                "per_place": false,
+                "when": [
+                  {
+                    "type": "flag",
+                    "id": "sk_lullaby_a",
+                    "value": 1,
+                    "count": 1,
+                    "op": ">=",
+                    "not": true
+                  },
+                  {
+                    "type": "flag",
+                    "id": "sk_lullaby_b",
+                    "value": 1,
+                    "count": 1,
+                    "op": ">=",
+                    "not": true
+                  }
+                ],
+                "then": [
+                  {
+                    "type": "text",
+                    "text": {
+                      "en": "Somewhere you heard that the drowned were soothed by songs. Someone in town might know an old one.",
+                      "ja": "溺れた者は歌で静まる、とどこかで聞いた。町の誰かが、古い歌を知っているかもしれない。"
+                    },
+                    "per_place": false,
+                    "dc": 10,
+                    "value": 0,
+                    "count": 1
+                  }
+                ],
+                "dc": 10,
+                "value": 0,
+                "count": 1
+              },
+              {
+                "type": "if",
+                "per_place": false,
+                "when": [
+                  {
+                    "type": "flag",
+                    "id": "sk_lullaby_a",
+                    "value": 1,
+                    "count": 1,
+                    "op": ">=",
+                    "not": false
+                  },
+                  {
+                    "type": "flag",
+                    "id": "sk_lullaby_b",
+                    "value": 1,
+                    "count": 1,
+                    "op": ">=",
+                    "not": true
+                  }
+                ],
+                "then": [
+                  {
+                    "type": "text",
+                    "text": {
+                      "en": "You know only the first half of the lullaby. The rest might be somewhere in the drowned city above.",
+                      "ja": "子守歌は、前半しか知らない。続きは、上の沈んだ街のどこかにあるかもしれない。"
+                    },
+                    "per_place": false,
+                    "dc": 10,
+                    "value": 0,
+                    "count": 1
+                  }
+                ],
+                "dc": 10,
+                "value": 0,
+                "count": 1
+              },
+              {
+                "type": "if",
+                "per_place": false,
+                "when": [
+                  {
+                    "type": "flag",
+                    "id": "sk_lullaby_b",
+                    "value": 1,
+                    "count": 1,
+                    "op": ">=",
+                    "not": false
+                  },
+                  {
+                    "type": "flag",
+                    "id": "sk_lullaby_a",
+                    "value": 1,
+                    "count": 1,
+                    "op": ">=",
+                    "not": true
+                  }
+                ],
+                "then": [
+                  {
+                    "type": "text",
+                    "text": {
+                      "en": "You know only the second half of the lullaby. Someone in town might remember how it begins.",
+                      "ja": "子守歌は、後半しか知らない。歌い出しを、町の誰かが覚えているかもしれない。"
+                    },
+                    "per_place": false,
+                    "dc": 10,
+                    "value": 0,
+                    "count": 1
+                  }
+                ],
+                "dc": 10,
+                "value": 0,
+                "count": 1
+              },
+              {
+                "type": "again",
+                "per_place": false,
+                "dc": 10,
+                "value": 0,
+                "count": 1
+              }
+            ],
+            "weight": 1
+          }
+        ],
+        "per_place": false,
+        "dc": 10,
+        "value": 0,
+        "count": 1
+      }
+    ],
+    "bgm": "audio/bgm/lullaby.mp3",
+    "note": "B B3: 溺れた聖歌隊が道をふさぐ。子守歌を最後まで歌うと静まり、奥の扉 (gate:sk_choir) が開く。歌えなければ押し通る(戦う)こともできる",
+    "memo": true
+  },
+  {
+    "id": "sk_b3_warden",
+    "place": "maze",
+    "once": "game",
+    "steps": [
+      {
+        "type": "text",
+        "text": {
+          "en": "Beyond the choir loft lies a small reliquary. On its altar sits a stone figure with folded wings. As you step in, it lifts its head.",
+          "ja": "聖歌隊席の奥は、小さな聖遺物の間になっていた。祭壇の上に、翼をたたんだ石の像がうずくまっている。足を踏み入れると、像が顔を上げた。"
+        },
+        "per_place": false,
+        "dc": 10,
+        "value": 0,
+        "count": 1
+      },
+      {
+        "type": "text",
+        "text": {
+          "en": "\"The queen ordered: none shall pass until the water is gone. ...The water is gone. Then, are you the ones who drained it?\"",
+          "ja": "「女王は命じた。水が引くまで、誰も通すなと。……水は、引いた。では、引かせたのは、おまえたちか」"
+        },
+        "speaker": {
+          "en": "Cathedral Warden",
+          "ja": "聖堂の番人"
+        },
+        "per_place": false,
+        "dc": 10,
+        "value": 0,
+        "count": 1
+      },
+      {
+        "type": "combat",
+        "per_place": false,
+        "dc": 10,
+        "value": 0,
+        "count": 1,
+        "boss": "cathedral_warden",
+        "win": [
+          {
+            "type": "text",
+            "text": {
+              "en": "The warden cracks from wing to wing and falls still. Behind the altar, the relics of the drowned priests are still dry.",
+              "ja": "番人は翼から翼へひびが走り、動かなくなった。祭壇の奥に、溺れた司祭たちの遺した品が、まだ乾いたまま残っている。"
+            },
+            "per_place": false,
+            "dc": 10,
+            "value": 0,
+            "count": 1
+          },
+          {
+            "type": "treasure",
+            "per_place": false,
+            "dc": 10,
+            "value": 0,
+            "count": 2
+          },
+          {
+            "type": "flag",
+            "per_place": false,
+            "dc": 10,
+            "id": "sk_warden_down",
+            "value": 0,
+            "count": 1
+          }
+        ],
+        "lose": [
+          {
+            "type": "text",
+            "text": {
+              "en": "You fall back past the pews. The warden does not follow; it settles on the altar again.",
+              "ja": "長椅子のあいだを退いた。番人は追ってこない。また祭壇の上にうずくまった。"
+            },
+            "per_place": false,
+            "dc": 10,
+            "value": 0,
+            "count": 1
+          },
+          {
+            "type": "again",
+            "per_place": false,
+            "dc": 10,
+            "value": 0,
+            "count": 1
+          }
+        ]
+      }
+    ],
+    "note": "B B3: 聖歌隊の奥、聖遺物の間を守る聖堂の番人(途中の階のボス cathedral_warden)",
+    "memo": true
+  },
+  {
+    "id": "sk_b4_dorn",
+    "place": "maze",
+    "once": "game",
+    "steps": [
+      {
+        "type": "text",
+        "text": {
+          "en": "In the engine hall of the great sluice, a pale figure leans on a wheel taller than himself, turning it, turning it. The gears groan. Somewhere far above, the sluice gates open a little wider.",
+          "ja": "大水門の機関の間で、青白い影が、自分の背より大きな車輪にもたれて、回し続けている。歯車がうなる。はるか上のどこかで、水門がまた少し開いた。"
+        },
+        "per_place": false,
+        "dc": 10,
+        "value": 0,
+        "count": 1
+      },
+      {
+        "type": "text",
+        "text": {
+          "en": "It is Dorn, the sluice-keeper from the town. His feet do not touch the floor.",
+          "ja": "町の水門守、ドルンだった。足が、床についていない。"
+        },
+        "per_place": false,
+        "dc": 10,
+        "value": 0,
+        "count": 1
+      },
+      {
+        "type": "text",
+        "text": {
+          "en": "\"The voice promised. Drain the lake, and Per comes back. Just a little more water... Don't stop me.\"",
+          "ja": "「声が、約束したんだ。湖を干せば、ペルが帰ってくると。あと少し、水を抜けば……。邪魔を、するな」"
+        },
+        "speaker": {
+          "en": "Dorn",
+          "ja": "ドルン"
+        },
+        "per_place": false,
+        "dc": 10,
+        "value": 0,
+        "count": 1
+      },
+      {
+        "type": "choice",
+        "text": {
+          "en": "What do you do?",
+          "ja": "どうする？"
+        },
+        "options": [
+          {
+            "label": {
+              "en": "Show him the toy boat",
+              "ja": "木彫りの舟を見せる"
+            },
+            "when": [
+              {
+                "type": "item",
+                "id": "sk_wooden_boat",
+                "value": 1,
+                "count": 1,
+                "op": ">=",
+                "not": false
+              }
+            ],
+            "steps": [
+              {
+                "type": "text",
+                "text": {
+                  "en": "Dorn's hands leave the wheel. He takes the little boat and turns it over, and finds the name on the keel.",
+                  "ja": "ドルンの手が、車輪から離れた。小さな舟を受け取って裏返し、舟底の名を見つけた。"
+                },
+                "per_place": false,
+                "dc": 10,
+                "value": 0,
+                "count": 1
+              },
+              {
+                "type": "text",
+                "text": {
+                  "en": "\"...I carved this. The summer he drowned. He wanted to sail it on the lake.\"",
+                  "ja": "「……おれが、彫ったんだ。あいつが溺れた夏に。湖に浮かべたいって、言うから」"
+                },
+                "speaker": {
+                  "en": "Dorn",
+                  "ja": "ドルン"
+                },
+                "per_place": false,
+                "dc": 10,
+                "value": 0,
+                "count": 1
+              },
+              {
+                "type": "text",
+                "text": {
+                  "en": "\"The voice never had him. He's just... in the water. Like everyone else down here.\"",
+                  "ja": "「声のところに、あいつはいなかったんだな。ただ、水の中にいるだけだ。ここの、みんなと同じに」"
+                },
+                "speaker": {
+                  "en": "Dorn",
+                  "ja": "ドルン"
+                },
+                "per_place": false,
+                "dc": 10,
+                "value": 0,
+                "count": 1
+              },
+              {
+                "type": "take_item",
+                "per_place": false,
+                "dc": 10,
+                "id": "sk_wooden_boat",
+                "value": 0,
+                "count": 1
+              },
+              {
+                "type": "text",
+                "text": {
+                  "en": "Dorn holds the boat to his chest and sits down by the still wheel. Before he fades, he presses a heavy, green-rusted signet into your hand.",
+                  "ja": "ドルンは舟を胸に抱いて、止まった車輪のそばに腰を下ろした。消える前に、青く錆びた重い印章を、あなたの手に押しつけた。"
+                },
+                "per_place": false,
+                "dc": 10,
+                "value": 0,
+                "count": 1
+              },
+              {
+                "type": "text",
+                "text": {
+                  "en": "\"Found it in the sluice, years ago. The king's own. ...It opens the guards' gate in the palace. Go on. I'll sleep here.\"",
+                  "ja": "「何年も前に、水門で拾った。王様のだ。……王宮の、親衛の門が開く。行け。おれは、ここで眠る」"
+                },
+                "speaker": {
+                  "en": "Dorn",
+                  "ja": "ドルン"
+                },
+                "per_place": false,
+                "dc": 10,
+                "value": 0,
+                "count": 1
+              },
+              {
+                "type": "give_item",
+                "per_place": false,
+                "dc": 10,
+                "id": "sk_royal_seal",
+                "value": 0,
+                "count": 1
+              },
+              {
+                "type": "flag",
+                "per_place": false,
+                "dc": 10,
+                "id": "sk_seal",
+                "value": 0,
+                "count": 1
+              },
+              {
+                "type": "flag",
+                "per_place": false,
+                "dc": 10,
+                "id": "sk_dorn_rest",
+                "value": 0,
+                "count": 1
+              },
+              {
+                "type": "open",
+                "per_place": false,
+                "dc": 10,
+                "id": "sk_engine",
+                "value": 0,
+                "count": 1
+              },
+              {
+                "type": "xp",
+                "per_place": false,
+                "dc": 10,
+                "value": 800,
+                "count": 1
+              }
+            ],
+            "weight": 1
+          },
+          {
+            "label": {
+              "en": "Stop him by force",
+              "ja": "力ずくで止める"
+            },
+            "steps": [
+              {
+                "type": "text",
+                "text": {
+                  "en": "\"Then you're the ones keeping him from me!\"",
+                  "ja": "「なら、おまえたちが、あいつを返さないんだな！」"
+                },
+                "speaker": {
+                  "en": "Dorn",
+                  "ja": "ドルン"
+                },
+                "per_place": false,
+                "dc": 10,
+                "value": 0,
+                "count": 1
+              },
+              {
+                "type": "combat",
+                "per_place": false,
+                "dc": 10,
+                "value": 0,
+                "count": 1,
+                "boss": "dorn",
+                "win": [
+                  {
+                    "type": "text",
+                    "text": {
+                      "en": "Dorn's shape thins like mist over the water. Something heavy falls from it and rings on the iron floor: a green-rusted signet.",
+                      "ja": "ドルンの影が、水の上の霧のように薄れていく。影から重いものが落ち、鉄の床で鳴った。青く錆びた印章だった。"
+                    },
+                    "per_place": false,
+                    "dc": 10,
+                    "value": 0,
+                    "count": 1
+                  },
+                  {
+                    "type": "text",
+                    "text": {
+                      "en": "\"...Per...\"",
+                      "ja": "「……ペル……」"
+                    },
+                    "speaker": {
+                      "en": "Dorn",
+                      "ja": "ドルン"
+                    },
+                    "per_place": false,
+                    "dc": 10,
+                    "value": 0,
+                    "count": 1
+                  },
+                  {
+                    "type": "give_item",
+                    "per_place": false,
+                    "dc": 10,
+                    "id": "sk_royal_seal",
+                    "value": 0,
+                    "count": 1
+                  },
+                  {
+                    "type": "flag",
+                    "per_place": false,
+                    "dc": 10,
+                    "id": "sk_seal",
+                    "value": 0,
+                    "count": 1
+                  },
+                  {
+                    "type": "flag",
+                    "per_place": false,
+                    "dc": 10,
+                    "id": "sk_dorn_fought",
+                    "value": 0,
+                    "count": 1
+                  },
+                  {
+                    "type": "open",
+                    "per_place": false,
+                    "dc": 10,
+                    "id": "sk_engine",
+                    "value": 0,
+                    "count": 1
+                  }
+                ],
+                "lose": [
+                  {
+                    "type": "text",
+                    "text": {
+                      "en": "You fall back out of the engine hall. Behind you, the wheel begins to turn again.",
+                      "ja": "機関の間から退いた。背後で、また車輪が回り始めた。"
+                    },
+                    "per_place": false,
+                    "dc": 10,
+                    "value": 0,
+                    "count": 1
+                  },
+                  {
+                    "type": "again",
+                    "per_place": false,
+                    "dc": 10,
+                    "value": 0,
+                    "count": 1
+                  }
+                ]
+              }
+            ],
+            "weight": 1
+          },
+          {
+            "label": {
+              "en": "Leave",
+              "ja": "立ち去る"
+            },
+            "steps": [
+              {
+                "type": "again",
+                "per_place": false,
+                "dc": 10,
+                "value": 0,
+                "count": 1
+              }
+            ],
+            "weight": 1
+          }
+        ],
+        "per_place": false,
+        "dc": 10,
+        "value": 0,
+        "count": 1
+      }
+    ],
+    "bgm": "audio/bgm/story.mp3",
+    "note": "B B4: 水門守ドルンの亡霊が歯車を回している。息子の舟を見せると眠り、王家の印章を渡す。見せなければ戦う(boss dorn)。どちらでも奥 (gate:sk_engine) が開き、印章が手に入る",
+    "memo": true
+  },
+  {
+    "id": "sk_b4_lever",
+    "place": "maze",
+    "once": "game",
+    "steps": [
+      {
+        "type": "text",
+        "text": {
+          "en": "Behind the engine hall, a lever wrapped in rotten velvet is set into the wall, marked with the royal crest. Chains run from it up the dark shaft of the royal lift.",
+          "ja": "機関の間の奥の壁に、朽ちたビロードを巻いたレバーがある。王家の紋が刻まれている。鎖が、王家の昇降機の暗い縦穴を上へ伸びている。"
+        },
+        "per_place": false,
+        "dc": 10,
+        "value": 0,
+        "count": 1
+      },
+      {
+        "type": "choice",
+        "text": {
+          "en": "Pull the lever?",
+          "ja": "レバーを引く？"
+        },
+        "options": [
+          {
+            "label": {
+              "en": "Pull it",
+              "ja": "引く"
+            },
+            "steps": [
+              {
+                "type": "flag",
+                "per_place": false,
+                "dc": 10,
+                "id": "sk_lift_power",
+                "value": 0,
+                "count": 1
+              },
+              {
+                "type": "sound",
+                "per_place": false,
+                "dc": 10,
+                "id": "search",
+                "value": 0,
+                "count": 1
+              },
+              {
+                "type": "text",
+                "text": {
+                  "en": "Water pours out of the gears, and the chains go taut with a long groan. The royal lift is moving again, from the drained streets down to the palace.",
+                  "ja": "歯車から水が流れ落ち、鎖が長いうなりを上げて張りつめた。王家の昇降機が、また動く。干上がった街から、王宮まで。"
+                },
+                "per_place": false,
+                "dc": 10,
+                "value": 0,
+                "count": 1
+              }
+            ],
+            "weight": 1
+          },
+          {
+            "label": {
+              "en": "Leave it",
+              "ja": "そのままにする"
+            },
+            "steps": [
+              {
+                "type": "again",
+                "per_place": false,
+                "dc": 10,
+                "value": 0,
+                "count": 1
+              }
+            ],
+            "weight": 1
+          }
+        ],
+        "per_place": false,
+        "dc": 10,
+        "value": 0,
+        "count": 1
+      }
+    ],
+    "note": "B B4: 王家の昇降機の動力。引くと sk_lift_power が立ち、B1〜B5 の縦穴が動く",
+    "memo": true
+  },
+  {
+    "id": "sk_b5_gate",
+    "place": "maze",
+    "once": "place",
+    "steps": [
+      {
+        "type": "text",
+        "text": {
+          "en": "A gate of black iron, wrought with the royal crest. In its center is a hollow the shape of a signet.",
+          "ja": "王家の紋を打ち出した、黒い鉄の門がある。真ん中に、印章の形のくぼみがある。"
+        },
+        "per_place": false,
+        "dc": 10,
+        "value": 0,
+        "count": 1
+      },
+      {
+        "type": "if",
+        "per_place": false,
+        "when": [
+          {
+            "type": "item",
+            "id": "sk_royal_seal",
+            "value": 1,
+            "count": 1,
+            "op": ">=",
+            "not": false
+          }
+        ],
+        "then": [
+          {
+            "type": "choice",
+            "text": {
+              "en": "Press the royal seal into it?",
+              "ja": "王家の印章をはめる？"
+            },
+            "options": [
+              {
+                "label": {
+                  "en": "Press it in",
+                  "ja": "はめる"
+                },
+                "steps": [
+                  {
+                    "type": "sound",
+                    "per_place": false,
+                    "dc": 10,
+                    "id": "door",
+                    "value": 0,
+                    "count": 1
+                  },
+                  {
+                    "type": "text",
+                    "text": {
+                      "en": "The seal sinks into the hollow. Far beyond the gate, the air stirs, as if someone has let out a long-held breath.",
+                      "ja": "印章がくぼみに沈んだ。門の向こうのずっと奥で、空気が動いた。長く止めていた息を、誰かが吐いたように。"
+                    },
+                    "per_place": false,
+                    "dc": 10,
+                    "value": 0,
+                    "count": 1
+                  },
+                  {
+                    "type": "open",
+                    "per_place": false,
+                    "dc": 10,
+                    "id": "sk_guard",
+                    "value": 0,
+                    "count": 1
+                  }
+                ],
+                "weight": 1
+              },
+              {
+                "label": {
+                  "en": "Leave",
+                  "ja": "立ち去る"
+                },
+                "steps": [
+                  {
+                    "type": "again",
+                    "per_place": false,
+                    "dc": 10,
+                    "value": 0,
+                    "count": 1
+                  }
+                ],
+                "weight": 1
+              }
+            ],
+            "per_place": false,
+            "dc": 10,
+            "value": 0,
+            "count": 1
+          }
+        ],
+        "else": [
+          {
+            "type": "text",
+            "text": {
+              "en": "You have nothing that fits. The sluice-keeper of the town might know where the royal seal went.",
+              "ja": "はまるものを持っていない。王家の印章の行方は、町の水門守なら知っているかもしれない。"
+            },
+            "per_place": false,
+            "dc": 10,
+            "value": 0,
+            "count": 1
+          },
+          {
+            "type": "again",
+            "per_place": false,
+            "dc": 10,
+            "value": 0,
+            "count": 1
+          }
+        ],
+        "dc": 10,
+        "value": 0,
+        "count": 1
+      }
+    ],
+    "note": "B B5: 親衛の門。王家の印章で開く (gate:sk_guard)",
+    "memo": true
+  },
+  {
+    "id": "sk_b5_queen",
+    "place": "maze",
+    "once": "game",
+    "steps": [
+      {
+        "type": "text",
+        "text": {
+          "en": "Beyond the gate is a guardroom where the water stands in the air like glass. Through it, far off, you see the throne room, and a woman sitting very still.",
+          "ja": "門の奥は親衛の詰め所で、水がガラスのように宙に立っている。その向こう、ずっと遠くに玉座の間が見え、ひどく静かに座っている女の人がいる。"
+        },
+        "per_place": false,
+        "dc": 10,
+        "value": 0,
+        "count": 1
+      },
+      {
+        "type": "text",
+        "text": {
+          "en": "\"So the water has gone down. ...I am Ilda. I drowned this city.\"",
+          "ja": "「水が、引いたのですね。……わたしはイルダ。この都を、沈めた者です」"
+        },
+        "speaker": {
+          "en": "A voice through the water",
+          "ja": "水の向こうの声"
+        },
+        "per_place": false,
+        "dc": 10,
+        "value": 0,
+        "count": 1
+      },
+      {
+        "type": "text",
+        "text": {
+          "en": "\"Beneath Selem is the Deep, and from it rises the Call that wakes the dead. The keystone held it shut. When it cracked, I opened the great sluice. Under water, the dead cannot rise.\"",
+          "ja": "「セレムの下には底があり、そこから死者を起こす呼び声が上ってきます。要石が、それを塞いでいた。ひびが入ったとき、わたしは大水門を開けました。水の中では、死者は起き上がれないから」"
+        },
+        "speaker": {
+          "en": "Ilda",
+          "ja": "イルダ"
+        },
+        "per_place": false,
+        "dc": 10,
+        "value": 0,
+        "count": 1
+      },
+      {
+        "type": "text",
+        "text": {
+          "en": "\"Vail, my commander, held the gate of the lower city. I promised him: until his horn sounded three times, the sluice would not open. ...The keystone could not hold that long. I opened the sluice without waiting for a horn that never sounded.\"",
+          "ja": "「騎士団長のヴェイルは、下の街の門を守っていました。角笛が三度鳴るまで、水門は開かぬと、わたしは約束しました。……要石が、それまでもたなかった。わたしは、鳴らない角笛を待たずに、水門を開けました」"
+        },
+        "speaker": {
+          "en": "Ilda",
+          "ja": "イルダ"
+        },
+        "per_place": false,
+        "dc": 10,
+        "value": 0,
+        "count": 1
+      },
+      {
+        "type": "text",
+        "text": {
+          "en": "\"He has every reason not to forgive me, and I will not ask him to. ...But the Call is using his anger. It means to take the keystone from my hands.\"",
+          "ja": "「あの人には、わたしを許さない理由がある。許してほしいとは、言いません。……でも、呼び声が、あの人の怒りを使っている。要石を、わたしの手から奪わせようとしている」"
+        },
+        "speaker": {
+          "en": "Ilda",
+          "ja": "イルダ"
+        },
+        "per_place": false,
+        "dc": 10,
+        "value": 0,
+        "count": 1
+      },
+      {
+        "type": "text",
+        "text": {
+          "en": "\"Come down to the throne room. Not for my sake. For the ones still sleeping.\"",
+          "ja": "「玉座の間へ、下りてきてください。わたしのためではなく、まだ眠っている者たちのために」"
+        },
+        "speaker": {
+          "en": "Ilda",
+          "ja": "イルダ"
+        },
+        "per_place": false,
+        "dc": 10,
+        "value": 0,
+        "count": 1
+      },
+      {
+        "type": "flag",
+        "per_place": false,
+        "dc": 10,
+        "id": "sk_queen_voice",
+        "value": 0,
+        "count": 1
+      },
+      {
+        "type": "text",
+        "text": {
+          "en": "The water closes like a curtain. On the guardroom floor, the guards' last pay chest lies unopened.",
+          "ja": "水が幕のように閉じた。詰め所の床に、親衛たちの最後の給金の箱が、開けられないまま残っている。"
+        },
+        "per_place": false,
+        "dc": 10,
+        "value": 0,
+        "count": 1
+      },
+      {
+        "type": "treasure",
+        "per_place": false,
+        "dc": 10,
+        "value": 0,
+        "count": 2
+      }
+    ],
+    "bgm": "audio/bgm/story.mp3",
+    "note": "B B5: 親衛の門の奥。水の向こうから女王の声が届く。真相の半分",
+    "memo": true
+  },
+  {
+    "id": "sk_messenger",
+    "title": {
+      "en": "A messenger from the gravekeepers' town",
+      "ja": "墓守の町からの使い"
+    },
+    "place": "town",
+    "steps": [
+      {
+        "type": "if",
+        "per_place": false,
+        "when": [
+          {
+            "type": "flag",
+            "id": "sk_heart",
+            "value": 1,
+            "count": 1,
+            "op": ">=",
+            "not": false
+          }
+        ],
+        "then": [
+          {
+            "type": "if",
+            "per_place": false,
+            "when": [
+              {
+                "type": "flag",
+                "id": "sk_keystone",
+                "value": 1,
+                "count": 1,
+                "op": ">=",
+                "not": false
+              }
+            ],
+            "then": [
+              {
+                "type": "text",
+                "text": {
+                  "en": "\"Two pieces, and still not whole... I'll tell Riine. She'll want to know where the edge points now.\"",
+                  "ja": "「二つ合わせても、まだ欠けてるんですね……。リーネさんに伝えます。今度は欠けた先がどこを指してるのか、知りたがるはずです」"
+                },
+                "speaker": {
+                  "en": "Messenger",
+                  "ja": "使い"
+                },
+                "per_place": false,
+                "dc": 10,
+                "value": 0,
+                "count": 1
+              }
+            ],
+            "else": [
+              {
+                "type": "text",
+                "text": {
+                  "en": "\"I'm staying at the inn until it's settled. Riine said not to come back without news.\"",
+                  "ja": "「片がつくまで、宿にいます。知らせを持たずに帰ってくるなって、リーネさんに言われてるので」"
+                },
+                "speaker": {
+                  "en": "Messenger",
+                  "ja": "使い"
+                },
+                "per_place": false,
+                "dc": 10,
+                "value": 0,
+                "count": 1
+              }
+            ],
+            "dc": 10,
+            "value": 0,
+            "count": 1
+          }
+        ],
+        "else": [
+          {
+            "type": "text",
+            "text": {
+              "en": "A young grave-digger, still muddy from the road, is asking every adventurer at the inn the same question.",
+              "ja": "道の泥をつけたままの若い墓掘りが、宿の冒険者に一人ずつ、同じことを尋ねて回っている。"
+            },
+            "per_place": false,
+            "dc": 10,
+            "value": 0,
+            "count": 1
+          },
+          {
+            "type": "text",
+            "text": {
+              "en": "\"Are you going down to the old city? Then this is for you. From Riine, the gravekeeper of the spiral town.\"",
+              "ja": "「古い都へ、下りる人ですか。なら、これを。螺旋の町の墓守、リーネさんからです」"
+            },
+            "speaker": {
+              "en": "Messenger",
+              "ja": "使い"
+            },
+            "per_place": false,
+            "dc": 10,
+            "value": 0,
+            "count": 1
+          },
+          {
+            "type": "text",
+            "text": {
+              "en": "He gives you a letter and a cloth bundle. Inside the cloth is a heart of grey stone, beating faintly.",
+              "ja": "手紙と、布の包みを渡された。包みの中には、灰色の石の心臓があり、かすかに脈打っている。"
+            },
+            "per_place": false,
+            "dc": 10,
+            "value": 0,
+            "count": 1
+          },
+          {
+            "type": "text",
+            "text": {
+              "en": "\"This heart was brought up from the bottom of our spiral. Since the lake began to drain, it beats toward you. Its broken edge points to the water.\n\nThe first warden carried this from a drowned city. I think the rest of it is down there. Please, see what it is looking for. — Riine\"",
+              "ja": "「この心臓は、わたしたちの螺旋の底から持ち帰られたものです。湖の水が引き始めてから、そちらへ向かって脈打っています。欠けた縁は、水の方を指しています。\n\n最初の墓守は、これを沈んだ都から持ち出したのだと思います。残りは、きっとそこにある。この心臓が何を探しているのか、見てきてください。――リーネ」"
+            },
+            "speaker": {
+              "en": "Riine's letter",
+              "ja": "リーネの手紙"
+            },
+            "per_place": false,
+            "dc": 10,
+            "value": 0,
+            "count": 1
+          },
+          {
+            "type": "give_item",
+            "per_place": false,
+            "dc": 10,
+            "id": "sk_stone_heart",
+            "value": 0,
+            "count": 1
+          },
+          {
+            "type": "flag",
+            "per_place": false,
+            "dc": 10,
+            "id": "sk_heart",
+            "value": 0,
+            "count": 1
+          }
+        ],
+        "dc": 10,
+        "value": 0,
+        "count": 1
+      }
+    ],
+    "bgm": "audio/bgm/story.mp3",
+    "note": "B: 最初に石の心臓と、リーネの手紙を渡す。第1部を遊んでいなくても、ここで心臓が手に入る",
+    "memo": true
+  },
+  {
+    "id": "sk_osa",
+    "title": {
+      "en": "Osa, the old ferrywoman",
+      "ja": "渡し守の老婆オーサ"
+    },
+    "place": "town",
+    "steps": [
+      {
+        "type": "if",
+        "per_place": false,
+        "when": [
+          {
+            "type": "flag",
+            "id": "sk_keystone",
+            "value": 1,
+            "count": 1,
+            "op": ">=",
+            "not": false
+          }
+        ],
+        "then": [
+          {
+            "type": "text",
+            "text": {
+              "en": "\"She's still sitting there, isn't she. ...Then the lake should come back. Somebody ought to keep her company, even if it's only water.\"",
+              "ja": "「あの方は、まだ座ってらっしゃるんだね。……なら、湖は戻さなきゃ。水だけでも、そばにいてあげないと」"
+            },
+            "speaker": {
+              "en": "Osa",
+              "ja": "オーサ"
+            },
+            "per_place": false,
+            "dc": 10,
+            "value": 0,
+            "count": 1
+          }
+        ],
+        "else": [
+          {
+            "type": "if",
+            "per_place": false,
+            "when": [
+              {
+                "type": "flag",
+                "id": "sk_lullaby_a",
+                "value": 1,
+                "count": 1,
+                "op": ">=",
+                "not": false
+              }
+            ],
+            "then": [
+              {
+                "type": "if",
+                "per_place": false,
+                "when": [
+                  {
+                    "type": "flag",
+                    "id": "sk_queen_voice",
+                    "value": 1,
+                    "count": 1,
+                    "op": ">=",
+                    "not": false
+                  }
+                ],
+                "then": [
+                  {
+                    "type": "text",
+                    "text": {
+                      "en": "\"My grandmother's grandmother said the queen could have left in the last boat from the upper harbor. She filled it with children, sent it off, and stayed. ...She was from the upper city, mind. The lower city tells it differently.\"",
+                      "ja": "「声を聞いたのかい。……あたしのばあさんの、そのまたばあさんが言ってたよ。女王様は上の港の最後の舟で逃げられたのに、舟を子どもでいっぱいにして出して、ご自分は残ったって。……もっとも、ばあさんは上の街の生まれだ。下の街の話は、また違うだろうね」"
+                    },
+                    "speaker": {
+                      "en": "Osa",
+                      "ja": "オーサ"
+                    },
+                    "per_place": false,
+                    "dc": 10,
+                    "value": 0,
+                    "count": 1
+                  }
+                ],
+                "else": [
+                  {
+                    "type": "text",
+                    "text": {
+                      "en": "\"Sleep in the tide, the city is still. Bow to the waves... That's all I remember. The rest went under with the city.\"",
+                      "ja": "「潮に眠れ 都は静か、波に頭を垂れ……。覚えてるのは、そこまでさ。続きは、都と一緒に沈んじまった」"
+                    },
+                    "speaker": {
+                      "en": "Osa",
+                      "ja": "オーサ"
+                    },
+                    "per_place": false,
+                    "dc": 10,
+                    "value": 0,
+                    "count": 1
+                  }
+                ],
+                "dc": 10,
+                "value": 0,
+                "count": 1
+              }
+            ],
+            "else": [
+              {
+                "type": "text",
+                "text": {
+                  "en": "An old woman sits on an overturned ferry at the edge of the dry lake, mending a net she will never use again.",
+                  "ja": "干上がった湖のふちで、伏せた渡し舟に老婆が腰かけ、もう使うことのない網を繕っている。"
+                },
+                "per_place": false,
+                "dc": 10,
+                "value": 0,
+                "count": 1
+              },
+              {
+                "type": "text",
+                "text": {
+                  "en": "\"Going down to Selem, are you. People here say the queen drowned her own city. That's true. The boats gathered at the upper harbor, and the lower city was to walk out by the gate. Plenty didn't make it. But nobody says she stayed in it herself.\"",
+                  "ja": "「セレムへ下りるのかい。ここらの者は、女王様が自分の都を沈めたって言う。それは本当さ。舟は上の港に集められて、下の街の者は門から歩いて逃げる手はずだった。間に合わなかった者も、大勢いた。でも、女王様がご自分も残ったってことは、誰も言わない」"
+                },
+                "speaker": {
+                  "en": "Osa",
+                  "ja": "オーサ"
+                },
+                "per_place": false,
+                "dc": 10,
+                "value": 0,
+                "count": 1
+              },
+              {
+                "type": "text",
+                "text": {
+                  "en": "\"The drowned don't like noise. My mother used to sing them a lullaby from the boat, when the nets came up heavy. Listen, now.\"",
+                  "ja": "「溺れた者は、騒がしいのを嫌う。網が重く上がった晩は、母さんが舟の上から子守歌を聞かせてたよ。いいかい、聞きな」"
+                },
+                "speaker": {
+                  "en": "Osa",
+                  "ja": "オーサ"
+                },
+                "per_place": false,
+                "dc": 10,
+                "value": 0,
+                "count": 1
+              },
+              {
+                "type": "text",
+                "text": {
+                  "en": "\"Sleep in the tide, the city is still.\nBow to the waves and accept their will.\n...The rest went under with the city. If you find it down there, sing it all the way through.\"",
+                  "ja": "「潮に眠れ 都は静か\n波に頭を垂れ その心のままに\n……続きは、都と一緒に沈んじまった。下で見つけたら、最後まで歌っておやり」"
+                },
+                "speaker": {
+                  "en": "Osa",
+                  "ja": "オーサ"
+                },
+                "per_place": false,
+                "dc": 10,
+                "value": 0,
+                "count": 1
+              },
+              {
+                "type": "flag",
+                "per_place": false,
+                "dc": 10,
+                "id": "sk_lullaby_a",
+                "value": 0,
+                "count": 1
+              }
+            ],
+            "dc": 10,
+            "value": 0,
+            "count": 1
+          }
+        ],
+        "dc": 10,
+        "value": 0,
+        "count": 1
+      }
+    ],
+    "bgm": "audio/bgm/story.mp3",
+    "note": "B: 王都の昔話と、子守歌の前半(sk_lullaby_a)。女王を「沈めた人」ではなく「残った人」として語る",
+    "memo": true
+  },
+  {
+    "id": "sk_dorn",
+    "title": {
+      "en": "Dorn, the sluice-keeper",
+      "ja": "水門守ドルン"
+    },
+    "place": "town",
+    "when": [
+      {
+        "type": "flag",
+        "id": "sk_dorn_gone",
+        "value": 1,
+        "count": 1,
+        "op": ">=",
+        "not": true
+      }
+    ],
+    "steps": [
+      {
+        "type": "text",
+        "text": {
+          "en": "A thin man stands on the sluice bridge, watching the water run out of the lake. He does not blink.",
+          "ja": "痩せた男が水門の橋に立って、湖から水が抜けていくのを見ている。まばたきをしない。"
+        },
+        "per_place": false,
+        "dc": 10,
+        "value": 0,
+        "count": 1
+      },
+      {
+        "type": "text",
+        "text": {
+          "en": "\"I'm the one who opened the sluice. Borg only digs the ditches. ...My boy drowned out there, two summers ago. They never found him.\"",
+          "ja": "「水門を開けたのは、おれだ。ボルグは溝を掘ってるだけさ。……おれの息子は、二つ前の夏に、あそこで溺れた。見つからなかった」"
+        },
+        "speaker": {
+          "en": "Dorn",
+          "ja": "ドルン"
+        },
+        "per_place": false,
+        "dc": 10,
+        "value": 0,
+        "count": 1
+      },
+      {
+        "type": "text",
+        "text": {
+          "en": "\"At night the water talks to me. It says: drain me, and he'll come walking up the lake bed. ...You think I'm mad. Maybe. I'm going to go and look.\"",
+          "ja": "「夜になると、水がしゃべるんだ。干してくれ、そうすれば、あいつが湖の底を歩いて帰ってくる、ってな。……おかしいと思うだろう。かもな。だから、見に行く」"
+        },
+        "speaker": {
+          "en": "Dorn",
+          "ja": "ドルン"
+        },
+        "per_place": false,
+        "dc": 10,
+        "value": 0,
+        "count": 1
+      },
+      {
+        "type": "text",
+        "text": {
+          "en": "The next morning, Dorn is gone from the bridge. His boots are found at the edge of the mud, side by side, facing the lake.",
+          "ja": "翌朝、橋にドルンの姿は無かった。泥のふちに、彼の長靴が、湖の方を向いて揃えて置いてあった。"
+        },
+        "per_place": false,
+        "dc": 10,
+        "value": 0,
+        "count": 1
+      },
+      {
+        "type": "flag",
+        "per_place": false,
+        "dc": 10,
+        "id": "sk_dorn_gone",
+        "value": 0,
+        "count": 1
+      }
+    ],
+    "note": "B: 初めは町で干拓の水門を見ている。話を聞いたあと姿を消し、B4 で亡霊として見つかる",
+    "memo": true
+  },
+  {
+    "id": "sk_borg",
+    "title": {
+      "en": "Borg, the drainage foreman",
+      "ja": "干拓の親方ボルグ"
+    },
+    "place": "town",
+    "steps": [
+      {
+        "type": "if",
+        "per_place": false,
+        "when": [
+          {
+            "type": "flag",
+            "id": "sk_keystone",
+            "value": 1,
+            "count": 1,
+            "op": ">=",
+            "not": false
+          }
+        ],
+        "then": [
+          {
+            "type": "text",
+            "text": {
+              "en": "\"So that's what's under there. ...All right. I'll close the sluice tomorrow. The fields can wait a thousand years more.\"",
+              "ja": "「下に、そんなものがあったのか。……わかった。明日、水門を閉める。畑は、あと千年待ってもらうさ」"
+            },
+            "speaker": {
+              "en": "Borg",
+              "ja": "ボルグ"
+            },
+            "per_place": false,
+            "dc": 10,
+            "value": 0,
+            "count": 1
+          }
+        ],
+        "else": [
+          {
+            "type": "if",
+            "per_place": false,
+            "when": [
+              {
+                "type": "flag",
+                "id": "sk_dorn_gone",
+                "value": 1,
+                "count": 1,
+                "op": ">=",
+                "not": false
+              }
+            ],
+            "then": [
+              {
+                "type": "text",
+                "text": {
+                  "en": "\"Dorn's gone, and the sluice keeps opening by itself. Nobody's touching the wheel. ...I don't like it. Find out what's down there, will you?\"",
+                  "ja": "「ドルンがいなくなっても、水門がひとりでに開いていく。誰も車輪に触ってないのに。……気に入らない。下に何があるのか、見てきてくれ」"
+                },
+                "speaker": {
+                  "en": "Borg",
+                  "ja": "ボルグ"
+                },
+                "per_place": false,
+                "dc": 10,
+                "value": 0,
+                "count": 1
+              }
+            ],
+            "else": [
+              {
+                "type": "text",
+                "text": {
+                  "en": "A broad man with mud to his knees is shouting orders at the ditch-diggers.",
+                  "ja": "膝まで泥につかった大柄な男が、溝掘りたちに怒鳴っている。"
+                },
+                "per_place": false,
+                "dc": 10,
+                "value": 0,
+                "count": 1
+              },
+              {
+                "type": "text",
+                "text": {
+                  "en": "\"Five more years and this lake is wheat. That's the plan. Then the roofs came up, and the dead came up in the nets, and now half my men won't dig after dark.\"",
+                  "ja": "「あと五年で、この湖は麦畑になる。そういう話だった。それが、屋根が出てきて、網に死人がかかって、今じゃ半分の連中が日が暮れたら掘らない」"
+                },
+                "speaker": {
+                  "en": "Borg",
+                  "ja": "ボルグ"
+                },
+                "per_place": false,
+                "dc": 10,
+                "value": 0,
+                "count": 1
+              }
+            ],
+            "dc": 10,
+            "value": 0,
+            "count": 1
+          }
+        ],
+        "dc": 10,
+        "value": 0,
+        "count": 1
+      }
+    ],
+    "note": "B: 干拓を進めている。終わりに水門を閉じる役(エンディングの文)",
+    "memo": true
+  },
+  {
+    "id": "sk_barkeep",
+    "title": {
+      "en": "Listen to the tavern talk",
+      "ja": "酒場の噂を聞く"
+    },
+    "place": "town",
+    "steps": [
+      {
+        "type": "random",
+        "options": [
+          {
+            "steps": [
+              {
+                "type": "text",
+                "text": {
+                  "en": "\"The lake used to be called Selem's Mirror. Fishermen swore they could see lamps lit down there on still nights.\"",
+                  "ja": "「この湖は、昔はセレムの鏡って呼ばれてたんだ。凪いだ晩には、底に灯りが見えたって、漁師はみんな言ってた」"
+                },
+                "per_place": false,
+                "dc": 10,
+                "value": 0,
+                "count": 1
+              }
+            ],
+            "weight": 1
+          },
+          {
+            "steps": [
+              {
+                "type": "text",
+                "text": {
+                  "en": "\"There's a lift in the old city. A royal one, for the king's family. If you could get it moving, you'd save yourself a lot of stairs.\"",
+                  "ja": "「古い都には、昇降機があるそうだ。王様の一家が使ってたやつ。動かせりゃ、階段を下りる手間がずいぶん省けるぜ」"
+                },
+                "per_place": false,
+                "dc": 10,
+                "value": 0,
+                "count": 1
+              }
+            ],
+            "weight": 1
+          },
+          {
+            "steps": [
+              {
+                "type": "text",
+                "text": {
+                  "en": "\"The knights went down with their armor on. They say you can still hear them marching in the palace, under the water.\"",
+                  "ja": "「騎士たちは、鎧を着たまま沈んだんだと。王宮じゃ、水の底で今も行進の足音が聞こえるそうだ」"
+                },
+                "per_place": false,
+                "dc": 10,
+                "value": 0,
+                "count": 1
+              }
+            ],
+            "weight": 1
+          },
+          {
+            "steps": [
+              {
+                "type": "text",
+                "text": {
+                  "en": "\"Old Osa knows more about the city than anyone. Buy her a drink and she'll sing you something.\"",
+                  "ja": "「都のことなら、渡し守のオーサばあさんが一番くわしい。一杯おごりゃ、何か歌ってくれるぜ」"
+                },
+                "per_place": false,
+                "dc": 10,
+                "value": 0,
+                "count": 1
+              }
+            ],
+            "weight": 1
+          },
+          {
+            "steps": [
+              {
+                "type": "text",
+                "text": {
+                  "en": "\"Dorn's boy drowned two summers back. Since then he talks to the water. ...Well. Who wouldn't.\"",
+                  "ja": "「ドルンのところの坊主は、二つ前の夏に溺れてな。それからあいつ、水と話してるんだ。……まあ、無理もないさ」"
+                },
+                "per_place": false,
+                "dc": 10,
+                "value": 0,
+                "count": 1
+              }
+            ],
+            "weight": 1
+          },
+          {
+            "steps": [
+              {
+                "type": "text",
+                "text": {
+                  "en": "\"A gravedigger came up from the south asking after the old city. Says his town's under a spiral full of dead. Says it's quiet now. Lucky them.\"",
+                  "ja": "「南から墓掘りが来て、古い都のことを聞いて回ってた。あっちの町の下には、死人だらけの螺旋があるんだと。今は静かになったそうだ。うらやましいね」"
+                },
+                "per_place": false,
+                "dc": 10,
+                "value": 0,
+                "count": 1
+              }
+            ],
+            "weight": 1
+          },
+          {
+            "steps": [
+              {
+                "type": "text",
+                "text": {
+                  "en": "\"They say there's something under the old city, deeper than the bottom. A labyrinth. Adventurers go in. None of them come out. Nobody even knows what it looks like inside.\"",
+                  "ja": "「古い都の下に、底よりもっと深いところがあるって話だ。迷宮さ。冒険者が入っていく。誰も出てこない。中がどうなってるのか、知ってるやつもいない」"
+                },
+                "per_place": false,
+                "dc": 10,
+                "value": 0,
+                "count": 1
+              }
+            ],
+            "weight": 1
+          }
+        ],
+        "per_place": false,
+        "dc": 10,
+        "value": 0,
+        "count": 1
+      }
+    ],
+    "note": "B: 噂(ランダム)",
+    "memo": true
+  },
+  {
+    "id": "sk_b1_letter",
+    "place": "maze",
+    "once": "game",
+    "steps": [
+      {
+        "type": "text",
+        "text": {
+          "en": "Behind a swollen door is a small house. The table is set for three. A child's shoe lies by the hearth, its buckle missing.",
+          "ja": "ふくらんだ戸の奥は、小さな家だった。食卓に、三人分の皿が並んでいる。かまどのそばに、留め金の取れた子どもの靴が転がっている。"
+        },
+        "per_place": false,
+        "dc": 10,
+        "value": 0,
+        "count": 1
+      },
+      {
+        "type": "text",
+        "text": {
+          "en": "A letter is pinned under a cup, the ink run but still legible.",
+          "ja": "杯の下に、手紙がはさんである。墨はにじんでいるが、まだ読める。"
+        },
+        "per_place": false,
+        "dc": 10,
+        "value": 0,
+        "count": 1
+      },
+      {
+        "type": "text",
+        "text": {
+          "en": "\"Edda — I'm on the gate tonight, so I'll be late. I'll have the smith mend the buckle on Lito's shoe on my way home. We'll watch the festival boats together, the three of us. This year we won't need to go down to the upper harbor; you can see them from the top of the gate. — V\"",
+          "ja": "「エッダへ。今夜は門の番で遅くなる。リトの靴の留め金は、帰りに鍛冶屋で直してもらう。祭りの舟は、三人で見よう。今年は上の港まで行かなくても、門の上から見えるはずだ。――V」"
+        },
+        "speaker": {
+          "en": "A letter on the table",
+          "ja": "食卓の手紙"
+        },
+        "per_place": false,
+        "dc": 10,
+        "value": 0,
+        "count": 1
+      },
+      {
+        "type": "flag",
+        "per_place": false,
+        "dc": 10,
+        "id": "sk_vail_letter",
+        "value": 0,
+        "count": 1
+      }
+    ],
+    "note": "B B1: 下の街の、ヴェイルの家。沈む前の、ふつうの暮らしの手紙(事件の説明はしない)",
+    "memo": false
+  },
+  {
+    "id": "sk_b2_order",
+    "place": "maze",
+    "once": "game",
+    "steps": [
+      {
+        "type": "text",
+        "text": {
+          "en": "A guardroom beside the lower city gate. Spears still stand in the rack, and on the table, under a lead weight, lies a sealed order.",
+          "ja": "下の街の城門わきの、番兵の詰め所。槍が架けたまま並び、机の上に、鉛の重しをのせた封の切られた命令書がある。"
+        },
+        "per_place": false,
+        "dc": 10,
+        "value": 0,
+        "count": 1
+      },
+      {
+        "type": "text",
+        "text": {
+          "en": "\"To Vail, Knight-Commander. Hold the lower city gate open, and guard it until the last of the people are through. The boats will gather at the upper harbor; the people of the lower city will leave by the gate, along the dike road. When the lower city is empty, sound the horn three times. Until it sounds, the sluice will not open. — Ilda\"",
+          "ja": "「騎士団長ヴェイルに命ず。下の街の城門を開けておき、最後の民が門を出るまで守れ。舟は上の港に集める。下の街の民は、門から堤の道へ逃がす。下の街が空になったら、角笛を三度。それが鳴るまで、水門は開かぬ。――イルダ」"
+        },
+        "speaker": {
+          "en": "Royal order",
+          "ja": "女王の命令書"
+        },
+        "per_place": false,
+        "dc": 10,
+        "value": 0,
+        "count": 1
+      },
+      {
+        "type": "text",
+        "text": {
+          "en": "Below the queen's seal, in a different, heavier hand: \"To the last one. I will sound the horn myself.\"",
+          "ja": "女王の印の下に、別の、太い字で書き足してある。「最後の一人まで。角笛は、私が吹く」"
+        },
+        "per_place": false,
+        "dc": 10,
+        "value": 0,
+        "count": 1
+      },
+      {
+        "type": "flag",
+        "per_place": false,
+        "dc": 10,
+        "id": "sk_vail_order",
+        "value": 0,
+        "count": 1
+      }
+    ],
+    "note": "B B2: 下の街の城門の詰め所。ヴェイルへの命令書(彼が何を信じて門に残ったか)",
+    "memo": false
+  },
+  {
+    "id": "sk_b5_memory",
+    "place": "maze",
+    "once": "game",
+    "steps": [
+      {
+        "type": "text",
+        "text": {
+          "en": "Water stands in the gallery like a pane of glass. As you pass, it clouds, and you are looking down from the top of a city gate, at night.",
+          "ja": "回廊に、水がガラスの板のように立っている。そばを通ると水が曇り、気づくと、夜の城門の上から下を見下ろしていた。"
+        },
+        "per_place": false,
+        "dc": 10,
+        "value": 0,
+        "count": 1
+      },
+      {
+        "type": "text",
+        "text": {
+          "en": "People are still pouring through the gate below: carts, old men, mothers with children on their backs. Out on the lake, the boats from the upper harbor are already far away, their lanterns small.",
+          "ja": "門の下を、まだ人が流れていく。荷車、年寄り、子を背負った母親。湖の上では、上の港の舟が、もうずっと遠くに小さな灯りを並べている。"
+        },
+        "per_place": false,
+        "dc": 10,
+        "value": 0,
+        "count": 1
+      },
+      {
+        "type": "text",
+        "text": {
+          "en": "Your hand holds a horn. It has not been sounded.",
+          "ja": "手に、角笛を握っている。まだ、吹いていない。"
+        },
+        "per_place": false,
+        "dc": 10,
+        "value": 0,
+        "count": 1
+      },
+      {
+        "type": "sound",
+        "per_place": false,
+        "dc": 10,
+        "id": "door",
+        "value": 0,
+        "count": 1
+      },
+      {
+        "type": "text",
+        "text": {
+          "en": "Far off, the great sluice groans, and the sound of water comes down the streets, louder than the crowd.",
+          "ja": "遠くで、大水門がうなった。人の声より大きく、水の音が通りを下ってくる。"
+        },
+        "per_place": false,
+        "dc": 10,
+        "value": 0,
+        "count": 1
+      },
+      {
+        "type": "text",
+        "text": {
+          "en": "\"Majesty — not yet. Not yet! They're still at the gate—\"",
+          "ja": "「陛下、まだだ。まだだ！　門には、まだ――」"
+        },
+        "speaker": {
+          "en": "A voice from the gate",
+          "ja": "門の上の声"
+        },
+        "per_place": false,
+        "dc": 10,
+        "value": 0,
+        "count": 1
+      },
+      {
+        "type": "text",
+        "text": {
+          "en": "The water closes over the gate. Behind you, the lamps of the lower city go out one by one. The glass clears, and the gallery is empty again.",
+          "ja": "水が門を呑んだ。背中で、下の街の家々の灯りが、一つずつ消えていく。水が澄み、回廊はまた誰もいなかった。"
+        },
+        "per_place": false,
+        "dc": 10,
+        "value": 0,
+        "count": 1
+      },
+      {
+        "type": "flag",
+        "per_place": false,
+        "dc": 10,
+        "id": "sk_vail_memory",
+        "value": 0,
+        "count": 1
+      }
+    ],
+    "bgm": "audio/bgm/story.mp3",
+    "note": "B B5: 宙に立つ水に、ヴェイルの記憶が映る。約束が破られた瞬間",
+    "memo": false
+  },
+  {
+    "id": "skx_price_board",
+    "place": "maze",
+    "once": "place",
+    "steps": [
+      {
+        "type": "text",
+        "text": {
+          "en": "A price board hangs from a post. Eel, three coppers. Eel, five coppers (fresh). Eel, two coppers (ask no questions). Under it, a tin is nailed to the wood.",
+          "ja": "柱に値札の板が下がっている。うなぎ、銅貨三枚。うなぎ、銅貨五枚(新鮮)。うなぎ、銅貨二枚(聞くな)。その下に、ブリキの缶が釘で打ちつけてある。"
+        },
+        "per_place": false,
+        "dc": 10,
+        "value": 0,
+        "count": 1
+      },
+      {
+        "type": "choice",
+        "text": {
+          "en": "What will you do?",
+          "ja": "どうする?"
+        },
+        "options": [
+          {
+            "label": {
+              "en": "Pry the tin open",
+              "ja": "缶をこじ開ける"
+            },
+            "steps": [
+              {
+                "type": "sound",
+                "per_place": false,
+                "dc": 10,
+                "id": "coins",
+                "value": 0,
+                "count": 1
+              },
+              {
+                "type": "text",
+                "text": {
+                  "en": "Inside, a day's takings, counted and tied. The seller never came back for them.",
+                  "ja": "中に、一日の売り上げが数えて束ねてある。売り手は取りに戻らなかった。"
+                },
+                "per_place": false,
+                "dc": 10,
+                "value": 0,
+                "count": 1
+              },
+              {
+                "type": "gold",
+                "per_place": false,
+                "dc": 10,
+                "value": 120,
+                "count": 1
+              }
+            ],
+            "weight": 1
+          },
+          {
+            "label": {
+              "en": "Leave it",
+              "ja": "立ち去る"
+            },
+            "steps": [
+              {
+                "type": "again",
+                "per_place": false,
+                "dc": 10,
+                "value": 0,
+                "count": 1
+              }
+            ],
+            "weight": 1
+          }
+        ],
+        "per_place": false,
+        "dc": 10,
+        "value": 0,
+        "count": 1
+      }
+    ],
+    "scatter": {
+      "min_depth": 0,
+      "max_depth": 0.3,
+      "min_level": 5,
+      "max_level": 10,
+      "weight": 1,
+      "where": "any",
+      "max": 0,
+      "step": 0,
+      "rarity": "common",
+      "effective_weight": 1
+    },
+    "note": "値札の板。釘付けの缶に売り上げ",
+    "memo": true
+  },
+  {
+    "id": "skx_last_sale",
+    "place": "maze",
+    "once": "place",
+    "steps": [
+      {
+        "type": "text",
+        "text": {
+          "en": "A shop counter. A receipt lies on it, the ink still wet: \"One lamp, paid in full. Thank you, come again.\" The drawer is shut.",
+          "ja": "店の勘定台。上に受け取りがある。インクは濡れたままだ。「ランプ一つ、代金受領。またどうぞ」。引き出しは閉まっている。"
+        },
+        "per_place": false,
+        "dc": 10,
+        "value": 0,
+        "count": 1
+      },
+      {
+        "type": "choice",
+        "text": {
+          "en": "What will you do?",
+          "ja": "どうする?"
+        },
+        "options": [
+          {
+            "label": {
+              "en": "Open the drawer",
+              "ja": "引き出しを開ける"
+            },
+            "steps": [
+              {
+                "type": "check",
+                "per_place": false,
+                "skill": "sleight_of_hand",
+                "dc": 13,
+                "success": [
+                  {
+                    "type": "sound",
+                    "per_place": false,
+                    "dc": 10,
+                    "id": "coins",
+                    "value": 0,
+                    "count": 1
+                  },
+                  {
+                    "type": "text",
+                    "text": {
+                      "en": "The drawer slides open without a sound. Coins, stacked by size.",
+                      "ja": "引き出しが音もなく開く。硬貨が、大きさ順に積んである。"
+                    },
+                    "per_place": false,
+                    "dc": 10,
+                    "value": 0,
+                    "count": 1
+                  },
+                  {
+                    "type": "gold",
+                    "per_place": false,
+                    "dc": 10,
+                    "value": 180,
+                    "count": 1
+                  }
+                ],
+                "fail": [
+                  {
+                    "type": "text",
+                    "text": {
+                      "en": "The drawer sticks. Then it opens by itself, and a crab climbs out, annoyed.",
+                      "ja": "引き出しが引っかかる。と思うと勝手に開いて、蟹が不機嫌そうに這い出てきた。"
+                    },
+                    "per_place": false,
+                    "dc": 10,
+                    "value": 0,
+                    "count": 1
+                  },
+                  {
+                    "type": "combat",
+                    "per_place": false,
+                    "dc": 10,
+                    "value": 0,
+                    "count": 1,
+                    "groups": [
+                      {
+                        "monster": "giant_crab",
+                        "count": 2
+                      }
+                    ]
+                  },
+                  {
+                    "type": "gold",
+                    "per_place": false,
+                    "dc": 10,
+                    "value": 80,
+                    "count": 1
+                  }
+                ],
+                "value": 0,
+                "count": 1
+              }
+            ],
+            "weight": 1
+          },
+          {
+            "label": {
+              "en": "Leave it",
+              "ja": "立ち去る"
+            },
+            "steps": [
+              {
+                "type": "again",
+                "per_place": false,
+                "dc": 10,
+                "value": 0,
+                "count": 1
+              }
+            ],
+            "weight": 1
+          }
+        ],
+        "per_place": false,
+        "dc": 10,
+        "value": 0,
+        "count": 1
+      }
+    ],
+    "scatter": {
+      "min_depth": 0.05,
+      "max_depth": 0.3,
+      "min_level": 5,
+      "max_level": 10,
+      "weight": 1,
+      "where": "room",
+      "max": 0,
+      "step": 0,
+      "rarity": "common",
+      "effective_weight": 1
+    },
+    "note": "店の勘定台。最後の売り上げ",
+    "memo": true
+  },
+  {
+    "id": "skx_debt_ledger",
+    "place": "maze",
+    "once": "place",
+    "steps": [
+      {
+        "type": "text",
+        "text": {
+          "en": "A ledger lies open on a barrel. Page after page of names and sums, and one word in red: OVERDUE. Most of the city owed money to most of the city.",
+          "ja": "樽の上に帳簿が開いてある。名前と金額が何ページも続き、赤い字が一つ。「滞納」。この都の人は、たいてい誰かに借りがあったらしい。"
+        },
+        "per_place": false,
+        "dc": 10,
+        "value": 0,
+        "count": 1
+      },
+      {
+        "type": "choice",
+        "text": {
+          "en": "What will you do?",
+          "ja": "どうする?"
+        },
+        "options": [
+          {
+            "label": {
+              "en": "Look for a note payable to the bearer",
+              "ja": "持参人払いの証文を探す"
+            },
+            "steps": [
+              {
+                "type": "sound",
+                "per_place": false,
+                "dc": 10,
+                "id": "secret_found",
+                "value": 0,
+                "count": 1
+              },
+              {
+                "type": "text",
+                "text": {
+                  "en": "Tucked in the back, a note: \"Pay the bearer two hundred crowns.\" Nobody is left to argue about who the bearer is.",
+                  "ja": "綴じ目に証文が挟まっている。「持参人に二百クラウンを支払う」。持参人が誰かを争う者は、もういない。"
+                },
+                "per_place": false,
+                "dc": 10,
+                "value": 0,
+                "count": 1
+              },
+              {
+                "type": "gold",
+                "per_place": false,
+                "dc": 10,
+                "value": 200,
+                "count": 1
+              }
+            ],
+            "weight": 1
+          },
+          {
+            "label": {
+              "en": "Leave it",
+              "ja": "立ち去る"
+            },
+            "steps": [
+              {
+                "type": "again",
+                "per_place": false,
+                "dc": 10,
+                "value": 0,
+                "count": 1
+              }
+            ],
+            "weight": 1
+          }
+        ],
+        "per_place": false,
+        "dc": 10,
+        "value": 0,
+        "count": 1
+      }
+    ],
+    "scatter": {
+      "min_depth": 0.1,
+      "max_depth": 0.3,
+      "min_level": 5,
+      "max_level": 10,
+      "weight": 1,
+      "where": "dead_end",
+      "max": 0,
+      "step": 0,
+      "rarity": "common",
+      "effective_weight": 1
+    },
+    "note": "借金の帳簿。持参人払いの証文",
+    "memo": true
+  },
+  {
+    "id": "skx_wall_graffiti",
+    "place": "maze",
+    "steps": [
+      {
+        "type": "random",
+        "options": [
+          {
+            "steps": [
+              {
+                "type": "text",
+                "text": {
+                  "en": "Scratched into the plaster: \"Tomas loves Ines.\" Below, in another hand: \"Everyone knows, Tomas.\"",
+                  "ja": "漆喰に刻んである。「トマスはイネスが好き」。その下に、別の字で。「みんな知ってるぞ、トマス」。"
+                },
+                "per_place": false,
+                "dc": 10,
+                "value": 0,
+                "count": 1
+              }
+            ],
+            "weight": 1
+          },
+          {
+            "steps": [
+              {
+                "type": "text",
+                "text": {
+                  "en": "A drawing of a very fat tax collector, with a very small hat. Someone has signed it proudly.",
+                  "ja": "やたら太った徴税人の絵。帽子がやけに小さい。描いた者は、誇らしげに署名している。"
+                },
+                "per_place": false,
+                "dc": 10,
+                "value": 0,
+                "count": 1
+              }
+            ],
+            "weight": 1
+          },
+          {
+            "steps": [
+              {
+                "type": "text",
+                "text": {
+                  "en": "\"The baker waters the flour.\" \"The baker's wife waters the baker.\" \"Both of you pay up.\" The wall is full of arguments.",
+                  "ja": "「パン屋は粉に水を混ぜる」「パン屋の女房はパン屋に水を混ぜる」「二人とも金を払え」。壁は口げんかで埋まっている。"
+                },
+                "per_place": false,
+                "dc": 10,
+                "value": 0,
+                "count": 1
+              }
+            ],
+            "weight": 1
+          },
+          {
+            "steps": [
+              {
+                "type": "text",
+                "text": {
+                  "en": "A tally of marks, five bars each. At the bottom: \"Days until the guard changes: still counting.\"",
+                  "ja": "五本ずつの線の数え書き。いちばん下に。「見回りの交代まで、あと何日:数え中」。"
+                },
+                "per_place": false,
+                "dc": 10,
+                "value": 0,
+                "count": 1
+              }
+            ],
+            "weight": 1
+          }
+        ],
+        "per_place": true,
+        "dc": 10,
+        "value": 0,
+        "count": 1
+      },
+      {
+        "type": "end",
+        "per_place": false,
+        "dc": 10,
+        "value": 0,
+        "count": 1
+      }
+    ],
+    "scatter": {
+      "min_depth": 0,
+      "max_depth": 0.3,
+      "min_level": 5,
+      "max_level": 10,
+      "weight": 1.5,
+      "where": "corridor",
+      "max": 0,
+      "step": 0,
+      "rarity": "common",
+      "effective_weight": 1.5
+    },
+    "note": "落書き(何度でも)",
+    "memo": true
+  },
+  {
+    "id": "skx_tavern_keg",
+    "place": "maze",
+    "once": "place",
+    "steps": [
+      {
+        "type": "text",
+        "text": {
+          "en": "A tavern, or what it was. A slate by the door reads: \"Tab: Brother Anselm, forty-one mugs. He says it is for the sermon.\" A keg stands tapped, still full.",
+          "ja": "酒場だった場所。戸口の黒板に。「付け:アンセルム修道士、四十一杯。説教の準備だと言っている」。栓の抜かれた樽が、まだ満ちている。"
+        },
+        "per_place": false,
+        "dc": 10,
+        "value": 0,
+        "count": 1
+      },
+      {
+        "type": "choice",
+        "text": {
+          "en": "What will you do?",
+          "ja": "どうする?"
+        },
+        "options": [
+          {
+            "label": {
+              "en": "Drink from the keg",
+              "ja": "樽から飲む"
+            },
+            "steps": [
+              {
+                "type": "check",
+                "per_place": false,
+                "ability": "con",
+                "dc": 13,
+                "success": [
+                  {
+                    "type": "text",
+                    "text": {
+                      "en": "A thousand years old and not a day sour. Warmth spreads through your chest.",
+                      "ja": "千年経っても、一日も酸っぱくなっていない。胸に温かさが広がる。"
+                    },
+                    "per_place": false,
+                    "dc": 10,
+                    "value": 0,
+                    "count": 1
+                  },
+                  {
+                    "type": "heal",
+                    "per_place": false,
+                    "dc": 10,
+                    "value": 0,
+                    "count": 1,
+                    "dice": "2d8"
+                  }
+                ],
+                "fail": [
+                  {
+                    "type": "text",
+                    "text": {
+                      "en": "It tastes like a pond. Your stomach turns.",
+                      "ja": "池の味がした。腹がねじれる。"
+                    },
+                    "per_place": false,
+                    "dc": 10,
+                    "value": 0,
+                    "count": 1
+                  },
+                  {
+                    "type": "condition",
+                    "per_place": false,
+                    "ability": "con",
+                    "dc": 13,
+                    "id": "poisoned",
+                    "value": 30,
+                    "count": 1
+                  }
+                ],
+                "value": 0,
+                "count": 1
+              }
+            ],
+            "weight": 1
+          },
+          {
+            "label": {
+              "en": "Leave it",
+              "ja": "立ち去る"
+            },
+            "steps": [
+              {
+                "type": "again",
+                "per_place": false,
+                "dc": 10,
+                "value": 0,
+                "count": 1
+              }
+            ],
+            "weight": 1
+          }
+        ],
+        "per_place": false,
+        "dc": 10,
+        "value": 0,
+        "count": 1
+      }
+    ],
+    "scatter": {
+      "min_depth": 0.1,
+      "max_depth": 0.3,
+      "min_level": 5,
+      "max_level": 10,
+      "weight": 1,
+      "where": "room",
+      "max": 0,
+      "step": 0,
+      "rarity": "common",
+      "effective_weight": 1
+    },
+    "note": "酒場の樽。千年物",
+    "memo": true
+  },
+  {
+    "id": "skx_hanging_water",
+    "place": "maze",
+    "once": "place",
+    "steps": [
+      {
+        "type": "text",
+        "text": {
+          "en": "Water hangs in the vault, still as glass, from floor to ceiling. Through it you see a bundle on a shelf. Fish hang in it too, mouths open.",
+          "ja": "穴蔵の中に、水が床から天井まで、ガラスのように静止している。向こうの棚に包みが見える。魚も水の中に浮かび、口を開けたままだ。"
+        },
+        "per_place": false,
+        "dc": 10,
+        "value": 0,
+        "count": 1
+      },
+      {
+        "type": "choice",
+        "text": {
+          "en": "What will you do?",
+          "ja": "どうする?"
+        },
+        "options": [
+          {
+            "label": {
+              "en": "Reach through for the bundle",
+              "ja": "水に手を入れて包みを取る"
+            },
+            "steps": [
+              {
+                "type": "text",
+                "text": {
+                  "en": "The water is bitterly cold. It bites at your arms as you pull back.",
+                  "ja": "水は刺すように冷たい。腕を引くとき、噛みつかれたようだった。"
+                },
+                "per_place": false,
+                "dc": 10,
+                "value": 0,
+                "count": 1
+              },
+              {
+                "type": "damage",
+                "per_place": false,
+                "ability": "con",
+                "dc": 14,
+                "value": 0,
+                "count": 1,
+                "dice": "3d6",
+                "damage_type": "cold"
+              },
+              {
+                "type": "sound",
+                "per_place": false,
+                "dc": 10,
+                "id": "secret_found",
+                "value": 0,
+                "count": 1
+              },
+              {
+                "type": "treasure",
+                "per_place": false,
+                "dc": 10,
+                "value": 0,
+                "count": 1
+              }
+            ],
+            "weight": 1
+          },
+          {
+            "label": {
+              "en": "Throw a coin in",
+              "ja": "硬貨を投げ入れる"
+            },
+            "when": [
+              {
+                "type": "gold",
+                "value": 1,
+                "count": 1,
+                "op": ">=",
+                "not": false
+              }
+            ],
+            "steps": [
+              {
+                "type": "gold",
+                "per_place": false,
+                "dc": 10,
+                "value": -1,
+                "count": 1
+              },
+              {
+                "type": "text",
+                "text": {
+                  "en": "The coin enters slowly and stops in the middle. It hangs there, a small bright thing among the fish.",
+                  "ja": "硬貨はゆっくり入って、真ん中で止まった。魚の間に、小さく光ったまま浮いている。"
+                },
+                "per_place": false,
+                "dc": 10,
+                "value": 0,
+                "count": 1
+              },
+              {
+                "type": "again",
+                "per_place": false,
+                "dc": 10,
+                "value": 0,
+                "count": 1
+              }
+            ],
+            "weight": 1
+          },
+          {
+            "label": {
+              "en": "Leave it",
+              "ja": "立ち去る"
+            },
+            "steps": [
+              {
+                "type": "again",
+                "per_place": false,
+                "dc": 10,
+                "value": 0,
+                "count": 1
+              }
+            ],
+            "weight": 1
+          }
+        ],
+        "per_place": false,
+        "dc": 10,
+        "value": 0,
+        "count": 1
+      }
+    ],
+    "scatter": {
+      "min_depth": 0.35,
+      "max_depth": 0.85,
+      "min_level": 5,
+      "max_level": 10,
+      "weight": 1,
+      "where": "room",
+      "max": 0,
+      "step": 0,
+      "rarity": "common",
+      "effective_weight": 1
+    },
+    "note": "宙に浮いた水。向こうの棚の包み",
+    "memo": true
+  },
+  {
+    "id": "skx_sluice_door",
+    "place": "maze",
+    "once": "place",
+    "steps": [
+      {
+        "type": "text",
+        "text": {
+          "en": "A low door with a brass wheel. The wall around it is stained with old water lines, one above the other, like the rings of a tree.",
+          "ja": "真鍮の輪の付いた低い戸。まわりの壁には、古い水の跡が木の年輪のように何本も重なっている。"
+        },
+        "per_place": false,
+        "dc": 10,
+        "value": 0,
+        "count": 1
+      },
+      {
+        "type": "choice",
+        "text": {
+          "en": "What will you do?",
+          "ja": "どうする?"
+        },
+        "options": [
+          {
+            "label": {
+              "en": "Turn the wheel",
+              "ja": "輪を回す"
+            },
+            "steps": [
+              {
+                "type": "check",
+                "per_place": false,
+                "skill": "perception",
+                "dc": 13,
+                "success": [
+                  {
+                    "type": "text",
+                    "text": {
+                      "en": "Before it turns, you notice the wheel is warm with pressure. You step aside as a jet of water bursts from the frame.",
+                      "ja": "回す前に、輪が圧で温かいのに気づく。脇へ退くと、枠から水が噴き出した。"
+                    },
+                    "per_place": false,
+                    "dc": 10,
+                    "value": 0,
+                    "count": 1
+                  },
+                  {
+                    "type": "sound",
+                    "per_place": false,
+                    "dc": 10,
+                    "id": "secret_found",
+                    "value": 0,
+                    "count": 1
+                  },
+                  {
+                    "type": "xp",
+                    "per_place": false,
+                    "dc": 10,
+                    "value": 200,
+                    "count": 1
+                  },
+                  {
+                    "type": "gold",
+                    "per_place": false,
+                    "dc": 10,
+                    "value": 90,
+                    "count": 1
+                  }
+                ],
+                "fail": [
+                  {
+                    "type": "text",
+                    "text": {
+                      "en": "The frame bursts. A column of water hits you full in the chest.",
+                      "ja": "枠が破裂した。水の柱が胸に真正面から当たる。"
+                    },
+                    "per_place": false,
+                    "dc": 10,
+                    "value": 0,
+                    "count": 1
+                  },
+                  {
+                    "type": "damage",
+                    "per_place": false,
+                    "ability": "dex",
+                    "dc": 14,
+                    "value": 0,
+                    "count": 1,
+                    "dice": "3d8",
+                    "damage_type": "bludgeoning"
+                  }
+                ],
+                "value": 0,
+                "count": 1
+              }
+            ],
+            "weight": 1
+          },
+          {
+            "label": {
+              "en": "Leave it",
+              "ja": "立ち去る"
+            },
+            "steps": [
+              {
+                "type": "again",
+                "per_place": false,
+                "dc": 10,
+                "value": 0,
+                "count": 1
+              }
+            ],
+            "weight": 1
+          }
+        ],
+        "per_place": false,
+        "dc": 10,
+        "value": 0,
+        "count": 1
+      }
+    ],
+    "scatter": {
+      "min_depth": 0.35,
+      "max_depth": 0.65,
+      "min_level": 5,
+      "max_level": 10,
+      "weight": 1,
+      "where": "corridor",
+      "max": 0,
+      "step": 0,
+      "rarity": "common",
+      "effective_weight": 1
+    },
+    "note": "水門の戸。圧のかかった輪",
+    "memo": true
+  },
+  {
+    "id": "skx_schoolroom",
+    "place": "maze",
+    "once": "place",
+    "steps": [
+      {
+        "type": "text",
+        "text": {
+          "en": "Rows of slates on small desks. On each, a child's sum, and on the nearest a teacher's red mark: \"Seven times eight is not fifty-eight. Again.\" The chalk is untouched by the water.",
+          "ja": "小さな机に石板が並ぶ。どの板にも子どもの計算があり、いちばん近い板には先生の赤い印。「七かける八は五十八ではない。やり直し」。白墨は水に溶けていない。"
+        },
+        "per_place": false,
+        "dc": 10,
+        "value": 0,
+        "count": 1
+      },
+      {
+        "type": "choice",
+        "text": {
+          "en": "What will you do?",
+          "ja": "どうする?"
+        },
+        "options": [
+          {
+            "label": {
+              "en": "Correct the sum",
+              "ja": "計算を直してやる"
+            },
+            "steps": [
+              {
+                "type": "text",
+                "text": {
+                  "en": "You correct it. It takes a moment. Under the desk lid, a pupil hid a few coins from their lunch money.",
+                  "ja": "直してやった。少し時間がかかった。机の蓋の裏に、生徒が昼食代の硬貨を隠していた。"
+                },
+                "per_place": false,
+                "dc": 10,
+                "value": 0,
+                "count": 1
+              },
+              {
+                "type": "gold",
+                "per_place": false,
+                "dc": 10,
+                "value": 60,
+                "count": 1
+              },
+              {
+                "type": "xp",
+                "per_place": false,
+                "dc": 10,
+                "value": 150,
+                "count": 1
+              }
+            ],
+            "weight": 1
+          },
+          {
+            "label": {
+              "en": "Leave it",
+              "ja": "立ち去る"
+            },
+            "steps": [
+              {
+                "type": "again",
+                "per_place": false,
+                "dc": 10,
+                "value": 0,
+                "count": 1
+              }
+            ],
+            "weight": 1
+          }
+        ],
+        "per_place": false,
+        "dc": 10,
+        "value": 0,
+        "count": 1
+      }
+    ],
+    "scatter": {
+      "min_depth": 0,
+      "max_depth": 0.3,
+      "min_level": 5,
+      "max_level": 10,
+      "weight": 1,
+      "where": "room",
+      "max": 0,
+      "step": 0,
+      "rarity": "common",
+      "effective_weight": 1
+    },
+    "note": "学び舎。石板の算数",
+    "memo": true
+  },
+  {
+    "id": "skx_tied_thieves",
+    "place": "maze",
+    "once": "place",
+    "steps": [
+      {
+        "type": "text",
+        "text": {
+          "en": "Three dead, roped together at the waist. Each has a hand in the next one's pocket. All three look surprised.",
+          "ja": "三人の死体が、腰を縄でつながれている。それぞれが、隣の者のポケットに手を入れている。三人とも、驚いた顔をしている。"
+        },
+        "per_place": false,
+        "dc": 10,
+        "value": 0,
+        "count": 1
+      },
+      {
+        "type": "choice",
+        "text": {
+          "en": "What will you do?",
+          "ja": "どうする?"
+        },
+        "options": [
+          {
+            "label": {
+              "en": "Take the purses",
+              "ja": "財布をいただく"
+            },
+            "steps": [
+              {
+                "type": "random",
+                "options": [
+                  {
+                    "steps": [
+                      {
+                        "type": "sound",
+                        "per_place": false,
+                        "dc": 10,
+                        "id": "coins",
+                        "value": 0,
+                        "count": 1
+                      },
+                      {
+                        "type": "text",
+                        "text": {
+                          "en": "Three purses. You do not even have to cut the rope.",
+                          "ja": "財布が三つ。縄を切る必要さえない。"
+                        },
+                        "per_place": false,
+                        "dc": 10,
+                        "value": 0,
+                        "count": 1
+                      },
+                      {
+                        "type": "gold",
+                        "per_place": false,
+                        "dc": 10,
+                        "value": 220,
+                        "count": 1
+                      }
+                    ],
+                    "weight": 2
+                  },
+                  {
+                    "steps": [
+                      {
+                        "type": "text",
+                        "text": {
+                          "en": "The rope tightens. Three pairs of eyes open, and none of them lets go of anything.",
+                          "ja": "縄が張る。三つの目が開いた。誰も、握ったものを放さない。"
+                        },
+                        "per_place": false,
+                        "dc": 10,
+                        "value": 0,
+                        "count": 1
+                      },
+                      {
+                        "type": "combat",
+                        "per_place": false,
+                        "dc": 10,
+                        "value": 0,
+                        "count": 1,
+                        "groups": [
+                          {
+                            "monster": "ghoul",
+                            "count": 3
+                          }
+                        ]
+                      },
+                      {
+                        "type": "gold",
+                        "per_place": false,
+                        "dc": 10,
+                        "value": 150,
+                        "count": 1
+                      }
+                    ],
+                    "weight": 1
+                  }
+                ],
+                "per_place": false,
+                "dc": 10,
+                "value": 0,
+                "count": 1
+              }
+            ],
+            "weight": 1
+          },
+          {
+            "label": {
+              "en": "Leave it",
+              "ja": "立ち去る"
+            },
+            "steps": [
+              {
+                "type": "again",
+                "per_place": false,
+                "dc": 10,
+                "value": 0,
+                "count": 1
+              }
+            ],
+            "weight": 1
+          }
+        ],
+        "per_place": false,
+        "dc": 10,
+        "value": 0,
+        "count": 1
+      }
+    ],
+    "scatter": {
+      "min_depth": 0.1,
+      "max_depth": 0.3,
+      "min_level": 5,
+      "max_level": 10,
+      "weight": 1,
+      "where": "dead_end",
+      "max": 0,
+      "step": 0,
+      "rarity": "common",
+      "effective_weight": 1
+    },
+    "note": "互いのポケットに手を入れた死体",
+    "memo": true
+  },
+  {
+    "id": "skx_bakery_oven",
+    "place": "maze",
+    "once": "place",
+    "steps": [
+      {
+        "type": "text",
+        "text": {
+          "en": "A bakery. The loaves on the rack are brown and whole. The oven is cold, but the bread still smells like bread.",
+          "ja": "パン屋。棚のパンはこんがり焼けて、形が崩れていない。窯は冷たいが、パンはまだパンの匂いがする。"
+        },
+        "per_place": false,
+        "dc": 10,
+        "value": 0,
+        "count": 1
+      },
+      {
+        "type": "choice",
+        "text": {
+          "en": "What will you do?",
+          "ja": "どうする?"
+        },
+        "options": [
+          {
+            "label": {
+              "en": "Eat a loaf",
+              "ja": "パンを食べる"
+            },
+            "steps": [
+              {
+                "type": "text",
+                "text": {
+                  "en": "It is good. It is very good. You try not to think about the date.",
+                  "ja": "うまい。とてもうまい。日付のことは考えないようにした。"
+                },
+                "per_place": false,
+                "dc": 10,
+                "value": 0,
+                "count": 1
+              },
+              {
+                "type": "heal",
+                "per_place": false,
+                "dc": 10,
+                "value": 0,
+                "count": 1,
+                "dice": "2d6"
+              }
+            ],
+            "weight": 1
+          },
+          {
+            "label": {
+              "en": "Leave it",
+              "ja": "立ち去る"
+            },
+            "steps": [
+              {
+                "type": "again",
+                "per_place": false,
+                "dc": 10,
+                "value": 0,
+                "count": 1
+              }
+            ],
+            "weight": 1
+          }
+        ],
+        "per_place": false,
+        "dc": 10,
+        "value": 0,
+        "count": 1
+      }
+    ],
+    "scatter": {
+      "min_depth": 0,
+      "max_depth": 0.3,
+      "min_level": 5,
+      "max_level": 10,
+      "weight": 1,
+      "where": "room",
+      "max": 0,
+      "step": 0,
+      "rarity": "common",
+      "effective_weight": 1
+    },
+    "note": "パン屋の窯。焼きたてのパン",
+    "memo": true
+  },
+  {
+    "id": "skx_toll_box",
+    "place": "maze",
+    "once": "place",
+    "steps": [
+      {
+        "type": "text",
+        "text": {
+          "en": "A toll booth. A sign: \"Bridge toll, two coppers. No exceptions. By order of the queen.\" The iron box beside it is locked.",
+          "ja": "通行料の詰め所。札に。「橋の通行料、銅貨二枚。例外なし。女王の命による」。そばの鉄箱は錠が下りている。"
+        },
+        "per_place": false,
+        "dc": 10,
+        "value": 0,
+        "count": 1
+      },
+      {
+        "type": "choice",
+        "text": {
+          "en": "What will you do?",
+          "ja": "どうする?"
+        },
+        "options": [
+          {
+            "label": {
+              "en": "Force the box",
+              "ja": "鉄箱をこじ開ける"
+            },
+            "steps": [
+              {
+                "type": "check",
+                "per_place": false,
+                "skill": "athletics",
+                "dc": 13,
+                "success": [
+                  {
+                    "type": "sound",
+                    "per_place": false,
+                    "dc": 10,
+                    "id": "coins",
+                    "value": 0,
+                    "count": 1
+                  },
+                  {
+                    "type": "text",
+                    "text": {
+                      "en": "The lid gives. Two coppers, two coppers, two coppers, a thousand times.",
+                      "ja": "蓋が外れた。銅貨二枚、銅貨二枚、銅貨二枚、それが千回分。"
+                    },
+                    "per_place": false,
+                    "dc": 10,
+                    "value": 0,
+                    "count": 1
+                  },
+                  {
+                    "type": "gold",
+                    "per_place": false,
+                    "dc": 10,
+                    "value": 160,
+                    "count": 1
+                  }
+                ],
+                "fail": [
+                  {
+                    "type": "text",
+                    "text": {
+                      "en": "A needle snaps out of the lock and bites your hand.",
+                      "ja": "錠から針が飛び出し、手に刺さった。"
+                    },
+                    "per_place": false,
+                    "dc": 10,
+                    "value": 0,
+                    "count": 1
+                  },
+                  {
+                    "type": "damage",
+                    "per_place": false,
+                    "ability": "dex",
+                    "dc": 13,
+                    "value": 0,
+                    "count": 1,
+                    "dice": "2d6",
+                    "damage_type": "piercing"
+                  }
+                ],
+                "value": 0,
+                "count": 1
+              }
+            ],
+            "weight": 1
+          },
+          {
+            "label": {
+              "en": "Pay the toll",
+              "ja": "通行料を払う"
+            },
+            "when": [
+              {
+                "type": "gold",
+                "value": 2,
+                "count": 1,
+                "op": ">=",
+                "not": false
+              }
+            ],
+            "steps": [
+              {
+                "type": "gold",
+                "per_place": false,
+                "dc": 10,
+                "value": -2,
+                "count": 1
+              },
+              {
+                "type": "text",
+                "text": {
+                  "en": "You drop two coppers in the slot. Nobody takes offense. Nobody takes anything.",
+                  "ja": "銅貨を二枚、差し込み口に落とした。誰も怒らない。誰も受け取らない。"
+                },
+                "per_place": false,
+                "dc": 10,
+                "value": 0,
+                "count": 1
+              },
+              {
+                "type": "again",
+                "per_place": false,
+                "dc": 10,
+                "value": 0,
+                "count": 1
+              }
+            ],
+            "weight": 1
+          },
+          {
+            "label": {
+              "en": "Leave it",
+              "ja": "立ち去る"
+            },
+            "steps": [
+              {
+                "type": "again",
+                "per_place": false,
+                "dc": 10,
+                "value": 0,
+                "count": 1
+              }
+            ],
+            "weight": 1
+          }
+        ],
+        "per_place": false,
+        "dc": 10,
+        "value": 0,
+        "count": 1
+      }
+    ],
+    "scatter": {
+      "min_depth": 0,
+      "max_depth": 0.3,
+      "min_level": 5,
+      "max_level": 10,
+      "weight": 1,
+      "where": "corridor",
+      "max": 0,
+      "step": 0,
+      "rarity": "common",
+      "effective_weight": 1
+    },
+    "note": "橋の通行料箱。「例外なし」",
+    "memo": true
+  },
+  {
+    "id": "skx_barrel_organ",
+    "place": "maze",
+    "once": "place",
+    "steps": [
+      {
+        "type": "text",
+        "text": {
+          "en": "A barrel organ stands at a corner, with a hat on the ground in front of it. The hat is empty. It has always been empty.",
+          "ja": "辻に手回しオルガンがある。前の地面に帽子が置いてある。帽子は空だ。ずっと空だったのだろう。"
+        },
+        "per_place": false,
+        "dc": 10,
+        "value": 0,
+        "count": 1
+      },
+      {
+        "type": "choice",
+        "text": {
+          "en": "What will you do?",
+          "ja": "どうする?"
+        },
+        "options": [
+          {
+            "label": {
+              "en": "Turn the handle",
+              "ja": "ハンドルを回す"
+            },
+            "steps": [
+              {
+                "type": "check",
+                "per_place": false,
+                "skill": "performance",
+                "dc": 13,
+                "success": [
+                  {
+                    "type": "text",
+                    "text": {
+                      "en": "A tune comes out, thin and bright. Somewhere above you, as if from a window, a single coin falls into the hat.",
+                      "ja": "細くて明るい曲が出た。上の方の窓からのように、帽子に硬貨が一枚落ちた。"
+                    },
+                    "per_place": false,
+                    "dc": 10,
+                    "value": 0,
+                    "count": 1
+                  },
+                  {
+                    "type": "gold",
+                    "per_place": false,
+                    "dc": 10,
+                    "value": 100,
+                    "count": 1
+                  },
+                  {
+                    "type": "xp",
+                    "per_place": false,
+                    "dc": 10,
+                    "value": 200,
+                    "count": 1
+                  }
+                ],
+                "fail": [
+                  {
+                    "type": "text",
+                    "text": {
+                      "en": "The tune goes wrong halfway and gets stuck. Something in the water groans back at it.",
+                      "ja": "曲は途中で狂って止まった。水の中で何かが、それにうなり返す。"
+                    },
+                    "per_place": false,
+                    "dc": 10,
+                    "value": 0,
+                    "count": 1
+                  },
+                  {
+                    "type": "combat",
+                    "per_place": false,
+                    "dc": 10,
+                    "value": 0,
+                    "count": 1,
+                    "groups": [
+                      {
+                        "monster": "merrow",
+                        "count": 2
+                      }
+                    ]
+                  }
+                ],
+                "value": 0,
+                "count": 1
+              }
+            ],
+            "weight": 1
+          },
+          {
+            "label": {
+              "en": "Leave it",
+              "ja": "立ち去る"
+            },
+            "steps": [
+              {
+                "type": "again",
+                "per_place": false,
+                "dc": 10,
+                "value": 0,
+                "count": 1
+              }
+            ],
+            "weight": 1
+          }
+        ],
+        "per_place": false,
+        "dc": 10,
+        "value": 0,
+        "count": 1
+      }
+    ],
+    "scatter": {
+      "min_depth": 0.1,
+      "max_depth": 0.3,
+      "min_level": 5,
+      "max_level": 10,
+      "weight": 1,
+      "where": "room",
+      "max": 0,
+      "step": 0,
+      "rarity": "common",
+      "effective_weight": 1
+    },
+    "note": "大道芸の手回しオルガン",
+    "memo": true
+  },
+  {
+    "id": "skx_alms_box",
+    "place": "maze",
+    "once": "place",
+    "steps": [
+      {
+        "type": "text",
+        "text": {
+          "en": "A box for alms, carved with a fish. A notice above it: \"Gifts to the church are not returned.\" Below, in a smaller hand: \"Not even by us.\"",
+          "ja": "寄付の箱。魚の彫刻がある。上の札に。「教会への施しは返却いたしません」。その下に、小さな字で。「我々が借りるのも不可」。"
+        },
+        "per_place": false,
+        "dc": 10,
+        "value": 0,
+        "count": 1
+      },
+      {
+        "type": "choice",
+        "text": {
+          "en": "What will you do?",
+          "ja": "どうする?"
+        },
+        "options": [
+          {
+            "label": {
+              "en": "Take from the box",
+              "ja": "箱から取る"
+            },
+            "steps": [
+              {
+                "type": "sound",
+                "per_place": false,
+                "dc": 10,
+                "id": "coins",
+                "value": 0,
+                "count": 1
+              },
+              {
+                "type": "gold",
+                "per_place": false,
+                "dc": 10,
+                "value": 250,
+                "count": 1
+              },
+              {
+                "type": "text",
+                "text": {
+                  "en": "A cold hand settles on your shoulder for a moment, then lifts.",
+                  "ja": "冷たい手が肩に置かれ、しばらくして離れた。"
+                },
+                "per_place": false,
+                "dc": 10,
+                "value": 0,
+                "count": 1
+              },
+              {
+                "type": "damage",
+                "per_place": false,
+                "ability": "con",
+                "dc": 14,
+                "value": 0,
+                "count": 1,
+                "dice": "2d6",
+                "damage_type": "necrotic"
+              }
+            ],
+            "weight": 1
+          },
+          {
+            "label": {
+              "en": "Put in 20 gold",
+              "ja": "二十ゴールド入れる"
+            },
+            "when": [
+              {
+                "type": "gold",
+                "value": 20,
+                "count": 1,
+                "op": ">=",
+                "not": false
+              }
+            ],
+            "steps": [
+              {
+                "type": "gold",
+                "per_place": false,
+                "dc": 10,
+                "value": -20,
+                "count": 1
+              },
+              {
+                "type": "text",
+                "text": {
+                  "en": "The coins ring in the box. A warmth you did not expect passes through you.",
+                  "ja": "硬貨が箱で鳴る。思いがけない温かさが、体を通り抜ける。"
+                },
+                "per_place": false,
+                "dc": 10,
+                "value": 0,
+                "count": 1
+              },
+              {
+                "type": "heal",
+                "per_place": false,
+                "dc": 10,
+                "value": 0,
+                "count": 1,
+                "dice": "3d8"
+              },
+              {
+                "type": "xp",
+                "per_place": false,
+                "dc": 10,
+                "value": 150,
+                "count": 1
+              }
+            ],
+            "weight": 1
+          },
+          {
+            "label": {
+              "en": "Leave it",
+              "ja": "立ち去る"
+            },
+            "steps": [
+              {
+                "type": "again",
+                "per_place": false,
+                "dc": 10,
+                "value": 0,
+                "count": 1
+              }
+            ],
+            "weight": 1
+          }
+        ],
+        "per_place": false,
+        "dc": 10,
+        "value": 0,
+        "count": 1
+      }
+    ],
+    "scatter": {
+      "min_depth": 0.35,
+      "max_depth": 0.45,
+      "min_level": 5,
+      "max_level": 10,
+      "weight": 1,
+      "where": "dead_end",
+      "max": 0,
+      "step": 0,
+      "rarity": "common",
+      "effective_weight": 1
+    },
+    "note": "聖堂の寄付箱",
+    "memo": true
+  },
+  {
+    "id": "skx_pew_plates",
+    "place": "maze",
+    "once": "place",
+    "steps": [
+      {
+        "type": "text",
+        "text": {
+          "en": "Brass plates on the pews: \"Reserved: the Marrow family.\" \"Reserved: the tanner and his wife.\" \"Reserved: nobody, thank you.\" Someone cared a great deal about where they sat.",
+          "ja": "長椅子に真鍮の名札。「マロウ家の席」「皮なめし職人と妻の席」「誰も座らぬこと、願います」。座る場所をずいぶん気にした人がいたらしい。"
+        },
+        "per_place": false,
+        "dc": 10,
+        "value": 0,
+        "count": 1
+      },
+      {
+        "type": "choice",
+        "text": {
+          "en": "What will you do?",
+          "ja": "どうする?"
+        },
+        "options": [
+          {
+            "label": {
+              "en": "Search the cushions",
+              "ja": "座布団を探る"
+            },
+            "steps": [
+              {
+                "type": "check",
+                "per_place": false,
+                "skill": "perception",
+                "dc": 13,
+                "success": [
+                  {
+                    "type": "sound",
+                    "per_place": false,
+                    "dc": 10,
+                    "id": "secret_found",
+                    "value": 0,
+                    "count": 1
+                  },
+                  {
+                    "type": "text",
+                    "text": {
+                      "en": "In the tanner's cushion, a stitched-in pouch. His wife did not know, you suspect.",
+                      "ja": "皮なめし職人の座布団に、縫い込んだ小袋がある。女房は知らなかったのだろう。"
+                    },
+                    "per_place": false,
+                    "dc": 10,
+                    "value": 0,
+                    "count": 1
+                  },
+                  {
+                    "type": "treasure",
+                    "per_place": false,
+                    "dc": 10,
+                    "value": 0,
+                    "count": 1
+                  }
+                ],
+                "fail": [
+                  {
+                    "type": "text",
+                    "text": {
+                      "en": "Only straw, and a hymn sheet gone soft.",
+                      "ja": "藁と、ふやけた歌の紙だけだ。"
+                    },
+                    "per_place": false,
+                    "dc": 10,
+                    "value": 0,
+                    "count": 1
+                  }
+                ],
+                "value": 0,
+                "count": 1
+              }
+            ],
+            "weight": 1
+          },
+          {
+            "label": {
+              "en": "Leave it",
+              "ja": "立ち去る"
+            },
+            "steps": [
+              {
+                "type": "again",
+                "per_place": false,
+                "dc": 10,
+                "value": 0,
+                "count": 1
+              }
+            ],
+            "weight": 1
+          }
+        ],
+        "per_place": false,
+        "dc": 10,
+        "value": 0,
+        "count": 1
+      }
+    ],
+    "scatter": {
+      "min_depth": 0.35,
+      "max_depth": 0.45,
+      "min_level": 5,
+      "max_level": 10,
+      "weight": 1,
+      "where": "room",
+      "max": 0,
+      "step": 0,
+      "rarity": "common",
+      "effective_weight": 1
+    },
+    "note": "長椅子の名札。座席の予約",
+    "memo": true
+  },
+  {
+    "id": "skx_engine_lockers",
+    "place": "maze",
+    "once": "place",
+    "steps": [
+      {
+        "type": "text",
+        "text": {
+          "en": "Lockers, one per worker, each with a name chalked on it. On one: \"Whoever opens this owes me a beer.\" The padlock hangs open.",
+          "ja": "工員ごとの棚。それぞれ名が白墨で書いてある。一つに。「これを開けた奴は、俺に酒をおごれ」。錠はぶら下がったまま開いている。"
+        },
+        "per_place": false,
+        "dc": 10,
+        "value": 0,
+        "count": 1
+      },
+      {
+        "type": "choice",
+        "text": {
+          "en": "What will you do?",
+          "ja": "どうする?"
+        },
+        "options": [
+          {
+            "label": {
+              "en": "Open the locker",
+              "ja": "棚を開ける"
+            },
+            "steps": [
+              {
+                "type": "check",
+                "per_place": false,
+                "skill": "sleight_of_hand",
+                "dc": 13,
+                "success": [
+                  {
+                    "type": "sound",
+                    "per_place": false,
+                    "dc": 10,
+                    "id": "coins",
+                    "value": 0,
+                    "count": 1
+                  },
+                  {
+                    "type": "text",
+                    "text": {
+                      "en": "A lunch pail, a good wrench, and a purse of wages he never spent.",
+                      "ja": "弁当箱、上等のレンチ、そして使わなかった給金の袋。"
+                    },
+                    "per_place": false,
+                    "dc": 10,
+                    "value": 0,
+                    "count": 1
+                  },
+                  {
+                    "type": "gold",
+                    "per_place": false,
+                    "dc": 10,
+                    "value": 140,
+                    "count": 1
+                  },
+                  {
+                    "type": "treasure",
+                    "per_place": false,
+                    "dc": 10,
+                    "value": 0,
+                    "count": 1
+                  }
+                ],
+                "fail": [
+                  {
+                    "type": "text",
+                    "text": {
+                      "en": "The door swings and a spring-loaded blade comes with it. He was not a trusting man.",
+                      "ja": "戸と一緒に、ばね仕掛けの刃が跳ねた。人を信用しない男だったらしい。"
+                    },
+                    "per_place": false,
+                    "dc": 10,
+                    "value": 0,
+                    "count": 1
+                  },
+                  {
+                    "type": "damage",
+                    "per_place": false,
+                    "ability": "dex",
+                    "dc": 13,
+                    "value": 0,
+                    "count": 1,
+                    "dice": "2d6",
+                    "damage_type": "slashing"
+                  }
+                ],
+                "value": 0,
+                "count": 1
+              }
+            ],
+            "weight": 1
+          },
+          {
+            "label": {
+              "en": "Leave it",
+              "ja": "立ち去る"
+            },
+            "steps": [
+              {
+                "type": "again",
+                "per_place": false,
+                "dc": 10,
+                "value": 0,
+                "count": 1
+              }
+            ],
+            "weight": 1
+          }
+        ],
+        "per_place": false,
+        "dc": 10,
+        "value": 0,
+        "count": 1
+      }
+    ],
+    "scatter": {
+      "min_depth": 0.55,
+      "max_depth": 0.65,
+      "min_level": 5,
+      "max_level": 10,
+      "weight": 1,
+      "where": "dead_end",
+      "max": 0,
+      "step": 0,
+      "rarity": "common",
+      "effective_weight": 1
+    },
+    "note": "機関工の道具棚",
+    "memo": true
+  },
+  {
+    "id": "skx_water_hammer",
+    "place": "maze",
+    "steps": [
+      {
+        "type": "text",
+        "text": {
+          "en": "A great pipe runs along the corridor, ticking. At each joint a thin white jet hisses out. Further on, the pipe shudders.",
+          "ja": "大きな管が通路に沿って走り、かちかちと鳴っている。継ぎ目ごとに、細い白い水が噴いている。先の方で管が震えた。"
+        },
+        "per_place": false,
+        "dc": 10,
+        "value": 0,
+        "count": 1
+      },
+      {
+        "type": "choice",
+        "text": {
+          "en": "What will you do?",
+          "ja": "どうする?"
+        },
+        "options": [
+          {
+            "label": {
+              "en": "Slip past between the jets",
+              "ja": "噴出の合間をすり抜ける"
+            },
+            "steps": [
+              {
+                "type": "check",
+                "per_place": false,
+                "skill": "acrobatics",
+                "dc": 14,
+                "success": [
+                  {
+                    "type": "text",
+                    "text": {
+                      "en": "You time it. The pipe hammers behind you, a moment too late.",
+                      "ja": "間合いを計る。背後で管が打ち鳴らされたが、一瞬遅かった。"
+                    },
+                    "per_place": false,
+                    "dc": 10,
+                    "value": 0,
+                    "count": 1
+                  },
+                  {
+                    "type": "xp",
+                    "per_place": false,
+                    "dc": 10,
+                    "value": 250,
+                    "count": 1
+                  }
+                ],
+                "fail": [
+                  {
+                    "type": "text",
+                    "text": {
+                      "en": "The pipe hammers just as you pass. Water hits like a fist.",
+                      "ja": "通る瞬間に管が打ち鳴らされた。水が拳のように当たる。"
+                    },
+                    "per_place": false,
+                    "dc": 10,
+                    "value": 0,
+                    "count": 1
+                  },
+                  {
+                    "type": "damage",
+                    "per_place": false,
+                    "ability": "con",
+                    "dc": 14,
+                    "value": 0,
+                    "count": 1,
+                    "dice": "4d6",
+                    "damage_type": "bludgeoning"
+                  }
+                ],
+                "value": 0,
+                "count": 1
+              }
+            ],
+            "weight": 1
+          },
+          {
+            "label": {
+              "en": "Turn back",
+              "ja": "引き返す"
+            },
+            "steps": [
+              {
+                "type": "end",
+                "per_place": false,
+                "dc": 10,
+                "value": 0,
+                "count": 1
+              }
+            ],
+            "weight": 1
+          }
+        ],
+        "per_place": false,
+        "dc": 10,
+        "value": 0,
+        "count": 1
+      }
+    ],
+    "scatter": {
+      "min_depth": 0.55,
+      "max_depth": 0.65,
+      "min_level": 5,
+      "max_level": 10,
+      "weight": 1,
+      "where": "corridor",
+      "max": 0,
+      "step": 0,
+      "rarity": "common",
+      "effective_weight": 1
+    },
+    "note": "圧力管の継ぎ目",
+    "memo": false
+  },
+  {
+    "id": "skx_servants_hall",
+    "place": "maze",
+    "once": "place",
+    "steps": [
+      {
+        "type": "text",
+        "text": {
+          "en": "A notice in the servants' passage: \"Whoever keeps taking candles from the royal stores will be docked a month's wages.\" Behind a loose brick, a stack of royal candles and a few coins.",
+          "ja": "召使いの通路に張り紙。「王室の蝋燭を持ち出す者は、一月分の給金を引く」。ゆるんだ煉瓦の奥に、王室の蝋燭の束と、数枚の硬貨が隠してある。"
+        },
+        "per_place": false,
+        "dc": 10,
+        "value": 0,
+        "count": 1
+      },
+      {
+        "type": "choice",
+        "text": {
+          "en": "What will you do?",
+          "ja": "どうする?"
+        },
+        "options": [
+          {
+            "label": {
+              "en": "Take the candles",
+              "ja": "蝋燭をいただく"
+            },
+            "steps": [
+              {
+                "type": "sound",
+                "per_place": false,
+                "dc": 10,
+                "id": "secret_found",
+                "value": 0,
+                "count": 1
+              },
+              {
+                "type": "gold",
+                "per_place": false,
+                "dc": 10,
+                "value": 90,
+                "count": 1
+              },
+              {
+                "type": "light",
+                "per_place": false,
+                "dc": 10,
+                "value": 60,
+                "count": 1
+              },
+              {
+                "type": "text",
+                "text": {
+                  "en": "They burn clean and steady. Whoever hid them had good taste.",
+                  "ja": "きれいに、静かに燃える。隠した者は、目が利いた。"
+                },
+                "per_place": false,
+                "dc": 10,
+                "value": 0,
+                "count": 1
+              }
+            ],
+            "weight": 1
+          },
+          {
+            "label": {
+              "en": "Leave it",
+              "ja": "立ち去る"
+            },
+            "steps": [
+              {
+                "type": "again",
+                "per_place": false,
+                "dc": 10,
+                "value": 0,
+                "count": 1
+              }
+            ],
+            "weight": 1
+          }
+        ],
+        "per_place": false,
+        "dc": 10,
+        "value": 0,
+        "count": 1
+      }
+    ],
+    "scatter": {
+      "min_depth": 0.75,
+      "max_depth": 1,
+      "min_level": 5,
+      "max_level": 10,
+      "weight": 1,
+      "where": "corridor",
+      "max": 0,
+      "step": 0,
+      "rarity": "common",
+      "effective_weight": 1
+    },
+    "note": "召使いの廊下。蝋燭の隠し場所",
+    "memo": true
+  },
+  {
+    "id": "skx_gallery_armor",
+    "place": "maze",
+    "once": "place",
+    "steps": [
+      {
+        "type": "text",
+        "text": {
+          "en": "A gallery of portraits. A page has drawn mustaches on all of them. At the end stands a suit of armor in a noble pose, where a painter once had it stand as his model.",
+          "ja": "肖像画の回廊。小姓がどの絵にも口ひげを描き足している。突き当たりに、気取った姿勢の鎧が立つ。絵描きが手本に立たせたものだ。"
+        },
+        "per_place": false,
+        "dc": 10,
+        "value": 0,
+        "count": 1
+      },
+      {
+        "type": "choice",
+        "text": {
+          "en": "What will you do?",
+          "ja": "どうする?"
+        },
+        "options": [
+          {
+            "label": {
+              "en": "Examine the armor",
+              "ja": "鎧を調べる"
+            },
+            "steps": [
+              {
+                "type": "text",
+                "text": {
+                  "en": "The visor turns. It was only posing for the painter, and the painter is not here.",
+                  "ja": "面頬がこちらを向いた。絵描きのために立っていただけで、その絵描きは、もういない。"
+                },
+                "per_place": false,
+                "dc": 10,
+                "value": 0,
+                "count": 1
+              },
+              {
+                "type": "combat",
+                "per_place": false,
+                "dc": 10,
+                "value": 0,
+                "count": 1,
+                "groups": [
+                  {
+                    "monster": "animated_armor",
+                    "count": 2
+                  }
+                ]
+              },
+              {
+                "type": "treasure",
+                "per_place": false,
+                "dc": 10,
+                "value": 0,
+                "count": 1
+              },
+              {
+                "type": "xp",
+                "per_place": false,
+                "dc": 10,
+                "value": 300,
+                "count": 1
+              }
+            ],
+            "weight": 1
+          },
+          {
+            "label": {
+              "en": "Slip past quietly",
+              "ja": "静かに通り抜ける"
+            },
+            "steps": [
+              {
+                "type": "check",
+                "per_place": false,
+                "skill": "stealth",
+                "dc": 14,
+                "success": [
+                  {
+                    "type": "text",
+                    "text": {
+                      "en": "The visor does not move. You are past before it thinks to.",
+                      "ja": "面頬は動かない。動くことを思いつく前に、通り過ぎた。"
+                    },
+                    "per_place": false,
+                    "dc": 10,
+                    "value": 0,
+                    "count": 1
+                  },
+                  {
+                    "type": "xp",
+                    "per_place": false,
+                    "dc": 10,
+                    "value": 150,
+                    "count": 1
+                  }
+                ],
+                "fail": [
+                  {
+                    "type": "text",
+                    "text": {
+                      "en": "A hinge squeaks. The armor remembers it has a job.",
+                      "ja": "蝶番がきしむ。鎧は、自分に役目があったことを思い出した。"
+                    },
+                    "per_place": false,
+                    "dc": 10,
+                    "value": 0,
+                    "count": 1
+                  },
+                  {
+                    "type": "combat",
+                    "per_place": false,
+                    "dc": 10,
+                    "value": 0,
+                    "count": 1,
+                    "groups": [
+                      {
+                        "monster": "animated_armor",
+                        "count": 2
+                      }
+                    ]
+                  }
+                ],
+                "value": 0,
+                "count": 1
+              }
+            ],
+            "weight": 1
+          },
+          {
+            "label": {
+              "en": "Leave it",
+              "ja": "立ち去る"
+            },
+            "steps": [
+              {
+                "type": "again",
+                "per_place": false,
+                "dc": 10,
+                "value": 0,
+                "count": 1
+              }
+            ],
+            "weight": 1
+          }
+        ],
+        "per_place": false,
+        "dc": 10,
+        "value": 0,
+        "count": 1
+      }
+    ],
+    "scatter": {
+      "min_depth": 0.75,
+      "max_depth": 1,
+      "min_level": 5,
+      "max_level": 10,
+      "weight": 1,
+      "where": "room",
+      "max": 0,
+      "step": 0,
+      "rarity": "common",
+      "effective_weight": 1
+    },
+    "note": "回廊の鎧。絵描きの手本",
+    "memo": true
+  },
+  {
+    "id": "skx_confession_slips",
+    "place": "maze",
+    "once": "place",
+    "steps": [
+      {
+        "type": "text",
+        "text": {
+          "en": "A confession booth. Slips of paper are pinned inside the grille, each in a priest's hand: \"Brother, you have confessed the same sin eleven times. Stop doing it on purpose.\"",
+          "ja": "告解室。格子の内側に紙切れが何枚も留めてある。司祭の字で。「兄弟よ、同じ罪を十一回告白した。わざとやるのはやめなさい」。"
+        },
+        "per_place": false,
+        "dc": 10,
+        "value": 0,
+        "count": 1
+      },
+      {
+        "type": "choice",
+        "text": {
+          "en": "What will you do?",
+          "ja": "どうする?"
+        },
+        "options": [
+          {
+            "label": {
+              "en": "Read the rest of the slips",
+              "ja": "残りの紙切れを読む"
+            },
+            "steps": [
+              {
+                "type": "text",
+                "text": {
+                  "en": "Penances, assigned and priced. Behind the last slip, someone filed away the fines for being late to penance.",
+                  "ja": "償いの課題と、その値段が並ぶ。最後の紙の裏に、償いに遅れた者の罰金が綴じてある。"
+                },
+                "per_place": false,
+                "dc": 10,
+                "value": 0,
+                "count": 1
+              },
+              {
+                "type": "gold",
+                "per_place": false,
+                "dc": 10,
+                "value": 100,
+                "count": 1
+              },
+              {
+                "type": "xp",
+                "per_place": false,
+                "dc": 10,
+                "value": 200,
+                "count": 1
+              }
+            ],
+            "weight": 1
+          },
+          {
+            "label": {
+              "en": "Leave it",
+              "ja": "立ち去る"
+            },
+            "steps": [
+              {
+                "type": "again",
+                "per_place": false,
+                "dc": 10,
+                "value": 0,
+                "count": 1
+              }
+            ],
+            "weight": 1
+          }
+        ],
+        "per_place": false,
+        "dc": 10,
+        "value": 0,
+        "count": 1
+      }
+    ],
+    "scatter": {
+      "min_depth": 0.35,
+      "max_depth": 0.45,
+      "min_level": 5,
+      "max_level": 10,
+      "weight": 1,
+      "where": "dead_end",
+      "max": 0,
+      "step": 0,
+      "rarity": "common",
+      "effective_weight": 1
+    },
+    "note": "告解室の紙切れ",
+    "memo": true
+  },
+  {
+    "id": "skx_choir_board",
+    "place": "maze",
+    "once": "place",
+    "steps": [
+      {
+        "type": "text",
+        "text": {
+          "en": "A board: \"Choir practice, Tuesday and Thursday. Sopranos, bring your own candles. Basses, stop arriving drunk.\" A bell rope hangs beside it, frayed.",
+          "ja": "札が掛かっている。「聖歌隊の稽古、火曜と木曜。ソプラノは蝋燭を持参のこと。バスは、酔って来るのをやめること」。傍らに擦り切れた鐘縄が下がっている。"
+        },
+        "per_place": false,
+        "dc": 10,
+        "value": 0,
+        "count": 1
+      },
+      {
+        "type": "choice",
+        "text": {
+          "en": "What will you do?",
+          "ja": "どうする?"
+        },
+        "options": [
+          {
+            "label": {
+              "en": "Ring the practice bell",
+              "ja": "稽古の鐘を鳴らす"
+            },
+            "steps": [
+              {
+                "type": "check",
+                "per_place": false,
+                "skill": "performance",
+                "dc": 13,
+                "success": [
+                  {
+                    "type": "text",
+                    "text": {
+                      "en": "One clean note. Somewhere in the nave, a score is turned over, and all is quiet again.",
+                      "ja": "澄んだ音が一つ。身廊のどこかで譜面がめくられ、また静かになった。"
+                    },
+                    "per_place": false,
+                    "dc": 10,
+                    "value": 0,
+                    "count": 1
+                  },
+                  {
+                    "type": "xp",
+                    "per_place": false,
+                    "dc": 10,
+                    "value": 250,
+                    "count": 1
+                  }
+                ],
+                "fail": [
+                  {
+                    "type": "text",
+                    "text": {
+                      "en": "The note cracks. Two pale shapes rise from the back row, late for practice and unhappy about it.",
+                      "ja": "音が割れた。最後列から青白い影が二つ立つ。稽古に遅れたうえ、機嫌が悪い。"
+                    },
+                    "per_place": false,
+                    "dc": 10,
+                    "value": 0,
+                    "count": 1
+                  },
+                  {
+                    "type": "combat",
+                    "per_place": false,
+                    "dc": 10,
+                    "value": 0,
+                    "count": 1,
+                    "groups": [
+                      {
+                        "monster": "specter",
+                        "count": 2
+                      }
+                    ]
+                  }
+                ],
+                "value": 0,
+                "count": 1
+              }
+            ],
+            "weight": 1
+          },
+          {
+            "label": {
+              "en": "Leave it",
+              "ja": "立ち去る"
+            },
+            "steps": [
+              {
+                "type": "again",
+                "per_place": false,
+                "dc": 10,
+                "value": 0,
+                "count": 1
+              }
+            ],
+            "weight": 1
+          }
+        ],
+        "per_place": false,
+        "dc": 10,
+        "value": 0,
+        "count": 1
+      }
+    ],
+    "scatter": {
+      "min_depth": 0.35,
+      "max_depth": 0.45,
+      "min_level": 5,
+      "max_level": 10,
+      "weight": 1,
+      "where": "corridor",
+      "max": 0,
+      "step": 0,
+      "rarity": "common",
+      "effective_weight": 1
+    },
+    "note": "聖歌隊の稽古の札と鐘縄",
+    "memo": true
+  },
+  {
+    "id": "skx_candle_stall",
+    "place": "maze",
+    "once": "place",
+    "steps": [
+      {
+        "type": "text",
+        "text": {
+          "en": "A candle-maker's stall set up inside the nave. The sign: \"Two for a penny, three for a prayer.\" The till is under the counter.",
+          "ja": "身廊の中に蝋燭屋が屋台を出している。札に。「二本で銅貨一枚、三本で祈り一つ」。売上の箱は台の下だ。"
+        },
+        "per_place": false,
+        "dc": 10,
+        "value": 0,
+        "count": 1
+      },
+      {
+        "type": "choice",
+        "text": {
+          "en": "What will you do?",
+          "ja": "どうする?"
+        },
+        "options": [
+          {
+            "label": {
+              "en": "Raid the till",
+              "ja": "売上の箱をあさる"
+            },
+            "steps": [
+              {
+                "type": "check",
+                "per_place": false,
+                "skill": "perception",
+                "dc": 13,
+                "success": [
+                  {
+                    "type": "sound",
+                    "per_place": false,
+                    "dc": 10,
+                    "id": "coins",
+                    "value": 0,
+                    "count": 1
+                  },
+                  {
+                    "type": "text",
+                    "text": {
+                      "en": "You step over the wax puddle and reach the till.",
+                      "ja": "蝋だまりをまたいで、箱に手が届いた。"
+                    },
+                    "per_place": false,
+                    "dc": 10,
+                    "value": 0,
+                    "count": 1
+                  },
+                  {
+                    "type": "gold",
+                    "per_place": false,
+                    "dc": 10,
+                    "value": 150,
+                    "count": 1
+                  }
+                ],
+                "fail": [
+                  {
+                    "type": "text",
+                    "text": {
+                      "en": "Your foot catches a rack. Candles tip, and the wax is not the only thing alight.",
+                      "ja": "足が棚に当たる。蝋燭が倒れ、燃えたのは蝋だけではない。"
+                    },
+                    "per_place": false,
+                    "dc": 10,
+                    "value": 0,
+                    "count": 1
+                  },
+                  {
+                    "type": "damage",
+                    "per_place": false,
+                    "ability": "dex",
+                    "dc": 13,
+                    "value": 0,
+                    "count": 1,
+                    "dice": "2d6",
+                    "damage_type": "fire"
+                  }
+                ],
+                "value": 0,
+                "count": 1
+              }
+            ],
+            "weight": 1
+          },
+          {
+            "label": {
+              "en": "Buy a prayer candle (10 gold)",
+              "ja": "祈りの蝋燭を買う(10ゴールド)"
+            },
+            "when": [
+              {
+                "type": "gold",
+                "value": 10,
+                "count": 1,
+                "op": ">=",
+                "not": false
+              }
+            ],
+            "steps": [
+              {
+                "type": "gold",
+                "per_place": false,
+                "dc": 10,
+                "value": -10,
+                "count": 1
+              },
+              {
+                "type": "text",
+                "text": {
+                  "en": "You light it. The flame stands straight in the still air, and something in you loosens.",
+                  "ja": "火を灯す。動かない空気の中で炎がまっすぐ立ち、体のこわばりがほどける。"
+                },
+                "per_place": false,
+                "dc": 10,
+                "value": 0,
+                "count": 1
+              },
+              {
+                "type": "heal",
+                "per_place": false,
+                "dc": 10,
+                "value": 0,
+                "count": 1,
+                "dice": "2d8"
+              },
+              {
+                "type": "cure",
+                "per_place": false,
+                "dc": 10,
+                "value": 0,
+                "count": 1
+              }
+            ],
+            "weight": 1
+          },
+          {
+            "label": {
+              "en": "Leave it",
+              "ja": "立ち去る"
+            },
+            "steps": [
+              {
+                "type": "again",
+                "per_place": false,
+                "dc": 10,
+                "value": 0,
+                "count": 1
+              }
+            ],
+            "weight": 1
+          }
+        ],
+        "per_place": false,
+        "dc": 10,
+        "value": 0,
+        "count": 1
+      }
+    ],
+    "scatter": {
+      "min_depth": 0.35,
+      "max_depth": 0.45,
+      "min_level": 5,
+      "max_level": 10,
+      "weight": 1,
+      "where": "room",
+      "max": 0,
+      "step": 0,
+      "rarity": "common",
+      "effective_weight": 1
+    },
+    "note": "身廊の蝋燭屋の屋台",
+    "memo": true
+  },
+  {
+    "id": "skx_shift_roster",
+    "place": "maze",
+    "once": "place",
+    "steps": [
+      {
+        "type": "text",
+        "text": {
+          "en": "A shift roster on a board, a mess of crossed-out names. \"Hobb owes Teodor three night shifts.\" \"Teodor owes Hobb a coat.\" A tin marked SICK FUND hangs off a nail.",
+          "ja": "板に当番表が掛かる。名前が消したり書いたりで滅茶苦茶だ。「ホブはテオドールに夜番三回の借り」「テオドールはホブに上着の借り」。釘に「見舞金」の缶が下がっている。"
+        },
+        "per_place": false,
+        "dc": 10,
+        "value": 0,
+        "count": 1
+      },
+      {
+        "type": "choice",
+        "text": {
+          "en": "What will you do?",
+          "ja": "どうする?"
+        },
+        "options": [
+          {
+            "label": {
+              "en": "Take the sick fund",
+              "ja": "見舞金を取る"
+            },
+            "steps": [
+              {
+                "type": "sound",
+                "per_place": false,
+                "dc": 10,
+                "id": "coins",
+                "value": 0,
+                "count": 1
+              },
+              {
+                "type": "text",
+                "text": {
+                  "en": "Eleven names are written on the lid, each with a sum paid in. Nobody ever fell sick enough.",
+                  "ja": "蓋に十一人の名と、払った額が書いてある。誰も、使うほど病まなかったらしい。"
+                },
+                "per_place": false,
+                "dc": 10,
+                "value": 0,
+                "count": 1
+              },
+              {
+                "type": "gold",
+                "per_place": false,
+                "dc": 10,
+                "value": 160,
+                "count": 1
+              }
+            ],
+            "weight": 1
+          },
+          {
+            "label": {
+              "en": "Leave it",
+              "ja": "立ち去る"
+            },
+            "steps": [
+              {
+                "type": "again",
+                "per_place": false,
+                "dc": 10,
+                "value": 0,
+                "count": 1
+              }
+            ],
+            "weight": 1
+          }
+        ],
+        "per_place": false,
+        "dc": 10,
+        "value": 0,
+        "count": 1
+      }
+    ],
+    "scatter": {
+      "min_depth": 0.55,
+      "max_depth": 0.65,
+      "min_level": 5,
+      "max_level": 10,
+      "weight": 1,
+      "where": "room",
+      "max": 0,
+      "step": 0,
+      "rarity": "common",
+      "effective_weight": 1
+    },
+    "note": "当番表。見舞金の缶",
+    "memo": true
+  },
+  {
+    "id": "skx_apprentice_wrench",
+    "place": "maze",
+    "once": "place",
+    "steps": [
+      {
+        "type": "text",
+        "text": {
+          "en": "A snapped wrench lies on the bench with a note: \"It was already like that. Not my fault. Do not tell the foreman. -- the apprentice\"",
+          "ja": "作業台に折れたレンチが置かれ、紙が添えてある。「もとから折れていた。俺のせいじゃない。親方には言わないで。——見習い」。"
+        },
+        "per_place": false,
+        "dc": 10,
+        "value": 0,
+        "count": 1
+      },
+      {
+        "type": "choice",
+        "text": {
+          "en": "What will you do?",
+          "ja": "どうする?"
+        },
+        "options": [
+          {
+            "label": {
+              "en": "Look the wrench over",
+              "ja": "レンチを調べる"
+            },
+            "steps": [
+              {
+                "type": "check",
+                "per_place": false,
+                "skill": "investigation",
+                "dc": 13,
+                "success": [
+                  {
+                    "type": "sound",
+                    "per_place": false,
+                    "dc": 10,
+                    "id": "secret_found",
+                    "value": 0,
+                    "count": 1
+                  },
+                  {
+                    "type": "text",
+                    "text": {
+                      "en": "The hollow handle holds a pouch. The apprentice had a side business.",
+                      "ja": "空洞の柄に小袋が入っていた。見習いには、副業があったらしい。"
+                    },
+                    "per_place": false,
+                    "dc": 10,
+                    "value": 0,
+                    "count": 1
+                  },
+                  {
+                    "type": "treasure",
+                    "per_place": false,
+                    "dc": 10,
+                    "value": 0,
+                    "count": 1
+                  },
+                  {
+                    "type": "xp",
+                    "per_place": false,
+                    "dc": 10,
+                    "value": 150,
+                    "count": 1
+                  }
+                ],
+                "fail": [
+                  {
+                    "type": "text",
+                    "text": {
+                      "en": "The broken end is sharp. You find that out the hard way.",
+                      "ja": "折れ口が鋭い。身をもって知った。"
+                    },
+                    "per_place": false,
+                    "dc": 10,
+                    "value": 0,
+                    "count": 1
+                  },
+                  {
+                    "type": "damage",
+                    "per_place": false,
+                    "ability": "dex",
+                    "dc": 13,
+                    "value": 0,
+                    "count": 1,
+                    "dice": "2d6",
+                    "damage_type": "slashing"
+                  }
+                ],
+                "value": 0,
+                "count": 1
+              }
+            ],
+            "weight": 1
+          },
+          {
+            "label": {
+              "en": "Leave it",
+              "ja": "立ち去る"
+            },
+            "steps": [
+              {
+                "type": "again",
+                "per_place": false,
+                "dc": 10,
+                "value": 0,
+                "count": 1
+              }
+            ],
+            "weight": 1
+          }
+        ],
+        "per_place": false,
+        "dc": 10,
+        "value": 0,
+        "count": 1
+      }
+    ],
+    "scatter": {
+      "min_depth": 0.55,
+      "max_depth": 0.65,
+      "min_level": 5,
+      "max_level": 10,
+      "weight": 1,
+      "where": "dead_end",
+      "max": 0,
+      "step": 0,
+      "rarity": "common",
+      "effective_weight": 1
+    },
+    "note": "見習いの折れた工具と言い訳",
+    "memo": true
+  },
+  {
+    "id": "skx_tea_kettle",
+    "place": "maze",
+    "once": "place",
+    "steps": [
+      {
+        "type": "text",
+        "text": {
+          "en": "A kettle sits on a gear housing, spout steaming. A cup waits beside it. The gears under it grind without a pause.",
+          "ja": "歯車の覆いの上に薬缶が乗り、注ぎ口から湯気が上がっている。傍らに湯呑みが待つ。下の歯車は休まず噛み合っている。"
+        },
+        "per_place": false,
+        "dc": 10,
+        "value": 0,
+        "count": 1
+      },
+      {
+        "type": "choice",
+        "text": {
+          "en": "What will you do?",
+          "ja": "どうする?"
+        },
+        "options": [
+          {
+            "label": {
+              "en": "Pour a cup",
+              "ja": "一杯注ぐ"
+            },
+            "steps": [
+              {
+                "type": "check",
+                "per_place": false,
+                "ability": "dex",
+                "dc": 13,
+                "success": [
+                  {
+                    "type": "text",
+                    "text": {
+                      "en": "Hot, strong, and a little sweet. Whoever left it made it right.",
+                      "ja": "熱くて濃くて、少し甘い。淹れた者は心得ていた。"
+                    },
+                    "per_place": false,
+                    "dc": 10,
+                    "value": 0,
+                    "count": 1
+                  },
+                  {
+                    "type": "heal",
+                    "per_place": false,
+                    "dc": 10,
+                    "value": 0,
+                    "count": 1,
+                    "dice": "3d8"
+                  },
+                  {
+                    "type": "cure",
+                    "per_place": false,
+                    "dc": 10,
+                    "value": 0,
+                    "count": 1
+                  }
+                ],
+                "fail": [
+                  {
+                    "type": "text",
+                    "text": {
+                      "en": "A gear catches your sleeve and drags your arm in a turn before you tear free.",
+                      "ja": "歯車が袖をつかみ、一回転ぶん腕を引きずった。やっとのことで振りほどく。"
+                    },
+                    "per_place": false,
+                    "dc": 10,
+                    "value": 0,
+                    "count": 1
+                  },
+                  {
+                    "type": "damage",
+                    "per_place": false,
+                    "ability": "dex",
+                    "dc": 14,
+                    "value": 0,
+                    "count": 1,
+                    "dice": "3d6",
+                    "damage_type": "bludgeoning"
+                  }
+                ],
+                "value": 0,
+                "count": 1
+              }
+            ],
+            "weight": 1
+          },
+          {
+            "label": {
+              "en": "Leave it",
+              "ja": "立ち去る"
+            },
+            "steps": [
+              {
+                "type": "again",
+                "per_place": false,
+                "dc": 10,
+                "value": 0,
+                "count": 1
+              }
+            ],
+            "weight": 1
+          }
+        ],
+        "per_place": false,
+        "dc": 10,
+        "value": 0,
+        "count": 1
+      }
+    ],
+    "scatter": {
+      "min_depth": 0.55,
+      "max_depth": 0.65,
+      "min_level": 5,
+      "max_level": 10,
+      "weight": 1,
+      "where": "room",
+      "max": 0,
+      "step": 0,
+      "rarity": "common",
+      "effective_weight": 1
+    },
+    "note": "歯車の覆いの上の薬缶",
+    "memo": true
+  },
+  {
+    "id": "skx_royal_kitchen",
+    "place": "maze",
+    "once": "place",
+    "steps": [
+      {
+        "type": "text",
+        "text": {
+          "en": "A palace kitchen. A menu is pinned up: \"For the queen's supper: eel pie, no onions. NO onions.\" The pie sits half eaten, a fork beside it.",
+          "ja": "王宮の厨房。献立が留めてある。「女王陛下の夕食:うなぎのパイ。玉ねぎは抜き。玉ねぎは、抜き」。パイは半分食べられ、フォークが添えてある。"
+        },
+        "per_place": false,
+        "dc": 10,
+        "value": 0,
+        "count": 1
+      },
+      {
+        "type": "choice",
+        "text": {
+          "en": "What will you do?",
+          "ja": "どうする?"
+        },
+        "options": [
+          {
+            "label": {
+              "en": "Search the pantry",
+              "ja": "食料庫を探す"
+            },
+            "steps": [
+              {
+                "type": "sound",
+                "per_place": false,
+                "dc": 10,
+                "id": "secret_found",
+                "value": 0,
+                "count": 1
+              },
+              {
+                "type": "text",
+                "text": {
+                  "en": "Behind the spice jars, the cook's own hoard, saved from selling the scraps.",
+                  "ja": "香辛料の壺の奥に、料理人の隠し財産があった。残り物を売って貯めたのだろう。"
+                },
+                "per_place": false,
+                "dc": 10,
+                "value": 0,
+                "count": 1
+              },
+              {
+                "type": "gold",
+                "per_place": false,
+                "dc": 10,
+                "value": 200,
+                "count": 1
+              },
+              {
+                "type": "treasure",
+                "per_place": false,
+                "dc": 10,
+                "value": 0,
+                "count": 1
+              }
+            ],
+            "weight": 1
+          },
+          {
+            "label": {
+              "en": "Eat what is left",
+              "ja": "残りを食べる"
+            },
+            "steps": [
+              {
+                "type": "text",
+                "text": {
+                  "en": "No onions. It is excellent.",
+                  "ja": "玉ねぎは入っていない。実にうまい。"
+                },
+                "per_place": false,
+                "dc": 10,
+                "value": 0,
+                "count": 1
+              },
+              {
+                "type": "heal",
+                "per_place": false,
+                "dc": 10,
+                "value": 0,
+                "count": 1,
+                "dice": "3d8"
+              },
+              {
+                "type": "xp",
+                "per_place": false,
+                "dc": 10,
+                "value": 120,
+                "count": 1
+              }
+            ],
+            "weight": 1
+          },
+          {
+            "label": {
+              "en": "Leave it",
+              "ja": "立ち去る"
+            },
+            "steps": [
+              {
+                "type": "again",
+                "per_place": false,
+                "dc": 10,
+                "value": 0,
+                "count": 1
+              }
+            ],
+            "weight": 1
+          }
+        ],
+        "per_place": false,
+        "dc": 10,
+        "value": 0,
+        "count": 1
+      }
+    ],
+    "scatter": {
+      "min_depth": 0.75,
+      "max_depth": 1,
+      "min_level": 5,
+      "max_level": 10,
+      "weight": 1,
+      "where": "room",
+      "max": 0,
+      "step": 0,
+      "rarity": "common",
+      "effective_weight": 1
+    },
+    "note": "王宮の厨房。夕食の献立",
+    "memo": true
+  },
+  {
+    "id": "skx_clerk_desk",
+    "place": "maze",
+    "once": "place",
+    "steps": [
+      {
+        "type": "text",
+        "text": {
+          "en": "A court clerk's desk, piled with forms. \"Complaint 114: the carpet is too loud.\" \"Complaint 115: the carpet is not loud enough.\" \"Complaint 116: see 114 and 115.\"",
+          "ja": "宮廷書記の机に書類が積まれている。「苦情百十四:絨毯の音がうるさい」「苦情百十五:絨毯の音が足りない」「苦情百十六:百十四と百十五を見よ」。"
+        },
+        "per_place": false,
+        "dc": 10,
+        "value": 0,
+        "count": 1
+      },
+      {
+        "type": "choice",
+        "text": {
+          "en": "What will you do?",
+          "ja": "どうする?"
+        },
+        "options": [
+          {
+            "label": {
+              "en": "Go through the drawers",
+              "ja": "引き出しを調べる"
+            },
+            "steps": [
+              {
+                "type": "check",
+                "per_place": false,
+                "skill": "investigation",
+                "dc": 14,
+                "success": [
+                  {
+                    "type": "sound",
+                    "per_place": false,
+                    "dc": 10,
+                    "id": "coins",
+                    "value": 0,
+                    "count": 1
+                  },
+                  {
+                    "type": "text",
+                    "text": {
+                      "en": "Under the stamps: a ledger of bribes taken for moving complaints to the top of the pile.",
+                      "ja": "印判の下に、苦情を山の上へ回す見返りの賄賂帳がある。"
+                    },
+                    "per_place": false,
+                    "dc": 10,
+                    "value": 0,
+                    "count": 1
+                  },
+                  {
+                    "type": "gold",
+                    "per_place": false,
+                    "dc": 10,
+                    "value": 250,
+                    "count": 1
+                  },
+                  {
+                    "type": "xp",
+                    "per_place": false,
+                    "dc": 10,
+                    "value": 150,
+                    "count": 1
+                  }
+                ],
+                "fail": [
+                  {
+                    "type": "text",
+                    "text": {
+                      "en": "Nothing but forms. Several of them are about you.",
+                      "ja": "書類しかない。そのいくつかは、あなたについてのものだ。"
+                    },
+                    "per_place": false,
+                    "dc": 10,
+                    "value": 0,
+                    "count": 1
+                  }
+                ],
+                "value": 0,
+                "count": 1
+              }
+            ],
+            "weight": 1
+          },
+          {
+            "label": {
+              "en": "Leave it",
+              "ja": "立ち去る"
+            },
+            "steps": [
+              {
+                "type": "again",
+                "per_place": false,
+                "dc": 10,
+                "value": 0,
+                "count": 1
+              }
+            ],
+            "weight": 1
+          }
+        ],
+        "per_place": false,
+        "dc": 10,
+        "value": 0,
+        "count": 1
+      }
+    ],
+    "scatter": {
+      "min_depth": 0.75,
+      "max_depth": 1,
+      "min_level": 5,
+      "max_level": 10,
+      "weight": 1,
+      "where": "room",
+      "max": 0,
+      "step": 0,
+      "rarity": "common",
+      "effective_weight": 1
+    },
+    "note": "宮廷書記の机。苦情の山",
+    "memo": true
+  },
+  {
+    "id": "skx_guard_dice",
+    "place": "maze",
+    "once": "place",
+    "steps": [
+      {
+        "type": "text",
+        "text": {
+          "en": "Two dice hang in the air above a guardroom table, mid-throw, frozen in a pocket of water. The stakes lie in a pile. Two helms look on.",
+          "ja": "詰め所の机の上で、賽が二つ、水のかたまりの中に投げられたまま止まっている。賭け金は山になっている。兜が二つ、見守っている。"
+        },
+        "per_place": false,
+        "dc": 10,
+        "value": 0,
+        "count": 1
+      },
+      {
+        "type": "choice",
+        "text": {
+          "en": "What will you do?",
+          "ja": "どうする?"
+        },
+        "options": [
+          {
+            "label": {
+              "en": "Take the stakes",
+              "ja": "賭け金を取る"
+            },
+            "steps": [
+              {
+                "type": "check",
+                "per_place": false,
+                "skill": "sleight_of_hand",
+                "dc": 14,
+                "success": [
+                  {
+                    "type": "sound",
+                    "per_place": false,
+                    "dc": 10,
+                    "id": "coins",
+                    "value": 0,
+                    "count": 1
+                  },
+                  {
+                    "type": "text",
+                    "text": {
+                      "en": "You take the pile and leave the dice where they hang. Fair is fair.",
+                      "ja": "賭け金だけ取って、賽はそのまま宙に残した。勝負は勝負だ。"
+                    },
+                    "per_place": false,
+                    "dc": 10,
+                    "value": 0,
+                    "count": 1
+                  },
+                  {
+                    "type": "gold",
+                    "per_place": false,
+                    "dc": 10,
+                    "value": 300,
+                    "count": 1
+                  }
+                ],
+                "fail": [
+                  {
+                    "type": "text",
+                    "text": {
+                      "en": "A gauntlet closes on your wrist. The players object to the interruption.",
+                      "ja": "籠手が手首をつかむ。勝負を邪魔された者が、異議を唱える。"
+                    },
+                    "per_place": false,
+                    "dc": 10,
+                    "value": 0,
+                    "count": 1
+                  },
+                  {
+                    "type": "combat",
+                    "per_place": false,
+                    "dc": 10,
+                    "value": 0,
+                    "count": 1,
+                    "groups": [
+                      {
+                        "monster": "knight",
+                        "count": 1
+                      },
+                      {
+                        "monster": "animated_armor",
+                        "count": 1
+                      }
+                    ]
+                  },
+                  {
+                    "type": "gold",
+                    "per_place": false,
+                    "dc": 10,
+                    "value": 150,
+                    "count": 1
+                  }
+                ],
+                "value": 0,
+                "count": 1
+              }
+            ],
+            "weight": 1
+          },
+          {
+            "label": {
+              "en": "Leave it",
+              "ja": "立ち去る"
+            },
+            "steps": [
+              {
+                "type": "again",
+                "per_place": false,
+                "dc": 10,
+                "value": 0,
+                "count": 1
+              }
+            ],
+            "weight": 1
+          }
+        ],
+        "per_place": false,
+        "dc": 10,
+        "value": 0,
+        "count": 1
+      }
+    ],
+    "scatter": {
+      "min_depth": 0.8,
+      "max_depth": 1,
+      "min_level": 5,
+      "max_level": 10,
+      "weight": 1,
+      "where": "room",
+      "max": 0,
+      "step": 0,
+      "rarity": "common",
+      "effective_weight": 1
+    },
+    "note": "衛兵の賽。投げられたまま",
+    "memo": true
+  },
+  {
+    "id": "skx_dressing_room",
+    "place": "maze",
+    "once": "place",
+    "steps": [
+      {
+        "type": "text",
+        "text": {
+          "en": "A dressing room. Gowns and jewels on stands, each tagged: \"Borrowed from the royal wardrobe. Return by Friday.\" It is a very long time past Friday.",
+          "ja": "衣装部屋。台に載った衣裳と宝飾に札が付く。「王室衣装部より拝借。金曜までに返却のこと」。金曜は、とうに過ぎている。"
+        },
+        "per_place": false,
+        "dc": 10,
+        "value": 0,
+        "count": 1
+      },
+      {
+        "type": "choice",
+        "text": {
+          "en": "What will you do?",
+          "ja": "どうする?"
+        },
+        "options": [
+          {
+            "label": {
+              "en": "Take the jewels",
+              "ja": "宝飾を取る"
+            },
+            "steps": [
+              {
+                "type": "check",
+                "per_place": false,
+                "skill": "sleight_of_hand",
+                "dc": 14,
+                "success": [
+                  {
+                    "type": "sound",
+                    "per_place": false,
+                    "dc": 10,
+                    "id": "secret_found",
+                    "value": 0,
+                    "count": 1
+                  },
+                  {
+                    "type": "text",
+                    "text": {
+                      "en": "You return them to nobody, as you were taught.",
+                      "ja": "誰にも返さなかった。教えられたとおりだ。"
+                    },
+                    "per_place": false,
+                    "dc": 10,
+                    "value": 0,
+                    "count": 1
+                  },
+                  {
+                    "type": "treasure",
+                    "per_place": false,
+                    "dc": 10,
+                    "value": 0,
+                    "count": 2
+                  }
+                ],
+                "fail": [
+                  {
+                    "type": "text",
+                    "text": {
+                      "en": "The mirror clouds. A woman in borrowed pearls steps out of it, wanting them back.",
+                      "ja": "鏡が曇る。借り物の真珠をつけた女が出てきて、返せと言う。"
+                    },
+                    "per_place": false,
+                    "dc": 10,
+                    "value": 0,
+                    "count": 1
+                  },
+                  {
+                    "type": "combat",
+                    "per_place": false,
+                    "dc": 10,
+                    "value": 0,
+                    "count": 1,
+                    "groups": [
+                      {
+                        "monster": "specter",
+                        "count": 2
+                      }
+                    ]
+                  }
+                ],
+                "value": 0,
+                "count": 1
+              }
+            ],
+            "weight": 1
+          },
+          {
+            "label": {
+              "en": "Leave it",
+              "ja": "立ち去る"
+            },
+            "steps": [
+              {
+                "type": "again",
+                "per_place": false,
+                "dc": 10,
+                "value": 0,
+                "count": 1
+              }
+            ],
+            "weight": 1
+          }
+        ],
+        "per_place": false,
+        "dc": 10,
+        "value": 0,
+        "count": 1
+      }
+    ],
+    "scatter": {
+      "min_depth": 0.75,
+      "max_depth": 1,
+      "min_level": 5,
+      "max_level": 10,
+      "weight": 1,
+      "where": "dead_end",
+      "max": 0,
+      "step": 0,
+      "rarity": "common",
+      "effective_weight": 1
+    },
+    "note": "衣装部屋の借り物",
+    "memo": true
+  },
+  {
+    "id": "sk_writing",
+    "place": "maze",
+    "once": "place",
+    "note": "B: 迷宮に残された書き付け。この階の書き付け(worlds.json の documents)を1つ目を出す。各階に2つ手で置く",
+    "steps": [
+      {
+        "type": "text",
+        "text": {
+          "en": "Something is written here, on a wall still dark with the lake.",
+          "ja": "湖の水でまだ黒ずんだ壁に、何かが書き残されている。"
+        }
+      },
+      {
+        "type": "sound",
+        "id": "search"
+      },
+      {
+        "type": "world_doc",
+        "else": [
+          {
+            "type": "text",
+            "text": {
+              "en": "The words have run with the water. Only a few letters are left.",
+              "ja": "文字は水に流れて、いくつかしか残っていない。"
+            }
+          }
+        ],
+        "value": 1
+      }
+    ]
+  },
+  {
+    "id": "sk_writing_2",
+    "place": "maze",
+    "once": "place",
+    "note": "B: 迷宮に残された書き付け。この階の書き付け(worlds.json の documents)を2つ目を出す。各階に2つ手で置く",
+    "steps": [
+      {
+        "type": "text",
+        "text": {
+          "en": "Something is written here, on a wall still dark with the lake.",
+          "ja": "湖の水でまだ黒ずんだ壁に、何かが書き残されている。"
+        }
+      },
+      {
+        "type": "sound",
+        "id": "search"
+      },
+      {
+        "type": "world_doc",
+        "else": [
+          {
+            "type": "text",
+            "text": {
+              "en": "The words have run with the water. Only a few letters are left.",
+              "ja": "文字は水に流れて、いくつかしか残っていない。"
+            }
+          }
+        ],
+        "value": 2
+      }
+    ]
+  }
+]

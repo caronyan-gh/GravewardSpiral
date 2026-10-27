@@ -21,7 +21,7 @@ namespace GravewardSpiral.Game;
 /// --bgm-start S: 最初の BGM を S 秒目から流す(ループのつなぎ目を確かめる用)。
 /// --actions "U U R C M": 動作を順に押す(U 上 / D 下 / L 左 / R 右 / C 決定 / X 取消 / M 地図 / T メニュー / Q E 横歩き / . 何もしない)。
 /// </summary>
-public sealed record LaunchOptions(string? ScreenshotPath, int? ScreenshotFrame, int? Width, int? Height, string? Start, IReadOnlyList<GameAction?> Actions, float? Volume, double? BgmStart, string? SavesDir, bool Debug = false, string? Language = null)
+public sealed record LaunchOptions(string? ScreenshotPath, int? ScreenshotFrame, int? Width, int? Height, string? Start, IReadOnlyList<GameAction?> Actions, float? Volume, double? BgmStart, string? SavesDir, bool Debug = false, string? Language = null, string? Drop = null)
 {
     /// <summary>自動操作で、1つの動作ごとに待つ Update の回数。</summary>
     public const int FramesPerAction = 8;
@@ -30,7 +30,7 @@ public sealed record LaunchOptions(string? ScreenshotPath, int? ScreenshotFrame,
 
     public static LaunchOptions Parse(string[] args)
     {
-        string? shot = null, start = null, saves = null, lang = null;
+        string? shot = null, start = null, saves = null, lang = null, drop = null;
         bool debug = false;
         int? frame = null, w = null, h = null;
         float? volume = null;
@@ -74,6 +74,10 @@ public sealed record LaunchOptions(string? ScreenshotPath, int? ScreenshotFrame,
                     lang = next;
                     i++;
                     break;
+                case "--drop":
+                    drop = next;
+                    i++;
+                    break;
                 case "--debug":
                     debug = true;
                     break;
@@ -96,6 +100,7 @@ public sealed record LaunchOptions(string? ScreenshotPath, int? ScreenshotFrame,
                             "Q" => GameAction.StrafeLeft,
                             "E" => GameAction.StrafeRight,
                             "T" => GameAction.Menu,
+                            "V" => GameAction.Reverse,   // 次の動作を、押しながらにする(後ろのキーの逆の動き)
                             "." => null,
                             _ => throw new ArgumentException($"--actions の '{token}' は読めません"),
                         });
@@ -104,6 +109,6 @@ public sealed record LaunchOptions(string? ScreenshotPath, int? ScreenshotFrame,
                     break;
             }
         }
-        return new LaunchOptions(shot, frame, w, h, start, actions, volume, bgmStart, saves, debug, lang);
+        return new LaunchOptions(shot, frame, w, h, start, actions, volume, bgmStart, saves, debug, lang, drop);
     }
 }

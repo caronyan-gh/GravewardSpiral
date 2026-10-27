@@ -1,0 +1,183 @@
+[
+  {
+    "id": "gaze_start",
+    "place": "maze",
+    "note": "像の通路の入口(見本)。ここで試しが始まる",
+    "memo": false,
+    "steps": [
+      {
+        "type": "flag",
+        "id": "gaze_ok"
+      },
+      {
+        "type": "text",
+        "text": {
+          "en": "At the far end of the corridor, east, a statue stares with wide eyes. The pedestal reads: \"To those who come meeting my eyes, the door will not open.\"",
+          "ja": "通路の奥、東の突き当たりに、目を見開いた像が立っている。台座の文字:「我が目を見て来る者に、扉は開かぬ」"
+        }
+      }
+    ]
+  },
+  {
+    "id": "gaze_watch",
+    "place": "maze",
+    "trigger": "both",
+    "note": "像の通路(見本)。像の方(東)を向くと、試しがやり直しになる",
+    "memo": false,
+    "steps": [
+      {
+        "type": "if",
+        "when": [
+          {
+            "type": "facing",
+            "id": "east"
+          },
+          {
+            "type": "flag",
+            "id": "gaze_ok"
+          }
+        ],
+        "then": [
+          {
+            "type": "unflag",
+            "id": "gaze_ok"
+          },
+          {
+            "type": "text",
+            "text": {
+              "en": "Your eyes met the statue's.",
+              "ja": "像と目が合った。"
+            }
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "id": "gaze_door",
+    "place": "maze",
+    "once": "game",
+    "trigger": "both",
+    "note": "像の通路の扉の前(見本)。像を見ずに着けば、扉が開く",
+    "memo": false,
+    "steps": [
+      {
+        "type": "if",
+        "when": [
+          {
+            "type": "facing",
+            "id": "east"
+          }
+        ],
+        "then": [
+          {
+            "type": "unflag",
+            "id": "gaze_ok"
+          },
+          {
+            "type": "text",
+            "text": {
+              "en": "Your eyes met the statue's. The door stays shut.",
+              "ja": "像と目が合った。扉は閉じたままだ。"
+            }
+          },
+          {
+            "type": "again"
+          }
+        ]
+      },
+      {
+        "type": "if",
+        "when": [
+          {
+            "type": "flag",
+            "id": "gaze_ok"
+          }
+        ],
+        "then": [
+          {
+            "type": "open",
+            "id": "gaze"
+          }
+        ],
+        "else": [
+          {
+            "type": "text",
+            "text": {
+              "en": "The door behind you will not move. You must start again from the entrance.",
+              "ja": "背後の扉は動かない。入口からやり直さなければ。"
+            }
+          },
+          {
+            "type": "again"
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "id": "gaze_reward",
+    "place": "maze",
+    "once": "game",
+    "note": "像の通路の奥(見本)",
+    "steps": [
+      {
+        "type": "text",
+        "text": {
+          "en": "Behind the statue's pedestal, a small pouch was hidden.",
+          "ja": "像の台座の裏に、小さな袋が隠されていた。"
+        }
+      },
+      {
+        "type": "treasure",
+        "count": 1
+      }
+    ]
+  },
+  {
+    "id": "finale_bell",
+    "place": "maze",
+    "note": "手順 ending の見本。鳴らすとこの世界をクリアにして、町でエンディングになる",
+    "memo": false,
+    "steps": [
+      {
+        "type": "choice",
+        "text": {
+          "en": "On a pedestal sits a small bell. Words are carved beneath it: \"Ring me, and the tale is ended.\"",
+          "ja": "台座に小さな鐘が置かれている。下に刻まれた文字:「鳴らせば、物語は終わる」"
+        },
+        "options": [
+          {
+            "label": {
+              "en": "Ring it",
+              "ja": "鳴らす"
+            },
+            "steps": [
+              {
+                "type": "text",
+                "text": {
+                  "en": "A clear tone fills the maze. The story is over.",
+                  "ja": "澄んだ音が迷宮に満ちた。物語は終わった。"
+                }
+              },
+              {
+                "type": "ending"
+              }
+            ]
+          },
+          {
+            "label": {
+              "en": "Leave it",
+              "ja": "そのままにする"
+            },
+            "steps": [
+              {
+                "type": "again"
+              }
+            ]
+          }
+        ]
+      }
+    ]
+  }
+]

@@ -35,9 +35,9 @@ Download `GravewardSpiral-Setup-<version>.exe` from [Releases](../../releases) a
 
 ## シナリオを作る / Make scenarios
 
-インストーラーには、シナリオエディタ(スタートメニューの「GRAVEWARD SPIRAL シナリオエディタ」)も入っています。迷宮を描くか自動で作り、出る敵・ボス・イベント・物語の文・品やモンスターを決めて、そのまま試し遊びできます。作ったシナリオは `ドキュメント\GravewardSpiral\Scenarios` に保存され、ゲームの「新しいゲーム」で選べます。zip に書き出して配ることもできます。Claude の API キーを入れると、物語の文を AI に書かせることもできます(任意)。
+インストーラーには、シナリオエディタ(スタートメニューの「GRAVEWARD SPIRAL シナリオエディタ」)も入っています。迷宮を描くか自動で作り、出る敵・ボス・イベント・物語の文・品やモンスターを決めて、そのまま試し遊びできます。作ったシナリオは `%LOCALAPPDATA%\GravewardSpiral\Scenarios` に保存され、ゲームの「新しいゲーム」で選べます。zip に書き出して配ることもできます。Claude の API キーを入れると、物語の文を AI に書かせることもできます(任意)。
 
-The installer also includes the scenario editor ("GRAVEWARD SPIRAL Scenario Editor" in the Start menu). Draw or generate the dungeon, choose the monsters, bosses, events, story text, items and monsters, and play-test right away. Scenarios are saved to `Documents\GravewardSpiral\Scenarios` and appear under New Game; you can also export them as zip files to share. With a Claude API key, the AI can write the story text (optional).
+The installer also includes the scenario editor ("GRAVEWARD SPIRAL Scenario Editor" in the Start menu). Draw or generate the dungeon, choose the monsters, bosses, events, story text, items and monsters, and play-test right away. Scenarios are saved to `%LOCALAPPDATA%\GravewardSpiral\Scenarios` and appear under New Game; you can also export them as zip files to share. With a Claude API key, the AI can write the story text (optional).
 
 ## 作る / Build
 

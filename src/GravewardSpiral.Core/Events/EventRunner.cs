@@ -23,6 +23,9 @@ public sealed class EventContext
     public double Depth { get; init; }
     public double TargetLevel { get; init; } = 1;
 
+    /// <summary>そのマスで向きを変えて起きた(条件 turned)。</summary>
+    public bool Turned { get; init; }
+
     /// <summary>
     /// 低い帯のイベントを帯より上の階で起こしたときの引き上げの倍率(EventScale.For)。動かしているイベントが決める。
     /// 金の条件(gold)も、この倍率の2乗で見る(払う額と合わせる)。
@@ -195,12 +198,13 @@ public sealed class EventRunner
                 break;
             case "world_doc":
             {
-                // AI が書いたこの階の書き付けを1つ(この迷宮のこのマスでは毎回同じもの)。無ければ else の手順(決まった文)
+                // この階の書き付けを1つ。value が 1 以上ならその番目(同じ階の2か所に、別々の書き付けを置くとき)、
+                // 0 ならこの迷宮のこのマスで決まる1つ(毎回同じもの)。無ければ else の手順(決まった文)
                 var docs = _ctx.At is { } here ? _ctx.Session.World?.Floor(here.Floor)?.Documents : null;
                 if (docs is { Count: > 0 })
                 {
-                    var rng = PlaceRng(new EventStep { Type = s.Type, PerPlace = true });
-                    _out.Enqueue(new EventMessage(docs[rng.Next(0, docs.Count)], null, [], s.Speaker, s.Art));
+                    int index = s.Value > 0 ? (s.Value - 1) % docs.Count : PlaceRng(new EventStep { Type = s.Type, PerPlace = true }).Next(0, docs.Count);
+                    _out.Enqueue(new EventMessage(docs[index], null, [], s.Speaker, s.Art));
                 }
                 else _frames.Push((s.Else, 0));
                 break;
@@ -340,6 +344,11 @@ public sealed class EventRunner
                 _frames.Clear();
                 _out.Enqueue(new EventToTown());
                 break;
+            case "ending":
+                _ctx.Session.Flags.Add(GameSession.EndingFlag);
+                _frames.Clear();
+                _out.Enqueue(new EventToTown());
+                break;
             case "end":
                 _frames.Clear();
                 break;
@@ -459,6 +468,8 @@ public sealed class EventRunner
             "key" => ctx.Maze != null && ctx.Maze.Keys.Contains(ctx.At?.Floor ?? ctx.Maze.Position.Floor),
             "alive" => party.Count(p => p.CanAct) >= c.Value,
             "depth" => ctx.Depth * 100 >= c.Value - 1e-9,
+            "turned" => ctx.Turned,
+            "facing" => ctx.Maze != null && Enum.TryParse<Direction>(c.Id, ignoreCase: true, out var d) && ctx.Maze.Position.Facing == d,
             _ => false,
         };
     }

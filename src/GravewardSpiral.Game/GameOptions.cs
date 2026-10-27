@@ -35,6 +35,11 @@ public sealed class GameOptions
 
     public static readonly string[] MapModes = ["auto", "map", "none"];
 
+    /// <summary>迷宮での後ろのキー: step(1歩下がる)/ turn(振り向く)。Shift を押しながらだと、もう一方の動きになる。</summary>
+    public string BackKey { get; set; } = "step";
+
+    public static readonly string[] BackKeys = ["step", "turn"];
+
     /// <summary>物語の書体(タイトル・迷宮のメッセージ・戦闘のログ・イベントの文): hina(Hina Mincho)/ shippori(しっぽり明朝)/ gothic(BIZ UDゴシック)。</summary>
     public string StoryFont { get; set; } = "hina";
 

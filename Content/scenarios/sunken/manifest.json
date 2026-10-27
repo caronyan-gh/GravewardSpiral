@@ -1,0 +1,41 @@
+{
+  "id": "sunken",
+  "name": {
+    "en": "The Sunken Capital",
+    "ja": "沈んだ王都"
+  },
+  "version": "1.0",
+  "format": 1,
+  "guid": "03a7ba8c-c197-4055-ba2f-87fa6c8f5350",
+  "depends": [
+    "srd"
+  ],
+  "order": 1,
+  "kind": "scenario",
+  "author": "GRAVEWARD SPIRAL",
+  "description": {
+    "en": "Part 2. As the lake is drained, the roofs of an old capital rise from the water, and the drowned dead come up in the nets. A stone heart arrives from the gravekeepers' town, beating toward the lake bed.",
+    "ja": "第2部。干拓で湖の水が引き、湖の底から古い王都の屋根が現れた。網には溺れた死者がかかる。墓守の町から届いた石の心臓が、湖の底へ向かって脈打っている。"
+  },
+  "levels": [
+    5,
+    8
+  ],
+  "dungeon": "sunken",
+  "allow_import": true,
+  "requires_clear": [],
+  "standard_events": false,
+  "music": {
+    "town": "where_the_water_meets_the_reed",
+    "maze": "beneath_the_sunken_market",
+    "maze_b3": "liturgy_of_the_drowned",
+    "maze_b5": "the_fallen_queens_vigil",
+    "battle": "tide_of_the_drowned",
+    "boss": "grave_of_the_sentinel",
+    "story": "a_room_beneath_the_tide",
+    "lullaby": "sleep_in_the_tide",
+    "ending": "throne_beneath_the_tide",
+    "maze_b4": "liturgy_of_the_drowned",
+    "maze_b6": "the_fallen_queens_vigil"
+  }
+}

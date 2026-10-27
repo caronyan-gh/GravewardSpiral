@@ -1,0 +1,7 @@
+[
+  {"id": "sk_b1_stakes", "file": "maps/prefabs/sk_b1_stakes.txt", "min_depth": 0, "max_depth": 0.15, "once": true},
+  {"id": "sk_b2_market", "file": "maps/prefabs/sk_b2_market.txt", "min_depth": 0.15, "max_depth": 0.35, "once": true},
+  {"id": "sk_b3_choir", "file": "maps/prefabs/sk_b3_choir.txt", "min_depth": 0.35, "max_depth": 0.55, "once": true},
+  {"id": "sk_b4_engine", "file": "maps/prefabs/sk_b4_engine.txt", "min_depth": 0.55, "max_depth": 0.75, "once": true},
+  {"id": "sk_b5_guard", "file": "maps/prefabs/sk_b5_guard.txt", "min_depth": 0.75, "max_depth": 0.95, "once": true}
+]

@@ -1,0 +1,15 @@
+[
+  {
+    "id": "a_wedding_ring",
+    "kind": "key",
+    "name": {
+      "en": "Tobias's Wedding Ring",
+      "ja": "トビアスの結婚指輪"
+    },
+    "price": 0,
+    "description": {
+      "en": "A plain silver ring, worn thin. \"M. & T.\" is cut inside the band.",
+      "ja": "飾りのない、すり減った銀の指輪。内側に「M. と T.」と刻んである。"
+    }
+  }
+]

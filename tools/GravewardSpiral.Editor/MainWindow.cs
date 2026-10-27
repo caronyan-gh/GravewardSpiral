@@ -86,6 +86,7 @@ public sealed class MainWindow : Window
         commands.Children.Add(BarButton("\uE8B7", T("開く", "Open"), OpenFolder, T("シナリオのフォルダを開く", "Open a scenario folder")));
         commands.Children.Add(BarButton("\uE8C8", T("zip を開く", "Open zip"), OpenZip));
         commands.Children.Add(BarButton("\uEDE1", T("zip に書き出す", "Export zip"), ExportZip));
+        commands.Children.Add(BarButton("", T("置き場所", "Folder"), OpenScenariosFolder, T($"シナリオの置き場所({_context.ScenariosDir})をエクスプローラーで開く", $"Open the scenario folder ({_context.ScenariosDir}) in Explorer")));
         commands.Children.Add(BarButton("\uE792", T("名前を付けて保存", "Save As"), SaveAs, T("フォルダを丸ごと写して、新しい id の別のシナリオにする(第1部を元に改造するときなど)", "Copy the whole folder as a new scenario with a new id (e.g. to modify Part 1)")));
         commands.Children.Add(BarButton("\uE74E", T("保存", "Save"), () => Save(), primary: true));
         commands.Children.Add(BarButton("\uE768", T("試し遊び", "Test play"), TestPlay, T("保存してから、ゲームをこのシナリオのおまかせの6人で始める(セーブしない)", "Saves, then starts the game on this scenario with the default party of 6 (nothing is saved)"), primary: true));
@@ -267,6 +268,20 @@ public sealed class MainWindow : Window
     }
 
     /// <summary>上の帯のボタン(アイコンと名前)。primary は白地に青い字で目立たせる。</summary>
+    /// <summary>シナリオの置き場所を開く(無ければ作る)。</summary>
+    private void OpenScenariosFolder()
+    {
+        try
+        {
+            Directory.CreateDirectory(_context.ScenariosDir);
+            System.Diagnostics.Process.Start(new System.Diagnostics.ProcessStartInfo { FileName = _context.ScenariosDir, UseShellExecute = true });
+        }
+        catch (Exception ex) when (ex is IOException or UnauthorizedAccessException or System.ComponentModel.Win32Exception)
+        {
+            MessageBox.Show(this, ex.Message, T("シナリオエディタ", "Scenario Editor"), MessageBoxButton.OK, MessageBoxImage.Warning);
+        }
+    }
+
     private static Button BarButton(string icon, string label, Action onClick, string? tip = null, bool primary = false)
     {
         var content = new StackPanel { Orientation = Orientation.Horizontal };
@@ -387,7 +402,7 @@ public sealed class MainWindow : Window
         var dialog = new Microsoft.Win32.SaveFileDialog { Filter = T("シナリオの zip|*.zip", "Scenario zip|*.zip"), FileName = pack.Id + ".zip" };
         if (dialog.ShowDialog(this) != true) return;
         pack.ExportZip(dialog.FileName);
-        Say(T($"zip に書き出しました: {dialog.FileName}(ドキュメント\\GravewardSpiral\\Scenarios に置くと、ゲームで選べます)", $"Exported zip: {dialog.FileName} (put it in Documents\\GravewardSpiral\\Scenarios to pick it in the game)"));
+        Say(T($"zip に書き出しました: {dialog.FileName}(ゲームのタイトル画面に落とすと、ゲームで選べます)", $"Exported zip: {dialog.FileName} (drop it on the game's title screen to pick it in the game)"));
     }
 
     /// <summary>保存してから、ゲームをこのシナリオで始める(迷宮のタブで選んでいる階から)。</summary>

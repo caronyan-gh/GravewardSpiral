@@ -10,9 +10,11 @@ public static class AppPaths
     public static string UserData { get; } = Path.Combine(
         Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData), "GravewardSpiral");
 
-    /// <summary>ユーザーが置くシナリオ(パックのフォルダか zip)と、書き出したクラン(ドキュメント\GravewardSpiral の下)。</summary>
+    /// <summary>書き出したクラン(人に渡すファイルなので、ドキュメント\GravewardSpiral の下)。</summary>
     public static string Documents { get; } = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments), "GravewardSpiral");
-    public static string Scenarios { get; } = Path.Combine(Documents, "Scenarios");
+
+    /// <summary>ユーザーが置くシナリオ(パックのフォルダか zip。%LOCALAPPDATA%\GravewardSpiral\Scenarios。エディタも同じ所)。</summary>
+    public static string Scenarios => Core.Content.ScenarioFolders.Default;
     public static string Clans { get; } = Path.Combine(Documents, "Clans");
 
     /// <summary>ゲームに入れて配るシナリオ(Content/scenarios)。</summary>

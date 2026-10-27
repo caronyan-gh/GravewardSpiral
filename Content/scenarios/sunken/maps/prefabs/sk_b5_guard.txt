@@ -1,0 +1,19 @@
+# 第2部 B の B5: 親衛の門。王家の印章で開き、奥で水の向こうから女王の声が届く
+floor prefab_sk_b5_guard
+size 3 4
+wrap none
+start 1 3 N
+walls
++-+-+-+
+|#| |#|
++-+ +-+
+|#| |#|
++-+L+-+
+|     |
++ + + +
+|     |
++-+-+-+
+mark 1 2 event:sk_b5_gate
+mark 1 1 gate:sk_guard
+mark 1 0 event:sk_b5_queen
+entrance 1 3 S

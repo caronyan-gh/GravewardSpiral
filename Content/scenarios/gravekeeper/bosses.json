@@ -8,7 +8,8 @@
     "groups": [
       {
         "monster": "wraith",
-        "count": 1
+        "count": 1,
+        "name": null
       },
       {
         "monster": "wight",
@@ -20,10 +21,41 @@
       }
     ],
     "reward_flag": "has_spiral_heart",
-    "note": "第1部 A のラスボス。最初の墓守(レイス)と、従う墓守たち(ワイト)。シミュレータで L5 の6人が 8割強、L6 で 9割5分勝つ強さ(L4 ではほぼ勝てない)。名前と出会い・倒したときの文は worlds.json",
-    "hp_mult": 2.5,
+    "note": "第1部 A のラスボス。最初の墓守(レイス)と、従う墓守たち(ワイト)。シミュレータで L5 の6人が 9割弱、L6 で 9割7分勝つ強さ(L4 では勝てない)。名前と出会い・倒したときの文は worlds.json",
+    "hp_mult": 2.9,
     "damage_mult": 1.2,
     "ac_bonus": 1,
+    "hit_bonus": 1,
+    "auto": false
+  },
+  {
+    "id": "grave_robbers",
+    "name": {
+      "en": "Dagga the Grave Robber",
+      "ja": "墓荒らしのダッガ"
+    },
+    "groups": [
+      {
+        "monster": "bandit_captain",
+        "count": 1,
+        "name": {
+          "en": "Dagga",
+          "ja": "墓荒らしのダッガ"
+        }
+      },
+      {
+        "monster": "bandit",
+        "count": 3,
+        "name": {
+          "en": "Grave Robber",
+          "ja": "墓荒らし"
+        }
+      }
+    ],
+    "note": "第1部 A の B2(途中の階のボス)。a_b2_robbers で脅しが通らなかったときの戦闘。ダッガ(山賊の頭)と墓荒らし(山賊)3人。シミュレータで L2 の6人が 9割、L3 で全勝",
+    "hp_mult": 1.5,
+    "damage_mult": 1.2,
+    "ac_bonus": 0,
     "hit_bonus": 1
   }
 ]

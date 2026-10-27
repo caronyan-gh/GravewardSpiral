@@ -142,10 +142,12 @@ public static class Help
             ■ 曲
             標準の曲(タイトル・町・迷宮・戦闘・ボス戦・物語の場面・エンディング)を、ファイルを選んで差し替える。階ごとの曲(迷宮と、ふつうの戦闘)も置ける(無い階は上の曲)。
             ほかの名前の曲は、イベントの「曲」で選んでイベントのあいだ流す。mp3 をシナリオの audio/bgm に写す。聞いて確かめられる。
+            行ごとの「棚」では、ゲームに入っている標準の曲の棚(第1部・第2部の曲など)から選べる。ファイルは写さずに割り当て、割り当てはファイルより先に使う(空にすると外す)。下の「棚の曲をイベントの曲に足す」で、棚の曲をイベントの曲にもできる。
             """, """
             ■ Music
             Replace the standard tracks (title, town, maze, battle, boss, story scenes, ending) by choosing files. Per-floor tracks (maze and normal battles) are possible too (floors without one use the track above).
             Other tracks can be picked as an event's "Music" and play during that event. MP3s are copied into the scenario's audio/bgm. You can listen to check them.
+            The "Shelf" box on each row picks from the standard tracks shipped with the game (Part 1, Part 2 and so on). It assigns the track without copying, and an assignment wins over a file (clear it to remove). "Add a shelf track as an event track" below makes a shelf track usable as an event track.
             """),
             "text" => T("""
             ■ 文言
@@ -188,7 +190,7 @@ public static class Help
             ■ ボットの通し
             「ボットに通しで遊ばせる」は、選んだ編成のボットに最初から最後まで遊ばせて、何回クリアできるか、どこで詰まるかを見る(何分かかかる)。編成を替えると、術者だけや3人でも試せる。
             ■ 書き出し
-            zip に書き出すと、ほかの人に渡せる(ドキュメント\GravewardSpiral\Scenarios に置くと、ゲームで選べる)。
+            zip に書き出すと、ほかの人に渡せる(シナリオの置き場所に置くか、ゲームのタイトル画面に落とすと、ゲームで選べる)。
             """, """
             ■ Check
             Saves, then checks loading, maze consistency, reachability from town, whether a bot can walk to the boss, events, marks pointing at events, text keys, and music and art files.

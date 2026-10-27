@@ -1,0 +1,19 @@
+# 第2部 B の B3: 水底の大聖堂。溺れた聖歌隊が道をふさぐ。子守歌で静まり、奥で聖堂の番人
+floor prefab_sk_b3_choir
+size 3 4
+wrap none
+start 1 3 N
+walls
++-+-+-+
+|#| |#|
++-+ +-+
+|#| |#|
++-+L+-+
+|     |
++ + + +
+|     |
++-+-+-+
+mark 1 2 event:sk_b3_choir
+mark 1 1 gate:sk_choir
+mark 1 0 event:sk_b3_warden
+entrance 1 3 S

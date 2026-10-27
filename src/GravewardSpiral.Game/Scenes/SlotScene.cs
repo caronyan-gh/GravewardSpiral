@@ -25,8 +25,9 @@ public sealed class ContinueScene : MenuScene
     protected override IEnumerable<MenuItem> Items()
     {
         var s = Services.Strings;
-        foreach (var clan in _clans)
-            yield return new MenuItem(Services.ClanDisplayName(clan.Name, clan.Id), $"{clan.SavedAt:MM/dd HH:mm}", Tag: clan.Id);
+        // 最近遊んだ順。一番上(カーソルの合う所)が前回遊んだクラン
+        foreach (var (clan, i) in _clans.Select((c, i) => (c, i)))
+            yield return new MenuItem(Services.ClanDisplayName(clan.Name, clan.Id), i == 0 ? s["slot.last_played"] : $"{clan.SavedAt:MM/dd HH:mm}", Tag: clan.Id);
         yield return new MenuItem(s["common.back"]);
     }
 
@@ -70,7 +71,7 @@ public sealed class ContinueScene : MenuScene
 /// 続きから(2つ目): クランが遊ぶシナリオを選ぶ。シナリオのフォルダにあるものを全部出し、遊んだものは日時と場所、
 /// まだ行っていないものには「未踏」を付ける。直前に遊んだ世界にカーソルを合わせておく。
 /// 遊んだ世界を選ぶと続きから。まだ行っていないシナリオと「新しい自由な迷宮」は、新しく始めるの画面を、そのクランを選んだ状態で開く。
-/// 「セーブを消す」では、クランの名前を打たせてから世界を消す(うっかり消さないため)。
+/// 世界(シナリオごとのセーブ)は消さない。「クランを解散する」で、名簿(キャラと持ち物)・全部の世界・クリアの印をまとめて消す(クランの名前を打たせてから。うっかり消さないため)。
 /// </summary>
 public sealed class SlotScene : MenuScene
 {
@@ -78,9 +79,6 @@ public sealed class SlotScene : MenuScene
     private readonly Action? _onChanged;
     private SaveStore.ClanSummary? _clan;
     private List<ScenarioInfo> _scenarios = [];
-
-    /// <summary>消す世界を選んでいる。</summary>
-    private bool _deleting;
 
     public SlotScene(string clanId, Action? onChanged = null)
     {
@@ -92,7 +90,7 @@ public sealed class SlotScene : MenuScene
 
     private IReadOnlyList<SaveStore.WorldSummary> Worlds => _clan?.Worlds ?? [];
 
-    protected override string Title => _deleting ? Services.Strings["slot.title_delete"] : Services.Strings.Format("slot.title_worlds", ClanName);
+    protected override string Title => Services.Strings.Format("slot.title_worlds", ClanName);
 
     public override void Enter()
     {
@@ -112,18 +110,14 @@ public sealed class SlotScene : MenuScene
         var s = Services.Strings;
         foreach (var w in Worlds)
         {
-            string where = w.Location == "maze" ? s.Format("slot.in_maze_floor", w.DeepestFloor) : s["slot.in_town"];
-            yield return new MenuItem(Services.ScenarioDisplayName(w.Scenario), $"{w.SavedAt:MM/dd HH:mm}  {where}", Tag: w);
-        }
-        if (_deleting)
-        {
-            yield return new MenuItem(s["slot.delete_stop"]);
-            yield break;
+            string where = w.Location == "maze" ? s.Format("slot.in_maze_floor", Math.Max(1, w.CurrentFloor)) : s["slot.in_town"];
+            // 日時は右の欄に出す。一番上(カーソルの合う所)が前回遊んだ世界
+            yield return new MenuItem(Services.ScenarioDisplayName(w.Scenario), w == Worlds[0] ? s.Format("slot.last_played_at", where) : where, Tag: w);
         }
         foreach (var sc in _scenarios.Where(sc => Worlds.All(w => w.Scenario != sc.Id)))
             yield return new MenuItem(Services.ScenarioDisplayName(sc.Id), s["slot.unvisited"], Tag: new Unvisited(sc.Id));
         yield return new MenuItem(s["slot.new_free"], Tag: "free");
-        yield return new MenuItem(s["slot.delete"], Enabled: Worlds.Count > 0, Tag: "delete");
+        yield return new MenuItem(s["slot.delete_clan"], Tag: "delete_clan");
         yield return new MenuItem(s["common.back"]);
     }
 
@@ -131,10 +125,8 @@ public sealed class SlotScene : MenuScene
     {
         switch (item.Tag)
         {
-            case "delete":
-                _deleting = true;
-                Message = null;
-                List.SetItems(Items(), 0);
+            case "delete_clan":
+                AskDeleteClan();
                 return;
             case "free":
                 Stack.Replace(new NewGameScene(free: true, clanId: _clanId));
@@ -142,9 +134,6 @@ public sealed class SlotScene : MenuScene
             case Unvisited u:
                 // まだ行っていないシナリオ: 新しく始めるで、このクランとシナリオを選んだのと同じ
                 Stack.Replace(new NewGameScene(scenarioId: u.ScenarioId, clanId: _clanId));
-                return;
-            case SaveStore.WorldSummary w when _deleting:
-                AskDelete(w);
                 return;
             case SaveStore.WorldSummary w:
                 Continue(w);
@@ -192,38 +181,24 @@ public sealed class SlotScene : MenuScene
     }
 
     /// <summary>
-    /// 世界を消す。うっかり消さないよう、クランの名前を打たせ、合ったときだけ消す。
-    /// クランの世界が無くなったら、クラン(名簿)も消すかを聞く(消さなければ、名簿だけのクランとして残る)。
+    /// クランを解散する(名簿のキャラと持ち物・全部の世界・クリアの印を消す)。うっかり消さないよう、クランの名前を打たせ、合ったときだけ消す。
     /// </summary>
-    private void AskDelete(SaveStore.WorldSummary w)
+    private void AskDeleteClan()
     {
         var s = Services.Strings;
-        string world = Services.ScenarioDisplayName(w.Scenario);
         string expected = ClanName;
         void Delete()
         {
-            Services.Saves.DeleteWorld(_clanId, w.Key);
-            Load();
-            _deleting = false;
-            Message = s.Format("slot.deleted", world);
-            if (Worlds.Count == 0)
-            {
-                Stack.Push(new ConfirmScene(s.Format("slot.confirm_delete_clan", expected), () =>
-                {
-                    Services.Saves.DeleteClan(_clanId);
-                    _onChanged?.Invoke();
-                    Stack.Pop();
-                }));
-            }
+            Services.Saves.DeleteClan(_clanId);
+            Stack.Pop();
             _onChanged?.Invoke();
-            List.SetItems(Items(), 0);
         }
-        if (expected.Length == 0)
+        if (expected.Trim().Length == 0)
         {
-            Stack.Push(new ConfirmScene(s.Format("slot.confirm_delete", world), Delete));
+            Stack.Push(new ConfirmScene(s.Format("slot.confirm_delete_clan", expected, Worlds.Count), Delete));
             return;
         }
-        Stack.Push(new TextEntryScene(s.Format("slot.type_clan", world, expected), "", Math.Max(expected.Length, NewGameScene.ClanNameLength), typed =>
+        Stack.Push(new TextEntryScene(s.Format("slot.type_clan", expected, Worlds.Count), "", Math.Max(expected.Length, NewGameScene.ClanNameLength), typed =>
         {
             if (typed.Trim() == expected.Trim()) Delete();
             else
@@ -234,16 +209,7 @@ public sealed class SlotScene : MenuScene
         }));
     }
 
-    protected override void Cancel()
-    {
-        if (_deleting)
-        {
-            _deleting = false;
-            List.SetItems(Items(), 0);
-            return;
-        }
-        Stack.Pop();
-    }
+    protected override void Cancel() => Stack.Pop();
 
     protected override void DrawInfo(Draw2D d, RectangleF area)
     {
@@ -266,8 +232,12 @@ public sealed class SlotScene : MenuScene
             case "free":
                 Line(d, area, y, s["slot.about_new_free"], Theme.Text, 19);
                 break;
+            case "delete_clan":
+                foreach (var line in s.Format("slot.about_delete_clan", Worlds.Count).Split('\n'))   // 消えるものを箇条書きで
+                    y = Line(d, area, y, line, Theme.Text, 19);
+                break;
             default:
-                Line(d, area, y, s[_deleting ? "slot.about_delete" : "slot.about_load"], Theme.Text, 19);
+                Line(d, area, y, s["slot.about_load"], Theme.Text, 19);
                 break;
         }
     }

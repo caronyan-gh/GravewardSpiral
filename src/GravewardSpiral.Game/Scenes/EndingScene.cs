@@ -40,7 +40,7 @@ public sealed class EndingScene : Scene
         var session = Services.Session;
         if (session != null)
         {
-            if (session.Flags.Add("cleared")) session.Clears++;   // クリアした世界の数(周回)
+            session.RecordClear(Services.Content.Scenario);   // クリアした世界の数(周回)と、シナリオのクリアの印
             Services.SaveSession();
         }
         Services.Session = null;

@@ -1,0 +1,18 @@
+# 第2部 B の B2: 沈んだ市場。溺れた商人の霊と子守歌の後半、奥に水門守の息子の舟
+floor prefab_sk_b2_market
+size 3 4
+wrap none
+start 1 3 N
+walls
++-+-+-+
+|#| |#|
++-+ +-+
+|#| |#|
++-+D+-+
+|     |
++ + + +
+|     |
++-+-+-+
+mark 1 2 event:sk_b2_merchant
+mark 1 0 event:sk_b2_boat
+entrance 1 3 S

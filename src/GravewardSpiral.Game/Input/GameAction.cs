@@ -19,4 +19,6 @@ public enum GameAction
     /// <summary>迷宮で、向きを変えずに左右へ1歩(横歩き)。</summary>
     StrafeLeft,
     StrafeRight,
+    /// <summary>押しながら後ろのキーを押すと、設定と逆の動きにする(下がる ⇔ 振り向く)。</summary>
+    Reverse,
 }

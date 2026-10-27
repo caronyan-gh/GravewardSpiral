@@ -76870,7 +76870,10 @@
   },
   {
     "id": "ev6_dead_court",
-    "rumor": {"en": "They say that at the bottom of some dungeon there is a throne hall with no roof, where a dead court still waits for its king. Whoever wants the crown must judge their petitions.", "ja": "どこかの迷宮の底に、屋根の無い玉座の間があるそうだ。死んだ宮廷が、今も王の帰りを待っている。冠を望む者には、訴えを裁かせるとか。"},
+    "rumor": {
+      "en": "They say that at the bottom of some dungeon there is a throne hall with no roof, where a dead court still waits for its king. Whoever wants the crown must judge their petitions.",
+      "ja": "どこかの迷宮の底に、屋根の無い玉座の間があるそうだ。死んだ宮廷が、今も王の帰りを待っている。冠を望む者には、訴えを裁かせるとか。"
+    },
     "place": "maze",
     "once": "place",
     "note": "亡き王の宮廷。三つの訴えを裁く。誤りが少なければ冠を授かる、多ければ宮廷が拒む。最後の王の冠",
@@ -77884,7 +77887,10 @@
   },
   {
     "id": "ev6_fallen_star",
-    "rumor": {"en": "They say a star once fell down a shaft into the deep. A lump of silver lies at the bottom, humming one note, and every bit of metal you carry hums back.", "ja": "星が縦穴を落ちて、迷宮の底に届いたことがあるそうだ。銀の塊が一つの音で唸っていて、近づくと、身につけた金物がみな唸り返すという。"},
+    "rumor": {
+      "en": "They say a star once fell down a shaft into the deep. A lump of silver lies at the bottom, humming one note, and every bit of metal you carry hums back.",
+      "ja": "星が縦穴を落ちて、迷宮の底に届いたことがあるそうだ。銀の塊が一つの音で唸っていて、近づくと、身につけた金物がみな唸り返すという。"
+    },
     "place": "maze",
     "once": "place",
     "note": "最下層の穴に落ちた星の欠片。触れて声を聞くか、削り取るか。星鉄の鎧",
@@ -79410,6 +79416,128 @@
                 "type": "again"
               }
             ]
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "id": "lodestone_needle",
+    "place": "maze",
+    "once": "place",
+    "trigger": "both",
+    "note": "北を指す鉄の針。北を向くと、針の先の床石の下に隠し物",
+    "scatter": {
+      "weight": 1,
+      "where": "any",
+      "rarity": "uncommon"
+    },
+    "memo": false,
+    "steps": [
+      {
+        "type": "if",
+        "when": [
+          {
+            "type": "facing",
+            "id": "north"
+          }
+        ],
+        "then": [
+          {
+            "type": "sound",
+            "id": "secret_found"
+          },
+          {
+            "type": "text",
+            "text": {
+              "en": "Where the needle points, one flagstone sits a little high. Under it, someone hid a small bundle.",
+              "ja": "針の指す先の床石が、わずかに浮いている。めくると、誰かが包みを隠していた。"
+            }
+          },
+          {
+            "type": "treasure",
+            "count": 1
+          }
+        ],
+        "else": [
+          {
+            "type": "if",
+            "when": [
+              {
+                "type": "turned",
+                "not": true
+              }
+            ],
+            "then": [
+              {
+                "type": "text",
+                "text": {
+                  "en": "An iron needle is driven into the floor. It trembles, pointing one way. Perhaps you should look where it points.",
+                  "ja": "床に鉄の針が打ち込まれ、一方を指して小さく震えている。針の指す方を向けば、何か見えるかもしれない。"
+                }
+              }
+            ]
+          },
+          {
+            "type": "again"
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "id": "dont_look_back",
+    "place": "maze",
+    "once": "place",
+    "trigger": "both",
+    "note": "「振り向くな」の通路。そこで向きを変えると霊が出る",
+    "scatter": {
+      "weight": 0.7,
+      "where": "corridor",
+      "min_depth": 0.2,
+      "min_level": 3
+    },
+    "memo": false,
+    "steps": [
+      {
+        "type": "if",
+        "when": [
+          {
+            "type": "turned"
+          }
+        ],
+        "then": [
+          {
+            "type": "sound",
+            "id": "secret_found"
+          },
+          {
+            "type": "text",
+            "text": {
+              "en": "You turned. A pale face was right behind you.",
+              "ja": "振り向いた。すぐ後ろに、青白い顔があった。"
+            }
+          },
+          {
+            "type": "combat",
+            "groups": [
+              {
+                "monster": "specter",
+                "count": 1
+              }
+            ]
+          }
+        ],
+        "else": [
+          {
+            "type": "text",
+            "text": {
+              "en": "Words are scratched into the wall with a fingernail: \"Don't look back.\" Something breathes at your neck.",
+              "ja": "壁に、爪で刻んだ文字がある。「振り向くな」。首筋に、誰かの息がかかった。"
+            }
+          },
+          {
+            "type": "again"
           }
         ]
       }

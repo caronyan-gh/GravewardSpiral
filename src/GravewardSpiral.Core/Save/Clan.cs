@@ -28,6 +28,9 @@ public sealed class ClanFile
     /// <summary>このクランがクリアした世界の数(周回の数)。</summary>
     public int Clears { get; set; }
 
+    /// <summary>クリアの印(ScenarioClears)。null は印を持つ前のファイル(読むときに、書き出したときのシナリオとクリアから拾う)。</summary>
+    public Dictionary<string, int>? ClearedScenarios { get; set; }
+
     /// <summary>このクランが見たイベント(新しい世界では出にくくする)。</summary>
     public List<string> EventsSeen { get; set; } = [];
 
@@ -53,6 +56,7 @@ public sealed class ClanFile
             Scenario = scenario,
             Cleared = session.Flags.Contains("cleared"),
             Clears = session.Clears,
+            ClearedScenarios = new(session.ClearedScenarios, StringComparer.Ordinal),
             EventsSeen = session.EventsSeen.Order(StringComparer.Ordinal).ToList(),
             LegendsHeard = new(session.LegendsHeard, StringComparer.Ordinal),
             Characters = chars,
@@ -80,6 +84,9 @@ public sealed class ClanFile
         foreach (var c in clan.Characters) c.NormalizeClasses();
         SaveStore.MovePactSlots(node["characters"], clan.Characters);
         if (clan.Cleared && clan.Clears == 0) clan.Clears = 1;   // 数を持つ前のファイル
+        clan.ClearedScenarios ??= clan.Cleared && clan.Scenario is { } sc
+            ? new(StringComparer.Ordinal) { [ScenarioClears.IdPrefix + sc] = 1 }
+            : new(StringComparer.Ordinal);
         return clan;
     }
 
@@ -103,6 +110,7 @@ public sealed class ClanFile
                     SavedAt = summary.SavedAt,
                     Scenario = summary.Latest?.Scenario,
                     Clears = data.Clears,
+                    ClearedScenarios = data.ClearedScenarios,
                     EventsSeen = data.EventsSeen,
                     LegendsHeard = data.LegendsHeard,
                     Characters = data.Characters,
@@ -146,6 +154,7 @@ public sealed class ClanFile
         session.ClanName ??= Name;
         if (Id != null) session.ClanId = Id;
         session.Clears = Clears;
+        session.ClearedScenarios = new(ClearedScenarios ?? [], StringComparer.Ordinal);
         session.EventsSeen = EventsSeen.ToHashSet(StringComparer.Ordinal);
         session.LegendsHeard = new(LegendsHeard, StringComparer.Ordinal);
     }

@@ -12,7 +12,7 @@
 //   --ai-draft 種類[@元]:希望  開いたら、AI に下書きを頼む窓(event / item / monster)で書かせて、その窓を撮る(--fake-ai と使う)。
 //                     --screenshot が無ければ、希望を入れて窓を開くだけ(書かせない)
 //   --ai-paste ファイル  --ai-draft で、書かせる代わりに、ファイルの中身をチャットの答えとして貼る
-//   --scenarios DIR   新しく作るシナリオの置き場所(省くと ドキュメント\GravewardSpiral\Scenarios)
+//   --scenarios DIR   新しく作るシナリオの置き場所(省くと %LOCALAPPDATA%\GravewardSpiral\Scenarios。ゲームと同じ)
 //   --select x,y[,x2,y2]  迷宮のタブで、そのマス(か四角)を選んでおく(確かめ用)
 //   --reopen N        開いたあと、全部のタブを N 回作り直す(名前を付けて保存などと同じ。確かめ用)
 //   --picker 言葉     画面の保存で、標準のイベントから写す窓をこの言葉で探して撮る

@@ -1,0 +1,148 @@
+[
+  {
+    "id": "throne_of_forgotten_kings",
+    "title": "Throne of Forgotten Kings",
+    "file": "audio/bgm/title.mp3",
+    "note": {
+      "ja": "タイトル",
+      "en": "Title"
+    }
+  },
+  {
+    "id": "candlelight_and_cold_stone",
+    "title": "Candlelight and Cold Stone",
+    "file": "audio/bgm/town.mp3",
+    "note": {
+      "ja": "第1部の町。ろうそくと冷たい石",
+      "en": "The town of Part 1. Candlelight and cold stone"
+    }
+  },
+  {
+    "id": "tectonic_patience",
+    "title": "Tectonic Patience",
+    "file": "audio/bgm/maze.mp3",
+    "note": {
+      "ja": "低音だけで盛り上がらない迷宮",
+      "en": "A dungeon of low tones that never swells"
+    }
+  },
+  {
+    "id": "the_sunless_gauntlet",
+    "title": "The Sunless Gauntlet",
+    "file": "audio/bgm/battle.mp3",
+    "note": {
+      "ja": "標準の戦闘",
+      "en": "The standard battle"
+    }
+  },
+  {
+    "id": "vigil_of_the_fallen_king",
+    "title": "Vigil of the Fallen King",
+    "file": "audio/bgm/boss.mp3",
+    "note": {
+      "ja": "標準のボス戦",
+      "en": "The standard boss battle"
+    }
+  },
+  {
+    "id": "beneath_the_fallen_throne",
+    "title": "Beneath the Fallen Throne",
+    "file": "audio/bgm/story.mp3",
+    "note": {
+      "ja": "第1部の物語の場面",
+      "en": "Story scenes of Part 1"
+    }
+  },
+  {
+    "id": "the_keepers_silent_rite",
+    "title": "The Keeper's Silent Rite",
+    "file": "audio/bgm/ending.mp3",
+    "note": {
+      "ja": "第1部のエンディング",
+      "en": "The ending of Part 1"
+    }
+  },
+  {
+    "id": "where_the_water_meets_the_reed",
+    "title": "Where the Water Meets the Reed",
+    "file": "audio/bgm/library/where_the_water_meets_the_reed.mp3",
+    "note": {
+      "ja": "第2部 湖のほとりの、さびしい町。笛とハープ",
+      "en": "Part 2. A lonely lakeside town. Flute and harp"
+    }
+  },
+  {
+    "id": "beneath_the_sunken_market",
+    "title": "Beneath the Sunken Market",
+    "file": "audio/bgm/library/beneath_the_sunken_market.mp3",
+    "note": {
+      "ja": "第2部 水の引いた街を歩く、静かで不安な迷宮",
+      "en": "Part 2. A quiet, uneasy dungeon in a drained city"
+    }
+  },
+  {
+    "id": "liturgy_of_the_drowned",
+    "title": "Liturgy of the Drowned",
+    "file": "audio/bgm/library/liturgy_of_the_drowned.mp3",
+    "note": {
+      "ja": "第2部 水底の大聖堂。こもった聖歌と遠い鐘",
+      "en": "Part 2. A drowned cathedral. Muffled choir and distant bells"
+    }
+  },
+  {
+    "id": "the_fallen_queens_vigil",
+    "title": "The Fallen Queen's Vigil",
+    "file": "audio/bgm/library/the_fallen_queens_vigil.mp3",
+    "note": {
+      "ja": "第2部 沈んだ王宮。気高く悲しい、張りつめた曲",
+      "en": "Part 2. A sunken palace. Regal, mournful and tense"
+    }
+  },
+  {
+    "id": "tide_of_the_drowned",
+    "title": "Tide of the Drowned",
+    "file": "audio/bgm/library/tide_of_the_drowned.mp3",
+    "note": {
+      "ja": "第2部 冷たく重い、うねるような戦闘",
+      "en": "Part 2. A cold, heavy battle that surges like waves"
+    }
+  },
+  {
+    "id": "grave_of_the_sentinel",
+    "title": "Grave of the Sentinel",
+    "file": "audio/bgm/library/grave_of_the_sentinel.mp3",
+    "note": {
+      "ja": "第2部 恨みと悲しみのある、騎士の重いボス戦",
+      "en": "Part 2. A heavy boss battle of a knight, grief turned to rage"
+    }
+  },
+  {
+    "id": "a_room_beneath_the_tide",
+    "title": "A Room Beneath the Tide",
+    "file": "audio/bgm/library/a_room_beneath_the_tide.mp3",
+    "note": {
+      "ja": "第2部 静かで少しだけ温かい、物語の場面",
+      "en": "Part 2. A quiet story scene with a little warmth"
+    }
+  },
+  {
+    "id": "sleep_in_the_tide",
+    "title": "Sleep in the Tide",
+    "file": "audio/bgm/library/sleep_in_the_tide.mp3",
+    "note": {
+      "ja": "第2部 子守歌(歌声入り。ループしない)",
+      "en": "Part 2. A lullaby (with vocals; does not loop)"
+    },
+    "lyrics": "Deep in the dark\nWhere spirits lie\nThe water sings\nA soft goodbye\nNo more to weep\nNo more to dread\nRest now your heart\nMy gentle dead\nSleep in the tide\nThe city is still\nBow to the waves\nAnd accept their will\nSleep in the tide\nThe light fades away\nFinding your peace\nAt the end of the day\nSink to the depths\nThe struggle is o'er\nSafe in the dark\nAnd forever more"
+  },
+  {
+    "id": "throne_beneath_the_tide",
+    "title": "Throne Beneath the Tide",
+    "file": "audio/bgm/library/throne_beneath_the_tide.mp3",
+    "note": {
+      "ja": "第2部 湖がまた満ちていくエンディング(歌声入り)",
+      "en": "Part 2. An ending as the lake fills again (with vocals)"
+    },
+    "lyrics": "The water rises tall and cold\nTo take back what was ours of old\nA silent queen on silver throne\nI face the endless deep alone\nLet floodgates close and shadows fall\nUpon this great and empty hall\nMy people sleep in liquid stone\nAnd here I sit, forever home\nThe crown is heavy, wet with tears\nTo wash away a thousand years\nThe silence is a blessed friend\nAs we arrive at this, the end\nOh, let the waters draw us down!\nTo wear this cold and aquatic crown!\nMy capital sinks to the deep, blue sea!\nAn eternal grave for royalty!\nI'll stay and watch until the light!\nIs swallowed by the endless night!\nFarewell, my world, my story told!\nAs everything turns still and cold!\n(Water draws us down)\nTo where no one can find me\n(Silence is my crown)\nLeaving everything behind me\n(Wait for a new dawn)\nIn a story yet to start\nNow I am truly gone\nA ghost within the heart"
+  }
+]

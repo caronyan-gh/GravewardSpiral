@@ -31,6 +31,13 @@ public sealed class VisitScene : MenuScene
     {
         var def = (EventDef)item.Tag!;
         // 町のイベントでは戦わない(戦闘の手順は、勝ったことにせず飛ばす)
-        Stack.Push(new EventScene(new EventRunner(def, Context()), new EventScene.Callbacks((_, after) => after(false), () => { }, Refresh)));
+        Stack.Push(new EventScene(new EventRunner(def, Context()), new EventScene.Callbacks((_, after) => after(false), () => { }, Done)));
+    }
+
+    /// <summary>イベントが終わった。ending に着いていれば、エンディング。</summary>
+    private void Done()
+    {
+        if (Services.Session!.EndingDue(Services.Data)) Stack.Replace(new EndingScene());
+        else Refresh();
     }
 }

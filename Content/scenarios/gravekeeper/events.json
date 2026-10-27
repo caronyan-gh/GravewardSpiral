@@ -3,14 +3,17 @@
     "id": "a_b1_footprints",
     "place": "maze",
     "once": "game",
-    "note": "A B1: 最後の墓守の足跡。リーネの頼みを思い出す",
     "steps": [
       {
         "type": "text",
         "text": {
           "en": "A single line of footprints runs through the damp earth, heading steadily downward.",
           "ja": "湿った土に、足跡が一筋だけ続いている。重い靴の跡が、迷わず下へ向かっている。"
-        }
+        },
+        "per_place": false,
+        "dc": 10,
+        "value": 0,
+        "count": 1
       },
       {
         "type": "text",
@@ -21,41 +24,62 @@
         "speaker": {
           "en": "Riine",
           "ja": "リーネ"
-        }
+        },
+        "per_place": false,
+        "dc": 10,
+        "value": 0,
+        "count": 1
       },
       {
         "type": "text",
         "text": {
           "en": "You remember Riine's words back in town.",
           "ja": "町で聞いたリーネの声を、思い出した。"
-        }
+        },
+        "per_place": false,
+        "dc": 10,
+        "value": 0,
+        "count": 1
       },
       {
         "type": "flag",
-        "id": "a_b1_footprints"
+        "per_place": false,
+        "dc": 10,
+        "id": "a_b1_footprints",
+        "value": 0,
+        "count": 1
       }
     ],
-    "bgm": "audio/bgm/story.mp3"
+    "bgm": "audio/bgm/story.mp3",
+    "note": "A B1: 最後の墓守の足跡。リーネの頼みを思い出す",
+    "memo": true
   },
   {
     "id": "a_b2_remains",
     "place": "maze",
     "once": "game",
-    "note": "A B2: 最後の墓守の亡骸と手記。角灯が手に入る",
     "steps": [
       {
         "type": "text",
         "text": {
           "en": "A body in a warden's coat leans against the wall, clutching a lantern that still burns with a pale blue flame.",
           "ja": "墓守の外套をまとった亡骸が、壁にもたれている。胸に、青白い火の灯った角灯を抱えている。"
-        }
+        },
+        "per_place": false,
+        "dc": 10,
+        "value": 0,
+        "count": 1
       },
       {
         "type": "text",
         "text": {
           "en": "A journal lies beside him.",
           "ja": "そばに、手記が落ちていた。"
-        }
+        },
+        "per_place": false,
+        "dc": 10,
+        "value": 0,
+        "count": 1
       },
       {
         "type": "text",
@@ -66,76 +90,264 @@
         "speaker": {
           "en": "The Last Warden",
           "ja": "最後の墓守"
-        }
+        },
+        "per_place": false,
+        "dc": 10,
+        "value": 0,
+        "count": 1
       },
       {
         "type": "give_item",
-        "id": "masters_lantern"
+        "per_place": false,
+        "dc": 10,
+        "id": "masters_lantern",
+        "value": 0,
+        "count": 1
       },
       {
         "type": "text",
         "text": {
           "en": "...The hand still feels warm. He did not end here. Only his spirit went on, further down.",
           "ja": "……亡骸の手は、まだ温かい気がした。この人は、ここで力尽きたのではない。魂だけが、さらに下へ向かったのだ。"
-        }
+        },
+        "per_place": false,
+        "dc": 10,
+        "value": 0,
+        "count": 1
       },
       {
         "type": "flag",
-        "id": "a_found_remains"
+        "per_place": false,
+        "dc": 10,
+        "id": "a_found_remains",
+        "value": 0,
+        "count": 1
       }
     ],
-    "bgm": "audio/bgm/story.mp3"
+    "bgm": "audio/bgm/story.mp3",
+    "note": "A B2: 最後の墓守の亡骸と手記。角灯が手に入る",
+    "memo": true
   },
   {
     "id": "a_b3_bell",
     "place": "maze",
     "once": "place",
-    "note": "A B3: 弔いの鐘。鳴らすと奥の扉 (gate:a_bell) が開き、亡者が静まる",
     "steps": [
       {
         "type": "text",
         "text": {
           "en": "A rusted funeral bell hangs from the ceiling. Its rope is braided from bone.",
           "ja": "天井から、錆びた弔いの鐘が下がっている。綱は骨で編まれている。"
-        }
+        },
+        "per_place": false,
+        "dc": 10,
+        "value": 0,
+        "count": 1
       },
       {
         "type": "choice",
         "text": {
-          "en": "Ring it?",
-          "ja": "鳴らす？"
+          "en": "How many times do you ring it?",
+          "ja": "何度、鳴らす？"
         },
         "options": [
           {
             "label": {
-              "en": "Ring the bell",
-              "ja": "鳴らす"
+              "en": "Three times, as the gravedigger said",
+              "ja": "墓掘りに教わったとおり、三度"
             },
+            "when": [
+              {
+                "type": "flag",
+                "id": "a_bell_lore",
+                "value": 1,
+                "count": 1,
+                "op": ">=",
+                "not": false
+              }
+            ],
             "steps": [
               {
                 "type": "sound",
-                "id": "secret_found"
+                "per_place": false,
+                "dc": 10,
+                "id": "secret_found",
+                "value": 0,
+                "count": 1
               },
               {
                 "type": "text",
                 "text": {
-                  "en": "A low toll spreads through the ossuary. The rustling of the bone walls falls silent for a moment.",
-                  "ja": "ごおん……と、低い音が納骨堂に広がった。骨の壁のざわめきが、ひととき止んだ。"
-                }
+                  "en": "Three low tolls spread through the ossuary: two for the living, one for the dead. The murmuring of the bone walls falls still.",
+                  "ja": "ごおん、ごおん、ごおん……と、三つの低い音が納骨堂に広がった。二つは生者に、一つは死者に。骨の壁のざわめきが、ひととき止んだ。"
+                },
+                "per_place": false,
+                "dc": 10,
+                "value": 0,
+                "count": 1
               },
               {
                 "type": "heal",
-                "dice": "2d8"
+                "per_place": false,
+                "dc": 10,
+                "value": 0,
+                "count": 1
               },
               {
                 "type": "open",
-                "id": "a_bell"
+                "per_place": false,
+                "dc": 10,
+                "id": "a_bell",
+                "value": 0,
+                "count": 1
               },
               {
                 "type": "flag",
-                "id": "a_bell_rung"
+                "per_place": false,
+                "dc": 10,
+                "id": "a_bell_rung",
+                "value": 0,
+                "count": 1
               }
-            ]
+            ],
+            "weight": 1
+          },
+          {
+            "label": {
+              "en": "Once",
+              "ja": "一度"
+            },
+            "steps": [
+              {
+                "type": "sound",
+                "per_place": false,
+                "dc": 10,
+                "id": "trap",
+                "value": 0,
+                "count": 1
+              },
+              {
+                "type": "text",
+                "text": {
+                  "en": "One toll. It is the toll that calls the dead — and the bone walls answer. Skeletons climb down from the shelves.",
+                  "ja": "ごおん……一つだけの音は、死者を呼ぶ音だった。骨の壁が応え、棚から骸骨が這い下りてくる。"
+                },
+                "per_place": false,
+                "dc": 10,
+                "value": 0,
+                "count": 1
+              },
+              {
+                "type": "combat",
+                "per_place": false,
+                "dc": 10,
+                "value": 0,
+                "count": 1,
+                "groups": [
+                  {
+                    "monster": "skeleton",
+                    "count": 4
+                  }
+                ],
+                "win": [
+                  {
+                    "type": "again",
+                    "per_place": false,
+                    "dc": 10,
+                    "value": 0,
+                    "count": 1
+                  }
+                ],
+                "lose": [
+                  {
+                    "type": "again",
+                    "per_place": false,
+                    "dc": 10,
+                    "value": 0,
+                    "count": 1
+                  }
+                ]
+              }
+            ],
+            "weight": 1
+          },
+          {
+            "label": {
+              "en": "Twice",
+              "ja": "二度"
+            },
+            "steps": [
+              {
+                "type": "text",
+                "text": {
+                  "en": "Two tolls, for the living. The ossuary does not care. Nothing happens.",
+                  "ja": "二つの音は、生者のための音だ。納骨堂は気にも留めない。何も起こらない。"
+                },
+                "per_place": false,
+                "dc": 10,
+                "value": 0,
+                "count": 1
+              },
+              {
+                "type": "again",
+                "per_place": false,
+                "dc": 10,
+                "value": 0,
+                "count": 1
+              }
+            ],
+            "weight": 1
+          },
+          {
+            "label": {
+              "en": "Three times",
+              "ja": "三度"
+            },
+            "steps": [
+              {
+                "type": "sound",
+                "per_place": false,
+                "dc": 10,
+                "id": "secret_found",
+                "value": 0,
+                "count": 1
+              },
+              {
+                "type": "text",
+                "text": {
+                  "en": "Three low tolls spread through the ossuary: two for the living, one for the dead. The murmuring of the bone walls falls still.",
+                  "ja": "ごおん、ごおん、ごおん……と、三つの低い音が納骨堂に広がった。二つは生者に、一つは死者に。骨の壁のざわめきが、ひととき止んだ。"
+                },
+                "per_place": false,
+                "dc": 10,
+                "value": 0,
+                "count": 1
+              },
+              {
+                "type": "heal",
+                "per_place": false,
+                "dc": 10,
+                "value": 0,
+                "count": 1
+              },
+              {
+                "type": "open",
+                "per_place": false,
+                "dc": 10,
+                "id": "a_bell",
+                "value": 0,
+                "count": 1
+              },
+              {
+                "type": "flag",
+                "per_place": false,
+                "dc": 10,
+                "id": "a_bell_rung",
+                "value": 0,
+                "count": 1
+              }
+            ],
+            "weight": 1
           },
           {
             "label": {
@@ -144,67 +356,105 @@
             },
             "steps": [
               {
-                "type": "again"
+                "type": "again",
+                "per_place": false,
+                "dc": 10,
+                "value": 0,
+                "count": 1
               }
-            ]
+            ],
+            "weight": 1
           }
-        ]
+        ],
+        "per_place": false,
+        "dc": 10,
+        "value": 0,
+        "count": 1
       }
-    ]
+    ],
+    "note": "A B3: 弔いの鐘。三度鳴らすと奥の扉 (gate:a_bell) が開き、亡者が静まる(二つは生者に、一つは死者に。墓掘りの老人と B3 の書き付けが教える)。一度だと骸骨が起きる",
+    "memo": true
   },
   {
     "id": "a_b3_offerings",
     "place": "maze",
     "once": "game",
-    "note": "A B3: 鐘の奥の供物",
     "steps": [
       {
         "type": "text",
         "text": {
           "en": "In the little room behind the bell, offerings left by mourners remain.",
           "ja": "鐘の奥の小部屋に、弔いに来た人々の供物が残っていた。"
-        }
+        },
+        "per_place": false,
+        "dc": 10,
+        "value": 0,
+        "count": 1
       },
       {
         "type": "sound",
-        "id": "chest_open"
+        "per_place": false,
+        "dc": 10,
+        "id": "chest_open",
+        "value": 0,
+        "count": 1
       },
       {
         "type": "treasure",
+        "per_place": false,
+        "dc": 10,
+        "value": 0,
         "count": 2
       },
       {
         "type": "gold",
-        "value": 150
+        "per_place": false,
+        "dc": 10,
+        "value": 150,
+        "count": 1
       }
-    ]
+    ],
+    "note": "A B3: 鐘の奥の供物",
+    "memo": true
   },
   {
     "id": "a_b4_stele",
     "place": "maze",
     "once": "place",
-    "note": "A B4: 歴代墓守の石碑。最初の墓守の名を答えると開く (gate:a_stele)",
     "steps": [
       {
         "type": "text",
         "text": {
           "en": "The names of every warden are carved into the stele. Only the topmost name is gone, as if scraped away by fingernails from the inside.",
           "ja": "石碑に、歴代の墓守の名が刻まれている。一番上の名だけが、内側から爪で掻いたように削れている。"
-        }
+        },
+        "per_place": false,
+        "dc": 10,
+        "value": 0,
+        "count": 1
       },
       {
         "type": "text",
         "text": {
           "en": "Below, in small letters: \"Speak the name of the First Warden. Only those who bear it may pass.\"",
           "ja": "下に小さく、こう刻んである。「最初の墓守の名を呼べ。その名を持つ者だけが、先へ進める」"
-        }
+        },
+        "per_place": false,
+        "dc": 10,
+        "value": 0,
+        "count": 1
       },
       {
         "type": "if",
+        "per_place": false,
         "when": [
           {
             "type": "flag",
-            "id": "a_priest_name"
+            "id": "a_priest_name",
+            "value": 1,
+            "count": 1,
+            "op": ">=",
+            "not": false
           }
         ],
         "then": [
@@ -223,20 +473,33 @@
                 "steps": [
                   {
                     "type": "sound",
-                    "id": "secret_found"
+                    "per_place": false,
+                    "dc": 10,
+                    "id": "secret_found",
+                    "value": 0,
+                    "count": 1
                   },
                   {
                     "type": "text",
                     "text": {
                       "en": "The scraped name glows faintly. Behind the stele, a door unlatches.",
                       "ja": "削られた名の跡が、かすかに光った。石碑の奥で、扉の外れる音がした。"
-                    }
+                    },
+                    "per_place": false,
+                    "dc": 10,
+                    "value": 0,
+                    "count": 1
                   },
                   {
                     "type": "open",
-                    "id": "a_stele"
+                    "per_place": false,
+                    "dc": 10,
+                    "id": "a_stele",
+                    "value": 0,
+                    "count": 1
                   }
-                ]
+                ],
+                "weight": 1
               },
               {
                 "label": {
@@ -246,24 +509,41 @@
                 "steps": [
                   {
                     "type": "sound",
-                    "id": "trap"
+                    "per_place": false,
+                    "dc": 10,
+                    "id": "trap",
+                    "value": 0,
+                    "count": 1
                   },
                   {
                     "type": "text",
                     "text": {
                       "en": "The stele is cold and silent. A chill runs down your spine.",
                       "ja": "石碑は冷たく黙っている。背筋に悪寒が走った。"
-                    }
+                    },
+                    "per_place": false,
+                    "dc": 10,
+                    "value": 0,
+                    "count": 1
                   },
                   {
                     "type": "damage",
+                    "per_place": false,
+                    "dc": 10,
+                    "value": 0,
+                    "count": 1,
                     "dice": "2d6",
                     "damage_type": "necrotic"
                   },
                   {
-                    "type": "again"
+                    "type": "again",
+                    "per_place": false,
+                    "dc": 10,
+                    "value": 0,
+                    "count": 1
                   }
-                ]
+                ],
+                "weight": 1
               },
               {
                 "label": {
@@ -273,24 +553,41 @@
                 "steps": [
                   {
                     "type": "sound",
-                    "id": "trap"
+                    "per_place": false,
+                    "dc": 10,
+                    "id": "trap",
+                    "value": 0,
+                    "count": 1
                   },
                   {
                     "type": "text",
                     "text": {
                       "en": "The stele is cold and silent. A chill runs down your spine.",
                       "ja": "石碑は冷たく黙っている。背筋に悪寒が走った。"
-                    }
+                    },
+                    "per_place": false,
+                    "dc": 10,
+                    "value": 0,
+                    "count": 1
                   },
                   {
                     "type": "damage",
+                    "per_place": false,
+                    "dc": 10,
+                    "value": 0,
+                    "count": 1,
                     "dice": "2d6",
                     "damage_type": "necrotic"
                   },
                   {
-                    "type": "again"
+                    "type": "again",
+                    "per_place": false,
+                    "dc": 10,
+                    "value": 0,
+                    "count": 1
                   }
-                ]
+                ],
+                "weight": 1
               },
               {
                 "label": {
@@ -299,11 +596,20 @@
                 },
                 "steps": [
                   {
-                    "type": "again"
+                    "type": "again",
+                    "per_place": false,
+                    "dc": 10,
+                    "value": 0,
+                    "count": 1
                   }
-                ]
+                ],
+                "weight": 1
               }
-            ]
+            ],
+            "per_place": false,
+            "dc": 10,
+            "value": 0,
+            "count": 1
           }
         ],
         "else": [
@@ -312,61 +618,97 @@
             "text": {
               "en": "You do not know the First Warden's name. Someone in town might.",
               "ja": "最初の墓守の名を、知らない。町の誰かが知っているかもしれない。"
-            }
+            },
+            "per_place": false,
+            "dc": 10,
+            "value": 0,
+            "count": 1
           },
           {
-            "type": "again"
+            "type": "again",
+            "per_place": false,
+            "dc": 10,
+            "value": 0,
+            "count": 1
           }
-        ]
+        ],
+        "dc": 10,
+        "value": 0,
+        "count": 1
       }
-    ]
+    ],
+    "note": "A B4: 歴代墓守の石碑。最初の墓守の名を答えると開く (gate:a_stele)",
+    "memo": true
   },
   {
     "id": "a_b4_relic",
     "place": "maze",
     "once": "game",
-    "note": "A B4: 石碑の奥。歴代墓守の遺した品",
     "steps": [
       {
         "type": "text",
         "text": {
           "en": "Behind the stele lie relics left by the wardens of old.",
           "ja": "石碑の奥には、歴代の墓守が遺した品が並べてあった。"
-        }
+        },
+        "per_place": false,
+        "dc": 10,
+        "value": 0,
+        "count": 1
       },
       {
         "type": "sound",
-        "id": "chest_open"
+        "per_place": false,
+        "dc": 10,
+        "id": "chest_open",
+        "value": 0,
+        "count": 1
       },
       {
         "type": "treasure",
+        "per_place": false,
+        "dc": 10,
+        "value": 0,
         "count": 2
       },
       {
         "type": "xp",
-        "value": 200
+        "per_place": false,
+        "dc": 10,
+        "value": 200,
+        "count": 1
       }
-    ]
+    ],
+    "note": "A B4: 石碑の奥。歴代墓守の遺した品",
+    "memo": true
   },
   {
     "id": "a_b5_seal",
     "place": "maze",
     "once": "place",
-    "note": "A B5: 封じの扉。墓守の角灯で開く (gate:a_seal)",
     "steps": [
       {
         "type": "text",
         "text": {
           "en": "A door traced with pale blue sigils. At its center is a hook for a lantern.",
           "ja": "青白い紋様の走る扉がある。扉の真ん中に、角灯を掛ける鉤がある。"
-        }
+        },
+        "per_place": false,
+        "dc": 10,
+        "value": 0,
+        "count": 1
       },
       {
         "type": "if",
+        "per_place": false,
         "when": [
           {
             "type": "item",
-            "id": "masters_lantern"
+            "id": "masters_lantern",
+            "value": 1,
+            "count": 1,
+            "op": ">=",
+            "not": false
           }
         ],
         "then": [
@@ -385,20 +727,33 @@
                 "steps": [
                   {
                     "type": "sound",
-                    "id": "door"
+                    "per_place": false,
+                    "dc": 10,
+                    "id": "door",
+                    "value": 0,
+                    "count": 1
                   },
                   {
                     "type": "text",
                     "text": {
                       "en": "The lantern's flame spreads into the sigils, and the door swings open without a sound.",
                       "ja": "角灯の火が扉の紋様へ燃え移り、扉は音もなく開いた。"
-                    }
+                    },
+                    "per_place": false,
+                    "dc": 10,
+                    "value": 0,
+                    "count": 1
                   },
                   {
                     "type": "open",
-                    "id": "a_seal"
+                    "per_place": false,
+                    "dc": 10,
+                    "id": "a_seal",
+                    "value": 0,
+                    "count": 1
                   }
-                ]
+                ],
+                "weight": 1
               },
               {
                 "label": {
@@ -407,11 +762,20 @@
                 },
                 "steps": [
                   {
-                    "type": "again"
+                    "type": "again",
+                    "per_place": false,
+                    "dc": 10,
+                    "value": 0,
+                    "count": 1
                   }
-                ]
+                ],
+                "weight": 1
               }
-            ]
+            ],
+            "per_place": false,
+            "dc": 10,
+            "value": 0,
+            "count": 1
           }
         ],
         "else": [
@@ -420,27 +784,43 @@
             "text": {
               "en": "You have nothing to hang there.",
               "ja": "掛けるものを持っていない。"
-            }
+            },
+            "per_place": false,
+            "dc": 10,
+            "value": 0,
+            "count": 1
           },
           {
-            "type": "again"
+            "type": "again",
+            "per_place": false,
+            "dc": 10,
+            "value": 0,
+            "count": 1
           }
-        ]
+        ],
+        "dc": 10,
+        "value": 0,
+        "count": 1
       }
-    ]
+    ],
+    "note": "A B5: 封じの扉。墓守の角灯で開く (gate:a_seal)",
+    "memo": true
   },
   {
     "id": "a_b5_master",
     "place": "maze",
     "once": "game",
-    "note": "A B5: 最後の墓守の魂。最期の言葉と祝福",
     "steps": [
       {
         "type": "text",
         "text": {
           "en": "Deep in the chamber stands a half-transparent warden, the same pale blue as the lantern's flame.",
           "ja": "封じの間の奥に、半ば透けた墓守が立っていた。角灯の火と同じ、青白い姿だった。"
-        }
+        },
+        "per_place": false,
+        "dc": 10,
+        "value": 0,
+        "count": 1
       },
       {
         "type": "text",
@@ -451,7 +831,11 @@
         "speaker": {
           "en": "The Last Warden",
           "ja": "最後の墓守"
-        }
+        },
+        "per_place": false,
+        "dc": 10,
+        "value": 0,
+        "count": 1
       },
       {
         "type": "text",
@@ -462,51 +846,84 @@
         "speaker": {
           "en": "The Last Warden",
           "ja": "最後の墓守"
-        }
+        },
+        "per_place": false,
+        "dc": 10,
+        "value": 0,
+        "count": 1
       },
       {
         "type": "sound",
-        "id": "heal"
+        "per_place": false,
+        "dc": 10,
+        "id": "heal",
+        "value": 0,
+        "count": 1
       },
       {
         "type": "text",
         "text": {
           "en": "The warden's hand glows, and all your wounds close.",
           "ja": "墓守の手が光り、傷がすべて癒えた。"
-        }
+        },
+        "per_place": false,
+        "dc": 10,
+        "value": 0,
+        "count": 1
       },
       {
-        "type": "heal"
+        "type": "heal",
+        "per_place": false,
+        "dc": 10,
+        "value": 0,
+        "count": 1
       },
       {
-        "type": "cure"
+        "type": "cure",
+        "per_place": false,
+        "dc": 10,
+        "value": 0,
+        "count": 1
       },
       {
         "type": "xp",
-        "value": 300
+        "per_place": false,
+        "dc": 10,
+        "value": 300,
+        "count": 1
       },
       {
         "type": "flag",
-        "id": "a_master_found"
+        "per_place": false,
+        "dc": 10,
+        "id": "a_master_found",
+        "value": 0,
+        "count": 1
       }
     ],
-    "bgm": "audio/bgm/story.mp3"
+    "bgm": "audio/bgm/story.mp3",
+    "note": "A B5: 最後の墓守の魂。最期の言葉と祝福",
+    "memo": true
   },
   {
     "id": "a_riine",
-    "place": "town",
     "title": {
       "en": "Riine, the Apprentice Warden",
       "ja": "墓守見習いのリーネ"
     },
-    "note": "A: 物語の中心。進み具合で話が変わる",
+    "place": "town",
     "steps": [
       {
         "type": "if",
+        "per_place": false,
         "when": [
           {
             "type": "flag",
-            "id": "has_spiral_heart"
+            "id": "has_spiral_heart",
+            "value": 1,
+            "count": 1,
+            "op": ">=",
+            "not": false
           }
         ],
         "then": [
@@ -519,16 +936,25 @@
             "speaker": {
               "en": "Riine",
               "ja": "リーネ"
-            }
+            },
+            "per_place": false,
+            "dc": 10,
+            "value": 0,
+            "count": 1
           }
         ],
         "else": [
           {
             "type": "if",
+            "per_place": false,
             "when": [
               {
                 "type": "flag",
-                "id": "a_master_found"
+                "id": "a_master_found",
+                "value": 1,
+                "count": 1,
+                "op": ">=",
+                "not": false
               }
             ],
             "then": [
@@ -541,7 +967,11 @@
                 "speaker": {
                   "en": "Riine",
                   "ja": "リーネ"
-                }
+                },
+                "per_place": false,
+                "dc": 10,
+                "value": 0,
+                "count": 1
               },
               {
                 "type": "text",
@@ -552,7 +982,11 @@
                 "speaker": {
                   "en": "Riine",
                   "ja": "リーネ"
-                }
+                },
+                "per_place": false,
+                "dc": 10,
+                "value": 0,
+                "count": 1
               },
               {
                 "type": "text",
@@ -563,16 +997,25 @@
                 "speaker": {
                   "en": "Riine",
                   "ja": "リーネ"
-                }
+                },
+                "per_place": false,
+                "dc": 10,
+                "value": 0,
+                "count": 1
               }
             ],
             "else": [
               {
                 "type": "if",
+                "per_place": false,
                 "when": [
                   {
                     "type": "flag",
-                    "id": "a_found_remains"
+                    "id": "a_found_remains",
+                    "value": 1,
+                    "count": 1,
+                    "op": ">=",
+                    "not": false
                   }
                 ],
                 "then": [
@@ -585,7 +1028,11 @@
                     "speaker": {
                       "en": "Riine",
                       "ja": "リーネ"
-                    }
+                    },
+                    "per_place": false,
+                    "dc": 10,
+                    "value": 0,
+                    "count": 1
                   },
                   {
                     "type": "text",
@@ -596,7 +1043,11 @@
                     "speaker": {
                       "en": "Riine",
                       "ja": "リーネ"
-                    }
+                    },
+                    "per_place": false,
+                    "dc": 10,
+                    "value": 0,
+                    "count": 1
                   }
                 ],
                 "else": [
@@ -605,7 +1056,11 @@
                     "text": {
                       "en": "A girl waits by the cemetery gate. Her warden's coat is far too big for her.",
                       "ja": "町外れの墓地の門の前で、少女が待っていた。墓守の外套は、体に合わないほど大きい。"
-                    }
+                    },
+                    "per_place": false,
+                    "dc": 10,
+                    "value": 0,
+                    "count": 1
                   },
                   {
                     "type": "text",
@@ -616,7 +1071,11 @@
                     "speaker": {
                       "en": "Riine",
                       "ja": "リーネ"
-                    }
+                    },
+                    "per_place": false,
+                    "dc": 10,
+                    "value": 0,
+                    "count": 1
                   },
                   {
                     "type": "text",
@@ -627,25 +1086,39 @@
                     "speaker": {
                       "en": "Riine",
                       "ja": "リーネ"
-                    }
+                    },
+                    "per_place": false,
+                    "dc": 10,
+                    "value": 0,
+                    "count": 1
                   }
-                ]
+                ],
+                "dc": 10,
+                "value": 0,
+                "count": 1
               }
-            ]
+            ],
+            "dc": 10,
+            "value": 0,
+            "count": 1
           }
-        ]
+        ],
+        "dc": 10,
+        "value": 0,
+        "count": 1
       }
     ],
-    "bgm": "audio/bgm/story.mp3"
+    "bgm": "audio/bgm/story.mp3",
+    "note": "A: 物語の中心。進み具合で話が変わる",
+    "memo": true
   },
   {
     "id": "a_priest",
-    "place": "town",
     "title": {
       "en": "The Old Priest",
       "ja": "寺院の老司祭"
     },
-    "note": "A: 墓守の歴史。最初の墓守の名を教える(石碑の謎に要る)",
+    "place": "town",
     "steps": [
       {
         "type": "text",
@@ -656,14 +1129,23 @@
         "speaker": {
           "en": "The Old Priest",
           "ja": "老司祭"
-        }
+        },
+        "per_place": false,
+        "dc": 10,
+        "value": 0,
+        "count": 1
       },
       {
         "type": "if",
+        "per_place": false,
         "when": [
           {
             "type": "flag",
-            "id": "a_found_remains"
+            "id": "a_found_remains",
+            "value": 1,
+            "count": 1,
+            "op": ">=",
+            "not": false
           }
         ],
         "then": [
@@ -676,7 +1158,11 @@
             "speaker": {
               "en": "The Old Priest",
               "ja": "老司祭"
-            }
+            },
+            "per_place": false,
+            "dc": 10,
+            "value": 0,
+            "count": 1
           },
           {
             "type": "text",
@@ -687,11 +1173,19 @@
             "speaker": {
               "en": "The Old Priest",
               "ja": "老司祭"
-            }
+            },
+            "per_place": false,
+            "dc": 10,
+            "value": 0,
+            "count": 1
           },
           {
             "type": "flag",
-            "id": "a_priest_name"
+            "per_place": false,
+            "dc": 10,
+            "id": "a_priest_name",
+            "value": 0,
+            "count": 1
           }
         ],
         "else": [
@@ -704,7 +1198,11 @@
             "speaker": {
               "en": "The Old Priest",
               "ja": "老司祭"
-            }
+            },
+            "per_place": false,
+            "dc": 10,
+            "value": 0,
+            "count": 1
           },
           {
             "type": "text",
@@ -715,21 +1213,29 @@
             "speaker": {
               "en": "The Old Priest",
               "ja": "老司祭"
-            }
+            },
+            "per_place": false,
+            "dc": 10,
+            "value": 0,
+            "count": 1
           }
-        ]
+        ],
+        "dc": 10,
+        "value": 0,
+        "count": 1
       }
     ],
-    "bgm": "audio/bgm/story.mp3"
+    "bgm": "audio/bgm/story.mp3",
+    "note": "A: 墓守の歴史。最初の墓守の名を教える(石碑の謎に要る)",
+    "memo": true
   },
   {
     "id": "a_barkeep",
-    "place": "town",
     "title": {
       "en": "Ask the Barkeep for Rumors",
       "ja": "酒場の主人に噂を聞く"
     },
-    "note": "A: 噂(ランダム)。あとでユニーク装備の持ち主の噂も入れる",
+    "place": "town",
     "steps": [
       {
         "type": "text",
@@ -740,45 +1246,56 @@
         "speaker": {
           "en": "The Barkeep",
           "ja": "酒場の主人"
-        }
+        },
+        "per_place": false,
+        "dc": 10,
+        "value": 0,
+        "count": 1
       },
       {
         "type": "random",
         "options": [
           {
-            "weight": 1,
             "steps": [
               {
                 "type": "text",
                 "text": {
-                  "en": "\"Folk say there's an old adventurer's remains in a dead end on the first level. Pay your respects, and maybe he left something.\"",
-                  "ja": "「地下一階の行き止まりで、昔の冒険者の亡骸を見たって話だ。手を合わせりゃ、何か残してるかもな」"
+                  "en": "\"You know the warden used to name the nameless? Every pauper in the common grounds got a name before the earth went over them. Nobody asked him to.\"",
+                  "ja": "「墓守さんが、名無しの死人に名前を付けてたって知ってるか。共同墓地に入る身寄りのない連中に、土をかける前に一人ずつな。誰に頼まれたわけでもないのに」"
                 },
                 "speaker": {
                   "en": "The Barkeep",
                   "ja": "酒場の主人"
-                }
+                },
+                "per_place": false,
+                "dc": 10,
+                "value": 0,
+                "count": 1
               }
-            ]
+            ],
+            "weight": 1
           },
           {
-            "weight": 1,
             "steps": [
               {
                 "type": "text",
                 "text": {
-                  "en": "\"They say ringing the bell in the ossuary quiets the dead. An old warden's trick.\"",
-                  "ja": "「納骨堂の鐘を鳴らすと、亡者が静まるらしい。昔の墓守の仕掛けさ」"
+                  "en": "\"They say ringing the bell in the ossuary three times quiets the dead. Once, and you'll wish you hadn't.\"",
+                  "ja": "「納骨堂の鐘は、三度鳴らすと亡者が静まるらしい。一度だけ鳴らすと、後悔するってよ」"
                 },
                 "speaker": {
                   "en": "The Barkeep",
                   "ja": "酒場の主人"
-                }
+                },
+                "per_place": false,
+                "dc": 10,
+                "value": 0,
+                "count": 1
               }
-            ]
+            ],
+            "weight": 1
           },
           {
-            "weight": 1,
             "steps": [
               {
                 "type": "text",
@@ -789,28 +1306,36 @@
                 "speaker": {
                   "en": "The Barkeep",
                   "ja": "酒場の主人"
-                }
+                },
+                "per_place": false,
+                "dc": 10,
+                "value": 0,
+                "count": 1
               }
-            ]
+            ],
+            "weight": 1
           },
           {
-            "weight": 1,
             "steps": [
               {
                 "type": "text",
                 "text": {
-                  "en": "\"Rumor has it there's a door that opens with three sigils: sun, moon, and star. Don't ask me where.\"",
-                  "ja": "「太陽と月と星の紋章を三つそろえると、開く扉があるって噂だ。どこにあるかは知らねえ」"
+                  "en": "\"There's a widow out by the new graves. Marta. Her man's grave came up empty, ring and all. If you're going down anyway, keep an eye out.\"",
+                  "ja": "「新しい墓の列に、後家さんがいるだろう。マルタだ。旦那の墓が、指輪ごと空になってたんだと。どうせ下りるなら、気にしておいてやってくれ」"
                 },
                 "speaker": {
                   "en": "The Barkeep",
                   "ja": "酒場の主人"
-                }
+                },
+                "per_place": false,
+                "dc": 10,
+                "value": 0,
+                "count": 1
               }
-            ]
+            ],
+            "weight": 1
           },
           {
-            "weight": 1,
             "steps": [
               {
                 "type": "text",
@@ -821,12 +1346,3925 @@
                 "speaker": {
                   "en": "The Barkeep",
                   "ja": "酒場の主人"
-                }
+                },
+                "per_place": false,
+                "dc": 10,
+                "value": 0,
+                "count": 1
               }
-            ]
+            ],
+            "weight": 1
+          },
+          {
+            "steps": [
+              {
+                "type": "text",
+                "text": {
+                  "en": "\"Some lowlifes have been going down to strip the coffins. Dagga's lot. If they try it on you, a hard look usually does it.\"",
+                  "ja": "「棺から副葬品をはがしに下りてる連中がいる。ダッガの一味さ。からんできたら、にらみつけてやりな。たいていそれで逃げる」"
+                },
+                "speaker": {
+                  "en": "The Barkeep",
+                  "ja": "酒場の主人"
+                },
+                "per_place": false,
+                "dc": 10,
+                "value": 0,
+                "count": 1
+              }
+            ],
+            "weight": 1
+          },
+          {
+            "steps": [
+              {
+                "type": "text",
+                "text": {
+                  "en": "\"There's an old coffin lift down there. Old Gideon will tell you about it, if you can stand his stories.\"",
+                  "ja": "「下には、古い棺下ろしの籠があるそうだ。ギデオン爺さんが詳しい。話が長いのを我慢できればな」"
+                },
+                "speaker": {
+                  "en": "The Barkeep",
+                  "ja": "酒場の主人"
+                },
+                "per_place": false,
+                "dc": 10,
+                "value": 0,
+                "count": 1
+              }
+            ],
+            "weight": 1
           }
-        ]
+        ],
+        "per_place": false,
+        "dc": 10,
+        "value": 0,
+        "count": 1
       }
-    ]
+    ],
+    "note": "A: 噂(ランダム)。あとでユニーク装備の持ち主の噂も入れる",
+    "memo": true
+  },
+  {
+    "id": "a_b2_robbers",
+    "place": "maze",
+    "once": "game",
+    "steps": [
+      {
+        "type": "text",
+        "text": {
+          "en": "Lantern light ahead, and the screech of a crowbar. Three living men are prying open coffins and filling sacks.",
+          "ja": "先に灯りが見え、金てこの軋む音がする。生きた男が三人、棺をこじ開けて袋に詰めている。"
+        },
+        "per_place": false,
+        "dc": 10,
+        "value": 0,
+        "count": 1
+      },
+      {
+        "type": "text",
+        "text": {
+          "en": "\"Hey, we got here first. The dead're walking off on their own these days — someone may as well take what they leave behind.\"",
+          "ja": "「おい、こっちが先だ。近ごろは死人が勝手に出ていくんだ。置いてったものを、誰かがもらって何が悪い」"
+        },
+        "speaker": {
+          "en": "Dagga",
+          "ja": "墓荒らしのダッガ"
+        },
+        "per_place": false,
+        "dc": 10,
+        "value": 0,
+        "count": 1
+      },
+      {
+        "type": "text",
+        "text": {
+          "en": "\"The old warden's body? Went past it. Didn't touch the lantern. That blue fire's cold when you go near it.\"",
+          "ja": "「墓守の爺さんの亡骸？　通ったさ。角灯には触ってねえ。あの青い火は、近づくと冷てえんだ」"
+        },
+        "speaker": {
+          "en": "Dagga",
+          "ja": "墓荒らしのダッガ"
+        },
+        "per_place": false,
+        "dc": 10,
+        "value": 0,
+        "count": 1
+      },
+      {
+        "type": "choice",
+        "text": {
+          "en": "What do you do?",
+          "ja": "どうする？"
+        },
+        "options": [
+          {
+            "label": {
+              "en": "Tell them to drop the loot and get out",
+              "ja": "盗んだ物を置いて、出ていけと言う"
+            },
+            "steps": [
+              {
+                "type": "check",
+                "per_place": false,
+                "skill": "intimidation",
+                "dc": 13,
+                "success": [
+                  {
+                    "type": "text",
+                    "text": {
+                      "en": "Dagga looks at your weapons, then at his men. \"...Fine. It's not worth dying for.\" They drop the sacks and run for the stairs.",
+                      "ja": "ダッガはこちらの得物を見て、手下を見た。「……わかったよ。死ぬほどのもんじゃねえ」。袋を放り出して、階段の方へ逃げていった。"
+                    },
+                    "per_place": false,
+                    "dc": 10,
+                    "value": 0,
+                    "count": 1
+                  },
+                  {
+                    "type": "flag",
+                    "per_place": false,
+                    "dc": 10,
+                    "id": "a_robbers_gone",
+                    "value": 0,
+                    "count": 1
+                  },
+                  {
+                    "type": "xp",
+                    "per_place": false,
+                    "dc": 10,
+                    "value": 150,
+                    "count": 1
+                  }
+                ],
+                "fail": [
+                  {
+                    "type": "text",
+                    "text": {
+                      "en": "\"Three of us and you talk big? Get them!\"",
+                      "ja": "「三人相手に、でけえ口を叩くな。やっちまえ！」"
+                    },
+                    "speaker": {
+                      "en": "Dagga",
+                      "ja": "墓荒らしのダッガ"
+                    },
+                    "per_place": false,
+                    "dc": 10,
+                    "value": 0,
+                    "count": 1
+                  },
+                  {
+                    "type": "combat",
+                    "per_place": false,
+                    "dc": 10,
+                    "value": 0,
+                    "count": 1,
+                    "boss": "grave_robbers",
+                    "win": [
+                      {
+                        "type": "flag",
+                        "per_place": false,
+                        "dc": 10,
+                        "id": "a_robbers_gone",
+                        "value": 0,
+                        "count": 1
+                      }
+                    ],
+                    "lose": [
+                      {
+                        "type": "again",
+                        "per_place": false,
+                        "dc": 10,
+                        "value": 0,
+                        "count": 1
+                      }
+                    ]
+                  }
+                ],
+                "value": 0,
+                "count": 1
+              }
+            ],
+            "weight": 1
+          },
+          {
+            "label": {
+              "en": "Drive them off by force",
+              "ja": "力ずくで追い払う"
+            },
+            "steps": [
+              {
+                "type": "combat",
+                "per_place": false,
+                "dc": 10,
+                "value": 0,
+                "count": 1,
+                "boss": "grave_robbers",
+                "win": [
+                  {
+                    "type": "flag",
+                    "per_place": false,
+                    "dc": 10,
+                    "id": "a_robbers_gone",
+                    "value": 0,
+                    "count": 1
+                  }
+                ],
+                "lose": [
+                  {
+                    "type": "again",
+                    "per_place": false,
+                    "dc": 10,
+                    "value": 0,
+                    "count": 1
+                  }
+                ]
+              }
+            ],
+            "weight": 1
+          },
+          {
+            "label": {
+              "en": "Leave them to it",
+              "ja": "見逃す"
+            },
+            "steps": [
+              {
+                "type": "again",
+                "per_place": false,
+                "dc": 10,
+                "value": 0,
+                "count": 1
+              }
+            ],
+            "weight": 1
+          }
+        ],
+        "per_place": false,
+        "dc": 10,
+        "value": 0,
+        "count": 1
+      },
+      {
+        "type": "if",
+        "per_place": false,
+        "when": [
+          {
+            "type": "flag",
+            "id": "a_robbers_gone",
+            "value": 1,
+            "count": 1,
+            "op": ">=",
+            "not": false
+          }
+        ],
+        "then": [
+          {
+            "type": "text",
+            "text": {
+              "en": "In the abandoned sacks: candlesticks, coins for the ferryman, and a plain silver ring with \"M. & T.\" cut inside it.",
+              "ja": "残された袋の中に、燭台と、渡し賃の硬貨と、内側に「M. と T.」と刻んだ飾りのない銀の指輪があった。"
+            },
+            "per_place": false,
+            "dc": 10,
+            "value": 0,
+            "count": 1
+          },
+          {
+            "type": "give_item",
+            "per_place": false,
+            "dc": 10,
+            "id": "a_wedding_ring",
+            "value": 0,
+            "count": 1
+          },
+          {
+            "type": "treasure",
+            "per_place": false,
+            "dc": 10,
+            "value": 0,
+            "count": 1
+          },
+          {
+            "type": "gold",
+            "per_place": false,
+            "dc": 10,
+            "value": 60,
+            "count": 1
+          }
+        ],
+        "dc": 10,
+        "value": 0,
+        "count": 1
+      }
+    ],
+    "note": "A B2: 墓荒らしの一団(生きた人間)。棺をこじ開けて副葬品を集めている。脅せば盗品を置いて逃げ、だめなら戦う(boss grave_robbers)。盗品にトビアスの結婚指輪",
+    "memo": true
+  },
+  {
+    "id": "a_b4_lift",
+    "place": "maze",
+    "once": "game",
+    "steps": [
+      {
+        "type": "text",
+        "text": {
+          "en": "Past the relics, a great windlass stands at the edge of a shaft. Chains rise into the dark: the coffin lift, which once lowered the dead floor by floor.",
+          "ja": "遺品の奥に、縦穴のふちに大きな綱車がある。鎖が暗がりの上へ伸びている。棺を一階ずつ下ろしていた、棺下ろしの籠だ。"
+        },
+        "per_place": false,
+        "dc": 10,
+        "value": 0,
+        "count": 1
+      },
+      {
+        "type": "choice",
+        "text": {
+          "en": "Release the brake?",
+          "ja": "歯止めを外す？"
+        },
+        "options": [
+          {
+            "label": {
+              "en": "Release it",
+              "ja": "外す"
+            },
+            "steps": [
+              {
+                "type": "flag",
+                "per_place": false,
+                "dc": 10,
+                "id": "a_lift_power",
+                "value": 0,
+                "count": 1
+              },
+              {
+                "type": "sound",
+                "per_place": false,
+                "dc": 10,
+                "id": "search",
+                "value": 0,
+                "count": 1
+              },
+              {
+                "type": "text",
+                "text": {
+                  "en": "With a long groan the chains go taut. Far above, the coffin lift begins to move. From now on it will carry you between the new graves and the sealing chambers.",
+                  "ja": "鎖が長いうなりを上げて張りつめた。はるか上で、棺下ろしの籠が動き出す。これからは、新しい墓から封じの間まで、籠で行き来できる。"
+                },
+                "per_place": false,
+                "dc": 10,
+                "value": 0,
+                "count": 1
+              }
+            ],
+            "weight": 1
+          },
+          {
+            "label": {
+              "en": "Leave it",
+              "ja": "そのままにする"
+            },
+            "steps": [
+              {
+                "type": "again",
+                "per_place": false,
+                "dc": 10,
+                "value": 0,
+                "count": 1
+              }
+            ],
+            "weight": 1
+          }
+        ],
+        "per_place": false,
+        "dc": 10,
+        "value": 0,
+        "count": 1
+      }
+    ],
+    "note": "A B4: 石碑の奥、棺下ろしの籠の綱車。引くと a_lift_power が立ち、B1〜B5 の縦穴の籠が動く",
+    "memo": true
+  },
+  {
+    "id": "a_gravedigger",
+    "title": {
+      "en": "Old Gideon, the gravedigger",
+      "ja": "墓掘りのギデオン爺さん"
+    },
+    "place": "town",
+    "steps": [
+      {
+        "type": "if",
+        "per_place": false,
+        "when": [
+          {
+            "type": "flag",
+            "id": "a_bell_lore",
+            "value": 1,
+            "count": 1,
+            "op": ">=",
+            "not": false
+          }
+        ],
+        "then": [
+          {
+            "type": "text",
+            "text": {
+              "en": "\"The lift, you've seen it? The brake's down in the wardens' hall. Mind your fingers on the chain.\"",
+              "ja": "「籠は見たか。歯止めは、歴代墓守の回廊の奥だ。鎖で指を挟むなよ」"
+            },
+            "speaker": {
+              "en": "Gideon",
+              "ja": "ギデオン"
+            },
+            "per_place": false,
+            "dc": 10,
+            "value": 0,
+            "count": 1
+          }
+        ],
+        "else": [
+          {
+            "type": "text",
+            "text": {
+              "en": "An old man leans on his spade by the cemetery wall, though there is nothing left to bury tonight.",
+              "ja": "墓地の塀のそばで、老人がシャベルにもたれている。今夜は、埋めるものなど残っていないのに。"
+            },
+            "per_place": false,
+            "dc": 10,
+            "value": 0,
+            "count": 1
+          },
+          {
+            "type": "text",
+            "text": {
+              "en": "\"Fifty years I've dug for the wardens. Never had the dead dig themselves back out before.\"",
+              "ja": "「五十年、墓守さんの下で掘ってきた。死人が自分で掘り返して出てくるなんざ、初めてだ」"
+            },
+            "speaker": {
+              "en": "Gideon",
+              "ja": "ギデオン"
+            },
+            "per_place": false,
+            "dc": 10,
+            "value": 0,
+            "count": 1
+          },
+          {
+            "type": "text",
+            "text": {
+              "en": "\"If you're going down, listen. The funeral bell in the ossuary is struck three times. Two for the living, one for the dead. Strike it once and you're calling them, not sending them off.\"",
+              "ja": "「下りるなら、聞いておけ。納骨堂の弔いの鐘は、三つ打つ。二つは生者に、一つは死者に。一つだけ打つのは、送るんじゃなく、呼ぶ音だ」"
+            },
+            "speaker": {
+              "en": "Gideon",
+              "ja": "ギデオン"
+            },
+            "per_place": false,
+            "dc": 10,
+            "value": 0,
+            "count": 1
+          },
+          {
+            "type": "text",
+            "text": {
+              "en": "\"And there's the coffin lift. We used to send the dead down in it, floor by floor. Its brake is at the bottom of the wardens' hall. Release it, and you'll save your knees.\"",
+              "ja": "「それと、棺下ろしの籠がある。昔は、それで棺を一階ずつ下ろしたもんだ。歯止めは、歴代墓守の回廊の奥にある。外せば、膝が助かるぞ」"
+            },
+            "speaker": {
+              "en": "Gideon",
+              "ja": "ギデオン"
+            },
+            "per_place": false,
+            "dc": 10,
+            "value": 0,
+            "count": 1
+          },
+          {
+            "type": "flag",
+            "per_place": false,
+            "dc": 10,
+            "id": "a_bell_lore",
+            "value": 0,
+            "count": 1
+          },
+          {
+            "type": "flag",
+            "per_place": false,
+            "dc": 10,
+            "id": "a_lift_lore",
+            "value": 0,
+            "count": 1
+          }
+        ],
+        "dc": 10,
+        "value": 0,
+        "count": 1
+      }
+    ],
+    "note": "A: 弔いの鐘の打ち方(a_bell_lore)と、棺下ろしの籠のこと(a_lift_lore)を教える",
+    "memo": true
+  },
+  {
+    "id": "a_widow",
+    "title": {
+      "en": "Marta, a widow at the graveside",
+      "ja": "墓の前の未亡人マルタ"
+    },
+    "place": "town",
+    "when": [
+      {
+        "type": "flag",
+        "id": "a_widow_done",
+        "value": 1,
+        "count": 1,
+        "op": ">=",
+        "not": true
+      }
+    ],
+    "steps": [
+      {
+        "type": "if",
+        "per_place": false,
+        "when": [
+          {
+            "type": "item",
+            "id": "a_wedding_ring",
+            "value": 1,
+            "count": 1,
+            "op": ">=",
+            "not": false
+          }
+        ],
+        "then": [
+          {
+            "type": "text",
+            "text": {
+              "en": "Marta takes the ring and closes her hand around it for a long time.",
+              "ja": "マルタは指輪を受け取り、長いこと、手のひらに包んでいた。"
+            },
+            "per_place": false,
+            "dc": 10,
+            "value": 0,
+            "count": 1
+          },
+          {
+            "type": "text",
+            "text": {
+              "en": "\"He was buried with it. I thought he'd walked off with it, the fool. ...Thank you. Now I can see him off properly. Twice, I suppose.\"",
+              "ja": "「あの人と一緒に埋めたんです。指輪ごと、勝手に出ていったのかと思った。……ありがとう。これで、ちゃんと見送れます。二度目だけど」"
+            },
+            "speaker": {
+              "en": "Marta",
+              "ja": "マルタ"
+            },
+            "per_place": false,
+            "dc": 10,
+            "value": 0,
+            "count": 1
+          },
+          {
+            "type": "take_item",
+            "per_place": false,
+            "dc": 10,
+            "id": "a_wedding_ring",
+            "value": 0,
+            "count": 1
+          },
+          {
+            "type": "text",
+            "text": {
+              "en": "She presses a small purse on you. \"His savings. He'd want them spent on someone who goes down there.\"",
+              "ja": "小さな財布を押しつけられた。「あの人のへそくり。下へ行く人に使ってほしいって、言うと思うから」"
+            },
+            "per_place": false,
+            "dc": 10,
+            "value": 0,
+            "count": 1
+          },
+          {
+            "type": "gold",
+            "per_place": false,
+            "dc": 10,
+            "value": 120,
+            "count": 1
+          },
+          {
+            "type": "xp",
+            "per_place": false,
+            "dc": 10,
+            "value": 150,
+            "count": 1
+          },
+          {
+            "type": "flag",
+            "per_place": false,
+            "dc": 10,
+            "id": "a_widow_done",
+            "value": 0,
+            "count": 1
+          }
+        ],
+        "else": [
+          {
+            "type": "text",
+            "text": {
+              "en": "A woman stands beside an open grave in the new rows, holding flowers she has not put down.",
+              "ja": "新しい墓の列で、女の人が開いた墓のそばに立っている。花を持ったまま、置けずにいる。"
+            },
+            "per_place": false,
+            "dc": 10,
+            "value": 0,
+            "count": 1
+          },
+          {
+            "type": "text",
+            "text": {
+              "en": "\"Tobias. Two weeks in the ground, and this morning — empty. Not even his body. Only the ring is gone too.\"",
+              "ja": "「トビアスです。埋めて二週間で、今朝見たら、空っぽ。体もない。指輪まで、なくなってて」"
+            },
+            "speaker": {
+              "en": "Marta",
+              "ja": "マルタ"
+            },
+            "per_place": false,
+            "dc": 10,
+            "value": 0,
+            "count": 1
+          },
+          {
+            "type": "text",
+            "text": {
+              "en": "\"They say there are thieves down there, taking from the coffins. If you see a plain silver ring with M. and T. inside... bring it back. I want to bury something of his, at least.\"",
+              "ja": "「下には、棺から物を盗む連中がいるって。内側に M と T って彫った、飾りのない銀の指輪を見たら……持って帰ってきて。せめて、あの人の何かを埋めてやりたいの」"
+            },
+            "speaker": {
+              "en": "Marta",
+              "ja": "マルタ"
+            },
+            "per_place": false,
+            "dc": 10,
+            "value": 0,
+            "count": 1
+          }
+        ],
+        "dc": 10,
+        "value": 0,
+        "count": 1
+      }
+    ],
+    "note": "A: 夫トビアスの墓が内側から開き、空になった。墓荒らしに盗られた結婚指輪を返すと、見送り直せる",
+    "memo": true
+  },
+  {
+    "id": "gk_writing",
+    "place": "maze",
+    "once": "place",
+    "steps": [
+      {
+        "type": "text",
+        "text": {
+          "en": "Something is written here, half lost to damp and dust.",
+          "ja": "何かが書き残されている。湿気と埃で、半ば消えかけている。"
+        },
+        "per_place": false,
+        "dc": 10,
+        "value": 0,
+        "count": 1
+      },
+      {
+        "type": "sound",
+        "per_place": false,
+        "dc": 10,
+        "id": "search",
+        "value": 0,
+        "count": 1
+      },
+      {
+        "type": "world_doc",
+        "per_place": false,
+        "else": [
+          {
+            "type": "text",
+            "text": {
+              "en": "The words have worn away. Only a few letters are left.",
+              "ja": "文字は擦り切れて、いくつかしか残っていない。"
+            },
+            "per_place": false,
+            "dc": 10,
+            "value": 0,
+            "count": 1
+          }
+        ],
+        "dc": 10,
+        "value": 1,
+        "count": 1
+      }
+    ],
+    "note": "A: 迷宮に残された書き付け。この階の書き付け(worlds.json の documents)を1つ目を出す。各階に2つ手で置く",
+    "memo": true
+  },
+  {
+    "id": "gk_writing_2",
+    "place": "maze",
+    "once": "place",
+    "steps": [
+      {
+        "type": "text",
+        "text": {
+          "en": "Something is written here, half lost to damp and dust.",
+          "ja": "何かが書き残されている。湿気と埃で、半ば消えかけている。"
+        },
+        "per_place": false,
+        "dc": 10,
+        "value": 0,
+        "count": 1
+      },
+      {
+        "type": "sound",
+        "per_place": false,
+        "dc": 10,
+        "id": "search",
+        "value": 0,
+        "count": 1
+      },
+      {
+        "type": "world_doc",
+        "per_place": false,
+        "else": [
+          {
+            "type": "text",
+            "text": {
+              "en": "The words have worn away. Only a few letters are left.",
+              "ja": "文字は擦り切れて、いくつかしか残っていない。"
+            },
+            "per_place": false,
+            "dc": 10,
+            "value": 0,
+            "count": 1
+          }
+        ],
+        "dc": 10,
+        "value": 2,
+        "count": 1
+      }
+    ],
+    "note": "A: 迷宮に残された書き付け。この階の書き付け(worlds.json の documents)を2つ目を出す。各階に2つ手で置く",
+    "memo": true
+  },
+  {
+    "id": "gkx_price_board",
+    "place": "maze",
+    "once": "place",
+    "steps": [
+      {
+        "type": "text",
+        "text": {
+          "en": "A board nailed to the wall: \"Coffin, plain, 4 silver. Coffin, oak, 11 silver. Coffin, 'he would have wanted oak', 19 silver.\" Below, in smaller letters: \"No refunds for the late.\"",
+          "ja": "壁に板が打ち付けてある。「棺、並、銀貨四枚。棺、樫、銀貨十一枚。棺、『故人は樫を望んだはず』、銀貨十九枚」。その下に小さな字。「故人への返金はいたしません」。"
+        },
+        "per_place": false,
+        "dc": 10,
+        "value": 0,
+        "count": 1
+      },
+      {
+        "type": "choice",
+        "text": {
+          "en": "What will you do?",
+          "ja": "どうする?"
+        },
+        "options": [
+          {
+            "label": {
+              "en": "Check the deposit tin underneath",
+              "ja": "下の預かり缶を調べる"
+            },
+            "steps": [
+              {
+                "type": "text",
+                "text": {
+                  "en": "A tin for deposits, nailed down badly. The nail gives way before you do.",
+                  "ja": "預かり金の缶が、雑に釘で留めてある。釘のほうが先に負けた。"
+                },
+                "per_place": false,
+                "dc": 10,
+                "value": 0,
+                "count": 1
+              },
+              {
+                "type": "gold",
+                "per_place": false,
+                "dc": 10,
+                "value": 15,
+                "count": 1
+              },
+              {
+                "type": "xp",
+                "per_place": false,
+                "dc": 10,
+                "value": 25,
+                "count": 1
+              }
+            ],
+            "weight": 1
+          },
+          {
+            "label": {
+              "en": "Leave it",
+              "ja": "立ち去る"
+            },
+            "steps": [
+              {
+                "type": "again",
+                "per_place": false,
+                "dc": 10,
+                "value": 0,
+                "count": 1
+              }
+            ],
+            "weight": 1
+          }
+        ],
+        "per_place": false,
+        "dc": 10,
+        "value": 0,
+        "count": 1
+      }
+    ],
+    "scatter": {
+      "min_depth": 0,
+      "max_depth": 0.1,
+      "min_level": 1,
+      "max_level": 7,
+      "weight": 1,
+      "where": "corridor",
+      "max": 0,
+      "step": 0,
+      "rarity": "common",
+      "effective_weight": 1
+    },
+    "note": "葬儀屋の値段表",
+    "memo": true
+  },
+  {
+    "id": "gkx_funeral_cakes",
+    "place": "maze",
+    "once": "place",
+    "steps": [
+      {
+        "type": "text",
+        "text": {
+          "en": "A basket of funeral cakes sits on a fresh mound, with a slip tied to the handle: \"Forty cakes ordered, thirty-one collected. The baker is owed for nine.\" The cakes are still soft.",
+          "ja": "新しい土饅頭の上に、弔いの菓子の籠が置いてある。取っ手に紙。「四十個注文、受け取り三十一個。九個分は菓子屋に未払い」。菓子はまだ柔らかい。"
+        },
+        "per_place": false,
+        "dc": 10,
+        "value": 0,
+        "count": 1
+      },
+      {
+        "type": "choice",
+        "text": {
+          "en": "What will you do?",
+          "ja": "どうする?"
+        },
+        "options": [
+          {
+            "label": {
+              "en": "Eat a cake",
+              "ja": "菓子を食べる"
+            },
+            "steps": [
+              {
+                "type": "text",
+                "text": {
+                  "en": "Seed cake, a little dry. You leave a few coppers for the baker out of manners.",
+                  "ja": "種入りの菓子で、少しぱさつく。作法として、菓子屋に銅貨を何枚か残す。"
+                },
+                "per_place": false,
+                "dc": 10,
+                "value": 0,
+                "count": 1
+              },
+              {
+                "type": "heal",
+                "per_place": false,
+                "dc": 10,
+                "value": 0,
+                "count": 1,
+                "dice": "1d6"
+              },
+              {
+                "type": "xp",
+                "per_place": false,
+                "dc": 10,
+                "value": 25,
+                "count": 1
+              }
+            ],
+            "weight": 1
+          },
+          {
+            "label": {
+              "en": "Leave it",
+              "ja": "立ち去る"
+            },
+            "steps": [
+              {
+                "type": "again",
+                "per_place": false,
+                "dc": 10,
+                "value": 0,
+                "count": 1
+              }
+            ],
+            "weight": 1
+          }
+        ],
+        "per_place": false,
+        "dc": 10,
+        "value": 0,
+        "count": 1
+      }
+    ],
+    "scatter": {
+      "min_depth": 0,
+      "max_depth": 0.1,
+      "min_level": 1,
+      "max_level": 7,
+      "weight": 1,
+      "where": "room",
+      "max": 0,
+      "step": 0,
+      "rarity": "common",
+      "effective_weight": 1
+    },
+    "note": "弔いの菓子",
+    "memo": true
+  },
+  {
+    "id": "gkx_open_grave",
+    "place": "maze",
+    "once": "place",
+    "steps": [
+      {
+        "type": "text",
+        "text": {
+          "en": "A grave with the turf thrown outward. The coffin lid has been pushed up from inside. A black ribbon, still tied around a wrist bone, trails in the soil.",
+          "ja": "芝が外側に投げ出された墓。棺の蓋は、内側から押し上げられている。手首の骨に結んだ黒い喪章の帯が、土の上に延びている。"
+        },
+        "per_place": false,
+        "dc": 10,
+        "value": 0,
+        "count": 1
+      },
+      {
+        "type": "choice",
+        "text": {
+          "en": "What will you do?",
+          "ja": "どうする?"
+        },
+        "options": [
+          {
+            "label": {
+              "en": "Search the coffin",
+              "ja": "棺を調べる"
+            },
+            "steps": [
+              {
+                "type": "check",
+                "per_place": false,
+                "skill": "investigation",
+                "dc": 11,
+                "success": [
+                  {
+                    "type": "text",
+                    "text": {
+                      "en": "Under the torn lining, a mourner's keepsake was left with the body. It was not worth stealing, or no one dared.",
+                      "ja": "裂けた内張りの下に、会葬者が遺体に添えた品が残っていた。盗むほどの物ではなかったのか、盗む者がいなかったのか。"
+                    },
+                    "per_place": false,
+                    "dc": 10,
+                    "value": 0,
+                    "count": 1
+                  },
+                  {
+                    "type": "gold",
+                    "per_place": false,
+                    "dc": 10,
+                    "value": 30,
+                    "count": 1
+                  },
+                  {
+                    "type": "xp",
+                    "per_place": false,
+                    "dc": 10,
+                    "value": 40,
+                    "count": 1
+                  }
+                ],
+                "fail": [
+                  {
+                    "type": "text",
+                    "text": {
+                      "en": "Something wet and heavy moves behind you. The lid was not the only thing to open.",
+                      "ja": "背後で、濡れて重いものが動く。開いたのは蓋だけではなかった。"
+                    },
+                    "per_place": false,
+                    "dc": 10,
+                    "value": 0,
+                    "count": 1
+                  },
+                  {
+                    "type": "combat",
+                    "per_place": false,
+                    "dc": 10,
+                    "value": 0,
+                    "count": 1,
+                    "groups": [
+                      {
+                        "monster": "zombie",
+                        "count": 2
+                      }
+                    ],
+                    "win": [
+                      {
+                        "type": "xp",
+                        "per_place": false,
+                        "dc": 10,
+                        "value": 40,
+                        "count": 1
+                      }
+                    ]
+                  }
+                ],
+                "value": 0,
+                "count": 1
+              }
+            ],
+            "weight": 1
+          },
+          {
+            "label": {
+              "en": "Leave it",
+              "ja": "立ち去る"
+            },
+            "steps": [
+              {
+                "type": "again",
+                "per_place": false,
+                "dc": 10,
+                "value": 0,
+                "count": 1
+              }
+            ],
+            "weight": 1
+          }
+        ],
+        "per_place": false,
+        "dc": 10,
+        "value": 0,
+        "count": 1
+      }
+    ],
+    "scatter": {
+      "min_depth": 0,
+      "max_depth": 0.1,
+      "min_level": 1,
+      "max_level": 7,
+      "weight": 1,
+      "where": "dead_end",
+      "max": 0,
+      "step": 0,
+      "rarity": "common",
+      "effective_weight": 1
+    },
+    "note": "中から開いた墓",
+    "memo": true
+  },
+  {
+    "id": "gkx_epitaph_pun",
+    "place": "maze",
+    "once": "place",
+    "steps": [
+      {
+        "type": "text",
+        "text": {
+          "en": "A small stone: \"HERE LIES TAM THE ROOFER. HE SAID IT WAS ONLY A LITTLE SLOPE.\" Someone has since carved beneath it: \"It was not.\"",
+          "ja": "小さな墓石。「屋根葺きのタム、ここに眠る。ちょっとした勾配だと言っていた」。その下に、後から誰かが彫り足している。「ちょっとではなかった」。"
+        },
+        "per_place": false,
+        "dc": 10,
+        "value": 0,
+        "count": 1
+      },
+      {
+        "type": "choice",
+        "text": {
+          "en": "What will you do?",
+          "ja": "どうする?"
+        },
+        "options": [
+          {
+            "label": {
+              "en": "Copy it down for the tavern",
+              "ja": "酒場のために書き写す"
+            },
+            "steps": [
+              {
+                "type": "text",
+                "text": {
+                  "en": "It will get a laugh, and the dead do not mind. Probably.",
+                  "ja": "酒場でうけるだろう。死者は気にしない。たぶん。"
+                },
+                "per_place": false,
+                "dc": 10,
+                "value": 0,
+                "count": 1
+              },
+              {
+                "type": "xp",
+                "per_place": false,
+                "dc": 10,
+                "value": 30,
+                "count": 1
+              }
+            ],
+            "weight": 1
+          },
+          {
+            "label": {
+              "en": "Leave it",
+              "ja": "立ち去る"
+            },
+            "steps": [
+              {
+                "type": "again",
+                "per_place": false,
+                "dc": 10,
+                "value": 0,
+                "count": 1
+              }
+            ],
+            "weight": 1
+          }
+        ],
+        "per_place": false,
+        "dc": 10,
+        "value": 0,
+        "count": 1
+      }
+    ],
+    "scatter": {
+      "min_depth": 0,
+      "max_depth": 0.1,
+      "min_level": 1,
+      "max_level": 7,
+      "weight": 1,
+      "where": "any",
+      "max": 0,
+      "step": 0,
+      "rarity": "common",
+      "effective_weight": 1
+    },
+    "note": "可笑しい墓碑銘",
+    "memo": true
+  },
+  {
+    "id": "gkx_sunken_plot",
+    "place": "maze",
+    "steps": [
+      {
+        "type": "text",
+        "text": {
+          "en": "The ground ahead has settled over a shallow grave. A plank has been laid across, and someone has written on it: \"Mind the wife.\"",
+          "ja": "前方の地面が、浅い墓の上で沈んでいる。板が一枚渡してあり、「奥さんに気をつけて」と書いてある。"
+        },
+        "per_place": false,
+        "dc": 10,
+        "value": 0,
+        "count": 1
+      },
+      {
+        "type": "choice",
+        "text": {
+          "en": "What will you do?",
+          "ja": "どうする?"
+        },
+        "options": [
+          {
+            "label": {
+              "en": "Cross the plank",
+              "ja": "板を渡る"
+            },
+            "steps": [
+              {
+                "type": "check",
+                "per_place": false,
+                "skill": "acrobatics",
+                "dc": 11,
+                "success": [
+                  {
+                    "type": "text",
+                    "text": {
+                      "en": "You are across. The earth below breathes out something cold and lets you go.",
+                      "ja": "渡りきった。足の下の土が冷たい息を吐き、見逃してくれた。"
+                    },
+                    "per_place": false,
+                    "dc": 10,
+                    "value": 0,
+                    "count": 1
+                  },
+                  {
+                    "type": "xp",
+                    "per_place": false,
+                    "dc": 10,
+                    "value": 30,
+                    "count": 1
+                  }
+                ],
+                "fail": [
+                  {
+                    "type": "text",
+                    "text": {
+                      "en": "The plank snaps, and the old grave takes a leg to the knee.",
+                      "ja": "板が折れ、古い墓が膝まで足を呑んだ。"
+                    },
+                    "per_place": false,
+                    "dc": 10,
+                    "value": 0,
+                    "count": 1
+                  },
+                  {
+                    "type": "damage",
+                    "per_place": false,
+                    "ability": "dex",
+                    "dc": 11,
+                    "value": 0,
+                    "count": 1,
+                    "dice": "1d6",
+                    "damage_type": "bludgeoning"
+                  }
+                ],
+                "value": 0,
+                "count": 1
+              }
+            ],
+            "weight": 1
+          },
+          {
+            "label": {
+              "en": "Leave it",
+              "ja": "立ち去る"
+            },
+            "steps": [
+              {
+                "type": "again",
+                "per_place": false,
+                "dc": 10,
+                "value": 0,
+                "count": 1
+              }
+            ],
+            "weight": 1
+          }
+        ],
+        "per_place": false,
+        "dc": 10,
+        "value": 0,
+        "count": 1
+      }
+    ],
+    "scatter": {
+      "min_depth": 0,
+      "max_depth": 0.1,
+      "min_level": 1,
+      "max_level": 7,
+      "weight": 1,
+      "where": "corridor",
+      "max": 0,
+      "step": 0,
+      "rarity": "common",
+      "effective_weight": 1
+    },
+    "note": "沈んだ墓の土",
+    "memo": false
+  },
+  {
+    "id": "gkx_diggers_break",
+    "place": "maze",
+    "once": "place",
+    "steps": [
+      {
+        "type": "text",
+        "text": {
+          "en": "A flat stone with two shovels leaning against it. A lunch tin, a flask, a dice cup with no dice. The gravediggers sat here between graves, and the stone is worn smooth where they did.",
+          "ja": "平らな石に、シャベルが二本立て掛けてある。弁当の缶、水筒、サイコロのない筒。墓掘りたちが墓と墓の合間に腰を下ろした石で、座った所だけすり減って滑らかだ。"
+        },
+        "per_place": false,
+        "dc": 10,
+        "value": 0,
+        "count": 1
+      },
+      {
+        "type": "choice",
+        "text": {
+          "en": "What will you do?",
+          "ja": "どうする?"
+        },
+        "options": [
+          {
+            "label": {
+              "en": "Open the lunch tin",
+              "ja": "弁当の缶を開ける"
+            },
+            "steps": [
+              {
+                "type": "text",
+                "text": {
+                  "en": "Under a heel of old bread, the diggers' kitty for the drink fund. They never made it to the tavern.",
+                  "ja": "固くなったパンの下に、墓掘りたちの飲み代の貯めがあった。酒場には行けずじまいだ。"
+                },
+                "per_place": false,
+                "dc": 10,
+                "value": 0,
+                "count": 1
+              },
+              {
+                "type": "gold",
+                "per_place": false,
+                "dc": 10,
+                "value": 25,
+                "count": 1
+              },
+              {
+                "type": "xp",
+                "per_place": false,
+                "dc": 10,
+                "value": 25,
+                "count": 1
+              }
+            ],
+            "weight": 1
+          },
+          {
+            "label": {
+              "en": "Drink from the flask",
+              "ja": "水筒を飲む"
+            },
+            "steps": [
+              {
+                "type": "text",
+                "text": {
+                  "en": "Cold tea, strong enough to count as a decision.",
+                  "ja": "冷めた茶だが、濃くて覚悟がいる。"
+                },
+                "per_place": false,
+                "dc": 10,
+                "value": 0,
+                "count": 1
+              },
+              {
+                "type": "heal",
+                "per_place": false,
+                "dc": 10,
+                "value": 0,
+                "count": 1,
+                "dice": "1d6"
+              }
+            ],
+            "weight": 1
+          },
+          {
+            "label": {
+              "en": "Leave it",
+              "ja": "立ち去る"
+            },
+            "steps": [
+              {
+                "type": "again",
+                "per_place": false,
+                "dc": 10,
+                "value": 0,
+                "count": 1
+              }
+            ],
+            "weight": 1
+          }
+        ],
+        "per_place": false,
+        "dc": 10,
+        "value": 0,
+        "count": 1
+      }
+    ],
+    "scatter": {
+      "min_depth": 0.15,
+      "max_depth": 0.25,
+      "min_level": 1,
+      "max_level": 7,
+      "weight": 1,
+      "where": "room",
+      "max": 0,
+      "step": 0,
+      "rarity": "common",
+      "effective_weight": 1
+    },
+    "note": "墓掘りの休み場",
+    "memo": true
+  },
+  {
+    "id": "gkx_plot_quarrel",
+    "place": "maze",
+    "once": "place",
+    "steps": [
+      {
+        "type": "text",
+        "text": {
+          "en": "Two sets of stakes with string, crossing each other. One tag reads \"MY MOTHER'S PLOT. - Harl.\" The other: \"MY MOTHER'S PLOT. - Harl's brother.\" It seems their mother was buried twice.",
+          "ja": "杭と紐が、互いに交差して二組張ってある。一つの札は「母の区画。ハール」。もう一つは「母の区画。ハールの弟」。母は二度埋められたらしい。"
+        },
+        "per_place": false,
+        "dc": 10,
+        "value": 0,
+        "count": 1
+      },
+      {
+        "type": "choice",
+        "text": {
+          "en": "What will you do?",
+          "ja": "どうする?"
+        },
+        "options": [
+          {
+            "label": {
+              "en": "Look for the deed",
+              "ja": "証書を探す"
+            },
+            "steps": [
+              {
+                "type": "check",
+                "per_place": false,
+                "skill": "insight",
+                "dc": 11,
+                "success": [
+                  {
+                    "type": "text",
+                    "text": {
+                      "en": "The deed is folded inside a stake, and it names neither of them. It names a third party, who paid in full.",
+                      "ja": "証書は杭の中に畳んで差し込まれていた。二人のどちらの名でもない。全額を払った第三者の名だ。"
+                    },
+                    "per_place": false,
+                    "dc": 10,
+                    "value": 0,
+                    "count": 1
+                  },
+                  {
+                    "type": "gold",
+                    "per_place": false,
+                    "dc": 10,
+                    "value": 25,
+                    "count": 1
+                  },
+                  {
+                    "type": "xp",
+                    "per_place": false,
+                    "dc": 10,
+                    "value": 50,
+                    "count": 1
+                  }
+                ],
+                "fail": [
+                  {
+                    "type": "text",
+                    "text": {
+                      "en": "Every scrap says something different. You give up and let them keep arguing.",
+                      "ja": "どの紙切れも言うことが違う。あきらめて、二人には言い争いを続けさせることにした。"
+                    },
+                    "per_place": false,
+                    "dc": 10,
+                    "value": 0,
+                    "count": 1
+                  },
+                  {
+                    "type": "xp",
+                    "per_place": false,
+                    "dc": 10,
+                    "value": 20,
+                    "count": 1
+                  }
+                ],
+                "value": 0,
+                "count": 1
+              }
+            ],
+            "weight": 1
+          },
+          {
+            "label": {
+              "en": "Leave it",
+              "ja": "立ち去る"
+            },
+            "steps": [
+              {
+                "type": "again",
+                "per_place": false,
+                "dc": 10,
+                "value": 0,
+                "count": 1
+              }
+            ],
+            "weight": 1
+          }
+        ],
+        "per_place": false,
+        "dc": 10,
+        "value": 0,
+        "count": 1
+      }
+    ],
+    "scatter": {
+      "min_depth": 0.15,
+      "max_depth": 0.25,
+      "min_level": 1,
+      "max_level": 7,
+      "weight": 1,
+      "where": "corridor",
+      "max": 0,
+      "step": 0,
+      "rarity": "common",
+      "effective_weight": 1
+    },
+    "note": "区画の言い争い",
+    "memo": true
+  },
+  {
+    "id": "gkx_grave_goods",
+    "place": "maze",
+    "once": "place",
+    "steps": [
+      {
+        "type": "text",
+        "text": {
+          "en": "A pauper's grave. A scratched message on the stone: \"Buried with him: my good purse. Will come back for it. - Ma.\" The soil over it looks recently disturbed, or never settled.",
+          "ja": "貧者の墓。石に引っかき傷の伝言。「あの人と一緒に、いい財布を埋めた。取りに戻る。母より」。上の土は、掘り返されたばかりのようにも、落ち着かないままのようにも見える。"
+        },
+        "per_place": false,
+        "dc": 10,
+        "value": 0,
+        "count": 1
+      },
+      {
+        "type": "choice",
+        "text": {
+          "en": "What will you do?",
+          "ja": "どうする?"
+        },
+        "options": [
+          {
+            "label": {
+              "en": "Dig for the purse",
+              "ja": "財布を掘り出す"
+            },
+            "steps": [
+              {
+                "type": "random",
+                "options": [
+                  {
+                    "steps": [
+                      {
+                        "type": "text",
+                        "text": {
+                          "en": "It is there, as promised. You close the grave and leave a coin's worth of apology.",
+                          "ja": "約束どおり、そこにあった。墓を埋め戻し、詫びのしるしを残す。"
+                        },
+                        "per_place": false,
+                        "dc": 10,
+                        "value": 0,
+                        "count": 1
+                      },
+                      {
+                        "type": "gold",
+                        "per_place": false,
+                        "dc": 10,
+                        "value": 35,
+                        "count": 1
+                      },
+                      {
+                        "type": "xp",
+                        "per_place": false,
+                        "dc": 10,
+                        "value": 30,
+                        "count": 1
+                      }
+                    ],
+                    "weight": 2
+                  },
+                  {
+                    "steps": [
+                      {
+                        "type": "text",
+                        "text": {
+                          "en": "A cold hand closes over the purse first. The man would like to keep it.",
+                          "ja": "先に冷たい手が財布を握った。男は手放す気がない。"
+                        },
+                        "per_place": false,
+                        "dc": 10,
+                        "value": 0,
+                        "count": 1
+                      },
+                      {
+                        "type": "combat",
+                        "per_place": false,
+                        "dc": 10,
+                        "value": 0,
+                        "count": 1,
+                        "groups": [
+                          {
+                            "monster": "shadow",
+                            "count": 1
+                          }
+                        ],
+                        "win": [
+                          {
+                            "type": "gold",
+                            "per_place": false,
+                            "dc": 10,
+                            "value": 20,
+                            "count": 1
+                          },
+                          {
+                            "type": "xp",
+                            "per_place": false,
+                            "dc": 10,
+                            "value": 30,
+                            "count": 1
+                          }
+                        ]
+                      }
+                    ],
+                    "weight": 1
+                  }
+                ],
+                "per_place": false,
+                "dc": 10,
+                "value": 0,
+                "count": 1
+              }
+            ],
+            "weight": 1
+          },
+          {
+            "label": {
+              "en": "Leave it",
+              "ja": "立ち去る"
+            },
+            "steps": [
+              {
+                "type": "again",
+                "per_place": false,
+                "dc": 10,
+                "value": 0,
+                "count": 1
+              }
+            ],
+            "weight": 1
+          }
+        ],
+        "per_place": false,
+        "dc": 10,
+        "value": 0,
+        "count": 1
+      }
+    ],
+    "scatter": {
+      "min_depth": 0.15,
+      "max_depth": 0.25,
+      "min_level": 1,
+      "max_level": 7,
+      "weight": 1,
+      "where": "dead_end",
+      "max": 0,
+      "step": 0,
+      "rarity": "uncommon",
+      "effective_weight": 0.5
+    },
+    "note": "取りに戻るつもりの副葬品",
+    "memo": true
+  },
+  {
+    "id": "gkx_mason_error",
+    "place": "maze",
+    "once": "place",
+    "steps": [
+      {
+        "type": "text",
+        "text": {
+          "en": "A slab at the end of a row of stones. The mason has chiselled: \"BELOVED WIFE OF PELL, MOTHER OF FOUR, SORRY\". A note pinned beside it: \"Re-chisel at double rate. 'Sorry' was the client's, not ours.\"",
+          "ja": "並んだ墓石の端に、石板が一枚。石工の彫り文字。「ペルの愛しき妻、四人の母、ごめんなさい」。傍らに留めた紙。「彫り直しは倍額。『ごめんなさい』は客の注文で、うちの落ち度ではない」。"
+        },
+        "per_place": false,
+        "dc": 10,
+        "value": 0,
+        "count": 1
+      },
+      {
+        "type": "choice",
+        "text": {
+          "en": "What will you do?",
+          "ja": "どうする?"
+        },
+        "options": [
+          {
+            "label": {
+              "en": "Take the mason's tools from the ledge",
+              "ja": "石工の道具を棚から取る"
+            },
+            "steps": [
+              {
+                "type": "text",
+                "text": {
+                  "en": "A good chisel and a small mallet, left under a rag. Nobody came back for them.",
+                  "ja": "良い鑿と小さな槌が、布の下に残っていた。取りに戻る者はいなかった。"
+                },
+                "per_place": false,
+                "dc": 10,
+                "value": 0,
+                "count": 1
+              },
+              {
+                "type": "treasure",
+                "per_place": false,
+                "dc": 10,
+                "value": 0,
+                "count": 1
+              },
+              {
+                "type": "xp",
+                "per_place": false,
+                "dc": 10,
+                "value": 30,
+                "count": 1
+              }
+            ],
+            "weight": 1
+          },
+          {
+            "label": {
+              "en": "Leave it",
+              "ja": "立ち去る"
+            },
+            "steps": [
+              {
+                "type": "again",
+                "per_place": false,
+                "dc": 10,
+                "value": 0,
+                "count": 1
+              }
+            ],
+            "weight": 1
+          }
+        ],
+        "per_place": false,
+        "dc": 10,
+        "value": 0,
+        "count": 1
+      }
+    ],
+    "scatter": {
+      "min_depth": 0.15,
+      "max_depth": 0.25,
+      "min_level": 1,
+      "max_level": 7,
+      "weight": 1,
+      "where": "corridor",
+      "max": 0,
+      "step": 0,
+      "rarity": "uncommon",
+      "effective_weight": 0.5
+    },
+    "note": "彫り間違いの墓石",
+    "memo": true
+  },
+  {
+    "id": "gkx_shroud_nest",
+    "place": "maze",
+    "once": "place",
+    "steps": [
+      {
+        "type": "text",
+        "text": {
+          "en": "A heap of burial shrouds in the corner, torn and rearranged into a bowl. The squeaking stops as you come near.",
+          "ja": "隅に経帷子の山。引き裂かれて、鉢の形に整えられている。近づくと、鳴き声が止んだ。"
+        },
+        "per_place": false,
+        "dc": 10,
+        "value": 0,
+        "count": 1
+      },
+      {
+        "type": "choice",
+        "text": {
+          "en": "What will you do?",
+          "ja": "どうする?"
+        },
+        "options": [
+          {
+            "label": {
+              "en": "Sift through the shrouds",
+              "ja": "経帷子をかき分ける"
+            },
+            "steps": [
+              {
+                "type": "text",
+                "text": {
+                  "en": "Rats, and a great many of them, who object.",
+                  "ja": "鼠の群れだ。数が多く、異議を唱えている。"
+                },
+                "per_place": false,
+                "dc": 10,
+                "value": 0,
+                "count": 1
+              },
+              {
+                "type": "combat",
+                "per_place": false,
+                "dc": 10,
+                "value": 0,
+                "count": 1,
+                "groups": [
+                  {
+                    "monster": "swarm_of_rats",
+                    "count": 1
+                  }
+                ],
+                "win": [
+                  {
+                    "type": "text",
+                    "text": {
+                      "en": "Under the nest, coins from the pockets of the very recently dead.",
+                      "ja": "巣の下に、最近の死者のポケットから来た硬貨があった。"
+                    },
+                    "per_place": false,
+                    "dc": 10,
+                    "value": 0,
+                    "count": 1
+                  },
+                  {
+                    "type": "gold",
+                    "per_place": false,
+                    "dc": 10,
+                    "value": 30,
+                    "count": 1
+                  },
+                  {
+                    "type": "xp",
+                    "per_place": false,
+                    "dc": 10,
+                    "value": 30,
+                    "count": 1
+                  }
+                ]
+              }
+            ],
+            "weight": 1
+          },
+          {
+            "label": {
+              "en": "Leave it",
+              "ja": "立ち去る"
+            },
+            "steps": [
+              {
+                "type": "again",
+                "per_place": false,
+                "dc": 10,
+                "value": 0,
+                "count": 1
+              }
+            ],
+            "weight": 1
+          }
+        ],
+        "per_place": false,
+        "dc": 10,
+        "value": 0,
+        "count": 1
+      }
+    ],
+    "scatter": {
+      "min_depth": 0.15,
+      "max_depth": 0.25,
+      "min_level": 1,
+      "max_level": 7,
+      "weight": 1,
+      "where": "dead_end",
+      "max": 0,
+      "step": 0,
+      "rarity": "common",
+      "effective_weight": 1
+    },
+    "note": "経帷子の巣",
+    "memo": true
+  },
+  {
+    "id": "gkx_skull_coin",
+    "place": "maze",
+    "once": "place",
+    "steps": [
+      {
+        "type": "text",
+        "text": {
+          "en": "The wall is built of skulls, laid in rows like a pantry. One has a coin between its teeth, the old fare for the road. It has been polished by thumbs.",
+          "ja": "壁は髑髏を並べて築いてある。食料棚のような整然さだ。一つだけ、歯に硬貨を挟んでいる。旅路の駄賃という古い習いで、親指に磨かれて光っている。"
+        },
+        "per_place": false,
+        "dc": 10,
+        "value": 0,
+        "count": 1
+      },
+      {
+        "type": "choice",
+        "text": {
+          "en": "What will you do?",
+          "ja": "どうする?"
+        },
+        "options": [
+          {
+            "label": {
+              "en": "Take the coin",
+              "ja": "硬貨を取る"
+            },
+            "steps": [
+              {
+                "type": "check",
+                "per_place": false,
+                "skill": "sleight_of_hand",
+                "dc": 12,
+                "success": [
+                  {
+                    "type": "text",
+                    "text": {
+                      "en": "It comes free with a small click. The skull looks mildly offended.",
+                      "ja": "小さな音を立てて外れた。髑髏は、少し気を悪くしたように見える。"
+                    },
+                    "per_place": false,
+                    "dc": 10,
+                    "value": 0,
+                    "count": 1
+                  },
+                  {
+                    "type": "gold",
+                    "per_place": false,
+                    "dc": 10,
+                    "value": 60,
+                    "count": 1
+                  },
+                  {
+                    "type": "xp",
+                    "per_place": false,
+                    "dc": 10,
+                    "value": 60,
+                    "count": 1
+                  }
+                ],
+                "fail": [
+                  {
+                    "type": "text",
+                    "text": {
+                      "en": "The row shifts, and old bone dust comes down in a sour cloud.",
+                      "ja": "並びがずれ、古い骨の粉が酸っぱい雲になって降る。"
+                    },
+                    "per_place": false,
+                    "dc": 10,
+                    "value": 0,
+                    "count": 1
+                  },
+                  {
+                    "type": "damage",
+                    "per_place": false,
+                    "ability": "con",
+                    "dc": 12,
+                    "value": 0,
+                    "count": 1,
+                    "dice": "1d6",
+                    "damage_type": "poison"
+                  }
+                ],
+                "value": 0,
+                "count": 1
+              }
+            ],
+            "weight": 1
+          },
+          {
+            "label": {
+              "en": "Leave it",
+              "ja": "立ち去る"
+            },
+            "steps": [
+              {
+                "type": "again",
+                "per_place": false,
+                "dc": 10,
+                "value": 0,
+                "count": 1
+              }
+            ],
+            "weight": 1
+          }
+        ],
+        "per_place": false,
+        "dc": 10,
+        "value": 0,
+        "count": 1
+      }
+    ],
+    "scatter": {
+      "min_depth": 0.35,
+      "max_depth": 0.45,
+      "min_level": 2,
+      "max_level": 7,
+      "weight": 1,
+      "where": "corridor",
+      "max": 0,
+      "step": 0,
+      "rarity": "common",
+      "effective_weight": 1
+    },
+    "note": "髑髏の歯の硬貨",
+    "memo": true
+  },
+  {
+    "id": "gkx_bell_tally",
+    "place": "maze",
+    "once": "place",
+    "steps": [
+      {
+        "type": "text",
+        "text": {
+          "en": "A bellringer's alcove. A slate copies the tally of the town's passing bell, up in the tower: one stroke for an infant, a full peal for a mayor. In the margin: \"Not to be confused with the funeral bell down here. That one is always three.\" Against one entry: \"Owed: 41 tolls. Family keeps saying next week.\" A tip jar sits on the sill.",
+          "ja": "鐘撞きの小部屋。石板に、町の鐘楼の「知らせの鐘」の記録が写してある。乳児は一打ち、市長なら全打ち。端に書き添えてある。「ここの弔いの鐘と、取り違えぬこと。あちらは、いつも三つ」。ある行に。「未払い、四十一打ち。遺族は来週と言い続けている」。窓台に心付けの壺。"
+        },
+        "per_place": false,
+        "dc": 10,
+        "value": 0,
+        "count": 1
+      },
+      {
+        "type": "choice",
+        "text": {
+          "en": "What will you do?",
+          "ja": "どうする?"
+        },
+        "options": [
+          {
+            "label": {
+              "en": "Count the tip jar",
+              "ja": "心付けの壺を数える"
+            },
+            "steps": [
+              {
+                "type": "text",
+                "text": {
+                  "en": "The jar is full of coppers and one button. The button is the largest tip.",
+                  "ja": "壺には銅貨が詰まり、ボタンが一つ混じっている。一番大きな心付けはボタンだ。"
+                },
+                "per_place": false,
+                "dc": 10,
+                "value": 0,
+                "count": 1
+              },
+              {
+                "type": "gold",
+                "per_place": false,
+                "dc": 10,
+                "value": 45,
+                "count": 1
+              }
+            ],
+            "weight": 1
+          },
+          {
+            "label": {
+              "en": "Read the tally closely",
+              "ja": "記録を読み込む"
+            },
+            "steps": [
+              {
+                "type": "text",
+                "text": {
+                  "en": "A century of the town's dead, in a bellringer's tidy hand. You come away knowing what a good toll sounds like.",
+                  "ja": "町の死者が百年分、鐘撞きの几帳面な字で並ぶ。良い鐘の音がどんなものか、少しわかった気がする。"
+                },
+                "per_place": false,
+                "dc": 10,
+                "value": 0,
+                "count": 1
+              },
+              {
+                "type": "xp",
+                "per_place": false,
+                "dc": 10,
+                "value": 70,
+                "count": 1
+              }
+            ],
+            "weight": 1
+          },
+          {
+            "label": {
+              "en": "Leave it",
+              "ja": "立ち去る"
+            },
+            "steps": [
+              {
+                "type": "again",
+                "per_place": false,
+                "dc": 10,
+                "value": 0,
+                "count": 1
+              }
+            ],
+            "weight": 1
+          }
+        ],
+        "per_place": false,
+        "dc": 10,
+        "value": 0,
+        "count": 1
+      }
+    ],
+    "scatter": {
+      "min_depth": 0.35,
+      "max_depth": 0.45,
+      "min_level": 2,
+      "max_level": 7,
+      "weight": 1,
+      "where": "room",
+      "max": 0,
+      "step": 0,
+      "rarity": "common",
+      "effective_weight": 1
+    },
+    "note": "鐘撞きの記録(町の鐘楼の知らせの鐘。納骨堂の弔いの鐘は三つ、と区別して添える)",
+    "memo": true
+  },
+  {
+    "id": "gkx_lovers_mark",
+    "place": "maze",
+    "once": "place",
+    "steps": [
+      {
+        "type": "text",
+        "text": {
+          "en": "On a ledge among the bones, a heart cut into the stone with a knife: \"M + T\". Below it, in a different hand: \"Still.\" The dates beneath are fifty years apart.",
+          "ja": "骨の積まれた棚の石に、ナイフでハートが刻んである。「M + T」。その下に、別の字で。「いまも」。刻まれた日付は、五十年離れている。"
+        },
+        "per_place": false,
+        "dc": 10,
+        "value": 0,
+        "count": 1
+      },
+      {
+        "type": "choice",
+        "text": {
+          "en": "What will you do?",
+          "ja": "どうする?"
+        },
+        "options": [
+          {
+            "label": {
+              "en": "Sit a while",
+              "ja": "しばらく座る"
+            },
+            "steps": [
+              {
+                "type": "text",
+                "text": {
+                  "en": "Nobody is here to watch you do it. You go on lighter than you came.",
+                  "ja": "見ている者はいない。来たときより、少し軽くなって先へ進む。"
+                },
+                "per_place": false,
+                "dc": 10,
+                "value": 0,
+                "count": 1
+              },
+              {
+                "type": "heal",
+                "per_place": false,
+                "dc": 10,
+                "value": 0,
+                "count": 1,
+                "dice": "1d8"
+              },
+              {
+                "type": "xp",
+                "per_place": false,
+                "dc": 10,
+                "value": 40,
+                "count": 1
+              }
+            ],
+            "weight": 1
+          },
+          {
+            "label": {
+              "en": "Leave it",
+              "ja": "立ち去る"
+            },
+            "steps": [
+              {
+                "type": "again",
+                "per_place": false,
+                "dc": 10,
+                "value": 0,
+                "count": 1
+              }
+            ],
+            "weight": 1
+          }
+        ],
+        "per_place": false,
+        "dc": 10,
+        "value": 0,
+        "count": 1
+      }
+    ],
+    "scatter": {
+      "min_depth": 0.35,
+      "max_depth": 0.45,
+      "min_level": 2,
+      "max_level": 7,
+      "weight": 1,
+      "where": "dead_end",
+      "max": 0,
+      "step": 0,
+      "rarity": "common",
+      "effective_weight": 1
+    },
+    "note": "恋人の刻み",
+    "memo": true
+  },
+  {
+    "id": "gkx_bat_roost",
+    "place": "maze",
+    "once": "place",
+    "steps": [
+      {
+        "type": "text",
+        "text": {
+          "en": "Bats hang in the skull niches by the hundred, quiet as folded cloth. In the stacked bones below, the edge of a leather purse shows.",
+          "ja": "髑髏の窪みに、蝙蝠が何百と下がっている。畳んだ布のように静かだ。下に積んだ骨の間に、革の財布の端が覗いている。"
+        },
+        "per_place": false,
+        "dc": 10,
+        "value": 0,
+        "count": 1
+      },
+      {
+        "type": "choice",
+        "text": {
+          "en": "What will you do?",
+          "ja": "どうする?"
+        },
+        "options": [
+          {
+            "label": {
+              "en": "Creep in for the purse",
+              "ja": "忍び寄って財布を取る"
+            },
+            "steps": [
+              {
+                "type": "check",
+                "per_place": false,
+                "skill": "stealth",
+                "dc": 12,
+                "success": [
+                  {
+                    "type": "text",
+                    "text": {
+                      "en": "Not one wing opens. The purse had been dropped here by a mourner who could not face going on.",
+                      "ja": "翼は一枚も開かなかった。ここで先に進めなくなった会葬者が落としていった財布だ。"
+                    },
+                    "per_place": false,
+                    "dc": 10,
+                    "value": 0,
+                    "count": 1
+                  },
+                  {
+                    "type": "gold",
+                    "per_place": false,
+                    "dc": 10,
+                    "value": 55,
+                    "count": 1
+                  },
+                  {
+                    "type": "xp",
+                    "per_place": false,
+                    "dc": 10,
+                    "value": 50,
+                    "count": 1
+                  }
+                ],
+                "fail": [
+                  {
+                    "type": "text",
+                    "text": {
+                      "en": "A bone rolls underfoot. The ceiling lets go of itself.",
+                      "ja": "足元で骨が転がる。天井が、いっせいに剥がれ落ちた。"
+                    },
+                    "per_place": false,
+                    "dc": 10,
+                    "value": 0,
+                    "count": 1
+                  },
+                  {
+                    "type": "combat",
+                    "per_place": false,
+                    "dc": 10,
+                    "value": 0,
+                    "count": 1,
+                    "groups": [
+                      {
+                        "monster": "swarm_of_bats",
+                        "count": 1
+                      }
+                    ],
+                    "win": [
+                      {
+                        "type": "xp",
+                        "per_place": false,
+                        "dc": 10,
+                        "value": 40,
+                        "count": 1
+                      }
+                    ]
+                  }
+                ],
+                "value": 0,
+                "count": 1
+              }
+            ],
+            "weight": 1
+          },
+          {
+            "label": {
+              "en": "Leave it",
+              "ja": "立ち去る"
+            },
+            "steps": [
+              {
+                "type": "again",
+                "per_place": false,
+                "dc": 10,
+                "value": 0,
+                "count": 1
+              }
+            ],
+            "weight": 1
+          }
+        ],
+        "per_place": false,
+        "dc": 10,
+        "value": 0,
+        "count": 1
+      }
+    ],
+    "scatter": {
+      "min_depth": 0.35,
+      "max_depth": 0.45,
+      "min_level": 2,
+      "max_level": 7,
+      "weight": 1,
+      "where": "room",
+      "max": 0,
+      "step": 0,
+      "rarity": "common",
+      "effective_weight": 1
+    },
+    "note": "納骨所の蝙蝠",
+    "memo": true
+  },
+  {
+    "id": "gkx_roster_stele",
+    "place": "maze",
+    "once": "place",
+    "steps": [
+      {
+        "type": "text",
+        "text": {
+          "en": "A stele lists the wardens by years of service. Against one: \"61 years. Took no leave.\" Beneath, in chalk, a later hand: \"Show-off.\" Beneath that, in a third hand: \"Rest.\"",
+          "ja": "碑に、墓守が務めた年数で並んでいる。一人の欄に。「六十一年。休暇なし」。その下にチョークで、後の人の字。「自慢だ」。さらにその下に、三人目の字。「休め」。"
+        },
+        "per_place": false,
+        "dc": 10,
+        "value": 0,
+        "count": 1
+      },
+      {
+        "type": "choice",
+        "text": {
+          "en": "What will you do?",
+          "ja": "どうする?"
+        },
+        "options": [
+          {
+            "label": {
+              "en": "Study the roster",
+              "ja": "名簿を読み解く"
+            },
+            "steps": [
+              {
+                "type": "check",
+                "per_place": false,
+                "skill": "history",
+                "dc": 12,
+                "success": [
+                  {
+                    "type": "text",
+                    "text": {
+                      "en": "The years do not quite add up, and the gaps are where the keepers buried each other. A kind of bookkeeping.",
+                      "ja": "年数は合わず、空いたところは墓守が墓守を葬った年だ。一種の帳簿でもある。"
+                    },
+                    "per_place": false,
+                    "dc": 10,
+                    "value": 0,
+                    "count": 1
+                  },
+                  {
+                    "type": "xp",
+                    "per_place": false,
+                    "dc": 10,
+                    "value": 110,
+                    "count": 1
+                  }
+                ],
+                "fail": [
+                  {
+                    "type": "text",
+                    "text": {
+                      "en": "Too worn. The chalk comments are the only part that still reads.",
+                      "ja": "磨り減りすぎている。読めるのはチョークの書き込みだけだ。"
+                    },
+                    "per_place": false,
+                    "dc": 10,
+                    "value": 0,
+                    "count": 1
+                  },
+                  {
+                    "type": "xp",
+                    "per_place": false,
+                    "dc": 10,
+                    "value": 30,
+                    "count": 1
+                  }
+                ],
+                "value": 0,
+                "count": 1
+              }
+            ],
+            "weight": 1
+          },
+          {
+            "label": {
+              "en": "Leave it",
+              "ja": "立ち去る"
+            },
+            "steps": [
+              {
+                "type": "again",
+                "per_place": false,
+                "dc": 10,
+                "value": 0,
+                "count": 1
+              }
+            ],
+            "weight": 1
+          }
+        ],
+        "per_place": false,
+        "dc": 10,
+        "value": 0,
+        "count": 1
+      }
+    ],
+    "scatter": {
+      "min_depth": 0.55,
+      "max_depth": 0.65,
+      "min_level": 3,
+      "max_level": 7,
+      "weight": 1,
+      "where": "corridor",
+      "max": 0,
+      "step": 0,
+      "rarity": "common",
+      "effective_weight": 1
+    },
+    "note": "守り手の名簿の碑",
+    "memo": true
+  },
+  {
+    "id": "gkx_warden_cupboard",
+    "place": "maze",
+    "once": "place",
+    "steps": [
+      {
+        "type": "text",
+        "text": {
+          "en": "A cupboard set in the wall, labelled \"LAMP OIL, BREAD, DO NOT DRINK THE OTHER FLASK.\" The bread has become a geology exhibit. The oil is sound.",
+          "ja": "壁に戸棚が埋めてある。「ランプ油、パン、もう一つの水筒は飲むな」と札がある。パンは岩石の標本になっている。油は無事だ。"
+        },
+        "per_place": false,
+        "dc": 10,
+        "value": 0,
+        "count": 1
+      },
+      {
+        "type": "choice",
+        "text": {
+          "en": "What will you do?",
+          "ja": "どうする?"
+        },
+        "options": [
+          {
+            "label": {
+              "en": "Take the lamp oil and the rest",
+              "ja": "ランプ油とそのほかを持ち出す"
+            },
+            "steps": [
+              {
+                "type": "text",
+                "text": {
+                  "en": "Oil for the lantern, and a few coins in the bread tin. The keepers kept their pay where they ate.",
+                  "ja": "ランタンの油と、パンの缶に硬貨が数枚。墓守たちは、給金を食べ物のそばにしまっていた。"
+                },
+                "per_place": false,
+                "dc": 10,
+                "value": 0,
+                "count": 1
+              },
+              {
+                "type": "light",
+                "per_place": false,
+                "dc": 10,
+                "value": 100,
+                "count": 1
+              },
+              {
+                "type": "gold",
+                "per_place": false,
+                "dc": 10,
+                "value": 50,
+                "count": 1
+              },
+              {
+                "type": "xp",
+                "per_place": false,
+                "dc": 10,
+                "value": 60,
+                "count": 1
+              }
+            ],
+            "weight": 1
+          },
+          {
+            "label": {
+              "en": "Leave it",
+              "ja": "立ち去る"
+            },
+            "steps": [
+              {
+                "type": "again",
+                "per_place": false,
+                "dc": 10,
+                "value": 0,
+                "count": 1
+              }
+            ],
+            "weight": 1
+          }
+        ],
+        "per_place": false,
+        "dc": 10,
+        "value": 0,
+        "count": 1
+      }
+    ],
+    "scatter": {
+      "min_depth": 0.55,
+      "max_depth": 0.65,
+      "min_level": 3,
+      "max_level": 7,
+      "weight": 1,
+      "where": "dead_end",
+      "max": 0,
+      "step": 0,
+      "rarity": "common",
+      "effective_weight": 1
+    },
+    "note": "番小屋の戸棚",
+    "memo": true
+  },
+  {
+    "id": "gkx_ghoul_feast",
+    "place": "maze",
+    "once": "place",
+    "steps": [
+      {
+        "type": "text",
+        "text": {
+          "en": "Offerings are laid before a row of niches: bread, wine, a child's wooden horse. Two thin shapes crouch over them. The bread is not what they are eating.",
+          "ja": "壁龕の列の前に供え物が並ぶ。パン、葡萄酒、子供の木馬。痩せた影が二つ、そこにうずくまっている。食べているのは、パンではない。"
+        },
+        "per_place": false,
+        "dc": 10,
+        "value": 0,
+        "count": 1
+      },
+      {
+        "type": "choice",
+        "text": {
+          "en": "What will you do?",
+          "ja": "どうする?"
+        },
+        "options": [
+          {
+            "label": {
+              "en": "Drive them off",
+              "ja": "追い払う"
+            },
+            "steps": [
+              {
+                "type": "combat",
+                "per_place": false,
+                "dc": 10,
+                "value": 0,
+                "count": 1,
+                "groups": [
+                  {
+                    "monster": "ghoul",
+                    "count": 2
+                  }
+                ],
+                "win": [
+                  {
+                    "type": "text",
+                    "text": {
+                      "en": "Behind the offerings, what the mourners left for the dead and the dead never got.",
+                      "ja": "供え物の裏に、会葬者が死者へ残し、死者の手に渡らなかった物があった。"
+                    },
+                    "per_place": false,
+                    "dc": 10,
+                    "value": 0,
+                    "count": 1
+                  },
+                  {
+                    "type": "gold",
+                    "per_place": false,
+                    "dc": 10,
+                    "value": 100,
+                    "count": 1
+                  },
+                  {
+                    "type": "xp",
+                    "per_place": false,
+                    "dc": 10,
+                    "value": 120,
+                    "count": 1
+                  }
+                ]
+              }
+            ],
+            "weight": 1
+          },
+          {
+            "label": {
+              "en": "Leave it",
+              "ja": "立ち去る"
+            },
+            "steps": [
+              {
+                "type": "again",
+                "per_place": false,
+                "dc": 10,
+                "value": 0,
+                "count": 1
+              }
+            ],
+            "weight": 1
+          }
+        ],
+        "per_place": false,
+        "dc": 10,
+        "value": 0,
+        "count": 1
+      }
+    ],
+    "scatter": {
+      "min_depth": 0.55,
+      "max_depth": 0.65,
+      "min_level": 3,
+      "max_level": 7,
+      "weight": 1,
+      "where": "room",
+      "max": 0,
+      "step": 0,
+      "rarity": "common",
+      "effective_weight": 1
+    },
+    "note": "供え物を食う者",
+    "memo": true
+  },
+  {
+    "id": "gkx_trapped_crypt",
+    "place": "maze",
+    "once": "place",
+    "steps": [
+      {
+        "type": "text",
+        "text": {
+          "en": "A family crypt with a lock on its door. Above, carved: \"THOSE WHO ENTER UNINVITED, KINDLY REMAIN.\" The lock is oily and well kept.",
+          "ja": "家族墓の扉に錠が掛かっている。上に彫り文字。「招かれず入る者は、どうぞそのままお残りを」。錠は油が差され、よく手入れされている。"
+        },
+        "per_place": false,
+        "dc": 10,
+        "value": 0,
+        "count": 1
+      },
+      {
+        "type": "choice",
+        "text": {
+          "en": "What will you do?",
+          "ja": "どうする?"
+        },
+        "options": [
+          {
+            "label": {
+              "en": "Pick the lock",
+              "ja": "錠を開ける"
+            },
+            "steps": [
+              {
+                "type": "check",
+                "per_place": false,
+                "skill": "sleight_of_hand",
+                "dc": 13,
+                "success": [
+                  {
+                    "type": "text",
+                    "text": {
+                      "en": "The lock turns, and the door swings clear of its spring-trap. The family left their best in here.",
+                      "ja": "錠が回り、扉は仕掛けのばねを外れて開いた。家族は一番良い物をここに納めていた。"
+                    },
+                    "per_place": false,
+                    "dc": 10,
+                    "value": 0,
+                    "count": 1
+                  },
+                  {
+                    "type": "treasure",
+                    "per_place": false,
+                    "dc": 10,
+                    "value": 0,
+                    "count": 1
+                  },
+                  {
+                    "type": "gold",
+                    "per_place": false,
+                    "dc": 10,
+                    "value": 80,
+                    "count": 1
+                  },
+                  {
+                    "type": "xp",
+                    "per_place": false,
+                    "dc": 10,
+                    "value": 100,
+                    "count": 1
+                  }
+                ],
+                "fail": [
+                  {
+                    "type": "text",
+                    "text": {
+                      "en": "The lock bites. A needle of green spit snaps out of the door.",
+                      "ja": "錠が噛みついた。扉から緑の滴をまとった針が飛び出す。"
+                    },
+                    "per_place": false,
+                    "dc": 10,
+                    "value": 0,
+                    "count": 1
+                  },
+                  {
+                    "type": "damage",
+                    "per_place": false,
+                    "ability": "con",
+                    "dc": 13,
+                    "value": 0,
+                    "count": 1,
+                    "dice": "2d6",
+                    "damage_type": "poison"
+                  }
+                ],
+                "value": 0,
+                "count": 1
+              }
+            ],
+            "weight": 1
+          },
+          {
+            "label": {
+              "en": "Leave it",
+              "ja": "立ち去る"
+            },
+            "steps": [
+              {
+                "type": "again",
+                "per_place": false,
+                "dc": 10,
+                "value": 0,
+                "count": 1
+              }
+            ],
+            "weight": 1
+          }
+        ],
+        "per_place": false,
+        "dc": 10,
+        "value": 0,
+        "count": 1
+      }
+    ],
+    "scatter": {
+      "min_depth": 0.55,
+      "max_depth": 0.65,
+      "min_level": 3,
+      "max_level": 7,
+      "weight": 1,
+      "where": "dead_end",
+      "max": 0,
+      "step": 0,
+      "rarity": "common",
+      "effective_weight": 1
+    },
+    "note": "家族墓の罠",
+    "memo": true
+  },
+  {
+    "id": "gkx_sigil_graffiti",
+    "place": "maze",
+    "once": "place",
+    "steps": [
+      {
+        "type": "text",
+        "text": {
+          "en": "A door traced with pale sigils. Scratched across the lintel: \"THIS ONE STAYS CLOSED. I MEAN IT. - night shift.\" The scratches are deep, not hurried.",
+          "ja": "青白い紋が描かれた扉。鴨居に引っかき傷。「ここは閉じたままにしておけ。本気だ。夜番より」。傷は深く、急いだ跡ではない。"
+        },
+        "per_place": false,
+        "dc": 10,
+        "value": 0,
+        "count": 1
+      },
+      {
+        "type": "choice",
+        "text": {
+          "en": "What will you do?",
+          "ja": "どうする?"
+        },
+        "options": [
+          {
+            "label": {
+              "en": "Trace the sigil with a finger",
+              "ja": "紋を指でなぞる"
+            },
+            "steps": [
+              {
+                "type": "check",
+                "per_place": false,
+                "skill": "arcana",
+                "dc": 13,
+                "success": [
+                  {
+                    "type": "text",
+                    "text": {
+                      "en": "The pattern holds, and so do you. It is a seal that says: not yet.",
+                      "ja": "紋は保たれ、あなたも無事だった。『まだだ』と読める封印だ。"
+                    },
+                    "per_place": false,
+                    "dc": 10,
+                    "value": 0,
+                    "count": 1
+                  },
+                  {
+                    "type": "xp",
+                    "per_place": false,
+                    "dc": 10,
+                    "value": 150,
+                    "count": 1
+                  }
+                ],
+                "fail": [
+                  {
+                    "type": "text",
+                    "text": {
+                      "en": "The sigil flares white and answers like a slammed door.",
+                      "ja": "紋が白く光り、扉を叩きつけるような返答があった。"
+                    },
+                    "per_place": false,
+                    "dc": 10,
+                    "value": 0,
+                    "count": 1
+                  },
+                  {
+                    "type": "damage",
+                    "per_place": false,
+                    "ability": "dex",
+                    "dc": 13,
+                    "value": 0,
+                    "count": 1,
+                    "dice": "2d6",
+                    "damage_type": "force"
+                  }
+                ],
+                "value": 0,
+                "count": 1
+              }
+            ],
+            "weight": 1
+          },
+          {
+            "label": {
+              "en": "Leave it",
+              "ja": "立ち去る"
+            },
+            "steps": [
+              {
+                "type": "again",
+                "per_place": false,
+                "dc": 10,
+                "value": 0,
+                "count": 1
+              }
+            ],
+            "weight": 1
+          }
+        ],
+        "per_place": false,
+        "dc": 10,
+        "value": 0,
+        "count": 1
+      }
+    ],
+    "scatter": {
+      "min_depth": 0.75,
+      "max_depth": 0.85,
+      "min_level": 3,
+      "max_level": 7,
+      "weight": 1,
+      "where": "corridor",
+      "max": 0,
+      "step": 0,
+      "rarity": "common",
+      "effective_weight": 1
+    },
+    "note": "封印の扉の落書き",
+    "memo": true
+  },
+  {
+    "id": "gkx_robbers_pack",
+    "place": "maze",
+    "once": "place",
+    "steps": [
+      {
+        "type": "text",
+        "text": {
+          "en": "A canvas pack, a crowbar, a coil of rope, and a lantern gone dark. A scrap of paper in the pack: \"Back by dawn. Do NOT go down the second spiral.\" Under it, in another hand: \"Told you.\"",
+          "ja": "帆布の背負い袋、バール、巻いた縄、火の消えたランタン。袋の中に紙切れ。「夜明けまでに戻る。二つめの螺旋には降りるな」。その下に別の字で。「だから言っただろう」。"
+        },
+        "per_place": false,
+        "dc": 10,
+        "value": 0,
+        "count": 1
+      },
+      {
+        "type": "choice",
+        "text": {
+          "en": "What will you do?",
+          "ja": "どうする?"
+        },
+        "options": [
+          {
+            "label": {
+              "en": "Search the pack",
+              "ja": "背負い袋を探る"
+            },
+            "steps": [
+              {
+                "type": "check",
+                "per_place": false,
+                "skill": "investigation",
+                "dc": 12,
+                "success": [
+                  {
+                    "type": "text",
+                    "text": {
+                      "en": "A false bottom in the pack, and a day's pay in it, unspent.",
+                      "ja": "袋の底が二重になっている。使われなかった一日分の稼ぎが入っていた。"
+                    },
+                    "per_place": false,
+                    "dc": 10,
+                    "value": 0,
+                    "count": 1
+                  },
+                  {
+                    "type": "gold",
+                    "per_place": false,
+                    "dc": 10,
+                    "value": 120,
+                    "count": 1
+                  },
+                  {
+                    "type": "xp",
+                    "per_place": false,
+                    "dc": 10,
+                    "value": 120,
+                    "count": 1
+                  }
+                ],
+                "fail": [
+                  {
+                    "type": "text",
+                    "text": {
+                      "en": "The rope you lift is attached to something. It stands up.",
+                      "ja": "持ち上げた縄の先に、何かが繋がっている。それが立ち上がった。"
+                    },
+                    "per_place": false,
+                    "dc": 10,
+                    "value": 0,
+                    "count": 1
+                  },
+                  {
+                    "type": "combat",
+                    "per_place": false,
+                    "dc": 10,
+                    "value": 0,
+                    "count": 1,
+                    "groups": [
+                      {
+                        "monster": "skeleton",
+                        "count": 2
+                      }
+                    ],
+                    "win": [
+                      {
+                        "type": "gold",
+                        "per_place": false,
+                        "dc": 10,
+                        "value": 40,
+                        "count": 1
+                      },
+                      {
+                        "type": "xp",
+                        "per_place": false,
+                        "dc": 10,
+                        "value": 80,
+                        "count": 1
+                      }
+                    ]
+                  }
+                ],
+                "value": 0,
+                "count": 1
+              }
+            ],
+            "weight": 1
+          },
+          {
+            "label": {
+              "en": "Leave it",
+              "ja": "立ち去る"
+            },
+            "steps": [
+              {
+                "type": "again",
+                "per_place": false,
+                "dc": 10,
+                "value": 0,
+                "count": 1
+              }
+            ],
+            "weight": 1
+          }
+        ],
+        "per_place": false,
+        "dc": 10,
+        "value": 0,
+        "count": 1
+      }
+    ],
+    "scatter": {
+      "min_depth": 0.75,
+      "max_depth": 0.85,
+      "min_level": 3,
+      "max_level": 7,
+      "weight": 1,
+      "where": "dead_end",
+      "max": 0,
+      "step": 0,
+      "rarity": "common",
+      "effective_weight": 1
+    },
+    "note": "墓荒らしの荷",
+    "memo": true
+  },
+  {
+    "id": "gkx_seal_clerk_desk",
+    "place": "maze",
+    "once": "place",
+    "steps": [
+      {
+        "type": "text",
+        "text": {
+          "en": "A clerk's desk before a sealed door. The fee card: \"Seal, ordinary: 4 silver. Seal, urgent: 9 silver. Seal, 'for the love of the gods': ask.\" A drawer is shut tight.",
+          "ja": "封印された扉の前に、書記の机。料金表。「封印、通常、銀貨四枚。封印、急ぎ、銀貨九枚。封印、『後生だから』、要相談」。引き出しは固く閉じている。"
+        },
+        "per_place": false,
+        "dc": 10,
+        "value": 0,
+        "count": 1
+      },
+      {
+        "type": "choice",
+        "text": {
+          "en": "What will you do?",
+          "ja": "どうする?"
+        },
+        "options": [
+          {
+            "label": {
+              "en": "Open the drawer",
+              "ja": "引き出しを開ける"
+            },
+            "steps": [
+              {
+                "type": "check",
+                "per_place": false,
+                "skill": "investigation",
+                "dc": 12,
+                "success": [
+                  {
+                    "type": "text",
+                    "text": {
+                      "en": "Receipts, a stamp, and the day's takings in a cloth bag. 'Ask' was the most expensive entry on the card.",
+                      "ja": "受領書、印章、布袋に入った一日の売上。『要相談』が、料金表で一番高かったらしい。"
+                    },
+                    "per_place": false,
+                    "dc": 10,
+                    "value": 0,
+                    "count": 1
+                  },
+                  {
+                    "type": "gold",
+                    "per_place": false,
+                    "dc": 10,
+                    "value": 70,
+                    "count": 1
+                  },
+                  {
+                    "type": "xp",
+                    "per_place": false,
+                    "dc": 10,
+                    "value": 100,
+                    "count": 1
+                  }
+                ],
+                "fail": [
+                  {
+                    "type": "text",
+                    "text": {
+                      "en": "The drawer is trapped with a spring blade, as a clerk's drawer should be.",
+                      "ja": "引き出しにはばね刃の罠がある。書記の引き出しなら当然だ。"
+                    },
+                    "per_place": false,
+                    "dc": 10,
+                    "value": 0,
+                    "count": 1
+                  },
+                  {
+                    "type": "damage",
+                    "per_place": false,
+                    "ability": "dex",
+                    "dc": 12,
+                    "value": 0,
+                    "count": 1,
+                    "dice": "1d6",
+                    "damage_type": "piercing"
+                  }
+                ],
+                "value": 0,
+                "count": 1
+              }
+            ],
+            "weight": 1
+          },
+          {
+            "label": {
+              "en": "Leave it",
+              "ja": "立ち去る"
+            },
+            "steps": [
+              {
+                "type": "again",
+                "per_place": false,
+                "dc": 10,
+                "value": 0,
+                "count": 1
+              }
+            ],
+            "weight": 1
+          }
+        ],
+        "per_place": false,
+        "dc": 10,
+        "value": 0,
+        "count": 1
+      }
+    ],
+    "scatter": {
+      "min_depth": 0.75,
+      "max_depth": 0.85,
+      "min_level": 3,
+      "max_level": 7,
+      "weight": 1,
+      "where": "room",
+      "max": 0,
+      "step": 0,
+      "rarity": "common",
+      "effective_weight": 1
+    },
+    "note": "封印役の机",
+    "memo": true
+  },
+  {
+    "id": "gkx_crack_in_seal",
+    "place": "maze",
+    "once": "place",
+    "steps": [
+      {
+        "type": "text",
+        "text": {
+          "en": "A hairline crack runs down a sealed door, and cold air comes through it. From the other side, very softly, someone is trying to remember a name.",
+          "ja": "封印された扉に髪の毛ほどの割れ目が走り、冷たい空気が漏れてくる。向こう側で、誰かがごく小さな声で、名前を思い出そうとしている。"
+        },
+        "per_place": false,
+        "dc": 10,
+        "value": 0,
+        "count": 1
+      },
+      {
+        "type": "choice",
+        "text": {
+          "en": "What will you do?",
+          "ja": "どうする?"
+        },
+        "options": [
+          {
+            "label": {
+              "en": "Listen at the crack",
+              "ja": "割れ目に耳を寄せる"
+            },
+            "steps": [
+              {
+                "type": "check",
+                "per_place": false,
+                "skill": "perception",
+                "dc": 13,
+                "success": [
+                  {
+                    "type": "text",
+                    "text": {
+                      "en": "You catch only the shape of it, and step back before it catches you.",
+                      "ja": "形だけを聞き取り、向こうが気づく前に退いた。"
+                    },
+                    "per_place": false,
+                    "dc": 10,
+                    "value": 0,
+                    "count": 1
+                  },
+                  {
+                    "type": "xp",
+                    "per_place": false,
+                    "dc": 10,
+                    "value": 100,
+                    "count": 1
+                  }
+                ],
+                "fail": [
+                  {
+                    "type": "text",
+                    "text": {
+                      "en": "Two dark shapes slide through the crack like smoke through a keyhole.",
+                      "ja": "暗い影が二つ、鍵穴を抜ける煙のように割れ目から滑り出た。"
+                    },
+                    "per_place": false,
+                    "dc": 10,
+                    "value": 0,
+                    "count": 1
+                  },
+                  {
+                    "type": "combat",
+                    "per_place": false,
+                    "dc": 10,
+                    "value": 0,
+                    "count": 1,
+                    "groups": [
+                      {
+                        "monster": "shadow",
+                        "count": 2
+                      }
+                    ],
+                    "win": [
+                      {
+                        "type": "xp",
+                        "per_place": false,
+                        "dc": 10,
+                        "value": 80,
+                        "count": 1
+                      }
+                    ]
+                  }
+                ],
+                "value": 0,
+                "count": 1
+              }
+            ],
+            "weight": 1
+          },
+          {
+            "label": {
+              "en": "Leave it",
+              "ja": "立ち去る"
+            },
+            "steps": [
+              {
+                "type": "again",
+                "per_place": false,
+                "dc": 10,
+                "value": 0,
+                "count": 1
+              }
+            ],
+            "weight": 1
+          }
+        ],
+        "per_place": false,
+        "dc": 10,
+        "value": 0,
+        "count": 1
+      }
+    ],
+    "scatter": {
+      "min_depth": 0.75,
+      "max_depth": 0.85,
+      "min_level": 3,
+      "max_level": 7,
+      "weight": 1,
+      "where": "corridor",
+      "max": 0,
+      "step": 0,
+      "rarity": "common",
+      "effective_weight": 1
+    },
+    "note": "封印の割れ目",
+    "memo": true
+  },
+  {
+    "id": "gkx_old_offerings",
+    "place": "maze",
+    "once": "place",
+    "steps": [
+      {
+        "type": "text",
+        "text": {
+          "en": "Clay bowls ring the floor, filled with grain that is now grey dust. The bowls are older than the stairs. Someone has left a coin in the nearest, still, and not recently.",
+          "ja": "粘土の器が床を取り巻き、中の穀物は今は灰色の粉になっている。器は階段より古い。一番近い器に、誰かが置いた硬貨が一枚。最近のものではない。"
+        },
+        "per_place": false,
+        "dc": 10,
+        "value": 0,
+        "count": 1
+      },
+      {
+        "type": "choice",
+        "text": {
+          "en": "What will you do?",
+          "ja": "どうする?"
+        },
+        "options": [
+          {
+            "label": {
+              "en": "Search the bowls",
+              "ja": "器を調べる"
+            },
+            "steps": [
+              {
+                "type": "text",
+                "text": {
+                  "en": "Beneath the dust in the bowls: old coins, pressed in like seeds. Whoever sowed them expected them to grow.",
+                  "ja": "器の粉の下に、種のように硬貨が押し込まれている。蒔いた者は、芽が出ると思っていた。"
+                },
+                "per_place": false,
+                "dc": 10,
+                "value": 0,
+                "count": 1
+              },
+              {
+                "type": "gold",
+                "per_place": false,
+                "dc": 10,
+                "value": 60,
+                "count": 1
+              },
+              {
+                "type": "xp",
+                "per_place": false,
+                "dc": 10,
+                "value": 110,
+                "count": 1
+              }
+            ],
+            "weight": 1
+          },
+          {
+            "label": {
+              "en": "Leave a coin (10 gold)",
+              "ja": "硬貨を一枚置く(10ゴールド)"
+            },
+            "when": [
+              {
+                "type": "gold",
+                "value": 10,
+                "count": 1,
+                "op": ">=",
+                "not": false
+              }
+            ],
+            "steps": [
+              {
+                "type": "gold",
+                "per_place": false,
+                "dc": 10,
+                "value": -10,
+                "count": 1
+              },
+              {
+                "type": "text",
+                "text": {
+                  "en": "The coin makes a small, clean sound. The dust in the bowl stirs, settles, and the cold eases a little.",
+                  "ja": "硬貨が小さく澄んだ音を立てる。器の粉が揺れて静まり、冷えが少し和らぐ。"
+                },
+                "per_place": false,
+                "dc": 10,
+                "value": 0,
+                "count": 1
+              },
+              {
+                "type": "heal",
+                "per_place": false,
+                "dc": 10,
+                "value": 0,
+                "count": 1,
+                "dice": "2d8"
+              },
+              {
+                "type": "cure",
+                "per_place": false,
+                "dc": 10,
+                "value": 0,
+                "count": 1
+              }
+            ],
+            "weight": 1
+          },
+          {
+            "label": {
+              "en": "Leave it",
+              "ja": "立ち去る"
+            },
+            "steps": [
+              {
+                "type": "again",
+                "per_place": false,
+                "dc": 10,
+                "value": 0,
+                "count": 1
+              }
+            ],
+            "weight": 1
+          }
+        ],
+        "per_place": false,
+        "dc": 10,
+        "value": 0,
+        "count": 1
+      }
+    ],
+    "scatter": {
+      "min_depth": 0.9,
+      "max_depth": 1,
+      "min_level": 3,
+      "max_level": 7,
+      "weight": 1,
+      "where": "room",
+      "max": 0,
+      "step": 0,
+      "rarity": "common",
+      "effective_weight": 1
+    },
+    "note": "古い供え物の器",
+    "memo": true
+  },
+  {
+    "id": "gkx_burial_shoes",
+    "place": "maze",
+    "once": "place",
+    "steps": [
+      {
+        "type": "text",
+        "text": {
+          "en": "The floor is worn in two grooves by generations of bearers' feet. At the foot of the wall, a pair of shoes stands neatly side by side, with a note: \"For the long walk.\"",
+          "ja": "床は、代々の担ぎ手の足で二本の溝にすり減っている。壁の根元に、靴が一足きちんと揃えてある。紙が添えてある。「長い道のりのために」。"
+        },
+        "per_place": false,
+        "dc": 10,
+        "value": 0,
+        "count": 1
+      },
+      {
+        "type": "choice",
+        "text": {
+          "en": "What will you do?",
+          "ja": "どうする?"
+        },
+        "options": [
+          {
+            "label": {
+              "en": "Rest a moment beside them",
+              "ja": "傍らでしばらく休む"
+            },
+            "steps": [
+              {
+                "type": "text",
+                "text": {
+                  "en": "A hundred years of tired feet have stood here. You take your own weight off for a while.",
+                  "ja": "百年分の疲れた足が、ここに立ったのだろう。しばらく、自分の重みを下ろす。"
+                },
+                "per_place": false,
+                "dc": 10,
+                "value": 0,
+                "count": 1
+              },
+              {
+                "type": "heal",
+                "per_place": false,
+                "dc": 10,
+                "value": 0,
+                "count": 1,
+                "dice": "2d6"
+              },
+              {
+                "type": "cure",
+                "per_place": false,
+                "dc": 10,
+                "value": 0,
+                "count": 1
+              },
+              {
+                "type": "xp",
+                "per_place": false,
+                "dc": 10,
+                "value": 60,
+                "count": 1
+              }
+            ],
+            "weight": 1
+          },
+          {
+            "label": {
+              "en": "Take the shoes",
+              "ja": "靴を持ち出す"
+            },
+            "steps": [
+              {
+                "type": "text",
+                "text": {
+                  "en": "Good leather, barely worn. As you lift them, the cold gets into your own feet and stays a moment.",
+                  "ja": "良い革で、ほとんど履かれていない。持ち上げた拍子に、冷たさが自分の足へ入り込み、しばらく残る。"
+                },
+                "per_place": false,
+                "dc": 10,
+                "value": 0,
+                "count": 1
+              },
+              {
+                "type": "damage",
+                "per_place": false,
+                "ability": "wis",
+                "dc": 12,
+                "value": 0,
+                "count": 1,
+                "dice": "1d6",
+                "damage_type": "psychic"
+              },
+              {
+                "type": "treasure",
+                "per_place": false,
+                "dc": 10,
+                "value": 0,
+                "count": 1
+              }
+            ],
+            "weight": 1
+          },
+          {
+            "label": {
+              "en": "Leave it",
+              "ja": "立ち去る"
+            },
+            "steps": [
+              {
+                "type": "again",
+                "per_place": false,
+                "dc": 10,
+                "value": 0,
+                "count": 1
+              }
+            ],
+            "weight": 1
+          }
+        ],
+        "per_place": false,
+        "dc": 10,
+        "value": 0,
+        "count": 1
+      }
+    ],
+    "scatter": {
+      "min_depth": 0.9,
+      "max_depth": 1,
+      "min_level": 3,
+      "max_level": 7,
+      "weight": 1,
+      "where": "corridor",
+      "max": 0,
+      "step": 0,
+      "rarity": "common",
+      "effective_weight": 1
+    },
+    "note": "旅立ちの靴",
+    "memo": true
+  },
+  {
+    "id": "gkx_queue_at_stairs",
+    "place": "maze",
+    "once": "place",
+    "steps": [
+      {
+        "type": "text",
+        "text": {
+          "en": "A pale figure stands on the steps, facing down, one foot on the next stair. It does not move. It is waiting for something, and has been for a very long time. It notices you.",
+          "ja": "青白い人影が、階段の途中で下を向いて立っている。片足は次の段にかけたままだ。動かない。何かを待ち、とても長い間そうしている。あなたに気づいた。"
+        },
+        "per_place": false,
+        "dc": 10,
+        "value": 0,
+        "count": 1
+      },
+      {
+        "type": "choice",
+        "text": {
+          "en": "What will you do?",
+          "ja": "どうする?"
+        },
+        "options": [
+          {
+            "label": {
+              "en": "Stand your ground",
+              "ja": "受けて立つ"
+            },
+            "steps": [
+              {
+                "type": "combat",
+                "per_place": false,
+                "dc": 10,
+                "value": 0,
+                "count": 1,
+                "groups": [
+                  {
+                    "monster": "specter",
+                    "count": 1
+                  }
+                ],
+                "win": [
+                  {
+                    "type": "text",
+                    "text": {
+                      "en": "It thins and is gone. On the step where it stood, a pressed coin.",
+                      "ja": "影は薄れて消えた。立っていた段に、押し込まれた硬貨が残る。"
+                    },
+                    "per_place": false,
+                    "dc": 10,
+                    "value": 0,
+                    "count": 1
+                  },
+                  {
+                    "type": "gold",
+                    "per_place": false,
+                    "dc": 10,
+                    "value": 90,
+                    "count": 1
+                  },
+                  {
+                    "type": "xp",
+                    "per_place": false,
+                    "dc": 10,
+                    "value": 150,
+                    "count": 1
+                  }
+                ]
+              }
+            ],
+            "weight": 1
+          },
+          {
+            "label": {
+              "en": "Leave it",
+              "ja": "立ち去る"
+            },
+            "steps": [
+              {
+                "type": "again",
+                "per_place": false,
+                "dc": 10,
+                "value": 0,
+                "count": 1
+              }
+            ],
+            "weight": 1
+          }
+        ],
+        "per_place": false,
+        "dc": 10,
+        "value": 0,
+        "count": 1
+      }
+    ],
+    "scatter": {
+      "min_depth": 0.9,
+      "max_depth": 1,
+      "min_level": 3,
+      "max_level": 7,
+      "weight": 1,
+      "where": "corridor",
+      "max": 0,
+      "step": 0,
+      "rarity": "common",
+      "effective_weight": 1
+    },
+    "note": "階段で待つ者",
+    "memo": true
+  },
+  {
+    "id": "gkx_crumbled_steps",
+    "place": "maze",
+    "once": "place",
+    "steps": [
+      {
+        "type": "text",
+        "text": {
+          "en": "Several steps of the spiral have crumbled into a gap. On the far side, lying where it fell, a coffin lid carved with a lament and a price. Someone dropped the whole coffin trying to carry it down.",
+          "ja": "螺旋の段が数段崩れ、隙間ができている。向こう側に、落ちたままの棺の蓋。嘆きの言葉と値段が彫ってある。誰かが棺ごと担ぎ下ろそうとして、落としたらしい。"
+        },
+        "per_place": false,
+        "dc": 10,
+        "value": 0,
+        "count": 1
+      },
+      {
+        "type": "choice",
+        "text": {
+          "en": "What will you do?",
+          "ja": "どうする?"
+        },
+        "options": [
+          {
+            "label": {
+              "en": "Jump the gap",
+              "ja": "隙間を跳ぶ"
+            },
+            "steps": [
+              {
+                "type": "check",
+                "per_place": false,
+                "skill": "athletics",
+                "dc": 13,
+                "success": [
+                  {
+                    "type": "text",
+                    "text": {
+                      "en": "You land hard, but you land. Under the lid, a pouch of dried flowers and the coin that paid for them.",
+                      "ja": "強く着地した。蓋の下に、乾いた花の包みと、その代金の硬貨が入っていた。"
+                    },
+                    "per_place": false,
+                    "dc": 10,
+                    "value": 0,
+                    "count": 1
+                  },
+                  {
+                    "type": "gold",
+                    "per_place": false,
+                    "dc": 10,
+                    "value": 90,
+                    "count": 1
+                  },
+                  {
+                    "type": "xp",
+                    "per_place": false,
+                    "dc": 10,
+                    "value": 100,
+                    "count": 1
+                  }
+                ],
+                "fail": [
+                  {
+                    "type": "text",
+                    "text": {
+                      "en": "You come up short and the stair catches you on the way down.",
+                      "ja": "わずかに届かない。落ちる途中で、段に体を打ちつけた。"
+                    },
+                    "per_place": false,
+                    "dc": 10,
+                    "value": 0,
+                    "count": 1
+                  },
+                  {
+                    "type": "damage",
+                    "per_place": false,
+                    "ability": "dex",
+                    "dc": 13,
+                    "value": 0,
+                    "count": 1,
+                    "dice": "3d6",
+                    "damage_type": "bludgeoning"
+                  }
+                ],
+                "value": 0,
+                "count": 1
+              }
+            ],
+            "weight": 1
+          },
+          {
+            "label": {
+              "en": "Leave it",
+              "ja": "立ち去る"
+            },
+            "steps": [
+              {
+                "type": "again",
+                "per_place": false,
+                "dc": 10,
+                "value": 0,
+                "count": 1
+              }
+            ],
+            "weight": 1
+          }
+        ],
+        "per_place": false,
+        "dc": 10,
+        "value": 0,
+        "count": 1
+      }
+    ],
+    "scatter": {
+      "min_depth": 0.75,
+      "max_depth": 1,
+      "min_level": 3,
+      "max_level": 7,
+      "weight": 1,
+      "where": "any",
+      "max": 0,
+      "step": 0,
+      "rarity": "common",
+      "effective_weight": 1
+    },
+    "note": "崩れた螺旋の段",
+    "memo": true
   }
 ]

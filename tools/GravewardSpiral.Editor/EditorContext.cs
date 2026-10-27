@@ -17,10 +17,15 @@ public sealed class EditorContext
     public required ContentLibrary BaseContent { get; init; }
     public required GameData BaseData { get; init; }
 
-    /// <summary>新しく作るシナリオの置き場所(ゲームが探す ドキュメント\GravewardSpiral\Scenarios)。</summary>
+    /// <summary>新しく作るシナリオの置き場所(ゲームが探す %LOCALAPPDATA%\GravewardSpiral\Scenarios)。</summary>
     public required string ScenariosDir { get; init; }
 
     public ScenarioPack? Pack { get; private set; }
+
+    /// <summary>ほかのシナリオ(ゲームに入っているものと、置き場所のもの。開いているシナリオは除く)。始める条件で選ぶ。</summary>
+    public List<ScenarioInfo> OtherScenarios() =>
+        ScenarioCatalog.Find([Path.Combine(ContentRoot, "scenarios"), ScenariosDir], Path.Combine(Path.GetTempPath(), "GravewardSpiralEditor", "scenario_cache"))
+            .Where(s => s.Id != Pack?.Id && (s.Manifest.Guid == null || s.Manifest.Guid != Pack?.Manifest.Guid)).ToList();
 
     /// <summary>エディタの設定(AI のモデルなど)。</summary>
     public EditorSettings Settings { get; } = EditorSettings.Load();
@@ -50,7 +55,7 @@ public sealed class EditorContext
             ContentRoot = root,
             BaseContent = content,
             BaseData = GameData.Load(content),
-            ScenariosDir = scenariosDir ?? Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments), "GravewardSpiral", "Scenarios"),
+            ScenariosDir = scenariosDir ?? ScenarioFolders.Default,
         };
     }
 

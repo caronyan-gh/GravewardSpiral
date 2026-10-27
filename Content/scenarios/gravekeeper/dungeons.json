@@ -114,7 +114,25 @@
     "named": [
       {
         "id": "rat_king",
+        "floor": 1,
+        "lair": false,
+        "x": 0,
+        "y": 0,
+        "rumored": true,
+        "defeated": false
+      },
+      {
+        "id": "fallen_gravekeeper",
         "floor": 2,
+        "lair": false,
+        "x": 0,
+        "y": 0,
+        "rumored": true,
+        "defeated": false
+      },
+      {
+        "id": "coffin_bearer",
+        "floor": 3,
         "lair": false,
         "x": 0,
         "y": 0,
@@ -123,20 +141,15 @@
       }
     ],
     "events_placed": true,
-    "note": "MapCheck --seed 墓守の螺旋 で生成したものを保存した(シナリオの迷宮は、セーブと同じく固定)",
     "elevators": [
       {
-        "x": 7,
-        "y": 7,
+        "x": 12,
+        "y": 3,
         "from": 1,
-        "to": 4
-      },
-      {
-        "x": 18,
-        "y": 8,
-        "from": 5,
-        "to": 6
+        "to": 5,
+        "power": "a_lift_power"
       }
-    ]
+    ],
+    "note": "MapCheck --scenario gravekeeper --seed 墓守の螺旋 改 で生成したものを保存した(第1部の作り直し)。棺下ろしの籠は B1〜B5 の縦穴 (12,3)。B1 の入口のすぐそばで、B4 の石碑の奥の綱車(a_b4_lift)で動く"
   }
 ]

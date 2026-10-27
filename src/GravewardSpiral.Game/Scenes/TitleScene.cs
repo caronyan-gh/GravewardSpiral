@@ -1,3 +1,4 @@
+using GravewardSpiral.Core.Content;
 using GravewardSpiral.Game.Audio;
 using GravewardSpiral.Game.Input;
 using GravewardSpiral.Game.Rendering;
@@ -5,7 +6,10 @@ using Microsoft.Xna.Framework;
 
 namespace GravewardSpiral.Game.Scenes;
 
-/// <summary>タイトル画面(仮)。後ろに、迷宮の線画の雰囲気だけを出す。</summary>
+/// <summary>
+/// タイトル画面(仮)。後ろに、迷宮の線画の雰囲気だけを出す。
+/// シナリオ(フォルダか zip)を窓に落とすと、コピーか移動かを聞いて、シナリオの置き場所へ置く。
+/// </summary>
 public sealed class TitleScene : Scene
 {
     private static readonly string[] MenuKeys = ["title.new", "title.continue", "title.options", "title.quit"];
@@ -27,6 +31,7 @@ public sealed class TitleScene : Scene
     {
         Services.UseScenario(null);   // シナリオを遊んだあとは、標準のパックに戻す
         Services.Audio.PlayBgm(Bgm);
+        if (Services.Saves.HasAny()) _cursor = Array.IndexOf(MenuKeys, "title.continue");   // セーブがあれば「続きから」に合わせておく
     }
 
     public override void Update(GameTime time, InputState input)
@@ -35,6 +40,11 @@ public sealed class TitleScene : Scene
         double dt = time.ElapsedGameTime.TotalSeconds;
         _time += dt;
         if (_message != null && (_messageTime -= dt) <= 0) _message = null;
+        if (Services.DroppedFiles.Count > 0)
+        {
+            Dropped(Services.DroppedFiles[0]);
+            return;
+        }
 
         if (input.Repeat(GameAction.Up)) _cursor = (_cursor + MenuKeys.Length - 1) % MenuKeys.Length;
         if (input.Repeat(GameAction.Down)) _cursor = (_cursor + 1) % MenuKeys.Length;
@@ -98,6 +108,56 @@ public sealed class TitleScene : Scene
         }
         _message = Services.Strings["title.not_yet"];
         _messageTime = 2.0;
+    }
+
+    private void Show(string message, double seconds)
+    {
+        _message = message;
+        _messageTime = seconds;
+    }
+
+    /// <summary>落とされたものを見て、シナリオなら置き方を聞く。</summary>
+    private void Dropped(string path)
+    {
+        var s = Services.Strings;
+        var check = ScenarioInstall.Check(path, Services.UserScenarios, [AppPaths.BundledScenarios], AppPaths.ScenarioCache);
+        if (check.Info is not { } info)
+        {
+            Services.Audio.PlaySe(Sounds.Cancel);
+            Show(check.Problem switch
+            {
+                DropProblem.Unreadable => s.Format("title.drop_unreadable", check.Detail ?? ""),
+                DropProblem.NoDungeon => s["title.drop_no_dungeon"],
+                DropProblem.Bundled => s["title.drop_bundled"],
+                DropProblem.AlreadyPlaced => s["title.drop_already"],
+                _ => s["title.drop_not_scenario"],
+            }, 4.0);
+            return;
+        }
+        string name = info.Manifest.Name is { } n ? Services.Name(n) : info.Id;
+        Services.Audio.PlaySe(Sounds.Confirm);
+        Stack.Push(new ConfirmScene(s.Format("title.drop_ask", name), [s["title.drop_copy"], s["title.drop_move"], s["title.drop_cancel"]], choice =>
+        {
+            if (choice == 2) return;
+            bool move = choice == 1;
+            if (check.Existing.Count == 0) Place(check, name, move);
+            else Stack.Push(new ConfirmScene(s.Format("title.drop_overwrite", name), () => Place(check, name, move)));
+        }, cancelIndex: 2));
+    }
+
+    private void Place(DropCheck check, string name, bool move)
+    {
+        try
+        {
+            string dest = ScenarioInstall.Install(check, Services.UserScenarios, move);
+            Console.WriteLine($"scenario placed: {dest}");
+            Services.ForgetScenarioNames();
+            Show(Services.Strings.Format("title.drop_done", name), 4.0);
+        }
+        catch (Exception ex) when (ex is IOException or UnauthorizedAccessException)
+        {
+            Show(Services.Strings.Format("title.drop_failed", ex.Message), 5.0);
+        }
     }
 
     public override void Draw(Draw2D d)

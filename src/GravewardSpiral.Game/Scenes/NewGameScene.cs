@@ -99,8 +99,8 @@ public sealed class NewGameScene : Scene
         var rows = new List<Row> { Row.Scenario };
         if (Services.Content.Scenario?.AllowImport ?? true) rows.Add(Row.Clan);
         rows.Add(Row.ClanName);
-        // 迷宮を持つシナリオは、迷宮もシナリオの中身なので、シード・階層・大きさは選ばない(フルオートの自由な迷宮だけ)
-        if (!ScenarioHasDungeon)
+        // シナリオは迷宮もシナリオの中身なので、シード・階層・大きさは選ばない(選ぶのは、シナリオなしの自由な迷宮だけ)
+        if (Services.Content.Scenario == null)
         {
             rows.AddRange([Row.Seed, Row.Floors, Row.SizeMode, Row.Width, Row.Height]);
             if (_randomSize) rows.AddRange([Row.MaxWidth, Row.MaxHeight]);
@@ -112,8 +112,6 @@ public sealed class NewGameScene : Scene
         rows.AddRange([Row.Create, Row.Back]);
         return rows;
     }
-
-    private bool ScenarioHasDungeon => Services.Content.Scenario?.Dungeon != null;
 
     private static RectangleF RowRect(int i) => new(Left - 20, Top + i * Step - 6, 760, Step - 4);
 
@@ -241,9 +239,29 @@ public sealed class NewGameScene : Scene
         Services.Audio.PlaySe(Sounds.Cursor);
     }
 
+    /// <summary>今のシナリオを始めるのに足りないクリア(連れていくクランが、そのシナリオをクリアしていない)。</summary>
+    private List<RequiredClear> MissingClears() =>
+        ScenarioClears.Missing(Services.Content.Scenario, _clan >= 0 && Rows().Contains(Row.Clan) ? _clans[_clan].Clan.ClearedScenarios : null);
+
+    /// <summary>「『墓守の螺旋』をクリアしたクランだけが入れる」。</summary>
+    private string NeedClearText(List<RequiredClear> missing)
+    {
+        var names = missing.Select(r =>
+            r.Name is { } n && Services.Name(n) is { Length: > 0 } name ? name
+            : _scenarios.FirstOrDefault(x => r.Guid != null && x.Manifest.Guid == r.Guid || x.Id == r.Id) is { } sc && Services.Name(sc.Manifest.Name) is { Length: > 0 } found ? found
+            : r.Id);
+        return Services.Strings.Format("newgame.need_clear", string.Join(Services.Strings["common.list_sep"], names.Select(n => Services.Strings.Format("newgame.need_clear_name", n))));
+    }
+
     private void Create()
     {
         _message = null;
+        if (MissingClears() is { Count: > 0 } missing)
+        {
+            Services.Audio.PlaySe(Sounds.Cancel);
+            _message = NeedClearText(missing);
+            return;
+        }
         ulong seed = RngStreams.ParseSeed(_seed) ?? (ulong)Random.Shared.NextInt64(1, long.MaxValue);
         var size = _randomSize ? new FloorSizeMode(_width, _maxWidth, _height, _maxHeight) : FloorSizeMode.Fixed(_width, _height);
         var request = new GenerationRequest(seed, _floors, size);
@@ -255,11 +273,17 @@ public sealed class NewGameScene : Scene
         string worldKey = scenario ?? Core.Save.ScenarioExport.NewId(seed, id => Directory.Exists(Path.Combine(Services.UserScenarios, id)));
         if (shared && Services.Saves.WorldExists(clanId, worldKey))
         {
-            Stack.Push(new ConfirmScene(Services.Strings.Format("newgame.confirm_overwrite",
-                Services.ClanDisplayName(_clans[_clan].Clan.Name, clanId), Services.ScenarioDisplayName(scenario)), () =>
+            // その世界の迷宮にいる仲間(置いてきた死体・迷宮の中で中断したパーティ)は、始め直すとロストする
+            var lost = Services.Saves.InMaze(clanId, worldKey);
+            var lostNames = (Services.Saves.LoadClan(clanId)?.Characters ?? []).Where(c => lost.Contains(c.Id)).Select(c => c.Name).ToList();
+            string clanName = Services.ClanDisplayName(_clans[_clan].Clan.Name, clanId), world = Services.ScenarioDisplayName(scenario);
+            string message = lostNames.Count == 0
+                ? Services.Strings.Format("newgame.confirm_overwrite", clanName, world)
+                : Services.Strings.Format("newgame.confirm_overwrite_lost", clanName, world, Services.Strings.List(lostNames));
+            Stack.Push(new ConfirmScene(message, () =>
                 {
                     Services.Saves.DeleteWorld(clanId, worldKey);
-                    Start(request, clanId, worldKey);
+                    Start(request, clanId, worldKey, lost);
                 }));
             return;
         }
@@ -270,13 +294,16 @@ public sealed class NewGameScene : Scene
     private bool SharedClan => _clan >= 0 && Rows().Contains(Row.Clan) && _clans[_clan].Path.StartsWith("clan:");
 
     /// <summary>迷宮を作り、新しい世界を始めて町へ。</summary>
-    private void Start(GenerationRequest request, string clanId, string worldKey)
+    /// <param name="lost">名簿から外す人(始め直した世界の迷宮に残っていて、ロストした人)。</param>
+    private void Start(GenerationRequest request, string clanId, string worldKey, IReadOnlyCollection<string>? lost = null)
     {
         try
         {
             Services.PendingExport = null;
-            // シナリオの迷宮があればそれを使う(シードは顔ぶれ・散らすイベントなどの抽選に使う)
+            // シナリオの迷宮を使う(シードは顔ぶれ・散らすイベントなどの抽選に使う)。迷宮を作るのは、シナリオなしの自由な迷宮だけ
             var dungeon = DungeonLoader.ScenarioDungeon(Services.Content);
+            if (Services.Content.Scenario != null && dungeon == null)
+                throw new InvalidOperationException($"シナリオ {Services.Content.Scenario.Id} の迷宮が読めません");
             if (dungeon != null) request = DungeonLoader.RequestFor(dungeon, request.Seed);
             else
             {
@@ -297,9 +324,10 @@ public sealed class NewGameScene : Scene
                 // セーブにあるクラン: 名簿は写さずに、そのクランのものを使う。パーティは最近遊んだ世界の並び
                 var session = Services.Session;
                 session.ClanId = clanId;
-                session.Roster.Characters.AddRange(clan.Characters);
+                session.Roster.Characters.AddRange(clan.Characters.Where(c => lost?.Contains(c.Id) != true));
                 session.ClanHouse = clan.House;
                 session.Clears = clan.Clears;
+                session.ClearedScenarios = new(clan.ClearedScenarios ?? [], StringComparer.Ordinal);
                 session.EventsSeen = clan.EventsSeen.ToHashSet(StringComparer.Ordinal);
                 session.ClanName ??= clan.Name;
                 Services.Saves.MarkAway(session);
@@ -352,6 +380,9 @@ public sealed class NewGameScene : Scene
         var s = Services.Strings;
         d.Text(s["newgame.title"], new Vector2(640, 50), 40, Color.White, TextAlign.Center);
         var rows = Rows();
+        // 始める条件が足りなければ、入る行を暗くし、行の下に理由を出す
+        var missing = MissingClears();
+        bool locked = missing.Count > 0;
         for (int i = 0; i < rows.Count; i++)
         {
             var r = RowRect(i);
@@ -362,6 +393,7 @@ public sealed class NewGameScene : Scene
                 d.Rect(r, new Color(150, 190, 230), 1.5f);
             }
             var color = selected ? Color.White : new Color(160, 170, 180);
+            if (rows[i] == Row.Create && locked) color = selected ? new Color(170, 170, 170) : new Color(100, 104, 110);
             float y = Top + i * Step;
             var (label, value) = Describe(rows[i]);
             d.Text(label, new Vector2(Left, y), 24, color);
@@ -369,7 +401,9 @@ public sealed class NewGameScene : Scene
             {
                 bool adjustable = rows[i] is not (Row.Seed or Row.ClanName);
                 // ◀ ▶ は値の長さによらず決まった位置に出す
-                d.Text(value, new Vector2(ValueX, y), 24, color, TextAlign.Center);
+                // 長い値(シナリオの名前など)は、◀ ▶ に重ならないように字を小さくする
+                float valueSize = Math.Min(24f, 24f * (ArrowSpan * 2 - 40) / Math.Max(1f, d.Fonts.Measure(value, 24).X));
+                d.Text(value, new Vector2(ValueX, y + (24 - valueSize) / 2), valueSize, color, TextAlign.Center);
                 if (adjustable)
                 {
                     d.Text("◀", new Vector2(ValueX - ArrowSpan, y), 24, color, TextAlign.Center);
@@ -380,6 +414,7 @@ public sealed class NewGameScene : Scene
         // クランを選んでいれば、クリアした数と世界のレベル帯を出す(周回)
         string hint = rows[_cursor] == Row.Clan && _clan >= 0 ? ClanHint(_clans[_clan].Clan) : s[HintKey(rows[_cursor])];
         d.Text(hint, new Vector2(640, 650), 18, new Color(140, 150, 160), TextAlign.Center);
+        if (locked) d.Text(NeedClearText(missing), new Vector2(640, Top + rows.Count * Step + 16), 20, new Color(230, 200, 120), TextAlign.Center);
         if (_message != null) d.Text(_message, new Vector2(640, 680), 18, new Color(255, 170, 150), TextAlign.Center);
     }
 

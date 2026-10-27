@@ -1,0 +1,19 @@
+# 第2部 B の B4: 大水門の機関。水門守ドルンの亡霊。奥に王家の昇降機の動力のレバー
+floor prefab_sk_b4_engine
+size 3 4
+wrap none
+start 1 3 N
+walls
++-+-+-+
+|#| |#|
++-+ +-+
+|#| |#|
++-+L+-+
+|     |
++ + + +
+|     |
++-+-+-+
+mark 1 2 event:sk_b4_dorn
+mark 1 1 gate:sk_engine
+mark 1 0 event:sk_b4_lever
+entrance 1 3 S

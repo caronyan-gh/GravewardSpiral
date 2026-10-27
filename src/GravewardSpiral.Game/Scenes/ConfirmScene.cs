@@ -5,7 +5,7 @@ using Microsoft.Xna.Framework;
 
 namespace GravewardSpiral.Game.Scenes;
 
-/// <summary>「はい / いいえ」を聞く小さな窓。下の画面に重ねて出す。</summary>
+/// <summary>「はい / いいえ」(か、いくつかの選択肢)を聞く小さな窓。下の画面に重ねて出す。</summary>
 public sealed class ConfirmScene : Scene
 {
     /// <summary>窓の大きさ(文の長さに合わせて、描くときに決め直す。長い文は幅 1000 まで広げ、それでも入らなければ折り返す)。</summary>
@@ -14,25 +14,40 @@ public sealed class ConfirmScene : Scene
     private const float TextSize = 26f, LineGap = 8f;
 
     private readonly string _message;
-    private readonly Action _onYes;
-    private int _cursor = 1;   // 既定は「いいえ」
+    private readonly string[]? _labels;
+    private readonly Action<int> _onChoose;
+    private readonly int _cancelIndex;
+    private int _cursor;
+    private float _buttonWidth = 160f;
 
-    public ConfirmScene(string message, Action onYes)
+    public ConfirmScene(string message, Action onYes) : this(message, null, i => { if (i == 0) onYes(); }, cancelIndex: 1) { }
+
+    /// <summary>選択肢を並べて聞く(labels が null なら「はい / いいえ」)。取消は cancelIndex を選んだことにし、カーソルもはじめはそこに置く。</summary>
+    public ConfirmScene(string message, string[]? labels, Action<int> onChoose, int cancelIndex)
     {
         _message = message;
-        _onYes = onYes;
+        _labels = labels;
+        _onChoose = onChoose;
+        _cancelIndex = cancelIndex;
+        _cursor = cancelIndex;
     }
+
+    private int Count => _labels?.Length ?? 2;
 
     public override bool IsOverlay => true;
 
-    private RectangleF Button(int i) => new(Box.X + Box.Width / 2 - 180 + i * 200, Box.Y + Box.Height - 70, 160, 44);
+    private const float ButtonGap = 40f;
+
+    private float ButtonsWidth => Count * _buttonWidth + (Count - 1) * ButtonGap;
+
+    private RectangleF Button(int i) => new(Box.X + Box.Width / 2 - ButtonsWidth / 2 + i * (_buttonWidth + ButtonGap), Box.Y + Box.Height - 70, _buttonWidth, 44);
 
     public override void Update(GameTime time, InputState input)
     {
         int before = _cursor;
         if (input.Repeat(GameAction.Left) || input.Repeat(GameAction.Right) || input.Repeat(GameAction.Up) || input.Repeat(GameAction.Down))
-            _cursor = 1 - _cursor;
-        for (int i = 0; i < 2; i++)
+            _cursor = (_cursor + (input.Repeat(GameAction.Left) || input.Repeat(GameAction.Up) ? Count - 1 : 1)) % Count;
+        for (int i = 0; i < Count; i++)
         {
             if (input.Mouse is { } m && Button(i).Contains(m))
             {
@@ -41,23 +56,25 @@ public sealed class ConfirmScene : Scene
             }
         }
         if (input.Pressed(GameAction.Confirm)) Choose(_cursor);
-        else if (input.Pressed(GameAction.Cancel)) Choose(1);
+        else if (input.Pressed(GameAction.Cancel)) Choose(_cancelIndex);
         else if (_cursor != before) Services.Audio.PlaySe(Sounds.Cursor);
     }
 
     private void Choose(int i)
     {
-        Services.Audio.PlaySe(i == 0 ? Sounds.Confirm : Sounds.Cancel);
+        Services.Audio.PlaySe(i != _cancelIndex ? Sounds.Confirm : Sounds.Cancel);
         Stack.Pop();
-        if (i == 0) _onYes();
+        _onChoose(i);
     }
 
     public override void Draw(Draw2D d)
     {
-        // 文に合わせて窓を広げる(幅は 500〜1000。入らなければ折り返して、高さを足す)
+        // 文に合わせて窓を広げる(幅は 500〜1000。入らなければ折り返して、高さを足す)。ボタンは一番長い名前に合わせる
+        string[] labels = _labels ?? [Services.Strings["common.yes"], Services.Strings["common.no"]];
+        _buttonWidth = Math.Max(160, labels.Max(l => d.Fonts.Measure(l, 24).X) + 32);
         string[] lines = _message.Split('\n');
         float textWidth = lines.Max(l => d.Fonts.Measure(l, TextSize).X);
-        float width = Math.Clamp(textWidth + 80, 500, 1000);
+        float width = Math.Clamp(Math.Max(textWidth, ButtonsWidth) + 80, 500, 1000);
         int rows = lines.Sum(l => Math.Max(1, (int)Math.Ceiling(d.Fonts.Measure(l, TextSize).X / (width - 80))));
         float height = 140 + rows * (TextSize + LineGap);
         Box = new RectangleF(640 - width / 2, 360 - height / 2, width, height);
@@ -67,8 +84,7 @@ public sealed class ConfirmScene : Scene
         d.Rect(Box, new Color(150, 190, 230), 1.5f);
         if (rows == 1) d.Text(_message, new Vector2(Box.X + Box.Width / 2, Box.Y + 40), TextSize, Color.White, TextAlign.Center);
         else d.TextWrapped(_message, new Vector2(Box.X + 40, Box.Y + 36), width - 80, TextSize, Color.White, LineGap);
-        string[] labels = [Services.Strings["common.yes"], Services.Strings["common.no"]];
-        for (int i = 0; i < 2; i++)
+        for (int i = 0; i < Count; i++)
         {
             var r = Button(i);
             if (i == _cursor)

@@ -64,6 +64,7 @@ public sealed class GravewardGame : Microsoft.Xna.Framework.Game
         foreach (var warning in bindings.Warnings) Console.Error.WriteLine(warning);
         _input = new InputState(bindings);
         Window.TextInput += (_, e) => _input.AddTyped(e.Character);
+        Window.FileDrop += (_, e) => _services?.DroppedFiles.AddRange(e.Files);
 
         var text = new TextRenderer();
         Console.WriteLine($"font: {string.Join(" > ", text.FontPaths.Select(Path.GetFileName))}");
@@ -129,15 +130,7 @@ public sealed class GravewardGame : Microsoft.Xna.Framework.Game
     }
 
     /// <summary>パックの中のファイルを探す。後から読んだパックのものを優先する。</summary>
-    private static string? ResolveContent(ContentLibrary content, string relative)
-    {
-        for (int i = content.Packs.Count - 1; i >= 0; i--)
-        {
-            string full = Path.Combine(content.Packs[i].Directory, relative);
-            if (File.Exists(full)) return full;
-        }
-        return null;
-    }
+    private static string? ResolveContent(ContentLibrary content, string relative) => content.FindFile(relative);
 
     private void OnResize()
     {
@@ -187,7 +180,10 @@ public sealed class GravewardGame : Microsoft.Xna.Framework.Game
         _input.Update(gameTime, _screen, IsActive && _options.ScreenshotPath == null);
         if (_input.ToggleFullscreen) SetFullscreen(!_graphics.IsFullScreen);
 
+        // 確認用の起動の --drop: 少し待ってから、落としたことにする
+        if (_updates == LaunchOptions.FramesPerAction && _options.Drop is { } drop) _services.DroppedFiles.Add(drop);
         _services.Scenes.Update(gameTime, _input);
+        _services.DroppedFiles.Clear();
         _services.Audio.Update(gameTime.ElapsedGameTime.TotalSeconds);
         if (_services.Scenes.Count == 0) Exit();
         base.Update(gameTime);

@@ -14,6 +14,13 @@
     "once": true
   },
   {
+    "id": "a_b2_robbers",
+    "file": "maps/prefabs/a_b2_robbers.txt",
+    "min_depth": 0.15,
+    "max_depth": 0.35,
+    "once": true
+  },
+  {
     "id": "a_b3_bell",
     "file": "maps/prefabs/a_b3_bell.txt",
     "min_depth": 0.35,

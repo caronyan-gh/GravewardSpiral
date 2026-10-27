@@ -8,15 +8,15 @@ namespace GravewardSpiral.Game.Scenes;
 
 /// <summary>
 /// 設定の画面。上下で項目を選び、左右(か決定)で値を変える。変えたらすぐ効き、取消で戻るときに保存する。
-/// タイトルとキャンプから開く。
+/// タイトルとキャンプから開く。「シナリオのフォルダ」は、決定でシナリオの置き場所をエクスプローラーで開く。
 /// </summary>
 public sealed class OptionsScene : Scene
 {
-    private enum Row { Language, Bgm, Se, LogSpeed, Wireframe, StoryFont, Map, Ai, Back }
+    private enum Row { Language, Bgm, Se, LogSpeed, Wireframe, StoryFont, Map, BackKey, Ai, Scenarios, Back }
 
     private static readonly Row[] Rows = Enum.GetValues<Row>();
     private static readonly RectangleF Area = new(240, 40, 800, 640);
-    private const float RowHeight = 56f;
+    private const float RowHeight = 48f;
 
     private readonly bool _overlay;
     private int _cursor;
@@ -103,6 +103,12 @@ public sealed class OptionsScene : Scene
             Stack.Push(new AiOptionsScene());
             return;
         }
+        if (row == Row.Scenarios && (input.Pressed(GameAction.Confirm) || input.LeftClicked && hovered == _cursor))
+        {
+            Services.Audio.PlaySe(Sounds.Confirm);
+            OpenScenarios();
+            return;
+        }
         bool clickLeft = input.LeftClicked && hovered == _cursor && input.Mouse is { } cm && LeftArrow(_cursor).Contains(cm);
         int step = input.Repeat(GameAction.Left) || clickLeft ? -1
             : input.Repeat(GameAction.Right) || input.Pressed(GameAction.Confirm) || input.LeftClicked && hovered == _cursor ? 1 : 0;
@@ -152,6 +158,12 @@ public sealed class OptionsScene : Scene
                 O.MapMode = GameOptions.MapModes[(i + step + GameOptions.MapModes.Length) % GameOptions.MapModes.Length];
                 break;
             }
+            case Row.BackKey:
+            {
+                int i = Math.Max(0, Array.IndexOf(GameOptions.BackKeys, O.BackKey));
+                O.BackKey = GameOptions.BackKeys[(i + step + GameOptions.BackKeys.Length) % GameOptions.BackKeys.Length];
+                break;
+            }
             default:
                 return;
         }
@@ -169,6 +181,26 @@ public sealed class OptionsScene : Scene
         else O.SeVolume = vol;
         Services.ApplyOptions();
         return true;
+    }
+
+    /// <summary>シナリオの置き場所を開く(無ければ作る)。確かめの起動(--screenshot)では開かない。</summary>
+    private void OpenScenarios()
+    {
+        string dir = Services.UserScenarios;
+        try
+        {
+            Directory.CreateDirectory(dir);
+            if (!Services.PersistOptions)
+            {
+                Console.WriteLine($"scenarios folder: {dir}");
+                return;
+            }
+            System.Diagnostics.Process.Start(new System.Diagnostics.ProcessStartInfo { FileName = dir, UseShellExecute = true });
+        }
+        catch (Exception ex) when (ex is IOException or UnauthorizedAccessException or System.ComponentModel.Win32Exception)
+        {
+            Console.Error.WriteLine($"シナリオのフォルダを開けません: {dir}: {ex.Message}");
+        }
     }
 
     private void Close()
@@ -189,6 +221,8 @@ public sealed class OptionsScene : Scene
             Row.Wireframe => s[O.MonoWireframe ? "options.wire.mono" : "options.wire.color"],
             Row.StoryFont => s["options.storyfont." + O.StoryFont],
             Row.Map => s["options.map." + O.MapMode],
+            Row.BackKey => s["options.backkey." + O.BackKey],
+            Row.Scenarios => s["options.scenarios.open"],
             Row.Ai => s[!O.AiEnabled ? "options.ai.off" : Ai.ApiKeyStore.Load(Ai.ApiKeyStore.Claude) != null ? "options.ai.on" : "options.ai.no_key"],
             _ => "",
         };
@@ -213,7 +247,7 @@ public sealed class OptionsScene : Scene
             var color = selected ? Color.White : Theme.Text;
             d.Text(s["options." + Rows[i].ToString().ToLowerInvariant()], new Vector2(r.X + 16, r.Y + 12), 24, color);
             if (Rows[i] == Row.Back) continue;
-            if (Rows[i] == Row.Ai)
+            if (Rows[i] is Row.Ai or Row.Scenarios)
             {
                 d.Text(Value(Rows[i]), new Vector2((LeftArrow(i).X + LeftArrow(i).Width + RightArrow(i).X) / 2, r.Y + 12), 24, color, TextAlign.Center);
                 continue;
@@ -239,6 +273,13 @@ public sealed class OptionsScene : Scene
                 d.FillRect(new RectangleF(bar.X, bar.Y, bar.Width * vol / 100f, bar.Height), selected ? Theme.SelectedFrame : Theme.Dim);
             }
         }
-        d.Text(s["options.hint"], new Vector2(Area.X + Area.Width / 2, Area.Y + Area.Height - 34), 16, Theme.Dim, TextAlign.Center);
+        string hint = Rows[_cursor] switch
+        {
+            Row.BackKey => s["options.backkey.hint"],
+            Row.Scenarios => s.Format("options.scenarios.hint", Services.UserScenarios),
+            _ => s["options.hint"],
+        };
+        float hintSize = Math.Min(16f, 16f * (Area.Width - 64) / Math.Max(1f, d.Fonts.Measure(hint, 16).X));   // 長い置き場所のパスも枠に収める
+        d.Text(hint, new Vector2(Area.X + Area.Width / 2, Area.Y + Area.Height - 34 + (16 - hintSize) / 2), hintSize, Theme.Dim, TextAlign.Center);
     }
 }
