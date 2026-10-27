@@ -21,17 +21,28 @@ public sealed class EventDef
     public string Place { get; set; } = "maze";
     public string? Once { get; set; }
 
-    /// <summary>迷宮で起こるとき: enter(マスに着いたとき。既定)/ turn(そのマスで向きを変えたとき)/ both(どちらでも)。</summary>
+    /// <summary>
+    /// 迷宮で起こるとき: enter(マスに着いたとき。既定)/ turn(そのマスで向きを変えたとき)/ both(着いたときと向きを変えたとき)/
+    /// cast(そのマスで、キャンプから呪文を唱えたとき)/ rest(そのマスでキャンプの小休憩をしたとき)。カンマで並べられる(enter,cast など)。
+    /// </summary>
     public string Trigger { get; set; } = "enter";
+
+    private IEnumerable<string> TriggerParts => Trigger.Split(',', StringSplitOptions.TrimEntries | StringSplitOptions.RemoveEmptyEntries);
 
     public List<EventCondition> When { get; set; } = [];
     public List<EventStep> Steps { get; set; } = [];
 
     [System.Text.Json.Serialization.JsonIgnore]
-    public bool OnEnter => Trigger != "turn";
+    public bool OnEnter => TriggerParts.Any(t => t is "enter" or "both");
 
     [System.Text.Json.Serialization.JsonIgnore]
-    public bool OnTurn => Trigger is "turn" or "both";
+    public bool OnTurn => TriggerParts.Any(t => t is "turn" or "both");
+
+    [System.Text.Json.Serialization.JsonIgnore]
+    public bool OnCast => TriggerParts.Contains("cast");
+
+    [System.Text.Json.Serialization.JsonIgnore]
+    public bool OnRest => TriggerParts.Contains("rest");
 
     /// <summary>イベントのあいだ流す BGM(パックの中のパス。例: audio/bgm/story.mp3)。終わったら、前の曲に戻す。</summary>
     public string? Bgm { get; set; }
@@ -105,11 +116,18 @@ public sealed class EventScatter
 /// class(id のクラスの人がいる) / race(id の種族の人がいる) / counter(id を op で value と比べる) / chance(value % で) /
 /// key(この階の鍵を持つ) / alive(動ける人が value 以上) / depth(今の階の深さが value % 以上) /
 /// facing(迷宮でパーティが id の向き north / east / south / west を向いている。地図の上が north) /
-/// turned(向きを変えて起きた。trigger が both のイベントで、着いたときと分ける)
+/// turned(向きを変えて起きた。trigger が both のイベントで、着いたときと分ける) /
+/// equipped(誰かが id の品を装備している) / slots(誰かに value レベル以上の呪文スロットが残っている) /
+/// entered(このマスへ id の動きで入った forward / back / left / right。階段・落とし穴・テレポーターなどで来たときは、どれでもない) /
+/// status(誰かが id の状態。poisoned など) / hp(誰かの HP の割合 % を op で value と比べる) / armed(誰かが武器を手に持っている。not で「誰も持っていない」) /
+/// lit(明かりがついている) / zone(今のマスの区域が id の dark / fog / antimagic) /
+/// timer(歩数のタイマー id が動いている。残りの歩数を op で value と比べる。既定は 1 以上 = 動いている) /
+/// cast(trigger が cast で起きたとき、唱えた呪文が id。id を省くとどの呪文でも) / rested(trigger が rest で、休んで起きた)。
+/// 手順 pick で一人を選んだあとは、item / equipped / slots / level / class / race / status / hp / armed はその人だけを見る
 /// </summary>
 public sealed class EventCondition
 {
-    public static readonly HashSet<string> KnownTypes = ["flag", "done", "item", "gold", "level", "class", "race", "counter", "chance", "key", "alive", "depth", "facing", "turned"];
+    public static readonly HashSet<string> KnownTypes = ["flag", "done", "item", "gold", "level", "class", "race", "counter", "chance", "key", "alive", "depth", "facing", "turned", "equipped", "slots", "entered", "status", "hp", "armed", "lit", "zone", "cast", "rested", "timer"];
 
     public string Type { get; set; } = "";
     public string? Id { get; set; }
@@ -136,7 +154,7 @@ public sealed class EventOption
 /// - text: text(か文言のキー key)、speaker、art(モンスターの id か、パックの画像のパス)
 /// - choice: text(問い)、options[label, when, steps]。when の合わない選択肢は出さない
 /// - if: when、then、else
-/// - check: skill か ability、dc。パーティで一番得意な人が振る。success、fail
+/// - check: skill か ability、dc。パーティで一番得意な人が振る(pick で選んだあとは、その人)。success、fail
 /// - random: options[weight, steps] から1つ。per_place を true にすると、同じ迷宮の同じマスでは毎回同じものを選ぶ(壁の文字など)
 /// - flag / unflag: id
 /// - counter: id に value を足す。counter_set: id を value にする
@@ -145,10 +163,17 @@ public sealed class EventOption
 /// - gold: value(負なら払う。足りなければ持っているだけ)
 /// - xp: 動ける人それぞれに value
 /// - heal: dice(省くと全回復)。damage: dice、type、ability と dc(セーヴで半分)。どちらも動ける人全員。damage では HP は 1 より下がらない
+///   (heal・damage・condition・cure・xp・give_item・take_item は、pick で選んだあとは、その人だけ)
 /// - condition: id(状態の名前)、value(分。0 なら治療するまで)、ability と dc(セーヴで防ぐ)。cure: id(省くと全部)
-/// - light: value 分の明かり
+/// - light: value 分の明かり(0 なら明かりを消す)
 /// - combat: groups[monster, count] か boss か、どちらも無ければこの階の敵。win / lose(逃げた)
-/// - open: id。印 gate:&lt;id&gt; のマスの錠を開ける(この階)
+/// - open: id。印 gate:&lt;id&gt; のマスの錠を開ける(この階)。close: id。開けた錠をまた閉める
+/// - pick: 一人を選ぶ。text(問い)、when(選べる人の条件。一人ずつ見る)。value が 1 ならくじで選ぶ(罠が一人を襲う、など)。
+///   選んだら then、選べる人がいないか、やめたら else(else に手順があるときだけ「やめる」を出す)。選んだ人は、イベントの終わりか次の pick まで
+/// - spend_slot: value レベル以上の呪文スロットを1つ使う(低いものから。pick で選んだあとはその人、でなければ残っている人)。使えたら then、無ければ else
+/// - timer: id、value。value 歩あとに、id のイベント(迷宮のイベント)を、そのとき迷宮のどこにいても起こす。同じ id をもう一度置くと、歩数を数え直す。
+///   休むと(キャンプの小休憩)進む。町にいるあいだは止まる。timer_stop: id。そのタイマーを止める
+/// - warp: id。印 dest:&lt;id&gt; のマス(この階を先に、無ければほかの階)へパーティを移す。向きはそのまま。イベントはここで終わる
 /// - sound: id(効果音)
 /// - run: id のイベントを続けて行う
 /// - town: 町へ戻る
@@ -165,7 +190,7 @@ public sealed class EventStep
     [
         "text", "choice", "if", "check", "random", "flag", "unflag", "counter", "counter_set", "give_item", "take_item", "treasure", "gold",
         "xp", "heal", "damage", "condition", "cure", "light", "combat", "open", "sound", "run", "town", "end", "again",
-        "world_doc", "ending",
+        "world_doc", "ending", "close", "pick", "spend_slot", "warp", "timer", "timer_stop",
     ];
 
     public string Type { get; set; } = "";

@@ -31,8 +31,8 @@ public sealed class DraftSummary(EditorContext context)
         return words.GetValueOrDefault(key) ?? fallback;
     }
 
-    private string DamageType(string? type) => type == null ? "" : Word("damage." + type, type);
-    private string ConditionName(string name) => Word("condition." + name, name);
+    public string DamageType(string? type) => type == null ? "" : Word("damage." + type, type);
+    public string ConditionName(string name) => Word("condition." + name, name);
     private string ConditionName(Condition c) => ConditionName(JsonNamingPolicy.SnakeCaseLower.ConvertName(c.ToString()));
     private string Ability(string? a) => a == null ? "" : Word("ability." + a, a);
     private static string Signed(int v) => v >= 0 ? "+" + v : v.ToString();
@@ -85,10 +85,10 @@ public sealed class DraftSummary(EditorContext context)
             $"{Loc.Name(m.Name)}" + ((string?)draft["extends"] is { } ext ? T($"(元: {MonsterName(ext)} を写して変える)", $" (based on {MonsterName(ext)})") : ""),
             $"CR {m.Cr:0.###}　HP {m.HpAverage}({m.Hp})　AC {m.Ac}　" + T($"経験値 {m.Xp}　出る数 {m.Appearing}", $"XP {m.Xp}  Appearing {m.Appearing}"),
         };
-        if (m.Resist.Count > 0) lines.Add(T("抵抗: ", "Resists: ") + string.Join(T("・", ", "), m.Resist.Select(DamageType)));
+        if (m.Resist.Count > 0) lines.Add(T("耐性: ", "Resists: ") + string.Join(T("・", ", "), m.Resist.Select(DamageType)));
         if (m.Vulnerable.Count > 0) lines.Add(T("弱点: ", "Vulnerable: ") + string.Join(T("・", ", "), m.Vulnerable.Select(DamageType)));
-        if (m.Immune.Count > 0) lines.Add(T("ダメージ無効: ", "Immune: ") + string.Join(T("・", ", "), m.Immune.Select(DamageType)));
-        if (m.ConditionImmune.Count > 0) lines.Add(T("かからない状態: ", "Condition immunities: ") + string.Join(T("・", ", "), m.ConditionImmune.Select(ConditionName)));
+        if (m.Immune.Count > 0) lines.Add(T("無効: ", "Immune: ") + string.Join(T("・", ", "), m.Immune.Select(DamageType)));
+        if (m.ConditionImmune.Count > 0) lines.Add(T("状態無効: ", "Condition immunities: ") + string.Join(T("・", ", "), m.ConditionImmune.Select(ConditionName)));
         if (m.Regenerate > 0)
             lines.Add(T($"再生: 番の初めに HP {m.Regenerate}", $"Regeneration: {m.Regenerate} HP at the start of its turn")
                 + (m.RegenerateStop.Count > 0 ? T($"({string.Join("・", m.RegenerateStop.Select(DamageType))}を受けた次の番は止まる)", $" (stopped for a turn by {string.Join(", ", m.RegenerateStop.Select(DamageType))})") : ""));
@@ -127,9 +127,9 @@ public sealed class DraftSummary(EditorContext context)
         EffectPart.Modifier => $"{StatName(p.Stat)} {(p.Value is { } v ? Signed(v) : p.Dice)}" + (p.Rounds is { } mr ? T($"({mr} ラウンド)", $" ({mr} rounds)") : ""),
         EffectPart.TempHp => T($"一時的な HP {p.Dice}", $"{p.Dice} temporary HP"),
         EffectPart.RemoveCondition => T($"{(p.Condition is { } rc ? ConditionName(rc) : "?")}を治す", $"cures {(p.Condition is { } rc2 ? ConditionName(rc2) : "?")}"),
-        EffectPart.Resist => T($"{DamageType(p.DamageType)}への抵抗", $"resists {DamageType(p.DamageType)}"),
-        EffectPart.Vulnerable => T($"{DamageType(p.DamageType)}に弱い", $"vulnerable to {DamageType(p.DamageType)}"),
-        EffectPart.ImmuneCondition => T($"{(p.Condition is { } ic ? ConditionName(ic) : "?")}にならない", $"immune to {(p.Condition is { } ic2 ? ConditionName(ic2) : "?")}"),
+        EffectPart.Resist => T($"{DamageType(p.DamageType)}耐性(被ダメージ半減)", $"resists {DamageType(p.DamageType)}"),
+        EffectPart.Vulnerable => T($"{DamageType(p.DamageType)}が弱点(被ダメージ2倍)", $"vulnerable to {DamageType(p.DamageType)}"),
+        EffectPart.ImmuneCondition => T($"{(p.Condition is { } ic ? ConditionName(ic) : "?")}無効", $"immune to {(p.Condition is { } ic2 ? ConditionName(ic2) : "?")}"),
         EffectPart.SetAbility => T($"{Ability(p.Ability)}が {p.Value} になる(元の方が高ければそのまま)", $"{Ability(p.Ability)} becomes {p.Value} (unless already higher)"),
         _ => p.Type,
     };
@@ -140,7 +140,7 @@ public sealed class DraftSummary(EditorContext context)
     private string StatName(string? stat) => stat switch
     {
         null => "?",
-        _ when stat.StartsWith("resist:") => T($"{DamageType(stat[7..])}への抵抗", $"resists {DamageType(stat[7..])}"),
+        _ when stat.StartsWith("resist:") => T($"{DamageType(stat[7..])}耐性", $"resists {DamageType(stat[7..])}"),
         _ when stat.StartsWith("vulnerable:") => T($"{DamageType(stat[11..])}に弱い", $"vulnerable to {DamageType(stat[11..])}"),
         "flee" => T("逃走", "flee"),
         _ => Word("stat." + stat, stat),
@@ -202,6 +202,24 @@ public sealed class DraftSummary(EditorContext context)
                         Steps(s.Else, depth + 1, lines);
                     }
                     break;
+                case "pick":
+                    lines.Add(pad + (s.Value == 1 ? T("くじで一人を選ぶ", "Choose one member by lot") : T("一人を選ぶ", "Choose one member")) + (s.When.Count > 0 ? T($"(選べる人: {string.Join("、", s.When.Select(Condition))})", $" (eligible: {string.Join(" and ", s.When.Select(Condition))})") : ""));
+                    Steps(s.Then, depth + 1, lines);
+                    if (s.Else.Count > 0)
+                    {
+                        lines.Add(pad + T("いない・やめたら", "If nobody / cancelled"));
+                        Steps(s.Else, depth + 1, lines);
+                    }
+                    break;
+                case "spend_slot":
+                    lines.Add(pad + T($"呪文スロットを1つ使う(レベル {Math.Max(1, s.Value)} 以上)", $"Spend a spell slot (level {Math.Max(1, s.Value)}+)"));
+                    Steps(s.Then, depth + 1, lines);
+                    if (s.Else.Count > 0)
+                    {
+                        lines.Add(pad + T("残っていなければ", "If none left"));
+                        Steps(s.Else, depth + 1, lines);
+                    }
+                    break;
                 case "check":
                     lines.Add(pad + T($"判定: {(s.Skill != null ? SkillName(s.Skill) : Ability(s.Ability))} DC {s.Dc}", $"Check: {(s.Skill != null ? SkillName(s.Skill) : Ability(s.Ability))} DC {s.Dc}"));
                     lines.Add(pad + T("  成功:", "  Success:"));
@@ -231,26 +249,30 @@ public sealed class DraftSummary(EditorContext context)
     }
 
     /// <summary>手順1つ(入れ子の無いもの)。</summary>
-    private string Step(EventStep s) => s.Type switch
+    public string Step(EventStep s) => s.Type switch
     {
-        "gold" => s.Value >= 0 ? T($"金貨 +{s.Value}", $"+{s.Value} gold") : T($"金貨 {s.Value}(払う)", $"{s.Value} gold (pay)"),
-        "xp" => T($"経験値 +{s.Value}(動ける人それぞれ)", $"+{s.Value} XP each"),
-        "give_item" => T($"品を渡す: {ItemName(s.Id)}×{s.Count}", $"Give: {ItemName(s.Id)}×{s.Count}"),
-        "take_item" => T($"品を取る: {ItemName(s.Id)}×{s.Count}", $"Take: {ItemName(s.Id)}×{s.Count}"),
-        "treasure" => T($"宝 {s.Count} つ(この階の表から)", $"{s.Count} treasure (this floor's table)"),
-        "heal" => T($"全員の HP を {s.Dice ?? "全部"} 戻す", $"heal everyone {s.Dice ?? "fully"}"),
-        "damage" => T($"全員に {s.Dice} {DamageType(s.DamageType)}のダメージ", $"{s.Dice} {DamageType(s.DamageType)} damage to everyone")
+        "gold" => s.Value >= 0 ? T($"金貨 {s.Value} 枚をもらう", $"Receive {s.Value} gold") : T($"金貨 {-s.Value} 枚を払う", $"Pay {-s.Value} gold"),
+        "xp" => T($"経験値を {s.Value} 得る(動ける人それぞれ)", $"Each able member gains {s.Value} XP"),
+        "give_item" => T($"{ItemName(s.Id)}×{s.Count} を手に入れる", $"Get {ItemName(s.Id)}×{s.Count}"),
+        "take_item" => T($"{ItemName(s.Id)}×{s.Count} を失う", $"Lose {ItemName(s.Id)}×{s.Count}"),
+        "treasure" => T($"宝を {s.Count} つ手に入れる(この階の表から)", $"Find {s.Count} treasure (this floor's table)"),
+        "heal" => T($"全員の HP が {s.Dice ?? "全部"} 回復する", $"Everyone heals {s.Dice ?? "fully"}"),
+        "damage" => T($"全員が {s.Dice} の{DamageType(s.DamageType)}ダメージを受ける", $"Everyone takes {s.Dice} {DamageType(s.DamageType)} damage")
             + (s.Ability != null ? T($"({Ability(s.Ability)}のセーヴ DC {s.Dc} で半分)", $" ({Ability(s.Ability)} save DC {s.Dc} for half)") : ""),
-        "condition" => T($"{ConditionName(s.Id ?? "?")}の状態 {(s.Value > 0 ? s.Value + " 分" : "治すまで")}", $"{ConditionName(s.Id ?? "?")} for {(s.Value > 0 ? s.Value + " minutes" : "until cured")}")
+        "condition" => T($"{ConditionName(s.Id ?? "?")}になる({(s.Value > 0 ? s.Value + " 分" : "治すまで")})", $"{ConditionName(s.Id ?? "?")} for {(s.Value > 0 ? s.Value + " minutes" : "until cured")}")
             + (s.Ability != null ? T($"({Ability(s.Ability)}のセーヴ DC {s.Dc} で防ぐ)", $" ({Ability(s.Ability)} save DC {s.Dc} to resist)") : ""),
-        "cure" => T($"{(s.Id != null ? ConditionName(s.Id) : "状態をすべて")}を治す", $"cure {(s.Id != null ? ConditionName(s.Id) : "all conditions")}"),
+        "cure" => T($"{(s.Id != null ? ConditionName(s.Id) : "状態異常がすべて")}が治る", $"cure {(s.Id != null ? ConditionName(s.Id) : "all conditions")}"),
         "flag" => T($"フラグを立てる: {s.Id}", $"Set flag {s.Id}"),
         "unflag" => T($"フラグを消す: {s.Id}", $"Clear flag {s.Id}"),
-        "counter" => T($"数 {s.Id} に {Signed(s.Value)}", $"Counter {s.Id} {Signed(s.Value)}"),
-        "counter_set" => T($"数 {s.Id} を {s.Value} に", $"Counter {s.Id} = {s.Value}"),
-        "light" => T($"明かり {s.Value} 分", $"Light for {s.Value} minutes"),
-        "open" => T($"門 {s.Id} を開ける", $"Open gate {s.Id}"),
-        "sound" => T($"効果音 {s.Id}", $"Sound {s.Id}"),
+        "counter" => T($"変数 {s.Id} に {Signed(s.Value)}", $"Variable {s.Id} {Signed(s.Value)}"),
+        "counter_set" => T($"変数 {s.Id} に {s.Value} を代入", $"Variable {s.Id} = {s.Value}"),
+        "light" => s.Value <= 0 ? T("明かりが消える", "The light goes out") : T($"明かりがつく({s.Value} 分)", $"A light comes on ({s.Value} minutes)"),
+        "open" => T($"門 {s.Id} が開く", $"Gate {s.Id} opens"),
+        "close" => T($"門 {s.Id} が閉まる", $"Gate {s.Id} closes"),
+        "timer" => T($"{s.Value} 歩あとに、イベント {s.Id} が起こる", $"In {s.Value} steps, event {s.Id} happens"),
+        "timer_stop" => T($"あとで起こるはずのイベント {s.Id} を取りやめる", $"Event {s.Id} will no longer happen"),
+        "warp" => T($"着地点 {s.Id} へ飛ばされる(イベントはここで終わる)", $"Moved to landing point {s.Id} (the event ends)"),
+        "sound" => T($"音が鳴る: {s.Id}", $"Sound: {s.Id}"),
         "run" => T($"イベント {s.Id} へ続く", $"Continue with event {s.Id}"),
         "end" => T("終わる", "End"),
         "again" => T("終わる(また起こる)", "End (can happen again)"),
@@ -258,7 +280,7 @@ public sealed class DraftSummary(EditorContext context)
         _ => PartNames.Name(PartNames.Steps, s.Type),
     };
 
-    private string Condition(EventCondition c)
+    public string Condition(EventCondition c)
     {
         string what = c.Type switch
         {
@@ -268,14 +290,25 @@ public sealed class DraftSummary(EditorContext context)
             "item" => T($"{ItemName(c.Id)}を {c.Count} つ以上持つ", $"has {c.Count}+ {ItemName(c.Id)}"),
             "level" => T($"誰かがレベル {c.Value} 以上", $"someone is level {c.Value}+"),
             "chance" => T($"{c.Value}% で", $"{c.Value}% chance"),
-            "flag" => T($"フラグ {c.Id}", $"flag {c.Id}"),
+            "flag" => c.Not ? T($"フラグ {c.Id} が立っていない", $"flag {c.Id} is not set") : T($"フラグ {c.Id} が立っている", $"flag {c.Id} is set"),
             "done" => T($"イベント {c.Id} が済んだ", $"event {c.Id} done"),
-            "counter" => T($"数 {c.Id} {c.Op} {c.Value}", $"counter {c.Id} {c.Op} {c.Value}"),
+            "counter" => T($"変数 {c.Id} が {c.Value} {PartNames.Name(PartNames.Compare, c.Op)}", $"variable {c.Id} {c.Op} {c.Value}"),
             "turned" => T("向きを変えたとき", "on turning"),
+            "entered" => T($"{PartNames.Name(PartNames.Entries, c.Id ?? "")}入った", $"entered by {PartNames.Name(PartNames.Entries, c.Id ?? "")}"),
+            "equipped" => T($"{ItemName(c.Id)}を装備している", $"has {ItemName(c.Id)} equipped"),
+            "slots" => T($"レベル {Math.Max(1, c.Value)} 以上の呪文スロットが残っている", $"has a level {Math.Max(1, c.Value)}+ spell slot left"),
+            "status" => T($"{ConditionName(c.Id ?? "?")}の状態の人がいる", $"someone is {ConditionName(c.Id ?? "?")}"),
+            "hp" => T($"HP の割合 {c.Op} {c.Value}%", $"HP {c.Op} {c.Value}%"),
+            "armed" => T("武器を手に持っている人がいる", "someone holds a weapon"),
+            "lit" => T("明かりがついている", "the light is on"),
+            "zone" => T($"このマスが{PartNames.Name(PartNames.Zones, c.Id ?? "")}", $"this cell is {PartNames.Name(PartNames.Zones, c.Id ?? "")}"),
+            "cast" => string.IsNullOrEmpty(c.Id) ? T("呪文を唱えた", "a spell was cast") : T($"{SpellName(c.Id)}を唱えた", $"{SpellName(c.Id)} was cast"),
+            "rested" => T("休んだ", "rested"),
+            "timer" => T($"タイマー {c.Id} の残り {c.Op} {c.Value} 歩", $"timer {c.Id} has {c.Op} {c.Value} steps left"),
             "facing" => T($"{PartNames.Name(PartNames.Facings, c.Id ?? "")}を向いている", $"facing {PartNames.Name(PartNames.Facings, c.Id ?? "")}"),
             _ => PartNames.Name(PartNames.Conditions, c.Type),
         };
-        return c.Not ? T($"{what}ではない", $"not {what}") : what;
+        return c.Not && c.Type != "flag" ? T($"{what}ではない", $"not {what}") : what;
     }
 
     // ---------------- 名前 ----------------

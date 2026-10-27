@@ -1,0 +1,16 @@
+# 第3部 C の B3: 名札の束と、ギルドの巻き上げ機
+floor prefab_dv_b3_tags
+size 3 3
+wrap none
+start 1 2 N
+walls
++-+-+-+
+|     |
++ + + +
+|     |
++-+D+-+
+|     |
++-+-+-+
+mark 1 2 event:dv_b3_tags
+mark 1 0 event:dv_b3_winch
+entrance 1 2 S

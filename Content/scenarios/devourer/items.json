@@ -1,0 +1,41 @@
+[
+  {
+    "id": "dv_joined_stone",
+    "kind": "key",
+    "name": {
+      "en": "Joined Stone",
+      "ja": "合わせた石"
+    },
+    "price": 0,
+    "description": {
+      "en": "The stone heart from the gravekeepers' spiral, with the keystone shard from the drowned throne set against it. The edges meet. It beats, very slowly, toward the bottom of the labyrinth.",
+      "ja": "墓守の螺旋の石の心臓に、沈んだ玉座の要石の欠片を合わせたもの。縁は重なっている。迷宮の底へ向かって、とてもゆっくり脈打っている。"
+    }
+  },
+  {
+    "id": "dv_helga_letter",
+    "kind": "key",
+    "name": {
+      "en": "Helga's Letter",
+      "ja": "ヘルガの手紙"
+    },
+    "price": 0,
+    "description": {
+      "en": "A letter from the innkeeper to her brother Rudolf, folded small. \"Come home. Your room is as you left it.\"",
+      "ja": "宿の女主人から、弟ルドルフへの手紙。小さく折りたたんである。「帰っておいで。部屋は、出ていったときのままだよ」"
+    }
+  },
+  {
+    "id": "dv_funeral_bell",
+    "kind": "key",
+    "name": {
+      "en": "Warden's Hand Bell",
+      "ja": "墓守の手鐘"
+    },
+    "price": 0,
+    "description": {
+      "en": "A small funeral bell the gravekeepers ring at the graveside. \"Three times,\" Riine said. \"Two for the living, one for the dead.\"",
+      "ja": "墓守が墓の前で鳴らす、小さな弔いの鐘。「三つですよ」とリーネは言った。「二つは生者に、一つは死者に」"
+    }
+  }
+]

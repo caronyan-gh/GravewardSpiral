@@ -1,0 +1,44 @@
+{
+  "id": "devourer",
+  "name": {
+    "en": "The Devouring Labyrinth",
+    "ja": "冒険者を食う迷宮"
+  },
+  "version": "1.0",
+  "format": 1,
+  "guid": "9d2f4c61-7b3e-4f8a-b5c1-3e8a2d6f1c07",
+  "depends": [
+    "srd"
+  ],
+  "order": 2,
+  "kind": "scenario",
+  "author": "GRAVEWARD SPIRAL",
+  "description": {
+    "en": "Part 3, the last. Beneath the drowned capital lies a labyrinth that eats adventurers. For centuries they have gone down from the Last Inn, and none have come back. The joined stone points to its bottom.",
+    "ja": "第3部、最後の話。沈んだ王都の下に、冒険者を食う迷宮がある。何百年も、最後の宿から冒険者が下りては、誰も帰らない。合わせた石が、その底を指している。"
+  },
+  "levels": [
+    8,
+    13
+  ],
+  "dungeon": "devourer",
+  "allow_import": true,
+  "requires_clear": [],
+  "standard_events": false,
+  "music": {
+    "town": "the_last_hearth",
+    "maze": "below_the_sunken_hall",
+    "maze_b4": "tracing_hollow_stone",
+    "maze_b5": "tracing_hollow_stone",
+    "maze_b6": "tracing_hollow_stone",
+    "maze_b7": "beneath_the_stone_gate",
+    "maze_b8": "beneath_the_stone_gate",
+    "maze_b9": "beneath_the_stone_gate",
+    "maze_b10": "beneath_the_stone_weight",
+    "battle": "the_labyrinths_heavy_gate",
+    "boss": "sovereign_of_iron_and_bone",
+    "story": "the_weight_of_an_unread_letter",
+    "rite": "bow_to_the_waves",
+    "ending": "crown_upon_the_floor"
+  }
+}

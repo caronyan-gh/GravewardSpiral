@@ -1,0 +1,19 @@
+# 第3部 C の B7: ルドルフと、深い昇降機の仕掛け
+floor prefab_dv_b7_rudolf
+size 3 4
+wrap none
+start 1 3 N
+walls
++-+-+-+
+|#| |#|
++-+ +-+
+|#| |#|
++-+L+-+
+|     |
++ + + +
+|     |
++-+-+-+
+mark 1 2 event:dv_b7_rudolf
+mark 1 1 gate:dv_engine
+mark 1 0 event:dv_b7_engine
+entrance 1 3 S

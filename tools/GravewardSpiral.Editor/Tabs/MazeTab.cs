@@ -154,7 +154,7 @@ public sealed class MazeTab : IEditorTab
         ("none", "なし", "Nothing"), ("up", "上り階段", "Stairs up"), ("down", "下り階段", "Stairs down"), ("spinner", "回転床", "Spinner"),
         ("teleport", "テレポーター", "Teleporter"), ("pit", "落とし穴", "Pit"), ("chute", "シュート", "Chute"), ("elevator", "エレベーター", "Elevator"),
         ("solid", "岩盤(入れないマス)", "Solid rock"), ("event", "イベント", "Event"), ("boss", "ボス", "Boss"), ("key", "鍵", "Key"),
-        ("message", "文言(張り紙など)", "Text"), ("gate", "門(仕掛けで開く扉)", "Gate"),
+        ("message", "文言(張り紙など)", "Text"), ("gate", "門(仕掛けで開く扉)", "Gate"), ("dest", "着地点(イベントで移す先)", "Landing point"),
     ];
 
     public string Key => "maze";
@@ -228,6 +228,7 @@ public sealed class MazeTab : IEditorTab
             { } m when m.StartsWith("boss:") => "boss",
             { } m when m.StartsWith("message:") => "message",
             { } m when m.StartsWith("gate:") => "gate",
+            { } m when m.StartsWith("dest:") => "dest",
             _ => "other",
         },
     };
@@ -274,6 +275,7 @@ public sealed class MazeTab : IEditorTab
             case "key": c.Mark = "key"; break;
             case "message": c.Mark = "message:" + (_context.Pack?.Id ?? "scenario") + ".text1"; break;
             case "gate": c.Mark = "gate:gate1"; break;
+            case "dest": c.Mark = "dest:dest1"; break;
         }
     }
 
@@ -513,7 +515,15 @@ public sealed class MazeTab : IEditorTab
                 var name = Ui.Text(c.Mark?["gate:".Length..], _ => { });
                 name.LostFocus += (_, _) => { if (name.Text.Trim().Length > 0) Marks(v => "gate:" + v, name.Text.Trim()); };
                 _cellPanel.Children.Add(Ui.Row(T("門の名前", "Gate name"), name, LabelWidth));
-                _cellPanel.Children.Add(Ui.Row("", Ui.Note(T("イベントの手順「門を開ける」(open)で、この名前の門の錠を開ける。", "The event step \"Open gate\" (open) unlocks the gate with this name.")), LabelWidth));
+                _cellPanel.Children.Add(Ui.Row("", Ui.Note(T("イベントの手順「門を開ける」(open)で、この名前の門の錠を開ける。「門を閉める」(close)でまた閉まる。", "The event step \"Open gate\" (open) unlocks the gate with this name; \"Close gate\" (close) locks it again.")), LabelWidth));
+                break;
+            }
+            case "dest":
+            {
+                var name = Ui.Text(c.Mark?["dest:".Length..], _ => { });
+                name.LostFocus += (_, _) => { if (name.Text.Trim().Length > 0) Marks(v => "dest:" + v, name.Text.Trim()); };
+                _cellPanel.Children.Add(Ui.Row(T("着地点の名前", "Landing point name"), name, LabelWidth));
+                _cellPanel.Children.Add(Ui.Row("", Ui.Note(T("イベントの手順「別のマスへ移す」(warp)で、パーティをこのマスへ移す。ほかの階からも移せる。", "The event step \"Move the party\" (warp) moves the party to this cell, also from other floors.")), LabelWidth));
                 break;
             }
             case "elevator" when ShaftOf(c) is { } shaft && _context.Pack is { } pack && cells.Count == 1:

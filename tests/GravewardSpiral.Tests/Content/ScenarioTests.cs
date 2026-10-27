@@ -92,7 +92,13 @@ public class ScenarioTests
         // 標準のパックだけなら、棚に置いただけの曲は流れない
         Assert.EndsWith("srd/audio/bgm/town.mp3", Base.FindFile("audio/bgm/town.mp3")!.Replace(Path.DirectorySeparatorChar, '/'));
         Assert.Null(Base.FindFile("audio/bgm/maze_b3.mp3"));
-        Assert.Equal(16, Base.All(MusicTrack.Collection).Count);
+        Assert.Equal(26, Base.All(MusicTrack.Collection).Count);
+        // 第3部も同じ。見送りの儀式の曲(イベントの rite)と底の階の曲
+        var part3 = ContentLibrary.Load(TestPaths.Content, Path.Combine(TestPaths.Content, "scenarios", "devourer"));
+        Assert.True(part3.IsValid, string.Join(" / ", part3.Problems));
+        Assert.EndsWith("bow_to_the_waves.mp3", part3.FindFile("audio/bgm/rite.mp3"));
+        Assert.EndsWith("beneath_the_stone_weight.mp3", part3.FindFile("audio/bgm/maze_b10.mp3"));
+        Assert.EndsWith("crown_upon_the_floor.mp3", part3.FindFile("audio/bgm/ending.mp3"));
     }
 
     [Fact]

@@ -1,0 +1,13 @@
+# 第3部 C の B6: 要石の根
+floor prefab_dv_b6_roots
+size 3 2
+wrap none
+start 1 1 N
+walls
++-+-+-+
+|     |
++ + + +
+|     |
++-+-+-+
+mark 1 0 event:dv_b6_roots
+entrance 1 1 S

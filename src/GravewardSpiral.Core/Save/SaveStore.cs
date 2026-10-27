@@ -384,6 +384,9 @@ public sealed class SaveData
     public List<Items.ItemInstance> ShopSold { get; set; } = [];
     public List<string> Flags { get; set; } = [];
     public Dictionary<string, int> Counters { get; set; } = [];
+
+    /// <summary>歩数のタイマー(イベントの id と残りの歩数)。</summary>
+    public Dictionary<string, int> Timers { get; set; } = [];
     public Difficulty Difficulty { get; set; } = new();
     public PendingCombat? PendingCombat { get; set; }
     public string? Scenario { get; set; }
@@ -491,6 +494,7 @@ public sealed class SaveData
             ShopSold = s.ShopSold,
             Flags = [.. s.Flags],
             Counters = new(s.Counters),
+            Timers = new(s.Timers),
             Difficulty = s.Difficulty,
             PendingCombat = s.PendingCombat,
             Scenario = s.Scenario,
@@ -558,6 +562,7 @@ public sealed class SaveData
             ShopSold = ShopSold,
             Flags = [.. Flags],
             Counters = new(Counters),
+            Timers = new(Timers ?? [], StringComparer.Ordinal),
             Difficulty = Difficulty,
             PendingCombat = PendingCombat,
             Scenario = Scenario,

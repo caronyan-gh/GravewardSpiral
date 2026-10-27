@@ -1,0 +1,13 @@
+# 第3部 C の B8: オルドの楔
+floor prefab_dv_b8_wedge
+size 3 2
+wrap none
+start 1 1 N
+walls
++-+-+-+
+|     |
++ + + +
+|     |
++-+-+-+
+mark 1 0 event:dv_b8_wedge
+entrance 1 1 S

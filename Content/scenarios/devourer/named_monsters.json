@@ -1,0 +1,56 @@
+[
+  {
+    "id": "dv_never_returned_blade",
+    "name": {
+      "en": "The Blade That Never Returned",
+      "ja": "帰らずの暗殺者"
+    },
+    "monster": "assassin",
+    "item": "whisperblade",
+    "item_chance": 0.6,
+    "min_depth": 0.1,
+    "max_depth": 0.35,
+    "weight": 1,
+    "placement": "wander",
+    "hp_mult": 1.8,
+    "damage_mult": 1.2,
+    "ac_bonus": 1,
+    "hit_bonus": 1
+  },
+  {
+    "id": "dv_cloak_eater",
+    "name": {
+      "en": "The Cloak-Eater",
+      "ja": "外套喰らい"
+    },
+    "monster": "cloaker",
+    "item": "shadowweave",
+    "item_chance": 0.6,
+    "min_depth": 0.3,
+    "max_depth": 0.6,
+    "weight": 1,
+    "placement": "wander",
+    "hp_mult": 2.0,
+    "damage_mult": 1.2,
+    "ac_bonus": 1,
+    "hit_bonus": 1
+  },
+  {
+    "id": "dv_memory_drinker",
+    "name": {
+      "en": "The Drinker of Memories",
+      "ja": "記憶を啜るもの"
+    },
+    "monster": "aboleth",
+    "item": "stormcaller",
+    "item_chance": 0.6,
+    "min_depth": 0.55,
+    "max_depth": 0.85,
+    "weight": 1,
+    "placement": "wander",
+    "hp_mult": 1.8,
+    "damage_mult": 1.2,
+    "ac_bonus": 1,
+    "hit_bonus": 1
+  }
+]

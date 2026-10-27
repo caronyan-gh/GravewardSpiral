@@ -205,4 +205,24 @@ public class CharacterTests
         roster.Delete(members[5]);
         Assert.Equal(5, roster.Party.Count);
     }
+
+    [Fact]
+    public void ProficiencyCoversArmorWeaponsAndMagicWeaponsByTheirBase()
+    {
+        var rogue = CharacterFactory.QuickCreate(Data, "Kob", "human", "rogue", 3);
+        var wizard = CharacterFactory.QuickCreate(Data, "Eldrin", "human", "wizard", 3);
+        var fighter = CharacterFactory.QuickCreate(Data, "Helena", "human", "fighter", 3);
+        var plate = Data.Items["plate_armor"];
+        Assert.True(fighter.Proficient(Data, plate));
+        Assert.False(rogue.CanWear(Data, plate));   // 重装鎧は着られない
+        Assert.True(rogue.WeaponProficient(Data, Data.Items["longsword"]));   // 軍用武器でも、ローグは決まった武器なら
+        Assert.False(rogue.WeaponProficient(Data, Data.Items["greataxe"]));
+        Assert.False(wizard.WeaponProficient(Data, Data.Items["longsword"]));
+        Assert.True(wizard.Proficient(Data, Data.Items["ring_of_protection"]));   // 武器・鎧でない品は、いつでも
+        // 魔法の武器は、元の武器(base)の習熟でもよい(ブラッドサーストはロングソードが元)
+        var magic = Data.Items["bloodthirst"];
+        Assert.Equal("longsword", magic.Base);
+        Assert.True(rogue.WeaponProficient(Data, magic));
+        Assert.False(wizard.WeaponProficient(Data, magic));
+    }
 }

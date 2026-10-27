@@ -511,6 +511,214 @@ public class EventTests
         Assert.Contains("twin_a", back.Flags);
     }
 
+    private static EventDef Ev(string json) => System.Text.Json.JsonSerializer.Deserialize<EventDef>(json, ContentLibrary.JsonOptions)!;
+
+    [Fact]
+    public void PickTargetsOnlyTheChosenMember()
+    {
+        var (s, state) = Room("lever_room.txt", 1, 1);
+        foreach (var c in s.Roster.PartyMembers) c.Hp = 1;
+        // 泉: 選んだ一人だけが治る。魔法使いは選べない
+        var ev = Ev("""
+            { "id": "spring", "steps": [{ "type": "pick", "text": { "en": "Who drinks?", "ja": "誰が飲む?" },
+              "when": [{ "type": "class", "id": "wizard", "not": true }],
+              "then": [{ "type": "heal" }], "else": [{ "type": "again" }] }] }
+            """);
+        var r = new EventRunner(ev, Ctx(s, state));
+        var choice = Assert.IsType<EventChoice>(r.Next());
+        Assert.Equal(6, choice.Labels.Count);   // 魔法使いを除く5人と「やめておく」
+        r.Choose(1);   // 2人目(聖職者)
+        while (r.Next() is not EventDone) { }
+        var party = s.Roster.PartyMembers.ToList();
+        Assert.Equal(party[1].MaxHp, party[1].Hp);
+        Assert.All(party.Where((_, i) => i != 1), c => Assert.Equal(1, c.Hp));
+
+        // くじ: 選ぶ画面を出さずに、一人だけがダメージを受ける
+        foreach (var c in party) c.Hp = c.MaxHp;
+        var trap = Ev("""{ "id": "dart", "steps": [{ "type": "pick", "value": 1, "then": [{ "type": "damage", "dice": "1d4" }] }] }""");
+        Assert.DoesNotContain(Drive(new EventRunner(trap, Ctx(s, state))), o => o is EventChoice);
+        Assert.Equal(5, party.Count(c => c.Hp == c.MaxHp));
+    }
+
+    [Fact]
+    public void EquippedAndSpellSlotsAreChecked()
+    {
+        var (s, state) = Room("lever_room.txt", 1, 1);
+        var fighter = s.Roster.PartyMembers.First(c => c.ClassIds.Contains("fighter"));
+        var ctx = Ctx(s, state);
+        var equipped = new EventCondition { Type = "equipped", Id = "ring_of_protection" };
+        var has = new EventCondition { Type = "item", Id = "ring_of_protection" };
+        fighter.Inventory.Items.Add(ItemInstance.Of("ring_of_protection"));
+        Assert.True(EventRunner.Test([has], ctx));
+        Assert.False(EventRunner.Test([equipped], ctx));   // 持っているだけでは、装備していない
+        fighter.Inventory.Items.Clear();
+        fighter.Inventory.Equipped[EquipSlot.Ring1] = ItemInstance.Of("ring_of_protection");
+        Assert.True(EventRunner.Test([equipped], ctx));
+
+        // 呪文スロット: 3 レベル以上を1つ捧げる。L5 の魔法使いと聖職者に 3 レベルが2つずつ
+        Assert.True(EventRunner.Test([new EventCondition { Type = "slots", Value = 3 }], ctx));
+        Assert.False(EventRunner.Test([new EventCondition { Type = "slots", Value = 4 }], ctx));
+        var altar = Ev("""{ "id": "altar", "steps": [{ "type": "spend_slot", "value": 3, "then": [{ "type": "flag", "id": "altar_fed" }], "else": [{ "type": "flag", "id": "altar_hungry" }] }] }""");
+        for (int i = 0; i < 4; i++) Drive(new EventRunner(altar, Ctx(s, state)));
+        Assert.Contains("altar_fed", s.Flags);
+        Assert.DoesNotContain("altar_hungry", s.Flags);
+        Drive(new EventRunner(altar, Ctx(s, state)));   // 5回目は残っていない
+        Assert.Contains("altar_hungry", s.Flags);
+    }
+
+    [Fact]
+    public void GatesCloseAndWarpMovesTheParty()
+    {
+        var (s, state) = Room("lever_room.txt", 0, 1);
+        var nav = new MazeNavigator(state);
+        Drive(Run("lever", s, state), [0]);
+        var close = Ev("""{ "id": "shut", "steps": [{ "type": "close", "id": "lever" }] }""");
+        Assert.Contains(Drive(new EventRunner(close, Ctx(s, state))), o => o is EventMessage { Key: "event.gate_closed" });
+        state.Position = new PartyPosition(0, new GridPos(2, 1), Direction.East);
+        Assert.Equal(MoveResult.Locked, nav.Forward());
+
+        // 着地点 dest:pool へ移す。イベントはそこで終わる(あとの手順はしない)
+        state.Dungeon.Floors[0][new GridPos(3, 1)].Mark = "dest:pool";
+        state.Position = new PartyPosition(0, new GridPos(1, 2), Direction.North);
+        var warp = Ev("""{ "id": "fall", "steps": [{ "type": "warp", "id": "pool" }, { "type": "flag", "id": "after_warp" }] }""");
+        var outputs = Drive(new EventRunner(warp, Ctx(s, state)));
+        Assert.Contains(outputs, o => o is EventWarp { ChangedFloor: false });
+        Assert.Equal(new GridPos(3, 1), state.Position.Cell);
+        Assert.Equal(Direction.North, state.Position.Facing);
+        Assert.DoesNotContain("after_warp", s.Flags);
+    }
+
+    [Fact]
+    public void EnteredTellsHowThePartyStepped()
+    {
+        var (s, state) = Room("lever_room.txt", 1, 1);
+        var back = new EventCondition { Type = "entered", Id = "back" };
+        EventContext With(string? how) => new() { Data = Data, Session = s, Maze = state, At = (0, state.Position.Cell), Rng = new Pcg32(1, 3), Entered = how };
+        Assert.True(EventRunner.Test([back], With("back")));
+        Assert.False(EventRunner.Test([back], With("forward")));
+        Assert.False(EventRunner.Test([back], With(null)));   // 階段やテレポーターで来た
+        Assert.Empty(EventCheck.Check(Data, Ev("""{ "id": "e", "steps": [{ "type": "if", "when": [{ "type": "entered", "id": "left" }], "then": [] }] }""")));
+        Assert.NotEmpty(EventCheck.Check(Data, Ev("""{ "id": "e", "steps": [{ "type": "if", "when": [{ "type": "entered", "id": "up" }], "then": [] }] }""")));
+    }
+
+    [Fact]
+    public void ThePartysStateCanBeRead()
+    {
+        var (s, state) = Room("lever_room.txt", 1, 1);
+        var party = s.Roster.PartyMembers.ToList();
+        var ctx = Ctx(s, state);
+        bool Test(string json) => EventRunner.Test([System.Text.Json.JsonSerializer.Deserialize<EventCondition>(json, ContentLibrary.JsonOptions)!], ctx);
+
+        Assert.False(Test("""{ "type": "status", "id": "poisoned" }"""));
+        party[2].Lasting.Add(new LastingCondition { Condition = Core.Effects.Condition.Poisoned });
+        Assert.True(Test("""{ "type": "status", "id": "poisoned" }"""));
+
+        Assert.False(Test("""{ "type": "hp", "op": "<=", "value": 50 }"""));
+        party[0].Hp = party[0].MaxHp / 4;
+        Assert.True(Test("""{ "type": "hp", "op": "<=", "value": 50 }"""));
+
+        // 武器: 誰かが持っている。全員が外すと「誰も持っていない」(not)
+        Assert.True(Test("""{ "type": "armed" }"""));
+        foreach (var c in party) foreach (var slot in new[] { EquipSlot.MainHand, EquipSlot.OffHand, EquipSlot.Ranged }) c.Inventory.Equipped.Remove(slot);
+        Assert.True(Test("""{ "type": "armed", "not": true }"""));
+
+        // 明かり: つける・消す
+        Assert.False(Test("""{ "type": "lit" }"""));
+        Drive(new EventRunner(Ev("""{ "id": "lamp", "steps": [{ "type": "light", "value": 30 }] }"""), Ctx(s, state)));
+        Assert.True(Test("""{ "type": "lit" }"""));
+        Assert.Contains(Drive(new EventRunner(Ev("""{ "id": "gust", "steps": [{ "type": "light", "value": 0 }] }"""), Ctx(s, state))), o => o is EventMessage { Key: "event.light_out" });
+        Assert.False(Test("""{ "type": "lit" }"""));
+
+        state.Dungeon.Floors[0][new GridPos(1, 1)].Zone = Zone.Dark;
+        Assert.True(Test("""{ "type": "zone", "id": "dark" }"""));
+        Assert.False(Test("""{ "type": "zone", "id": "fog" }"""));
+    }
+
+    [Fact]
+    public void EventsCanFireOnCastingOrResting()
+    {
+        var ev = Ev("""{ "id": "statue", "trigger": "enter,cast", "steps": [] }""");
+        Assert.True(ev is { OnEnter: true, OnCast: true, OnTurn: false, OnRest: false });
+        Assert.True(Ev("""{ "id": "x", "trigger": "rest", "steps": [] }""") is { OnEnter: false, OnRest: true });
+        Assert.Empty(EventCheck.Check(Data, ev).Where(p => p.Contains("trigger")));
+        Assert.NotEmpty(EventCheck.Check(Data, Ev("""{ "id": "x", "trigger": "enter,dance", "steps": [] }""")).Where(p => p.Contains("trigger")));
+
+        var (s, state) = Room("lever_room.txt", 1, 1);
+        var light = new EventCondition { Type = "cast", Id = "light" };
+        var any = new EventCondition { Type = "cast" };
+        EventContext With(string? cast, bool rested = false) => new() { Data = Data, Session = s, Maze = state, At = (0, state.Position.Cell), Rng = new Pcg32(1, 3), Cast = cast, Rested = rested };
+        Assert.True(EventRunner.Test([light], With("light")));
+        Assert.False(EventRunner.Test([light], With("cure_wounds")));
+        Assert.True(EventRunner.Test([any], With("cure_wounds")));
+        Assert.False(EventRunner.Test([any], With(null)));   // 着いて起きた
+        Assert.True(EventRunner.Test([new EventCondition { Type = "rested" }], With(null, rested: true)));
+    }
+
+    [Fact]
+    public void MoneyInTextIsLiftedInEveryForm()
+    {
+        // 上の世界で引き上げるとき、文の中の金額も合わせる(AI が書く「金貨 30 枚」の形も)
+        Assert.Equal("渡す: 120 G", EventRunner.LiftMoney("渡す: 30 G", 2));
+        Assert.Equal("旅の餞別に金貨120枚を渡す", EventRunner.LiftMoney("旅の餞別に金貨30枚を渡す", 2));
+        Assert.Equal("金貨 120 枚", EventRunner.LiftMoney("金貨 30 枚", 2));
+        Assert.Equal("120 枚の金貨", EventRunner.LiftMoney("30 枚の金貨", 2));
+        Assert.Equal("Give him 120 gold. Gold: 40 Gold", EventRunner.LiftMoney("Give him 30 gold. Gold: 10 Gold", 2));
+        Assert.Equal("3 goldfish and 30 Goblins", EventRunner.LiftMoney("3 goldfish and 30 Goblins", 2));   // 金額でないものは変えない
+        Assert.Equal(EventScale.Reward(30, 2), 120);
+    }
+
+    [Fact]
+    public void StepTimersRunTheirEventWhenTimeIsUp()
+    {
+        var (s, state) = Room("lever_room.txt", 1, 1);
+        var light = Ev("""{ "id": "lit_candle", "steps": [{ "type": "timer", "id": "candle_out", "value": 3 }] }""");
+        Drive(new EventRunner(light, Ctx(s, state)));
+        var running = new EventCondition { Type = "timer", Id = "candle_out" };
+        Assert.True(EventRunner.Test([running], Ctx(s, state)));
+        Assert.True(EventRunner.Test([new EventCondition { Type = "timer", Id = "candle_out", Op = "==", Value = 3 }], Ctx(s, state)));
+        Assert.Empty(s.AdvanceTimers(2));
+        Assert.Equal(["candle_out"], s.AdvanceTimers(1));   // 3 歩で時が来る(休みで一度に進んでも同じ)
+        Assert.False(EventRunner.Test([running], Ctx(s, state)));
+
+        // 止めると、時が来ても何も起こらない。セーブに残る
+        Drive(new EventRunner(light, Ctx(s, state)));
+        var data = SaveData.From(s, Content);
+        Assert.Equal(3, data.Timers["candle_out"]);
+        Drive(new EventRunner(Ev("""{ "id": "snuff", "steps": [{ "type": "timer_stop", "id": "candle_out" }] }"""), Ctx(s, state)));
+        Assert.Empty(s.AdvanceTimers(10));
+
+        // 時が来たら起こすイベントが無ければ、検査で分かる
+        Assert.Contains(EventCheck.Check(Data, Ev("""{ "id": "x", "steps": [{ "type": "timer", "id": "no_such_event", "value": 5 }] }""")), p => p.Contains("no_such_event"));
+        Assert.Empty(EventCheck.Check(Data, Ev("""{ "id": "x", "steps": [{ "type": "timer", "id": "lever", "value": 5 }] }""")));
+    }
+
+    [Fact]
+    public void PartThreeRiteReadsOnlyTheNamesFound()
+    {
+        var content = ContentLibrary.Load(TestPaths.Content, Path.Combine(TestPaths.Content, "scenarios", "devourer"));
+        var data = GameData.Load(content);
+        string[] places = ["wall", "milo", "tags", "valdo", "pages", "rudolf", "alden"];
+        string Read(IEnumerable<string> found)
+        {
+            var (s, state) = Room("lever_room.txt", 1, 1);
+            foreach (var f in new[] { "dv_riine_met", "dv_bell_given", "dv_lullaby" }) s.Flags.Add(f);
+            foreach (var p in found) { s.Flags.Add("dv_name_" + p); s.Counters["dv_names"] = s.Counters.GetValueOrDefault("dv_names") + 1; }
+            var ctx = new EventContext { Data = data, Session = s, Maze = state, At = (0, state.Position.Cell), Rng = new Pcg32(1, 3), Depth = 1, TargetLevel = 13, Treasure = TreasureSettings.Load(content) };
+            return string.Join("\n", Drive(new EventRunner(data.Events["dv_b10_rite"], ctx)).OfType<EventMessage>().Select(m => m.Text?.Get("en") ?? ""));
+        }
+        // 名の場所は 7 つ。B2 を飛ばして 6 つ集めたら、B2 の一行は読まない
+        string six = Read(places.Where(p => p != "milo"));
+        Assert.DoesNotContain("Milo", six);
+        Assert.Contains("Rudolf", six);
+        Assert.Contains("you who came before", six);
+        string all = Read(places);
+        Assert.Contains("Milo", all);
+        Assert.DoesNotContain("you who came before", all);
+        // 名の場所はどれも、数えるのと一緒に自分の印を立てる
+        var json = File.ReadAllText(Path.Combine(TestPaths.Content, "scenarios", "devourer", "events.json"));
+        foreach (var p in places) Assert.Contains("\"dv_name_" + p + "\"", json);
+    }
+
     [Fact]
     public void StoryALanternAndNameOpenTheWay()
     {

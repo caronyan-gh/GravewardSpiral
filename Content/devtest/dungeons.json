@@ -17,7 +17,8 @@
       "ja": "仕掛けの見本"
     },
     "floors": [
-      "maps/devtest_events.txt"
+      "maps/devtest_events.txt",
+      "maps/devtest_events2.txt"
     ]
   }
 ]

@@ -240,7 +240,7 @@ public sealed class MapCanvas : FrameworkElement
             if (c.Mark is { } mark)
             {
                 string tag = mark.StartsWith(Core.Events.EventPlacer.MarkPrefix) ? "★" : mark.StartsWith("boss:") ? T("主", "B") : mark == "key" ? T("鍵", "K")
-                    : mark.StartsWith("message:") ? T("文", "M") : mark.StartsWith("gate:") ? T("門", "G") : mark.StartsWith("elevator:") ? "" : T("印", "*");
+                    : mark.StartsWith("message:") ? T("文", "M") : mark.StartsWith("gate:") ? T("門", "G") : mark.StartsWith("dest:") ? T("着", "L") : mark.StartsWith("elevator:") ? "" : T("印", "*");
                 if (tag.Length > 0) Label(dc, tag, new Point(r.Right - 7, r.Bottom - 8), 10, Brushes.Purple, dpi, bold: true);
             }
         }

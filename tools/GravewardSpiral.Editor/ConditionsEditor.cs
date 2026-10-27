@@ -11,8 +11,8 @@ namespace GravewardSpiral.Editor;
 /// </summary>
 public static class ConditionsEditor
 {
-    private static readonly HashSet<string> UsesId = ["flag", "done", "item", "class", "race", "counter"];
-    private static readonly HashSet<string> UsesNumber = ["item", "gold", "level", "counter", "chance", "alive", "depth"];
+    private static readonly HashSet<string> UsesId = ["flag", "done", "item", "class", "race", "counter", "facing", "entered", "equipped", "status", "zone", "cast", "timer"];
+    private static readonly HashSet<string> UsesNumber = ["item", "gold", "level", "counter", "chance", "alive", "depth", "slots", "hp", "timer"];
 
     public static StackPanel Create(List<EventCondition> conditions, Action changed)
     {
@@ -35,7 +35,7 @@ public static class ConditionsEditor
                 void Enable()
                 {
                     id.IsEnabled = UsesId.Contains(c.Type);
-                    op.IsEnabled = c.Type == "counter";
+                    op.IsEnabled = c.Type is "counter" or "hp" or "timer";
                     number.IsEnabled = UsesNumber.Contains(c.Type);
                 }
                 type.SelectionChanged += (_, _) =>

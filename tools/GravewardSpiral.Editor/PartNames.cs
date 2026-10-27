@@ -8,6 +8,9 @@ namespace GravewardSpiral.Editor;
 public sealed record Choice(string Key, string Label)
 {
     public override string ToString() => Key.Length == 0 ? Label : Label.Length == 0 || Label == Key ? Key : $"{Label}  ({Key})";
+
+    /// <summary>欄に出す文字(ToString と同じ。打てる欄の文字の元に使う)。</summary>
+    public string Display => ToString();
 }
 
 /// <summary>
@@ -57,37 +60,66 @@ public sealed class PartTable<TKey> : IReadOnlyDictionary<TKey, string> where TK
 /// </summary>
 public static class PartNames
 {
+    /// <summary>
+    /// イベントの流れの部品の名前。イベントを組む人が見慣れた RPG ツクールのイベントコマンドの言い方に寄せる
+    /// (文章の表示・条件分岐・スイッチ〔ここではフラグ〕の操作・所持金の増減・戦闘の処理・場所移動 など)。ツクールに無いものは、同じ形の言い方にする。
+    /// </summary>
     public static readonly IReadOnlyDictionary<string, string> Steps = new PartTable<string>(
-        ("text", "文を見せる", "Show text"), ("choice", "選択肢", "Choice"), ("if", "もし", "If"), ("check", "技能の判定", "Skill check"), ("random", "どれか1つ", "Pick one at random"),
-        ("flag", "フラグを立てる", "Set flag"), ("unflag", "フラグを消す", "Clear flag"), ("counter", "数を足す", "Add to counter"), ("counter_set", "数を決める", "Set counter"),
-        ("give_item", "品を渡す", "Give item"), ("take_item", "品を取る", "Take item"), ("treasure", "宝", "Treasure"), ("gold", "お金", "Gold"), ("xp", "経験値", "Experience"),
-        ("heal", "回復", "Heal"), ("damage", "ダメージ", "Damage"), ("condition", "状態にする", "Inflict condition"), ("cure", "状態を治す", "Cure condition"), ("light", "明かり", "Light"),
-        ("combat", "戦闘", "Combat"), ("open", "門を開ける", "Open gate"), ("sound", "効果音", "Sound effect"), ("run", "別のイベント", "Run another event"), ("world_doc", "AI の書き付け", "AI-written note"),
-        ("town", "町へ戻る", "Return to town"), ("end", "終わる", "End"), ("again", "終わる(また起こる)", "End (can happen again)"),
-        ("ending", "エンディングへ", "Go to the ending"));
+        ("text", "文章の表示", "Show text"), ("choice", "選択肢の表示", "Show choices"), ("world_doc", "書き付けの表示", "Show a note"),
+        ("if", "条件分岐", "Conditional branch"), ("check", "技能判定(成功・失敗で分岐)", "Skill check (success / failure)"), ("random", "ランダム分岐", "Random branch"),
+        ("run", "別のイベントの呼び出し", "Call another event"), ("timer", "歩数タイマーの開始", "Start step timer"), ("timer_stop", "歩数タイマーの停止", "Stop step timer"),
+        ("end", "イベント処理の中断", "Exit event"), ("again", "イベント処理の中断(また起こる)", "Exit event (happens again)"), ("town", "町へ戻る", "Return to town"),
+        ("ending", "エンディング(クリア)", "Ending (clear)"),
+        ("flag", "フラグを立てる", "Set flag"), ("unflag", "フラグを消す", "Clear flag"),
+        ("counter", "変数の増減", "Change variable"), ("counter_set", "変数の代入", "Set variable"),
+        ("give_item", "アイテムを増やす", "Gain item"), ("take_item", "アイテムを減らす", "Lose item"), ("treasure", "宝の入手", "Get treasure"),
+        ("gold", "所持金の増減", "Change gold"), ("xp", "経験値の増減", "Change XP"),
+        ("pick", "メンバーを1人選ぶ(その人だけに)", "Choose a member (to them only)"), ("heal", "HP の回復", "Recover HP"), ("damage", "ダメージ", "Damage"),
+        ("condition", "状態異常にする", "Add condition"), ("cure", "状態異常を治す", "Remove condition"), ("spend_slot", "呪文スロットの消費", "Use a spell slot"),
+        ("light", "明かりの操作", "Control light"),
+        ("combat", "戦闘の処理", "Battle processing"), ("open", "門を開ける", "Open gate"), ("close", "門を閉める", "Close gate"),
+        ("warp", "場所移動", "Transfer party"), ("sound", "SE の演奏", "Play SE"));
 
     /// <summary>手順の部品の組(足すとき、まず組を選んで絞る)。</summary>
     public static readonly (string Ja, string En, string[] Keys)[] StepGroups =
     [
         ("文と選択", "Text & choices", ["text", "choice", "world_doc"]),
-        ("流れ", "Flow", ["if", "check", "random", "run", "end", "again", "town", "ending"]),
+        ("流れ", "Flow", ["if", "check", "random", "run", "timer", "timer_stop", "end", "again", "town", "ending"]),
         ("フラグと数", "Flags & counters", ["flag", "unflag", "counter", "counter_set"]),
         ("品とお金", "Items & gold", ["give_item", "take_item", "treasure", "gold", "xp"]),
-        ("パーティ", "Party", ["heal", "damage", "condition", "cure", "light"]),
-        ("迷宮と戦闘", "Maze & combat", ["combat", "open", "sound"]),
+        ("パーティ", "Party", ["pick", "heal", "damage", "condition", "cure", "spend_slot", "light"]),
+        ("迷宮と戦闘", "Maze & combat", ["combat", "open", "close", "warp", "sound"]),
     ];
 
     public static readonly IReadOnlyDictionary<string, string> Conditions = new PartTable<string>(
         ("flag", "フラグが立っている", "Flag is set"), ("done", "イベントが済んだ", "Event is done"), ("item", "品を持っている", "Has item"), ("gold", "お金がある", "Has gold"),
-        ("level", "レベル", "Level"), ("class", "クラスの人がいる", "Class in party"), ("race", "種族の人がいる", "Race in party"), ("counter", "数を比べる", "Compare counter"),
+        ("level", "レベル", "Level"), ("class", "クラスの人がいる", "Class in party"), ("race", "種族の人がいる", "Race in party"), ("counter", "変数を比べる", "Compare variable"),
         ("chance", "確率", "Chance"), ("key", "この階の鍵", "Key for this floor"), ("alive", "動ける人の数", "Members able to act"), ("depth", "階の深さ", "Floor depth"),
-        ("facing", "向いている方角", "Facing"), ("turned", "向きを変えて起きた", "Fired by turning"));
+        ("facing", "向いている方角", "Facing"), ("turned", "向きを変えて起きた", "Fired by turning"), ("entered", "入り方", "How the party entered"),
+        ("equipped", "品を装備している", "Has item equipped"), ("slots", "呪文スロットが残っている", "Has a spell slot left"),
+        ("status", "状態になっている", "Has a condition"), ("hp", "HP の割合", "HP percent"), ("armed", "武器を手に持っている", "Holds a weapon"),
+        ("lit", "明かりがついている", "Light is on"), ("zone", "このマスの区域", "Zone of this cell"), ("cast", "唱えた呪文", "Spell cast"), ("rested", "休んで起きた", "Fired by resting"),
+        ("timer", "タイマーが動いている", "Timer running"));
+
+    public static readonly IReadOnlyDictionary<string, string> Abilities = new PartTable<string>(
+        ("str", "筋力", "Strength"), ("dex", "敏捷力", "Dexterity"), ("con", "耐久力", "Constitution"), ("int", "知力", "Intelligence"), ("wis", "判断力", "Wisdom"), ("cha", "魅力", "Charisma"));
+
+    public static readonly IReadOnlyDictionary<string, string> Compare = new PartTable<string>(
+        (">=", "以上", "at least"), ("<=", "以下", "at most"), ("==", "ちょうど", "exactly"), ("!=", "でない", "not"), (">", "より多い", "more than"), ("<", "より少ない", "less than"));
+
+    public static readonly IReadOnlyDictionary<string, string> Zones = new PartTable<string>(
+        ("dark", "暗闇", "Darkness"), ("fog", "霧", "Fog"), ("antimagic", "魔法禁止", "Anti-magic"));
+
+    public static readonly IReadOnlyDictionary<string, string> Entries = new PartTable<string>(
+        ("forward", "前へ歩いて", "Walking forward"), ("back", "後ろへ下がって", "Stepping back"), ("left", "左へ横歩きで", "Sidestepping left"), ("right", "右へ横歩きで", "Sidestepping right"));
 
     public static readonly IReadOnlyDictionary<string, string> Facings = new PartTable<string>(
         ("north", "北(地図の上)", "North (up on the map)"), ("east", "東", "East"), ("south", "南", "South"), ("west", "西", "West"));
 
     public static readonly IReadOnlyDictionary<string, string> Triggers = new PartTable<string>(
-        ("enter", "マスに着いたとき", "On entering the cell"), ("turn", "そのマスで向きを変えたとき", "On turning in the cell"), ("both", "着いたときと、向きを変えたとき", "On entering and on turning"));
+        ("enter", "マスに着いたとき", "On entering the cell"), ("turn", "そのマスで向きを変えたとき", "On turning in the cell"), ("both", "着いたときと、向きを変えたとき", "On entering and on turning"),
+        ("cast", "そのマスで呪文を唱えたとき", "On casting a spell in the cell"), ("enter,cast", "着いたときと、呪文を唱えたとき", "On entering and on casting"),
+        ("rest", "そのマスで休んだとき", "On resting in the cell"), ("enter,rest", "着いたときと、休んだとき", "On entering and on resting"));
 
     public static readonly IReadOnlyDictionary<string, string> Places = new PartTable<string>(("maze", "迷宮", "Maze"), ("town", "町", "Town"));
     public static readonly IReadOnlyDictionary<string, string> Once = new PartTable<string>(("", "何度でも", "Any number of times"), ("game", "世界で一度", "Once per world"), ("place", "そのマスで一度", "Once per cell"));

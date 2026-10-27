@@ -34,7 +34,7 @@ public sealed class EventScene : Scene
     private bool _choosing;
 
     /// <summary>イベントが画面の外に頼むこと(戦闘、町へ戻る、終わったとき)。</summary>
-    public sealed record Callbacks(Action<EventCombat, Action<bool>> Combat, Action ToTown, Action? Done = null);
+    public sealed record Callbacks(Action<EventCombat, Action<bool>> Combat, Action ToTown, Action? Done = null, Action<EventWarp>? Warp = null);
 
     /// <param name="previousBgm">イベントの前に流れていた曲(戦闘のあとで積み直すときに渡す)。</param>
     public EventScene(EventRunner runner, Callbacks callbacks, string? previousBgm = null, float previousGain = 1f)
@@ -111,6 +111,11 @@ public sealed class EventScene : Scene
                 case EventToTown:
                     Stack.Pop();
                     _on.ToTown();
+                    return;
+                case EventWarp warp:
+                    Stack.Pop();
+                    RestoreBgm();
+                    _on.Warp?.Invoke(warp);
                     return;
                 default:
                     Stack.Pop();

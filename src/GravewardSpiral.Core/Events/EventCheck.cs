@@ -11,8 +11,12 @@ public static class EventCheck
     public static readonly HashSet<string> Places = ["maze", "town"];
     public static readonly HashSet<string> OnceKinds = ["game", "place"];
     public static readonly HashSet<string> ScatterWhere = ["any", "dead_end", "room", "corridor"];
-    public static readonly HashSet<string> Triggers = ["enter", "turn", "both"];
+    /// <summary>エディタで選べる起こるとき(並べたものも)。検査は TriggerParts の組み合わせなら通す。</summary>
+    public static readonly List<string> Triggers = ["enter", "turn", "both", "cast", "enter,cast", "rest", "enter,rest"];
     public static readonly HashSet<string> Facings = ["north", "east", "south", "west"];
+    public static readonly HashSet<string> Entries = ["forward", "back", "left", "right"];
+    public static readonly HashSet<string> Zones = ["dark", "fog", "antimagic"];
+    public static readonly HashSet<string> TriggerParts = ["enter", "turn", "both", "cast", "rest"];
 
     public static List<string> Check(GameData data, EventDef e, ContentLibrary? content = null)
     {
@@ -22,7 +26,8 @@ public static class EventCheck
         if (!Places.Contains(e.Place)) Add($"place '{e.Place}' は {string.Join(" / ", Places)} のどれかです");
         if (e.Once != null && !OnceKinds.Contains(e.Once)) Add($"once '{e.Once}' は game / place のどちらかです");
         if (e.Place == "town" && e.Title == null) Add("町のイベントには title が要ります");
-        if (!Triggers.Contains(e.Trigger)) Add($"trigger '{e.Trigger}' は {string.Join(" / ", Triggers)} のどれかです");
+        if (e.Trigger.Split(',', StringSplitOptions.TrimEntries).Any(t => !TriggerParts.Contains(t)))
+            Add($"trigger '{e.Trigger}' は {string.Join(" / ", TriggerParts)} か、それをカンマで並べたものです");
         if (e.Scatter != null && !ScatterWhere.Contains(e.Scatter.Where)) Add($"scatter の where '{e.Scatter.Where}' は {string.Join(" / ", ScatterWhere)} のどれかです");
         // 深さは階の数ではなく割合(1〜5 と書くと、最下層にしか置かれない)
         if (e.Scatter is { } sc && (sc.MinDepth is < 0 or > 1 || sc.MaxDepth is < 0 or > 1))
@@ -44,6 +49,11 @@ public static class EventCheck
                 if (c.Type == "race" && c.Id != null && !data.Races.ContainsKey(c.Id)) Add($"条件 race: races に '{c.Id}' がありません");
                 if (c.Type == "done" && c.Id != null && !data.Events.ContainsKey(c.Id)) Add($"条件 done: events に '{c.Id}' がありません");
                 if (c.Type == "facing" && !Facings.Contains(c.Id ?? "")) Add($"条件 facing の id '{c.Id}' は {string.Join(" / ", Facings)} のどれかです");
+                if (c.Type == "equipped" && (c.Id == null || !data.Items.ContainsKey(c.Id))) Add($"条件 equipped: items に '{c.Id}' がありません");
+                if (c.Type == "entered" && !Entries.Contains(c.Id ?? "")) Add($"条件 entered の id '{c.Id}' は {string.Join(" / ", Entries)} のどれかです");
+                if (c.Type == "zone" && !Zones.Contains(c.Id ?? "")) Add($"条件 zone の id '{c.Id}' は {string.Join(" / ", Zones)} のどれかです");
+                if (c.Type == "status" && !Enum.TryParse<Condition>((c.Id ?? "").Replace("_", ""), true, out _)) Add($"条件 status: 状態 '{c.Id}' がありません");
+                if (c.Type == "cast" && !string.IsNullOrEmpty(c.Id) && !data.Spells.ContainsKey(c.Id)) Add($"条件 cast: spells に '{c.Id}' がありません");
             }
         }
 
@@ -53,10 +63,13 @@ public static class EventCheck
             foreach (var s in list)
             {
                 if (!EventStep.KnownTypes.Contains(s.Type)) Add($"手順の種類 '{s.Type}' がありません");
-                bool needId = s.Type is "flag" or "unflag" or "counter" or "counter_set" or "give_item" or "take_item" or "open" or "sound" or "run";
+                bool needId = s.Type is "flag" or "unflag" or "counter" or "counter_set" or "give_item" or "take_item" or "open" or "close" or "warp" or "sound" or "run" or "timer" or "timer_stop";
                 if (needId && string.IsNullOrEmpty(s.Id)) Add($"手順 {s.Type} に id がありません");
                 if (s.Type is "give_item" or "take_item" && s.Id != null && !data.Items.ContainsKey(s.Id)) Add($"手順 {s.Type}: items に '{s.Id}' がありません");
                 if (s.Type == "run" && s.Id != null && !data.Events.ContainsKey(s.Id)) Add($"手順 run: events に '{s.Id}' がありません");
+                if (s.Type == "timer" && s.Id != null && (!data.Events.TryGetValue(s.Id, out var due) || due.Place != "maze"))
+                    Add($"手順 timer: 時が来たら起こす迷宮のイベント '{s.Id}' がありません");
+                if (s.Type == "timer" && s.Value < 1) Add("手順 timer の value(歩数)は 1 以上です");
                 if (s.Type == "text" && s.Text == null && s.Key == null) Add("手順 text に text も key もありません");
                 if (s.Key != null && texts != null && !texts.ContainsKey(s.Key)) Add($"文言のキー '{s.Key}' がありません");
                 if (s.Type == "choice" && s.Options.Count == 0) Add("手順 choice に options がありません");
@@ -105,7 +118,7 @@ public static class EventCheck
             foreach (var s in steps)
             {
                 if (s.Type == "run" && s.Id != null) yield return s.Id;
-                if (s.Type is "choice" or "combat") continue;   // 待つところの先は、輪でも止まる
+                if (s.Type is "choice" or "combat" || s.Type == "pick" && s.Value != 1) continue;   // 待つところの先は、輪でも止まる(くじの pick は待たない)
                 foreach (var child in s.Children()) foreach (var id in Runs(child)) yield return id;
             }
         }

@@ -1,0 +1,72 @@
+[
+  {
+    "id": "dv_b1_names",
+    "file": "maps/prefabs/dv_b1_names.txt",
+    "min_depth": 0,
+    "max_depth": 0.05,
+    "once": true
+  },
+  {
+    "id": "dv_b2_camp",
+    "file": "maps/prefabs/dv_b2_camp.txt",
+    "min_depth": 0.061,
+    "max_depth": 0.161,
+    "once": true
+  },
+  {
+    "id": "dv_b3_tags",
+    "file": "maps/prefabs/dv_b3_tags.txt",
+    "min_depth": 0.172,
+    "max_depth": 0.272,
+    "once": true
+  },
+  {
+    "id": "dv_b4_company",
+    "file": "maps/prefabs/dv_b4_company.txt",
+    "min_depth": 0.283,
+    "max_depth": 0.383,
+    "once": true
+  },
+  {
+    "id": "dv_b5_gravedigger",
+    "file": "maps/prefabs/dv_b5_gravedigger.txt",
+    "min_depth": 0.394,
+    "max_depth": 0.494,
+    "once": true
+  },
+  {
+    "id": "dv_b6_roots",
+    "file": "maps/prefabs/dv_b6_roots.txt",
+    "min_depth": 0.506,
+    "max_depth": 0.606,
+    "once": true
+  },
+  {
+    "id": "dv_b7_rudolf",
+    "file": "maps/prefabs/dv_b7_rudolf.txt",
+    "min_depth": 0.617,
+    "max_depth": 0.717,
+    "once": true
+  },
+  {
+    "id": "dv_b8_wedge",
+    "file": "maps/prefabs/dv_b8_wedge.txt",
+    "min_depth": 0.728,
+    "max_depth": 0.828,
+    "once": true
+  },
+  {
+    "id": "dv_b9_camp",
+    "file": "maps/prefabs/dv_b9_camp.txt",
+    "min_depth": 0.839,
+    "max_depth": 0.939,
+    "once": true
+  },
+  {
+    "id": "dv_b10_rite",
+    "file": "maps/prefabs/dv_b10_rite.txt",
+    "min_depth": 0.95,
+    "max_depth": 1,
+    "once": true
+  }
+]

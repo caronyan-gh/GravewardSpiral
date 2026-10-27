@@ -27,6 +27,7 @@ public sealed class CampScene : MenuScene
 
     private readonly Func<bool> _restInterrupted;
     private readonly Action _returnToTown;
+    private readonly Func<string?, bool, Action?>? _cellEvent;
     private Mode _mode;
     private Character? _caster;
     private SpellDef? _spell;
@@ -41,10 +42,23 @@ public sealed class CampScene : MenuScene
 
     /// <param name="restInterrupted">小休憩のあとで呼ぶ。敵が来たら true(戦闘は呼んだ側が始める)。</param>
     /// <param name="returnToTown">ウィッシュで町へ帰るときに呼ぶ。</param>
-    public CampScene(Func<bool> restInterrupted, Action returnToTown)
+    /// <param name="cellEvent">
+    /// 唱えたあと(呪文の id)と休んだあと(true)に呼ぶ。このマスのイベントがそれで起こるなら、始める処理を返す(キャンプを閉じてから始める)。
+    /// </param>
+    public CampScene(Func<bool> restInterrupted, Action returnToTown, Func<string?, bool, Action?>? cellEvent = null)
     {
         _restInterrupted = restInterrupted;
         _returnToTown = returnToTown;
+        _cellEvent = cellEvent;
+    }
+
+    /// <summary>このマスのイベントが、唱えた・休んだことで起こるなら、キャンプを閉じて始める。始めたら true。</summary>
+    private bool CellEvent(string? cast, bool rested)
+    {
+        if (_cellEvent?.Invoke(cast, rested) is not { } start) return false;
+        Stack.Pop();
+        start();
+        return true;
     }
 
     private Roster Roster => Services.Session!.Roster;
@@ -262,6 +276,7 @@ public sealed class CampScene : MenuScene
         }
         Message = string.Join(" ", state.Log.Skip(1).Select(e => CombatText.Format(Services, e)).TakeLast(2));
         Services.Audio.PlaySe(_spell.Effects.Any(e => e.Type == Core.Effects.EffectPart.Heal) ? Sounds.Heal : Sounds.SpellCast);
+        if (CellEvent(_spell.Id, false)) return;   // このマスの仕掛けが、その呪文に応える
         // 続けて唱えられるよう、同じ人の呪文の一覧に戻る(タブはそのまま、カーソルは今の呪文に)
         _mode = Mode.CastSpell;
         List.Area = SpellListArea;
@@ -303,6 +318,7 @@ public sealed class CampScene : MenuScene
         Message = string.Join("\n", studied.Select(x => s.Format("camp.studied", x.Who.Name, unknownNames[x.Item], ItemText.Name(Services, x.Item, count: false)))
             .Prepend(string.Join("\n", rested.Prepend(s["camp.rested"]))));
         if (studied.Count > 0) Services.Audio.PlaySe(Sounds.Confirm);
+        if (CellEvent(null, true)) return;   // このマスで休むと起こる仕掛け
         Refresh();
     }
 

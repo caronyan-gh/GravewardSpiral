@@ -65,6 +65,7 @@ public static class ItemText
         if (!item.Identified && (def.IsMagic || item.Bonus != 0))
         {
             yield return s["item.not_identified"];
+            if (WhoCanUse(sv, def) is { } guess) yield return guess;   // 何の武器・鎧かは見えているので、誰が使えるかは分かる
             yield break;
         }
         if (def.IsMagic || item.Bonus != 0) yield return s["rarity." + (item.Bonus > 0 && !def.IsMagic ? Treasure.RarityOf(item.Bonus, def.Kind) : def.Rarity)];
@@ -96,6 +97,7 @@ public static class ItemText
                 if (hit != 0 || dmg != 0) yield return s.Format("item.ammo_bonus", Signed(hit), Signed(dmg));
                 break;
         }
+        if (WhoCanUse(sv, def) is { } who) yield return who;
         if (def.Attunement) yield return s[item.Attuned ? "item.attuned" : "item.needs_attunement"];
         if (def.Cursed) yield return s["item.cursed"];
         foreach (var p in def.Passive) yield return Passive(sv, p);
@@ -111,6 +113,19 @@ public static class ItemText
         foreach (var line in SpellText.Effects(s, new Core.Magic.SpellDef { Effects = def.Use }, 1)) yield return s["item.use"] + line;
         if (def.Description != null) yield return sv.Name(def.Description);
         yield return s.Format("item.price", Treasure.Price(def, item));
+    }
+
+    /// <summary>
+    /// 武器・鎧・盾を、今のパーティの誰が習熟ありで使えるか(鎧と盾は、習熟が無いと着られない。武器は持てるが、習熟ボーナスが付かない)。
+    /// パーティがいなければ(タイトルの前など) null。
+    /// </summary>
+    public static string? WhoCanUse(GameServices sv, ItemDef def)
+    {
+        if (def.Kind is not (ItemKind.Weapon or ItemKind.Armor or ItemKind.Shield) || sv.Session?.Roster.PartyMembers.ToList() is not { Count: > 0 } party) return null;
+        var s = sv.Strings;
+        var ok = party.Where(c => c.Proficient(sv.Data, def)).Select(c => c.Name).ToList();
+        string key = def.Kind == ItemKind.Weapon ? "item.proficient_members" : "item.can_wear_members";
+        return s.Format(key, ok.Count == 0 ? s["item.nobody_in_party"] : ok.Count == party.Count ? s["item.whole_party"] : s.List(ok));
     }
 
     /// <summary>当たったときの効果の1行(ダメージと、セーヴに失敗したときの効果)。書けないものは null。</summary>

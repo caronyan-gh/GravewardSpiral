@@ -1,0 +1,16 @@
+# 第3部 C の B9: 最後の野営と要石の番人
+floor prefab_dv_b9_camp
+size 3 3
+wrap none
+start 1 2 N
+walls
++-+-+-+
+|     |
++ + + +
+|     |
++-+D+-+
+|     |
++-+-+-+
+mark 1 2 event:dv_b9_guardian
+mark 1 0 event:dv_b9_camp
+entrance 1 2 S

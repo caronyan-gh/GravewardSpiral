@@ -218,6 +218,7 @@ public sealed class EventPickerWindow : Window
             foreach (var s in steps)
             {
                 string line = Loc.Name(s.Text) is { Length: > 0 } t ? t : PartNames.Name(PartNames.Steps, s.Type) + (s.Id != null ? " " + s.Id : "");
+                if (s.Type == "pick") line = PartNames.Name(PartNames.Steps, s.Type) + (s.Value == 1 ? T("(くじ)", " (by lot)") : "") + (Loc.Name(s.Text) is { Length: > 0 } q ? ": " + q : "");
                 _preview.Inlines.Add(new System.Windows.Documents.Run($"\n{indent}・{line}"));
                 foreach (var o in s.Options)
                 {

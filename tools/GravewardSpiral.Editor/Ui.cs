@@ -2,6 +2,7 @@ using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Media;
 using GravewardSpiral.Core.Content;
+using static GravewardSpiral.Editor.Loc;
 
 namespace GravewardSpiral.Editor;
 
@@ -73,6 +74,24 @@ public static class Ui
         panel.Children.Add(Row("日本語", jaBox, 60));
         panel.Children.Add(Row("English", enBox, 60));
         return panel;
+    }
+
+    /// <summary>札(角の丸い枠。remove があれば × で外せる)。敵の顔ぶれや、データのいくつでも選べる欄に使う。</summary>
+    public static Border Chip(string text, Action? remove, string? tip = null, bool warn = false)
+    {
+        var content = new StackPanel { Orientation = Orientation.Horizontal };
+        content.Children.Add(new TextBlock { Text = text, VerticalAlignment = VerticalAlignment.Center, Foreground = warn ? Ui.Warn : Theme.Brush(Theme.Palette.Text) });
+        if (remove != null)
+        {
+            var x = new Button { Content = "×", Padding = new Thickness(5, 0, 5, 0), Margin = new Thickness(6, 0, 0, 0), BorderThickness = new Thickness(0), Background = System.Windows.Media.Brushes.Transparent, ToolTip = T("外す", "Remove") };
+            x.Click += (_, _) => remove();
+            content.Children.Add(x);
+        }
+        return new Border
+        {
+            Child = content, Background = Theme.Brush(Theme.Palette.AccentSoft), CornerRadius = new CornerRadius(12),
+            Padding = new Thickness(10, 3, remove != null ? 2 : 10, 3), Margin = new Thickness(0, 2, 6, 2), ToolTip = tip,
+        };
     }
 
     public static ScrollViewer Scroll(UIElement content) => new()

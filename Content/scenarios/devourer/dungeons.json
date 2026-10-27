@@ -1,0 +1,230 @@
+[
+  {
+    "id": "devourer",
+    "name": {
+      "en": "The Devouring Labyrinth",
+      "ja": "冒険者を食う迷宮"
+    },
+    "floors": [
+      "maps/devourer_b1.txt",
+      "maps/devourer_b2.txt",
+      "maps/devourer_b3.txt",
+      "maps/devourer_b4.txt",
+      "maps/devourer_b5.txt",
+      "maps/devourer_b6.txt",
+      "maps/devourer_b7.txt",
+      "maps/devourer_b8.txt",
+      "maps/devourer_b9.txt",
+      "maps/devourer_b10.txt"
+    ],
+    "rosters": [
+      [
+        "wight",
+        "ghost",
+        "wraith",
+        "vampire_spawn",
+        "gladiator",
+        "assassin",
+        "mage",
+        "ghast",
+        "otyugh",
+        "roper",
+        "chuul",
+        "flesh_golem",
+        "troll",
+        "cloaker"
+      ],
+      [
+        "wight",
+        "ghost",
+        "wraith",
+        "vampire_spawn",
+        "gladiator",
+        "assassin",
+        "mage",
+        "otyugh",
+        "roper",
+        "chuul",
+        "troll",
+        "cloaker",
+        "drider",
+        "werebear_hybrid"
+      ],
+      [
+        "wraith",
+        "vampire_spawn",
+        "ghost",
+        "assassin",
+        "mage",
+        "gladiator",
+        "cloaker",
+        "chuul",
+        "roper",
+        "shield_guardian",
+        "chain_devil",
+        "invisible_stalker",
+        "drider",
+        "otyugh"
+      ],
+      [
+        "invisible_stalker",
+        "cloaker",
+        "assassin",
+        "mage",
+        "wraith",
+        "vampire_spawn",
+        "chain_devil",
+        "bone_devil",
+        "clay_golem",
+        "medusa",
+        "drider",
+        "spirit_naga",
+        "ghost",
+        "shield_guardian"
+      ],
+      [
+        "wraith",
+        "vampire_spawn",
+        "mummy",
+        "ghost",
+        "bone_devil",
+        "chain_devil",
+        "clay_golem",
+        "spirit_naga",
+        "assassin",
+        "medusa",
+        "drider",
+        "otyugh",
+        "wight",
+        "shield_guardian"
+      ],
+      [
+        "water_elemental",
+        "aboleth",
+        "chuul",
+        "hydra",
+        "vampire_spawn",
+        "wraith",
+        "guardian_naga",
+        "stone_golem",
+        "clay_golem",
+        "bone_devil",
+        "cloaker",
+        "spirit_naga",
+        "roper",
+        "invisible_stalker"
+      ],
+      [
+        "aboleth",
+        "vampire_spawn",
+        "wraith",
+        "ghost",
+        "glabrezu",
+        "bone_devil",
+        "horned_devil",
+        "cloaker",
+        "stone_golem",
+        "guardian_naga",
+        "spirit_naga",
+        "invisible_stalker",
+        "archmage",
+        "assassin"
+      ],
+      [
+        "stone_golem",
+        "shield_guardian",
+        "clay_golem",
+        "horned_devil",
+        "bone_devil",
+        "glabrezu",
+        "archmage",
+        "erinyes",
+        "vampire_spawn",
+        "wraith",
+        "cloaker",
+        "aboleth",
+        "behir",
+        "remorhaz"
+      ],
+      [
+        "archmage",
+        "assassin",
+        "erinyes",
+        "horned_devil",
+        "nalfeshnee",
+        "rakshasa",
+        "vampire_vampire",
+        "stone_golem",
+        "behir",
+        "remorhaz",
+        "aboleth",
+        "wraith",
+        "vampire_spawn",
+        "glabrezu"
+      ],
+      [
+        "nalfeshnee",
+        "rakshasa",
+        "vampire_vampire",
+        "horned_devil",
+        "erinyes",
+        "archmage",
+        "stone_golem",
+        "behir",
+        "remorhaz",
+        "purple_worm",
+        "ice_devil",
+        "wraith",
+        "vampire_spawn",
+        "aboleth"
+      ]
+    ],
+    "named": [
+      {
+        "id": "dv_never_returned_blade",
+        "floor": 2,
+        "lair": false,
+        "x": 0,
+        "y": 0,
+        "rumored": true,
+        "defeated": false
+      },
+      {
+        "id": "dv_cloak_eater",
+        "floor": 4,
+        "lair": false,
+        "x": 0,
+        "y": 0,
+        "rumored": true,
+        "defeated": false
+      },
+      {
+        "id": "dv_memory_drinker",
+        "floor": 7,
+        "lair": false,
+        "x": 0,
+        "y": 0,
+        "rumored": true,
+        "defeated": false
+      }
+    ],
+    "events_placed": true,
+    "elevators": [
+      {
+        "x": 13,
+        "y": 13,
+        "from": 1,
+        "to": 5,
+        "power": "dv_lift_a"
+      },
+      {
+        "x": 2,
+        "y": 11,
+        "from": 5,
+        "to": 9,
+        "power": "dv_lift_b"
+      }
+    ],
+    "note": "MapCheck --scenario devourer --seed 冒険者を食う迷宮 で生成したものを保存した。生成が置いた主の印は外した(ラスボスは B10 の見送りの儀式 dv_b10_rite の中で戦う)。昇降機はギルドの B1〜B5 (13,13)(B3 の巻き上げ機 dv_lift_a)と、深い B5〜B9 (2,11)(B7 のルドルフの奥 dv_lift_b)"
+  }
+]

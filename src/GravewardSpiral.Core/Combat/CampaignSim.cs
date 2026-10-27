@@ -327,7 +327,7 @@ public sealed class CampaignSim
             // 今の武器と同じ間合い(近接か遠隔か)で、習熟があるものだけ
             if (sl == EquipSlot.MainHand && old != null && defs[old.ItemId].Ranged != def.Ranged) return false;
             if (def.Has("two_handed") && inv[EquipSlot.OffHand] != null) return false;
-            if (!c.ClassIds.Select(id => _data.Classes[id]).Any(cl => cl.Weapons.Contains(def.Category ?? "") || cl.Weapons.Contains(def.Id))) return false;
+            if (!c.WeaponProficient(_data, def)) return false;
         }
         double before = Score(c, sl);
         if (inv.Equip(inv.Items.IndexOf(item), sl, defs) != EquipResult.Ok) return false;
@@ -632,6 +632,9 @@ public sealed class CampaignSim
         {
             Data = _data, Session = _session, Rng = _rng, Maze = _state, At = (floor, cell),
             Depth = depth, TargetLevel = _enc.TargetLevel(depth), Treasure = _treasure,
+            // 唱える・休むと起こる仕掛けは、着いたときにそれをしたことにする(唱える呪文は、条件 cast にあるもの)
+            Cast = def.OnCast ? CastWanted(def) ?? "" : null,
+            Rested = def.OnRest,
         };
         if (!EventRunner.Available(def, ctx)) return null;
         _events++;
@@ -648,6 +651,14 @@ public sealed class CampaignSim
         return null;
     }
 
+    /// <summary>イベントの中の条件 cast が求める呪文(無ければ null)。</summary>
+    private static string? CastWanted(EventDef def)
+    {
+        static IEnumerable<EventCondition> All(IEnumerable<EventStep> steps) =>
+            steps.SelectMany(s => s.When.Concat(s.Options.SelectMany(o => o.When)).Concat(s.Children().SelectMany(All)));
+        return def.When.Concat(All(def.Steps)).FirstOrDefault(c => c.Type == "cast" && !c.Not && !string.IsNullOrEmpty(c.Id))?.Id;
+    }
+
     /// <summary>イベントを最後まで進める(いつも最初の選択肢)。戦闘で全滅したら Defeat を返す。</summary>
     private CombatOutcome? Drive(EventRunner r, int floor)
     {
@@ -655,7 +666,7 @@ public sealed class CampaignSim
         {
             switch (r.Next())
             {
-                case EventDone or EventToTown: return null;
+                case EventDone or EventToTown or EventWarp: return null;   // 飛ばされたら、ボットは次の目当てへ歩き直す
                 case EventChoice: r.Choose(0); break;
                 case EventCombat c:
                 {

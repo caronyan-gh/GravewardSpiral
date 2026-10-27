@@ -3,6 +3,7 @@ using GravewardSpiral.Core.Combat;
 using GravewardSpiral.Core.Content;
 using GravewardSpiral.Core.Effects;
 using GravewardSpiral.Core.Items;
+using GravewardSpiral.Core.Magic;
 using GravewardSpiral.Core.Maze;
 using GravewardSpiral.Core.Rng;
 using GravewardSpiral.Core.Rules;
@@ -26,6 +27,18 @@ public sealed class EventContext
     /// <summary>そのマスで向きを変えて起きた(条件 turned)。</summary>
     public bool Turned { get; init; }
 
+    /// <summary>このマスへどう動いて入ったか(条件 entered。forward / back / left / right。階段やテレポーターで来たときは null)。</summary>
+    public string? Entered { get; init; }
+
+    /// <summary>そのマスで唱えた呪文(trigger が cast で起こしたとき。条件 cast)。</summary>
+    public string? Cast { get; init; }
+
+    /// <summary>そのマスで休んで起きた(trigger が rest。条件 rested)。</summary>
+    public bool Rested { get; init; }
+
+    /// <summary>手順 pick で選んだ人。選んだあとの条件と手順は、この人だけを見る。</summary>
+    public Character? Chosen { get; set; }
+
     /// <summary>
     /// 低い帯のイベントを帯より上の階で起こしたときの引き上げの倍率(EventScale.For)。動かしているイベントが決める。
     /// 金の条件(gold)も、この倍率の2乗で見る(払う額と合わせる)。
@@ -34,6 +47,9 @@ public sealed class EventContext
     public TreasureSettings? Treasure { get; init; }
 
     public List<Character> Party => Session.Roster.PartyMembers.ToList();
+
+    /// <summary>一人ずつを見る条件と手順の相手。選んだ人がいればその人だけ、いなければパーティ。</summary>
+    public List<Character> Who => Chosen != null ? [Chosen] : Party;
 }
 
 /// <summary>イベントが画面に頼むこと。画面はこれを見せて、Next / Choose / CombatEnded で進める。</summary>
@@ -49,6 +65,9 @@ public sealed record EventChoice(LocalizedText? Prompt, List<LocalizedText> Labe
 public sealed record EventCombat(List<(string Monster, int Count)> Groups, string? Boss) : EventOutput;
 
 public sealed record EventSound(string Id) : EventOutput;
+
+/// <summary>パーティを別のマスへ移した(手順 warp)。イベントはここで終わる。画面は着いたマスの様子を知らせる。</summary>
+public sealed record EventWarp(bool ChangedFloor) : EventOutput;
 public sealed record EventToTown : EventOutput;
 public sealed record EventDone : EventOutput;
 
@@ -64,6 +83,8 @@ public sealed class EventRunner
     private readonly Stack<(List<EventStep> Steps, int Index)> _frames = new();
     private readonly Queue<EventOutput> _out = new();
     private List<EventOption>? _choices;
+    private EventStep? _pick;              // 一人を選んでいる手順
+    private List<Character> _pickable = [];
     private EventStep? _combat;
     private bool _finished;
     private bool _aborted;   // 逃げて終わった(一度きりでも済んだことにしない)
@@ -77,18 +98,36 @@ public sealed class EventRunner
         _lift = EventScale.For(def, ctx.TargetLevel, ctx.Data);
         _dcBonus = EventScale.DcBonus(def, ctx.TargetLevel, ctx.Data);
         ctx.RewardScale = _lift;
+        ctx.Chosen = null;   // 町のイベントのように、同じ場の情報を続けて使うときに持ち越さない
     }
 
     private readonly double _lift;
     private readonly int _dcBonus;
 
-    /// <summary>引き上げているとき、文の中の「30 G」も引き上げた額に書き換える(払う額・もらう額と合わせる)。</summary>
+    /// <summary>引き上げているとき、文の中の金額も引き上げた額に書き換える(払う額・もらう額と合わせる)。</summary>
     private LocalizedText? LiftText(LocalizedText? text)
     {
         if (text == null || _lift <= 1) return text;
-        return new LocalizedText(text.Texts.ToDictionary(kv => kv.Key,
-            kv => System.Text.RegularExpressions.Regex.Replace(kv.Value, @"(\d+)(\s?G)(?![A-Za-z])", m => EventScale.Reward(int.Parse(m.Groups[1].Value), _lift) + m.Groups[2].Value)));
+        return new LocalizedText(text.Texts.ToDictionary(kv => kv.Key, kv => LiftMoney(kv.Value, _lift)));
     }
+
+    /// <summary>
+    /// 文の中の金額(「30 G」「金貨 30 枚」「金貨30枚」「30 枚の金貨」「30 gold」)を、lift 倍に引き上げた額にする。
+    /// 数と単位のあいだの空白は、元のまま残す。
+    /// </summary>
+    public static string LiftMoney(string text, double lift)
+    {
+        string Up(string n) => EventScale.Reward(int.Parse(n), lift).ToString();
+        text = MoneyAfter.Replace(text, m => Up(m.Groups[1].Value) + m.Groups[2].Value);
+        return MoneyBefore.Replace(text, m => m.Groups[1].Value + Up(m.Groups[2].Value) + m.Groups[3].Value);
+    }
+
+    /// <summary>数のあとに単位: 30 G / 30 枚の金貨 / 30 gold(gold pieces も)。</summary>
+    private static readonly System.Text.RegularExpressions.Regex MoneyAfter =
+        new(@"(\d+)(\s?(?:G(?![A-Za-z])|枚の金貨|[Gg]old\b))");
+
+    /// <summary>単位のあとに数: 金貨 30 枚 / 金貨30枚。</summary>
+    private static readonly System.Text.RegularExpressions.Regex MoneyBefore = new(@"(金貨\s?)(\d+)(\s?枚)");
 
     public EventDef Def => _def;
 
@@ -138,7 +177,7 @@ public sealed class EventRunner
                 _finished = true;
                 return new EventDone();
             }
-            if (_choices != null || _combat != null) throw new InvalidOperationException("選択か戦闘の結果を先に渡してください");
+            if (_choices != null || _combat != null || _pick != null) throw new InvalidOperationException("選択か戦闘の結果を先に渡してください");
             if (_finished) return new EventDone();
             if (_frames.Count == 0)
             {
@@ -155,6 +194,17 @@ public sealed class EventRunner
 
     public void Choose(int index)
     {
+        if (_pick is { } pick)
+        {
+            _pick = null;
+            if (index >= 0 && index < _pickable.Count)
+            {
+                _ctx.Chosen = _pickable[index];
+                _frames.Push((pick.Then, 0));
+            }
+            else _frames.Push((pick.Else, 0));   // やめた
+            return;
+        }
         var options = _choices ?? throw new InvalidOperationException("選ぶものがありません");
         _choices = null;
         if (index >= 0 && index < options.Count) _frames.Push((options[index].Steps, 0));
@@ -190,6 +240,12 @@ public sealed class EventRunner
     {
         var party = _ctx.Party;
         var able = party.Where(c => c.CanAct).ToList();
+        // 一人を選んだあとは、その人だけ
+        if (_ctx.Chosen is { } chosen)
+        {
+            party = [chosen];
+            able = [chosen];
+        }
         var data = _ctx.Data;
         switch (s.Type)
         {
@@ -325,7 +381,14 @@ public sealed class EventRunner
                 break;
             }
             case "light":
-                if (_ctx.Maze != null) _ctx.Maze.LightMinutes = Math.Max(_ctx.Maze.LightMinutes, s.Value);
+                if (_ctx.Maze == null) break;
+                if (s.Value <= 0)
+                {
+                    _ctx.Maze.LightMinutes = 0;   // 明かりを消す
+                    Say("event.light_out");
+                    break;
+                }
+                _ctx.Maze.LightMinutes = Math.Max(_ctx.Maze.LightMinutes, s.Value);
                 Say("event.light");
                 break;
             case "combat":
@@ -334,6 +397,69 @@ public sealed class EventRunner
             case "open":
                 if (Open(s.Id!) > 0) Say("event.gate_opened");
                 break;
+            case "close":
+                if (Close(s.Id!) > 0) Say("event.gate_closed");
+                break;
+            case "timer":
+                _ctx.Session.Timers[s.Id!] = Math.Max(1, s.Value);
+                break;
+            case "timer_stop":
+                _ctx.Session.Timers.Remove(s.Id!);
+                break;
+            case "pick":
+            {
+                // 選ぶ相手は、動ける人全員から(when は一人ずつ見る)
+                _ctx.Chosen = null;
+                var ok = new List<Character>();
+                foreach (var c in _ctx.Party.Where(c => c.CanAct))
+                {
+                    _ctx.Chosen = c;
+                    if (Test(s.When, _ctx)) ok.Add(c);
+                }
+                _ctx.Chosen = null;
+                if (ok.Count == 0)
+                {
+                    _frames.Push((s.Else, 0));
+                    break;
+                }
+                if (s.Value == 1)
+                {
+                    // くじ: 選ぶ画面を出さずに一人
+                    _ctx.Chosen = ok[_ctx.Rng.Next(0, ok.Count)];
+                    _frames.Push((s.Then, 0));
+                    break;
+                }
+                _pick = s;
+                _pickable = ok;
+                var labels = ok.Select(c => LocalizedText.Of(c.Name)).ToList();
+                if (s.Else.Count > 0) labels.Add(LocalizedText.Of("Never mind", "やめておく"));
+                return new EventChoice(LiftText(s.Text), labels);
+            }
+            case "spend_slot":
+            {
+                int min = Math.Max(1, s.Value);
+                var who = able.FirstOrDefault(c => LowestSlot(c, min) > 0);
+                if (who == null)
+                {
+                    _frames.Push((s.Else, 0));
+                    break;
+                }
+                int level = LowestSlot(who, min);
+                Spellcasting.UseSlot(who, level);
+                Say("event.slot_used", who.Name, level);
+                _frames.Push((s.Then, 0));
+                break;
+            }
+            case "warp":
+            {
+                if (_ctx.Maze is not { } maze || Destination(maze, s.Id!) is not { } to) break;
+                bool changed = to.Floor != maze.Position.Floor;
+                maze.Position = new PartyPosition(to.Floor, to.Cell, maze.Position.Facing);
+                maze.AutoMap.Record(maze);   // 着いたマスを地図に
+                _frames.Clear();
+                _out.Enqueue(new EventWarp(changed));
+                break;
+            }
             case "sound":
                 _out.Enqueue(new EventSound(s.Id!));
                 break;
@@ -356,6 +482,31 @@ public sealed class EventRunner
                 _aborted = true;
                 _frames.Clear();
                 break;
+        }
+        return null;
+    }
+
+    /// <summary>min レベル以上で、残っている一番低い呪文スロットのレベル(無ければ 0)。</summary>
+    private static int LowestSlot(Character c, int min)
+    {
+        for (int lv = min; lv <= 9; lv++)
+        {
+            if (Math.Max(0, Spellcasting.RegularSlots(c, lv) - c.SlotsUsed.GetValueOrDefault(lv)) + Spellcasting.PactLeft(c, lv) > 0) return lv;
+        }
+        return 0;
+    }
+
+    /// <summary>印 dest:id のマス。今の階を先に探し、無ければ浅い階から。</summary>
+    private static (int Floor, GridPos Cell)? Destination(ExplorationState maze, string id)
+    {
+        var floors = maze.Dungeon.Floors;
+        foreach (int i in new[] { maze.Position.Floor }.Concat(Enumerable.Range(0, floors.Count).Where(i => i != maze.Position.Floor)))
+        {
+            var f = floors[i];
+            foreach (var p in f.AllCells())
+            {
+                if (f[p].Mark == "dest:" + id && !f[p].IsSolid) return (i, p);
+            }
         }
         return null;
     }
@@ -446,23 +597,55 @@ public sealed class EventRunner
         return opened;
     }
 
+    /// <summary>印 gate:id のマスの、開けた錠をまた閉める(今の階)。閉めた数を返す。</summary>
+    private int Close(string id)
+    {
+        if (_ctx.Maze is not { } maze) return 0;
+        int floor = _ctx.At?.Floor ?? maze.Position.Floor;
+        var f = maze.Dungeon.Floors[floor];
+        int closed = 0;
+        foreach (var p in f.AllCells().Where(p => f[p].Mark == "gate:" + id))
+        {
+            foreach (var d in DirectionExtensions.All.Where(d => f[p][d] == EdgeType.Locked && maze.IsUnlocked(floor, p, d)))
+            {
+                maze.Relock(floor, p, d);
+                closed++;
+            }
+        }
+        return closed;
+    }
+
     /// <summary>条件を全部満たすか。</summary>
     public static bool Test(IEnumerable<EventCondition> conditions, EventContext ctx) => conditions.All(c => Test(c, ctx) != c.Not);
 
     private static bool Test(EventCondition c, EventContext ctx)
     {
         var party = ctx.Party;
+        var who = ctx.Who;   // 一人を選んだあとは、その人だけ
         var session = ctx.Session;
         return c.Type switch
         {
             "flag" => session.Flags.Contains(c.Id ?? ""),
             "done" => session.Flags.Contains("done:" + c.Id),
-            "item" => party.Sum(p => p.Inventory.Items.Where(i => i.ItemId == c.Id).Sum(i => i.Count)
+            "item" => who.Sum(p => p.Inventory.Items.Where(i => i.ItemId == c.Id).Sum(i => i.Count)
                                     + p.Inventory.Equipped.Values.Where(i => i.ItemId == c.Id).Sum(i => Math.Max(1, i.Count))) >= c.Count,   // 装備の矢の束も本数で数える
             "gold" => PartyGold.Total(party) >= EventScale.Reward(c.Value, ctx.RewardScale),
-            "level" => party.Any(p => p.Level >= c.Value),
-            "class" => party.Any(p => p.ClassIds.Contains(c.Id)),
-            "race" => party.Any(p => p.RaceId == c.Id),
+            "level" => who.Any(p => p.Level >= c.Value),
+            "class" => who.Any(p => p.ClassIds.Contains(c.Id)),
+            "race" => who.Any(p => p.RaceId == c.Id),
+            "equipped" => who.Any(p => p.Inventory.Equipped.Values.Any(i => i.ItemId == c.Id)),
+            "slots" => who.Any(p => p.CanAct && LowestSlot(p, Math.Max(1, c.Value)) > 0),
+            "entered" => ctx.Entered != null && string.Equals(ctx.Entered, c.Id, StringComparison.OrdinalIgnoreCase),
+            "status" => TryCondition(c.Id, out var cond) && who.Any(p => p.Lasting.Any(l => l.Condition == cond)),
+            "hp" => who.Any(p => p.IsAlive && p.MaxHp > 0 && Compare(p.Hp * 100 / p.MaxHp, c.Op, c.Value)),
+            "armed" => who.Any(p => p.Inventory.Equipped.Where(kv => kv.Key is EquipSlot.MainHand or EquipSlot.OffHand or EquipSlot.Ranged)
+                .Any(kv => ctx.Data.Items.TryGetValue(kv.Value.ItemId, out var def) && def.Kind == ItemKind.Weapon)),
+            "lit" => ctx.Maze != null && ctx.Maze.LightMinutes > 0,
+            "zone" => ctx.Maze != null && ZoneOf(c.Id) is { } z && z != Zone.None
+                && ctx.Maze.Dungeon.Floors[ctx.At?.Floor ?? ctx.Maze.Position.Floor][ctx.At?.Cell ?? ctx.Maze.Position.Cell].Zone.HasFlag(z),
+            "cast" => ctx.Cast != null && (string.IsNullOrEmpty(c.Id) || string.Equals(ctx.Cast, c.Id, StringComparison.OrdinalIgnoreCase)),
+            "rested" => ctx.Rested,
+            "timer" => session.Timers.TryGetValue(c.Id ?? "", out int left) && Compare(left, c.Op, c.Value),
             "counter" => Compare(session.Counters.GetValueOrDefault(c.Id ?? ""), c.Op, c.Value),
             "chance" => ctx.Rng.Next(0, 100) < c.Value,
             "key" => ctx.Maze != null && ctx.Maze.Keys.Contains(ctx.At?.Floor ?? ctx.Maze.Position.Floor),
@@ -473,6 +656,14 @@ public sealed class EventRunner
             _ => false,
         };
     }
+
+    private static Zone? ZoneOf(string? id) => id?.ToLowerInvariant() switch
+    {
+        "dark" => Zone.Dark,
+        "fog" => Zone.Fog,
+        "antimagic" => Zone.AntiMagic,
+        _ => null,
+    };
 
     private static bool Compare(int a, string op, int b) => op switch
     {

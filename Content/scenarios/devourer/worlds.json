@@ -1,0 +1,216 @@
+[
+  {
+    "id": "devourer",
+    "note": "第3部の決まった物語の文(序文・階の名前と入ったときの文・書き付け)。ラスボスの文は見送りの儀式のイベント(dv_b10_rite)にある",
+    "text": {
+      "model": "scenario",
+      "prologue": {
+        "en": "Beneath the drowned capital there is a labyrinth. No one knows how deep it goes. For four hundred years adventurers have gone down into it, and none have come back.\n\nAt its mouth stands the Last Inn. It feeds them, sells them rope and lamp oil, and keeps their rooms. Its innkeeper writes the names of everyone who goes down in a ledger. The column for those who came back has always been empty.\n\nThis autumn, a young gravekeeper arrived from the south, carrying a stone heart with a shard set against it. The stone beats, very slowly, toward the bottom of the labyrinth.\n\n\"I don't think it's missing a piece any more,\" she said. \"I think it's waiting for someone to finish something.\"",
+        "ja": "沈んだ王都の下に、迷宮がある。どこまで深いのか、誰も知らない。四百年のあいだ、冒険者が下りていき、誰も帰ってこなかった。\n\nその入口に、最後の宿がある。冒険者に飯を食わせ、縄と灯り油を売り、部屋を取っておく。女主人は、下りていった者の名を一人ずつ帳面に書いている。帰った者の欄は、ずっと空いたままだ。\n\nこの秋、南から若い墓守がやってきた。欠片を合わせた石の心臓を抱えている。石は、迷宮の底へ向かって、とてもゆっくり脈打っている。\n\n「もう、欠けてはいないと思うんです」と、彼女は言った。「何かを、終わらせてもらうのを、待っている気がします」"
+      },
+      "floors": [
+        {
+          "name": {
+            "en": "Beneath the Last Inn",
+            "ja": "最後の宿の地下"
+          },
+          "enter": {
+            "en": "The cellar stairs go on past the wine. Names are carved into the walls.",
+            "ja": "酒蔵の階段は、酒樽を過ぎても続く。壁一面に、名が刻んである。"
+          },
+          "documents": [
+            {
+              "en": "Carved by the stairs: \"Brannoc of the Copper Road. Back by spring.\" Below it, in another hand: \"It's autumn, Brannoc.\"",
+              "ja": "階段のそばに刻んである。「銅の街道のブランノク。春までに戻る」。その下に、別の手で。「もう秋だぞ、ブランノク」"
+            },
+            {
+              "en": "An inn tally chalked on a beam: \"Rooms kept for those still below: 41. Rooms let again: 0.\"",
+              "ja": "梁に白墨で、宿の勘定。「下にいる者のために取ってある部屋、四十一。貸し直した部屋、零」"
+            }
+          ]
+        },
+        {
+          "name": {
+            "en": "The Old Camps",
+            "ja": "野営の跡"
+          },
+          "enter": {
+            "en": "Cold fire rings and bedrolls, still laid out. No one has come back for them.",
+            "ja": "冷えた焚き火の輪と、敷いたままの寝具。誰も、取りに戻っていない。"
+          },
+          "documents": [
+            {
+              "en": "A shopping list in a cooking pot: \"Salt. Rope. Lamp oil. Something for Ines's cough. Ask about the rate for B5.\"",
+              "ja": "鍋の中の買い物の覚え書き。「塩。縄。灯り油。イネスの咳の薬。B5 の相場を聞くこと」"
+            },
+            {
+              "en": "A party's rules, nailed to a post: \"1. Nobody goes alone. 2. Nobody comes back alone. 3. Whoever breaks rule 2 buys drinks for the rest of their life.\"",
+              "ja": "杭に打ちつけた一行の決まり。「一、ひとりで行くな。二、ひとりで帰るな。三、二を破った者は、一生、皆に酒をおごること」"
+            }
+          ]
+        },
+        {
+          "name": {
+            "en": "The Corridor of Name Tags",
+            "ja": "名札の回廊"
+          },
+          "enter": {
+            "en": "Tags hang on nails all down the corridor. They chime softly when you pass.",
+            "ja": "回廊の釘という釘に、名札が下がっている。通ると、かすかに鳴る。"
+          },
+          "documents": [
+            {
+              "en": "A guild notice, rusted: \"Tags to be left here on the way down and collected on the way up. Uncollected tags will be returned to the family.\" No one has returned them.",
+              "ja": "錆びたギルドの札。「下りるときに名札をここに掛け、上るときに外すこと。外されなかった名札は家族に返す」。誰も、返していない。"
+            },
+            {
+              "en": "Scratched under one tag: \"If you're reading this, take mine up. Tell my mother I got as far as the third floor. That's further than my brother.\"",
+              "ja": "名札の一枚の下に、引っかいた字。「これを読んだら、俺のを上に持っていってくれ。母さんに、三階まで来たと言ってくれ。兄貴より先だ」"
+            }
+          ]
+        },
+        {
+          "name": {
+            "en": "The Mimicking Floor",
+            "ja": "写し身の階"
+          },
+          "enter": {
+            "en": "Your footsteps echo a moment late. Then the echo takes a step you did not.",
+            "ja": "足音が、少し遅れて返ってくる。やがて、返ってくる足音が、一歩多い。"
+          },
+          "documents": [
+            {
+              "en": "A note pinned with a knife: \"If you hear us behind you, it isn't us. Don't turn around. We are ahead. We are always ahead.\"",
+              "ja": "短剣で留めた書き付け。「後ろから俺たちの声がしたら、それは俺たちじゃない。振り向くな。俺たちは前にいる。いつも前に」"
+            },
+            {
+              "en": "A map, carefully drawn, of a corridor that is not there.",
+              "ja": "丁寧に描かれた地図。描かれた通路は、どこにも無い。"
+            }
+          ]
+        },
+        {
+          "name": {
+            "en": "The Adventurers' Graveyard",
+            "ja": "冒険者の墓場"
+          },
+          "enter": {
+            "en": "Rows of cairns, each topped with a helmet or a boot. Someone buried them all.",
+            "ja": "石積みの墓が並ぶ。どれも、兜か長靴がのせてある。誰かが、全部を埋めた。"
+          },
+          "documents": [
+            {
+              "en": "A cairn's marker: \"Here lies someone. We did not know her name. She shared her water.\"",
+              "ja": "石積みの札。「ここに誰かが眠る。名は知らない。水を分けてくれた」"
+            },
+            {
+              "en": "A gravedigger's tally, in a careful hand: \"Buried this month: 6. Recognized: 2. Mourned: all of them, by me, which will have to do.\"",
+              "ja": "几帳面な字の、墓掘りの勘定。「今月埋めた者、六。顔の分かった者、二。弔った者、全員。私ひとりで。それで勘弁してもらう」"
+            }
+          ]
+        },
+        {
+          "name": {
+            "en": "The Roots of the Capital",
+            "ja": "王都の根"
+          },
+          "enter": {
+            "en": "Old foundations hang overhead. Above them, far up, a city lies under a lake.",
+            "ja": "頭の上に、古い礎がぶら下がっている。そのずっと上で、都が湖の底に眠っている。"
+          },
+          "documents": [
+            {
+              "en": "Mortar stamped with the mark of Selem's masons: \"Laid in the year of the queen's crowning. May it hold.\"",
+              "ja": "セレムの石工の印を押した漆喰。「女王陛下の戴冠の年に積む。もちますように」"
+            },
+            {
+              "en": "A drowned child's wooden horse, sunk all the way down from the city above. Its paint is still bright.",
+              "ja": "上の都から、ここまで沈んできた、溺れた子どもの木馬。塗りは、まだ鮮やかだ。"
+            }
+          ]
+        },
+        {
+          "name": {
+            "en": "The Pools of Voices",
+            "ja": "声の溜まり"
+          },
+          "enter": {
+            "en": "Voices pool in the hollows like water. If you stand still, they say your name.",
+            "ja": "くぼみに、声が水のように溜まっている。立ち止まると、あなたの名を呼ぶ。"
+          },
+          "documents": [
+            {
+              "en": "Scratched on a stone at the edge of a pool: \"Don't answer. Whatever it calls you, don't answer.\"",
+              "ja": "水たまりのふちの石に。「答えるな。何と呼ばれても、答えるな」"
+            },
+            {
+              "en": "Below it, in a shakier hand: \"I answered. It was only my mother asking if I'd eaten.\"",
+              "ja": "その下に、震える字で。「答えた。母さんが、飯は食ったかと聞いただけだった」"
+            }
+          ]
+        },
+        {
+          "name": {
+            "en": "The Hall of Wedges",
+            "ja": "楔の間"
+          },
+          "enter": {
+            "en": "Great iron wedges are driven into the floor, rusted, broken. One is still warm.",
+            "ja": "床に、大きな鉄の楔が打ち込まれている。錆び、折れている。一本だけ、まだ温かい。"
+          },
+          "documents": [
+            {
+              "en": "A warden's carving, very old: \"A wedge holds. It does not end. Someone must call them by name.\"",
+              "ja": "とても古い、墓守の刻み文字。「楔は、押さえる。終わらせはしない。誰かが、名を呼ばねば」"
+            },
+            {
+              "en": "Lantern soot on the ceiling, in a spiral, going up.",
+              "ja": "天井に、角灯の煤が、螺旋を描いて上へ続いている。"
+            }
+          ]
+        },
+        {
+          "name": {
+            "en": "The Last Camp",
+            "ja": "最後の野営"
+          },
+          "enter": {
+            "en": "The deepest fire ring. Its ashes are older than the inn above.",
+            "ja": "いちばん深い焚き火の跡。その灰は、上の宿より古い。"
+          },
+          "documents": [
+            {
+              "en": "The oldest ledger page you have seen: \"Went down: Alden, Mira, Jorun, Orrin. Came back: —\". The line has been left open for four hundred years.",
+              "ja": "見たことのない古い帳面の一枚。「下りた者、オールデン、ミラ、ヨルン、オリン。帰った者、――」。その行は、四百年、空いたままだ。"
+            },
+            {
+              "en": "A pair of boots set side by side, toes facing up the way they came.",
+              "ja": "長靴が一足、揃えて置いてある。つま先は、来た道の上を向いている。"
+            }
+          ]
+        },
+        {
+          "name": {
+            "en": "The Bottom",
+            "ja": "底"
+          },
+          "enter": {
+            "en": "Nothing above, nothing below. Only the voices, and something like a heartbeat.",
+            "ja": "上も下も無い。声と、鼓動のようなものだけがある。"
+          },
+          "documents": [
+            {
+              "en": "Nothing is written here. The dark is too large for writing.",
+              "ja": "ここには、何も書かれていない。書くには、闇が大きすぎる。"
+            },
+            {
+              "en": "Countless boots, lined up in rows, all facing upward.",
+              "ja": "数えきれない長靴が、列になって並んでいる。どれも、上を向いている。"
+            }
+          ]
+        }
+      ],
+      "boss": null
+    }
+  }
+]

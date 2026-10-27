@@ -61,6 +61,7 @@ public sealed class MazeScene : Scene
 
     public override void Enter()
     {
+        _lastSteps = State.Steps;
         Say(Services.Strings.Format("maze.enter", FloorLabel()));
         SayFloorEnter();
         _version = Stack.Version;
@@ -89,9 +90,34 @@ public sealed class MazeScene : Scene
         if (Services.Session is { Difficulty.StrictSave: true } && Services.Session.Slot != 0) Services.SaveSession();
     }
 
+    private long _lastSteps;
+    private readonly Queue<string> _dueTimers = new();
+
+    /// <summary>
+    /// 歩数のタイマー(イベントの手順 timer): 歩いた分(休んだ分も)だけ進め、時が来たイベントを、今いるマスで起こす。
+    /// いくつも来たら、1つずつ(前のイベントが閉じてから)。起こしたら true。
+    /// </summary>
+    private bool RunTimers()
+    {
+        if (Services.Session is not { } session) return false;
+        long walked = State.Steps - _lastSteps;
+        _lastSteps = State.Steps;
+        if (walked > 0) foreach (var id in session.AdvanceTimers((int)Math.Min(walked, int.MaxValue))) _dueTimers.Enqueue(id);
+        while (_dueTimers.TryDequeue(out var due))
+        {
+            if (!Services.Data.Events.TryGetValue(due, out var def)) continue;
+            var ctx = EventCtx(turned: false, null, false);
+            if (!EventRunner.Available(def, ctx)) continue;
+            Stack.Push(new EventScene(new EventRunner(def, ctx), EventCallbacks()));
+            return true;
+        }
+        return false;
+    }
+
     public override void Update(GameTime time, InputState input)
     {
         _time += time.ElapsedGameTime.TotalSeconds;
+        if (RunTimers()) return;
         // 上に積んだ画面(戦闘・宝箱・キャンプ・イベントなど)から戻ってきたら保存する
         if (_version != Stack.Version)
         {
@@ -116,6 +142,7 @@ public sealed class MazeScene : Scene
             bool door = ThroughDoor(State.Position.Facing);   // 動く前に、これから通る辺を見る
             _moveDir = State.Position.Facing;
             _stepFrom = State.Position.Cell;
+            _entered = "forward";
             Report(_nav.Forward(), door);
         }
         else if (backTurns && input.Pressed(GameAction.Down)) Turned(_nav.TurnAround());
@@ -124,6 +151,7 @@ public sealed class MazeScene : Scene
             bool door = ThroughDoor(State.Position.Facing.Opposite());
             _moveDir = State.Position.Facing.Opposite();
             _stepFrom = State.Position.Cell;
+            _entered = "back";
             Report(_nav.Backward(), door);
         }
         else if (walk && (input.Repeat(GameAction.StrafeLeft) || input.Repeat(GameAction.StrafeRight)))
@@ -132,6 +160,7 @@ public sealed class MazeScene : Scene
             bool door = ThroughDoor(dir);
             _moveDir = dir;
             _stepFrom = State.Position.Cell;
+            _entered = dir == State.Position.Facing.Left() ? "left" : "right";
             Report(dir == State.Position.Facing.Left() ? _nav.StrafeLeft() : _nav.StrafeRight(), door);
         }
         else if (input.Pressed(GameAction.Left)) Turned(_nav.TurnLeft());
@@ -167,7 +196,18 @@ public sealed class MazeScene : Scene
     {
         Services.Audio.PlaySe(Sounds.Stairs);
         Stack.Replace(new TownScene());
-    }));
+    }, CampEvent));
+
+    /// <summary>キャンプで唱えた・休んだとき、このマスのイベントがそれで起こるなら、始める処理を返す。</summary>
+    private Action? CampEvent(string? cast, bool rested)
+    {
+        if (Services.Session == null || State.Cell.Mark is not { } mark || !mark.StartsWith(EventPlacer.MarkPrefix)) return null;
+        if (!Services.Data.Events.TryGetValue(mark[EventPlacer.MarkPrefix.Length..], out var ev)) return null;
+        if (!(cast != null && ev.OnCast || rested && ev.OnRest)) return null;
+        var ctx = EventCtx(turned: false, cast, rested);
+        if (State.IsNoted(ctx.At!.Value.Floor, ctx.At.Value.Cell, ev.Id) || !EventRunner.Available(ev, ctx)) return null;
+        return () => Stack.Push(new EventScene(new EventRunner(ev, ctx), EventCallbacks()));
+    }
 
     /// <summary>中断: セーブしてタイトルへ(試しの迷宮では、セーブせずにタイトルへ)。</summary>
     private void Suspend()
@@ -197,6 +237,9 @@ public sealed class MazeScene : Scene
 
     private Direction _moveDir;
     private GridPos _stepFrom;
+
+    /// <summary>このマスへどう動いて入ったか(イベントの条件 entered)。歩いて来たのでなければ null。</summary>
+    private string? _entered;
 
     /// <summary>今の階の、罠や錠の強さの段階(目安のレベル / 4)。</summary>
     private int Tier
@@ -246,6 +289,8 @@ public sealed class MazeScene : Scene
 
     private void Report(MoveResult result, bool throughDoor = false)
     {
+        // 歩いて着いたときだけ、どう動いて入ったかを残す(階段・テレポーター・落とし穴などで来たら、どれでもない)
+        if (result != MoveResult.Moved) _entered = null;
         var s = Services.Strings;
         var audio = Services.Audio;
         switch (result)
@@ -433,21 +478,7 @@ public sealed class MazeScene : Scene
     /// <summary>このマスのイベントを始める(条件が合わない・済んだものは何もしない)。turned は向きを変えて起こしたとき。</summary>
     private void StartEvent(EventDef def, bool turned = false)
     {
-        var session = Services.Session!;
-        _encounters ??= Services.Encounters();
-        _treasure ??= TreasureSettings.Load(Services.Content);
-        var ctx = new EventContext
-        {
-            Data = Services.Data,
-            Session = session,
-            Rng = session.Rng[RngStreams.Names.Loot],
-            Maze = State,
-            At = (State.Position.Floor, State.Position.Cell),
-            Depth = Depth,
-            TargetLevel = _encounters.TargetLevel(Depth),
-            Treasure = _treasure,
-            Turned = turned,
-        };
+        var ctx = EventCtx(turned, null, false);
         // 書き留めた場所では起こさず、見覚えがあることだけを言う(メモの最初の文を添えて)
         if (State.Notes.FirstOrDefault(n => n.Floor == ctx.At.Value.Floor && n.Cell == ctx.At.Value.Cell && n.EventId == def.Id) is { } note)
         {
@@ -458,7 +489,47 @@ public sealed class MazeScene : Scene
             return;
         }
         if (!EventRunner.Available(def, ctx)) return;
-        Stack.Push(new EventScene(new EventRunner(def, ctx), new EventScene.Callbacks(EventCombat, () => Stack.Replace(new TownScene()))));
+        Stack.Push(new EventScene(new EventRunner(def, ctx), EventCallbacks()));
+    }
+
+    private EventScene.Callbacks EventCallbacks() => new(EventCombat, () => Stack.Replace(new TownScene()), Warp: Warped);
+
+    /// <summary>このマスのイベントの場の情報。</summary>
+    private EventContext EventCtx(bool turned, string? cast, bool rested)
+    {
+        var session = Services.Session!;
+        _encounters ??= Services.Encounters();
+        _treasure ??= TreasureSettings.Load(Services.Content);
+        return new EventContext
+        {
+            Data = Services.Data,
+            Session = session,
+            Rng = session.Rng[RngStreams.Names.Loot],
+            Maze = State,
+            At = (State.Position.Floor, State.Position.Cell),
+            Depth = Depth,
+            TargetLevel = _encounters.TargetLevel(Depth),
+            Treasure = _treasure,
+            Turned = turned,
+            Entered = turned || cast != null || rested ? null : _entered,
+            Cast = cast,
+            Rested = rested,
+        };
+    }
+
+    /// <summary>イベントで別のマスへ移された(手順 warp)。着いたマスの様子を知らせる(そこのイベントも起こる)。</summary>
+    private void Warped(Core.Events.EventWarp warp)
+    {
+        _entered = null;
+        Services.Audio.PlaySe(warp.ChangedFloor ? Sounds.Stairs : Sounds.Step);
+        if (warp.ChangedFloor)
+        {
+            Say(Services.Strings.Format("maze.changed_floor", FloorLabel()));
+            SayFloorEnter();
+        }
+        else Say(Services.Strings["maze.teleported"]);
+        AfterMove();
+        UpdateLastKnown();
     }
 
     /// <summary>イベントの戦闘。決めた敵か、ボスか、この階の敵。</summary>
@@ -652,6 +723,7 @@ public sealed class MazeScene : Scene
         }
         var to = cells[rng.Next(0, cells.Count)];
         State.Position = new PartyPosition(State.Position.Floor, to, State.Position.Facing);
+        State.AutoMap.Record(State);   // 飛ばされた先を地図に
         Services.Audio.PlaySe(Sounds.Step);
         Say(Services.Strings["maze.teleported"]);
         AfterMove();

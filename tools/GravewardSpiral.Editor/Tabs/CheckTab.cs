@@ -209,7 +209,9 @@ public sealed class CheckTab : IEditorTab
         string BossName(string id) => id == GameSession.FinalBossId ? T("最下層の主", "the final boss")
             : pack.Bosses.FirstOrDefault(b => (string?)b["id"] == id)?["name"]?[Lang]?.ToString() is { Length: > 0 } n && n != id ? $"{n}({id})" : id;
         string final = "boss:" + GameSession.FinalBossId;
-        if (marks.All(m => m.Mark != final))
+        // 手順 ending で終わるシナリオ(主をイベントの中で倒すなど)は、最下層の主の印が無くてよい
+        bool endsByEvent = pack.Events.Any(e => AllSteps(e.Steps).Any(s => s.Type == "ending"));   // このシナリオのイベントだけ(試しの迷宮の見本は数えない)
+        if (marks.All(m => m.Mark != final) && !endsByEvent)
             warn(T("最下層の主が迷宮にいない(物語のタブの「迷宮に置く」。いないと、主を倒して終わる物語にならない)", "The final boss is not in the maze (Story tab, \"Place in the maze\"; without it the story has no final fight)"));
         foreach (var m in marks.Where(m => m.Mark == final && m.Floor != floors.Count - 1))
             warn(T($"最下層の主が最下層ではなく {At(m.Floor, m.Cell)} にいる", $"The final boss is at {At(m.Floor, m.Cell)}, not on the bottom floor"));
@@ -270,12 +272,14 @@ public sealed class CheckTab : IEditorTab
         // 門と「門を開ける」
         var gates = marks.Where(m => m.Mark.StartsWith("gate:")).Select(m => m.Mark["gate:".Length..]).ToHashSet();
         var opens = new HashSet<string>();
+        var warps = new HashSet<string>();
         var walked = new HashSet<string>();
         void Walk(IEnumerable<EventStep> steps)
         {
             foreach (var st in steps)
             {
-                if (st.Type == "open" && st.Id != null) opens.Add(st.Id);
+                if (st.Type is "open" or "close" && st.Id != null) opens.Add(st.Id);
+                if (st.Type == "warp" && st.Id != null) warps.Add(st.Id);
                 // 「別のイベント」(run)で続くイベントの中も見る
                 if (st.Type == "run" && st.Id != null && walked.Add(st.Id) && data.Events.TryGetValue(st.Id, out var next)) Walk(next.Steps);
                 foreach (var child in st.Children()) Walk(child);
@@ -284,6 +288,9 @@ public sealed class CheckTab : IEditorTab
         foreach (var e in data.Events.Values.Where(e => marks.Any(m => m.Mark == EventPlacer.MarkPrefix + e.Id) || pack.Events.Contains(e))) Walk(e.Steps);
         foreach (var g in gates.Where(g => !opens.Contains(g)))
             Line(T($"・ 門 {g} を開けるイベント(手順「門を開ける」)が見当たらない", $"・ No event opens gate {g} (step \"Open gate\")"), Ui.Dim);
+        var dests = marks.Where(m => m.Mark.StartsWith("dest:")).Select(m => m.Mark["dest:".Length..]).ToHashSet();
+        foreach (var w in warps.Where(w => !dests.Contains(w)))
+            problem(T($"「別のマスへ移す」の着地点 {w} が迷宮に無い(迷宮のタブで「着地点」を置く)", $"Landing point {w} used by \"Move the party\" is not in the maze (place a \"Landing point\" on the Maze tab)"));
         foreach (var o in opens.Where(o => !gates.Contains(o)))
             Line(T($"・ 「門を開ける」の門 {o} が迷宮に無い", $"・ Gate {o} opened by an event is not in the maze"), Ui.Dim);
 

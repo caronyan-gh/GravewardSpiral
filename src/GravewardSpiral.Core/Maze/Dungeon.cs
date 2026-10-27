@@ -155,6 +155,15 @@ public sealed class ExplorationState
         if (n != null) set.Add(new EdgeKey(n.Value, d.Opposite()));
     }
 
+    /// <summary>開けた錠をまた閉める(両側とも)。</summary>
+    public void Relock(int floor, GridPos cell, Direction d)
+    {
+        if (!_unlocked.TryGetValue(floor, out var set)) return;
+        set.Remove(new EdgeKey(cell, d));
+        var n = Dungeon.Floors[floor].Neighbor(cell, d);
+        if (n != null) set.Remove(new EdgeKey(n.Value, d.Opposite()));
+    }
+
     public IEnumerable<(int Floor, GridPos Cell, Direction Dir)> UnlockedEdges() =>
         _unlocked.SelectMany(kv => kv.Value.Select(e => (kv.Key, e.Cell, e.Dir)));
 

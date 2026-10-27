@@ -266,7 +266,6 @@ public sealed class CombatEngine(GameData data, IRandom rng)
     /// </summary>
     private void PlayerAttack(CombatState s, PartyMember p, int groupIndex)
     {
-        var classes = p.Character.ClassIds.Select(id => _data.Classes[id]).ToList();
         int str = p.AbilityMod(Ability.Str), dex = p.AbilityMod(Ability.Dex);
         bool sneakUsed = false;
         int attacks = AttacksPerAction(p.Character) + p.Modifiers.Where(m => m.Stat == "attacks").Sum(m => m.Value);   // ヘイストなど
@@ -278,7 +277,7 @@ public sealed class CombatEngine(GameData data, IRandom rng)
 
         StrikePlan Plan(ItemDef? weapon, ItemInstance? held, bool shoot, bool offHand)
         {
-            bool proficient = weapon == null || classes.Any(cls => cls.Weapons.Contains(weapon.Category ?? "") || cls.Weapons.Contains(weapon.Id));
+            bool proficient = weapon == null || p.Character.WeaponProficient(_data, weapon);   // 魔法の武器は元の武器でも
             bool finesse = weapon?.Has("finesse") == true;
             int mod = weapon is { Ranged: true } ? dex : finesse ? Math.Max(str, dex) : str;
             int damageMod = offHand ? Math.Min(0, mod) : mod;

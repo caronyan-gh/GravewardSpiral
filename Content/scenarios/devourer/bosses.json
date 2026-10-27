@@ -1,0 +1,130 @@
+[
+  {
+    "id": "lost_company",
+    "name": {
+      "en": "The Company That Never Returned",
+      "ja": "帰らなかった一行"
+    },
+    "groups": [
+      {
+        "monster": "gladiator",
+        "count": 1,
+        "name": {
+          "en": "Valdo, the Company's Captain",
+          "ja": "一行の頭ヴァルド"
+        }
+      },
+      {
+        "monster": "mage",
+        "count": 1,
+        "name": {
+          "en": "The Company's Mage",
+          "ja": "一行の魔術師"
+        }
+      },
+      {
+        "monster": "wight",
+        "count": 2,
+        "name": {
+          "en": "Fallen Companion",
+          "ja": "倒れた仲間"
+        }
+      }
+    ],
+    "note": "第3部 C の B4(途中の階のボス)。dv_b4_company で名を思い出させられなかったときの戦闘。一行の頭(剣闘士)・魔術師・倒れた仲間(ワイト)2体。シミュレータで L9 8割、L10 9割3分",
+    "hp_mult": 1.4,
+    "damage_mult": 1.15,
+    "ac_bonus": 0,
+    "hit_bonus": 1
+  },
+  {
+    "id": "rudolf",
+    "name": {
+      "en": "Rudolf, the Innkeeper's Brother",
+      "ja": "宿の女主人の弟ルドルフ"
+    },
+    "groups": [
+      {
+        "monster": "vampire_vampire",
+        "count": 1,
+        "name": {
+          "en": "Rudolf",
+          "ja": "ルドルフ"
+        }
+      },
+      {
+        "monster": "vampire_spawn",
+        "count": 2,
+        "name": {
+          "en": "Rudolf's Thrall",
+          "ja": "ルドルフの眷属"
+        }
+      }
+    ],
+    "note": "第3部 C の B7(途中の階のボス)。dv_b7_rudolf で手紙を見せなかったときの戦闘。ルドルフ(ヴァンパイア)と眷属(落とし子)2体。シミュレータで L11 9割弱、L12 9割4分",
+    "hp_mult": 2.25,
+    "damage_mult": 1.5,
+    "ac_bonus": 2,
+    "hit_bonus": 2
+  },
+  {
+    "id": "keystone_guardian",
+    "name": {
+      "en": "Keeper of the Keystone's Root",
+      "ja": "要石の番人"
+    },
+    "groups": [
+      {
+        "monster": "stone_golem",
+        "count": 1,
+        "name": {
+          "en": "Keeper of the Keystone's Root",
+          "ja": "要石の番人"
+        }
+      },
+      {
+        "monster": "shield_guardian",
+        "count": 2,
+        "name": {
+          "en": "Warden's Shield",
+          "ja": "番の盾"
+        }
+      }
+    ],
+    "note": "第3部 C の B9(途中の階のボス)。dv_b9_guardian の戦闘。番人(石のゴーレム)と番の盾(盾の守護者)2体。シミュレータで L12 8割、L13 ほぼ全勝",
+    "hp_mult": 0.85,
+    "damage_mult": 1.0,
+    "ac_bonus": 0,
+    "hit_bonus": 0
+  },
+  {
+    "id": "the_voice",
+    "name": {
+      "en": "The Voice from the Bottom",
+      "ja": "底の声"
+    },
+    "groups": [
+      {
+        "monster": "mummy_lord",
+        "count": 1,
+        "name": {
+          "en": "The Voice from the Bottom",
+          "ja": "底の声"
+        }
+      },
+      {
+        "monster": "wraith",
+        "count": 2,
+        "name": {
+          "en": "A Nameless Voice",
+          "ja": "名の無い声"
+        }
+      }
+    ],
+    "note": "第3部 C のラスボス。B10 の見送りの儀式(dv_b10_rite)の中の戦闘で出す(迷宮の印 boss:final は置かない。倒したあと儀式をして、手順 ending で終わる)。底の声(マミーの王)と名の無い声(レイス)2体。シミュレータで L12 7割半、L13 9割弱、L14 9割強(L13〜L14 は勝率がほとんど伸びない)",
+    "hp_mult": 1.0,
+    "damage_mult": 1.0,
+    "ac_bonus": 0,
+    "hit_bonus": 0
+  }
+]

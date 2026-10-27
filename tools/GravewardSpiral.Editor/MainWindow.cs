@@ -218,6 +218,23 @@ public sealed class MainWindow : Window
                     return;
                 }
                 await Dispatcher.Yield(DispatcherPriority.ApplicationIdle);
+                if (EditorOptions.DataNode is { } data)
+                {
+                    var parts = data.Split('/');
+                    _tabList.OfType<DataTab>().First().SelectForCheck(parts[0], parts.Length > 1 ? int.Parse(parts[1]) : 0);
+                    await Dispatcher.Yield(DispatcherPriority.ApplicationIdle);
+                    if (EditorOptions.Scroll > 0)
+                    {
+                        _tabList.OfType<DataTab>().First().ScrollProps(EditorOptions.Scroll);
+                        await Dispatcher.Yield(DispatcherPriority.ApplicationIdle);
+                    }
+                }
+                if (EditorOptions.EventNode is { } node)
+                {
+                    var parts = node.Split('/');
+                    _tabList.OfType<EventsTab>().First().SelectForCheck(parts[0], parts.Length > 1 ? int.Parse(parts[1]) : 0);
+                    await Dispatcher.Yield(DispatcherPriority.ApplicationIdle);
+                }
                 if (EditorOptions.Scroll > 0 && (_tabs.SelectedItem as TabItem)?.Content is Border { Child: ScrollViewer view })
                 {
                     view.ScrollToVerticalOffset(EditorOptions.Scroll);

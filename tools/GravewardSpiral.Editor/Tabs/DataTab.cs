@@ -59,9 +59,19 @@ public sealed class DataTab : IEditorTab
         left.Children.Add(_list);
         _view.Children.Add(left);
 
-        var right = new ScrollViewer { Content = _props, VerticalScrollBarVisibility = ScrollBarVisibility.Auto, Padding = new Thickness(12) };
-        Grid.SetColumn(right, 1);
-        _view.Children.Add(right);
+        _right = new ScrollViewer { Content = _props, VerticalScrollBarVisibility = ScrollBarVisibility.Auto, Padding = new Thickness(12) };
+        Grid.SetColumn(_right, 1);
+        _view.Children.Add(_right);
+    }
+
+    private readonly ScrollViewer _right;
+
+    /// <summary>欄を出し直す(種類を替えた、並びに足した・消したとき)。見ていた場所はそのまま。</summary>
+    private void Rebuild()
+    {
+        double at = _right.VerticalOffset;
+        ShowProps();
+        _right.Dispatcher.BeginInvoke(() => _right.ScrollToVerticalOffset(at), System.Windows.Threading.DispatcherPriority.Loaded);
     }
 
     public string Key => "data";
@@ -172,6 +182,16 @@ public sealed class DataTab : IEditorTab
         return window;
     }
 
+    /// <summary>確かめ用(--data と --scroll): 右の欄を下へ送る。</summary>
+    public void ScrollProps(double offset) => _right.ScrollToVerticalOffset(offset);
+
+    /// <summary>確かめ用(--data): 種類を選び、その index 番目を選ぶ。</summary>
+    public void SelectForCheck(string kind, int index)
+    {
+        SetKind(kind);
+        Refresh(index);
+    }
+
     /// <summary>種類(品・モンスター・呪文の名前)を替える(上のラジオボタンも合わせる)。</summary>
     private void SetKind(string kind)
     {
@@ -262,13 +282,29 @@ public sealed class DataTab : IEditorTab
             _props.Children.Add(Ui.Row(T("出し方", "Drops"), check));
         }
 
-        // 全体の JSON(extends のものは、書いた項目だけ。解いた中身は下に出す)
+        // 名前の付いた欄(種類に合ったものだけ。写して一部を変えたものは、元の値と「元に戻す」)
+        JsonObject? baseObj = (string?)o["extends"] is { } extendsId && _context.BaseContent.Find(_kind, extendsId) is { } b2 ? JsonNode.Parse(b2.Data.GetRawText())!.AsObject() : null;
+        var form = new DataForm(_context, o, baseObj, () => { _context.MarkEdited(); RefreshLabel(); }, Rebuild);
+        foreach (var part in _kind == "items" ? form.Item() : form.Monster()) _props.Children.Add(part);
+
+        // 全体の JSON(くわしい人向け。開いたときに、欄で直した中身から作り直す。extends のものは、書いた項目だけ。解いた中身は下に出す)
+        var jsonPanel = new StackPanel();
+        var jsonBox = new Expander { Header = T("JSON で直す(くわしい人向け)", "Edit as JSON (advanced)"), Content = jsonPanel, Margin = new Thickness(0, 14, 0, 0) };
+        jsonBox.Expanded += (_, _) => JsonPanel(jsonPanel, o);
+        _props.Children.Add(jsonBox);
+    }
+
+    /// <summary>JSON の欄(開くたびに、今の中身から作り直す)。</summary>
+    private void JsonPanel(StackPanel panel, JsonObject o)
+    {
+        panel.Children.Clear();
         var json = new TextBox
         {
             Text = o.ToJsonString(new JsonSerializerOptions { WriteIndented = true, Encoder = System.Text.Encodings.Web.JavaScriptEncoder.UnsafeRelaxedJsonEscaping }),
             AcceptsReturn = true, FontFamily = new System.Windows.Media.FontFamily("Consolas"), Height = 260,
             VerticalScrollBarVisibility = ScrollBarVisibility.Auto, HorizontalScrollBarVisibility = ScrollBarVisibility.Auto,
         };
+        var _props = panel;
         _props.Children.Add(Ui.Heading(T("JSON(書いた項目)", "JSON (written fields)")));
         _props.Children.Add(Ui.Note(_kind == "items"
             ? T("項目の名前は標準の items.json と同じ(kind・price・damage・armor_class・passive・use・use_spell など)。base(元の武器・鎧)と looks_like は標準の品だけを指す", "Field names are the same as in the standard items.json (kind, price, damage, armor_class, passive, use, use_spell, etc.). base (the original weapon/armor) and looks_like can only point to standard items")

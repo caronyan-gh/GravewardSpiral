@@ -377,6 +377,26 @@ public sealed class GameSession
     /// <summary>イベントの数え上げ(スイッチを押した数など)。</summary>
     public Dictionary<string, int> Counters { get; init; } = new(StringComparer.Ordinal);
 
+    /// <summary>
+    /// 歩数のタイマー(イベントの手順 timer。id はその時が来たら起こすイベント、値は残りの歩数)。迷宮で歩くと減り、0 になったら、どこにいてもそのイベントが起こる。
+    /// </summary>
+    public Dictionary<string, int> Timers { get; init; } = new(StringComparer.Ordinal);
+
+    /// <summary>タイマーを steps 歩ぶん進める。時が来たもの(イベントの id)を、置いた順に返して消す。</summary>
+    public List<string> AdvanceTimers(int steps)
+    {
+        var due = new List<string>();
+        if (steps <= 0 || Timers.Count == 0) return due;
+        foreach (var id in Timers.Keys.ToList())
+        {
+            Timers[id] -= steps;
+            if (Timers[id] > 0) continue;
+            Timers.Remove(id);
+            due.Add(id);
+        }
+        return due;
+    }
+
     /// <summary>迷宮の中の状態。迷宮に入るたびに作り、町に戻ったら残す(地図と見つけた隠し扉は次も使う)。</summary>
     public ExplorationState? Exploration { get; set; }
 

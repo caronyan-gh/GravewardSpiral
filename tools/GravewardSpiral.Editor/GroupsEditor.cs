@@ -35,8 +35,9 @@ public static class GroupsEditor
                 row.ColumnDefinitions.Add(new ColumnDefinition { Width = new GridLength(1, GridUnitType.Star) });
                 row.ColumnDefinitions.Add(new ColumnDefinition { Width = new GridLength(24) });
                 row.ColumnDefinitions.Add(new ColumnDefinition { Width = new GridLength(56) });
-                row.ColumnDefinitions.Add(new ColumnDefinition { Width = new GridLength(150) });
-                row.ColumnDefinitions.Add(new ColumnDefinition { Width = new GridLength(150) });
+                // 従う者の名前の欄(ボスの組の2行目から)。ふつうの戦闘では幅を取らない(細い欄で敵を選ぶ欄が潰れないように)
+                row.ColumnDefinitions.Add(new ColumnDefinition { Width = new GridLength(boss ? 150 : 0) });
+                row.ColumnDefinitions.Add(new ColumnDefinition { Width = new GridLength(boss ? 150 : 0) });
                 row.ColumnDefinitions.Add(new ColumnDefinition { Width = GridLength.Auto });
                 var monster = new ComboBox
                 {

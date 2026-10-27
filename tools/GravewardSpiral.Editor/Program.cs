@@ -17,6 +17,8 @@
 //   --reopen N        開いたあと、全部のタブを N 回作り直す(名前を付けて保存などと同じ。確かめ用)
 //   --picker 言葉     画面の保存で、標準のイベントから写す窓をこの言葉で探して撮る
 //   --scroll PX       画面の保存の前に、タブの中身をこれだけ下へ送る
+//   --event ID[/N]    イベントのタブで、そのイベントを選び、木の上から N 番目(0 が根)を選んでおく(確かめ用)
+//   --data 種類[/N]   データのタブで、品(items)かモンスター(monsters)の N 番目を選んでおく(確かめ用)
 //   --lang ja|en      画面の言語(省くと設定の言語。確かめの起動は日本語)
 using System.Windows;
 using static GravewardSpiral.Editor.Loc;
@@ -82,6 +84,12 @@ public sealed record EditorOptions(string? Open, string? NewId, string? Tab, int
     /// <summary>画面の保存の前に、タブの中身を下へ送る量(--scroll。ピクセル)。</summary>
     public static double Scroll { get; private set; }
 
+    /// <summary>イベントのタブで選んでおくイベントと、木の何番目(--event ID[/N]。確かめ用)。</summary>
+    public static string? EventNode { get; private set; }
+
+    /// <summary>データのタブで選んでおく種類と番号(--data items/0。確かめ用)。</summary>
+    public static string? DataNode { get; private set; }
+
     public static EditorOptions Parse(string[] args)
     {
         string? open = null, newId = null, tab = null, shot = null, scenarios = null, lang = null;
@@ -108,6 +116,8 @@ public sealed record EditorOptions(string? Open, string? NewId, string? Tab, int
                 case "--reopen": Reopen = int.Parse(next); i++; break;
                 case "--picker": Picker = next; i++; break;
                 case "--scroll": Scroll = double.Parse(next, System.Globalization.CultureInfo.InvariantCulture); i++; break;
+                case "--event": EventNode = next; i++; break;
+                case "--data": DataNode = next; i++; break;
                 case "--lang": lang = next == "en" ? "en" : "ja"; i++; break;
             }
         }

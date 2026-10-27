@@ -144,5 +144,96 @@
       "en": "Part 2. An ending as the lake fills again (with vocals)"
     },
     "lyrics": "The water rises tall and cold\nTo take back what was ours of old\nA silent queen on silver throne\nI face the endless deep alone\nLet floodgates close and shadows fall\nUpon this great and empty hall\nMy people sleep in liquid stone\nAnd here I sit, forever home\nThe crown is heavy, wet with tears\nTo wash away a thousand years\nThe silence is a blessed friend\nAs we arrive at this, the end\nOh, let the waters draw us down!\nTo wear this cold and aquatic crown!\nMy capital sinks to the deep, blue sea!\nAn eternal grave for royalty!\nI'll stay and watch until the light!\nIs swallowed by the endless night!\nFarewell, my world, my story told!\nAs everything turns still and cold!\n(Water draws us down)\nTo where no one can find me\n(Silence is my crown)\nLeaving everything behind me\n(Wait for a new dawn)\nIn a story yet to start\nNow I am truly gone\nA ghost within the heart"
+  },
+  {
+    "id": "the_last_hearth",
+    "title": "The Last Hearth",
+    "file": "audio/bgm/library/the_last_hearth.mp3",
+    "note": {
+      "ja": "第3部 最後の宿。暖炉と酒と、空いたままの席",
+      "en": "Part 3. The Last Inn. A hearth, ale, and seats left empty"
+    }
+  },
+  {
+    "id": "below_the_sunken_hall",
+    "title": "Below the Sunken Hall",
+    "file": "audio/bgm/library/below_the_sunken_hall.mp3",
+    "note": {
+      "ja": "第3部 浅い階。野営の跡と名札の回廊",
+      "en": "Part 3. The upper floors. Abandoned camps and corridors of name tags"
+    }
+  },
+  {
+    "id": "tracing_hollow_stone",
+    "title": "Tracing Hollow Stone",
+    "file": "audio/bgm/library/tracing_hollow_stone.mp3",
+    "note": {
+      "ja": "第3部 中ほどの階。足跡を写す迷宮と冒険者の墓場",
+      "en": "Part 3. The middle floors. A labyrinth that copies your steps, and a graveyard of adventurers"
+    }
+  },
+  {
+    "id": "beneath_the_stone_gate",
+    "title": "Beneath the Stone Gate",
+    "file": "audio/bgm/library/beneath_the_stone_gate.mp3",
+    "note": {
+      "ja": "第3部 深い階。底から上ってくる声の溜まり",
+      "en": "Part 3. The deep floors. Pools of voices rising from below"
+    }
+  },
+  {
+    "id": "beneath_the_stone_weight",
+    "title": "Beneath the Stone Weight",
+    "file": "audio/bgm/library/beneath_the_stone_weight.mp3",
+    "note": {
+      "ja": "第3部 底。恐ろしいだけでなく、悲しい",
+      "en": "Part 3. The bottom. Not only dreadful, but sad"
+    }
+  },
+  {
+    "id": "the_labyrinths_heavy_gate",
+    "title": "The Labyrinth's Heavy Gate",
+    "file": "audio/bgm/library/the_labyrinths_heavy_gate.mp3",
+    "note": {
+      "ja": "第3部 戦闘。速く、激しく、重い",
+      "en": "Part 3. Battle. Fast, fierce and heavy"
+    }
+  },
+  {
+    "id": "sovereign_of_iron_and_bone",
+    "title": "Sovereign of Iron and Bone",
+    "file": "audio/bgm/library/sovereign_of_iron_and_bone.mp3",
+    "note": {
+      "ja": "第3部 ボス戦。三部作の最後のボス",
+      "en": "Part 3. Boss battle. The last bosses of the trilogy"
+    }
+  },
+  {
+    "id": "the_weight_of_an_unread_letter",
+    "title": "The Weight of an Unread Letter",
+    "file": "audio/bgm/library/the_weight_of_an_unread_letter.mp3",
+    "note": {
+      "ja": "第3部 物語の場面。ろうそくの下で古い手紙を読む",
+      "en": "Part 3. Story scenes. Old letters read by candlelight"
+    }
+  },
+  {
+    "id": "bow_to_the_waves",
+    "title": "Bow to the Waves",
+    "file": "audio/bgm/library/bow_to_the_waves.mp3",
+    "note": {
+      "ja": "第3部 見送りの儀式。弔いの鐘を三つ打ってから、子守歌が重なる(頭の鐘は合成して重ねた。ループしない)",
+      "en": "Part 3. The rite of sending off. Three funeral tolls, then the lullaby (the bells were synthesized and laid over the head; does not loop)"
+    }
+  },
+  {
+    "id": "crown_upon_the_floor",
+    "title": "Crown Upon the Floor",
+    "file": "audio/bgm/library/crown_upon_the_floor.mp3",
+    "note": {
+      "ja": "第3部 三部作のエンディング。長い夜の明け方(歌声入り。ループしない)",
+      "en": "Part 3. The ending of the trilogy. Dawn after a long night (with vocals; does not loop)"
+    },
+    "lyrics": "Ooh, the long night ends...\nRest now, the dawn is here...\nThe deep hum fades to silver grey\nThe heavy stone has ceased to play\nThe hollow heart is cold and still\nThe morning climbs the lonely hill\nAnd the dawn breaks, soft and wide\nTurning the shadows to the tide\nNo more the ghost, no more the toll\nThe quiet light begins to console\nThe crown is laid upon the floor\nThe iron key locks every door\nThe path is worn, the boots are home\nBeneath the sky, no more to roam\nAnd the dawn breaks, soft and wide\nTurning the shadows to the tide\nNo more the ghost, no more the toll\nThe quiet light begins to console\nThe night was long, the debt is paid!\nIn silence now, the ghosts are laid!\nThe earth is green, the air is thin!\nThe final day can now begin!\nRest in the light, the journey done...\nUnder the rising, warming sun..."
   }
 ]

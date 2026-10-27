@@ -79,7 +79,8 @@ public sealed class InventoryScene(Character owner) : MenuScene
                     if (def.IsEquippable)
                     {
                         bool wear = owner.CanWear(Data, def);   // 習熟の無い鎧と盾は付けられない
-                        yield return new MenuItem(s["inv.equip"], wear ? null : s["inv.no_proficiency"], wear, "equip");
+                        string? note = !wear ? s["inv.no_proficiency"] : !owner.WeaponProficient(Data, def) ? s["inv.no_weapon_proficiency"] : null;   // 武器は持てるが、習熟ボーナスが付かない
+                        yield return new MenuItem(s["inv.equip"], note, wear, "equip");
                     }
                     if (def.IsUsable) yield return new MenuItem(s["inv.use"], Tag: "use");
                     yield return new MenuItem(s["inv.give"], Enabled: Party.Count > 1, Tag: "give");

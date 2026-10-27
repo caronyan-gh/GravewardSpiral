@@ -647,6 +647,12 @@ public sealed class StatusScene : Scene
         y2 += 8;
         Text2(s["status.saves"], Theme.Title, 22);
         Text2(string.Join("  ", Abilities.All.Select(a => $"{s[$"ability.{a.Code()}"]} {Signed(_c.SaveBonus(data, a))}")), Theme.Text);
+        // 習熟(鎧と盾は、無いと着られない。武器は持てるが、習熟ボーナスが付かない)
+        y2 += 8;
+        Text2(s["status.proficiency"], Theme.Title, 22);
+        var (armor, weapons) = Proficiencies(Services, _c);
+        y2 = d.TextWrapped(s.Format("status.armor_prof", armor), new Vector2(x2, y2), area.X + area.Width - x2 - 24, 17, Theme.Text, 6);
+        y2 = d.TextWrapped(s.Format("status.weapon_prof", weapons), new Vector2(x2, y2), area.X + area.Width - x2 - 24, 17, Theme.Text, 6);
         var castable = Spellcasting.Castable(data, _c).ToList();
         if (castable.Count > 0)
         {
@@ -682,6 +688,20 @@ public sealed class StatusScene : Scene
             d.TextWrapped(Services.Strings.List(_c.Inventory.Items.Select(it => UI.ItemText.Name(Services, it))), new Vector2(area.X + 40, y),
                 x2 - area.X - 70, 18, Theme.Text, 6);
         d.Text(s["status.close"], new Vector2(640, 690), 15, Theme.Dim, TextAlign.Center);
+    }
+
+    /// <summary>鎧と武器の習熟の一覧(クラスを合わせて。分類は名前で、決まった武器は品の名前で)。</summary>
+    public static (string Armor, string Weapons) Proficiencies(GameServices sv, Character c)
+    {
+        var s = sv.Strings;
+        var classes = c.ClassIds.Select(id => sv.Data.Classes[id]).ToList();
+        var armor = new[] { "light", "medium", "heavy", "shield" }.Where(a => classes.Any(k => k.Armor.Contains(a)))
+            .Select(a => a == "shield" ? s["status.prof_shield"] : s["armor." + a]).ToList();
+        var weapons = classes.SelectMany(k => k.Weapons).Distinct()
+            .OrderBy(w => w switch { "simple" => 0, "martial" => 1, _ => 2 })
+            .Select(w => w is "simple" or "martial" ? s["weapon." + w] : sv.Data.Items.TryGetValue(w, out var def) ? sv.Name(def.Name) : w).ToList();
+        string none = s["status.prof_none"];
+        return (armor.Count == 0 ? none : s.List(armor), weapons.Count == 0 ? none : s.List(weapons));
     }
 
     private static string Signed(int v) => v >= 0 ? $"+{v}" : v.ToString();

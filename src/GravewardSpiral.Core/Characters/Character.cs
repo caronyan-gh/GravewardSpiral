@@ -187,6 +187,17 @@ public sealed class Character
         return true;
     }
 
+    /// <summary>
+    /// その武器の習熟があるか(武器でない品は true)。分類(単純・軍用)か、武器そのもの(魔法の武器は元の武器 base でも)。
+    /// 習熟が無くても持てるが、攻撃に習熟ボーナスが付かない(5版)。
+    /// </summary>
+    public bool WeaponProficient(GameData data, ItemDef def) =>
+        def.Kind != ItemKind.Weapon || ClassIds.Select(id => data.Classes[id])
+            .Any(c => c.Weapons.Contains(def.Category ?? "") || c.Weapons.Contains(def.Id) || def.Base != null && c.Weapons.Contains(def.Base));
+
+    /// <summary>その品を習熟ありで使えるか(鎧・盾は着られるか、武器は習熟があるか)。</summary>
+    public bool Proficient(GameData data, ItemDef def) => CanWear(data, def) && WeaponProficient(data, def);
+
     /// <summary>その鎧か盾の習熟があるか(鎧と盾でない品は true)。装備の画面は、習熟の無い鎧と盾を付けさせない。</summary>
     public bool CanWear(GameData data, ItemDef def)
     {

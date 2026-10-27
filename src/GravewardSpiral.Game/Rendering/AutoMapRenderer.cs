@@ -21,21 +21,26 @@ public static class AutoMapRenderer
     /// <param name="center">真ん中に置くマス(霧の中では、最後に分かっていた場所)。</param>
     /// <param name="party">パーティの印を出す場所と向き。霧の中では null。</param>
     /// <param name="radius">中心から何マスまで出すか。null なら階の全体を出す。</param>
+    /// <param name="fitKnown">階の全体を出すとき、分かっているところ(通ったマス・見えた辺・印・パーティ)の周りだけにする。まだ行っていない広さを見せない。</param>
     /// <summary>地図の印の文字(text の automap.*。上り・下り階段、昇降機、テレポーター、落とし穴、シュート)。</summary>
     public static Text.Strings? Strings { get; set; }
 
     private static string Label(string key) => Strings?["automap." + key] ?? key[..1];
 
     public static void Draw(Draw2D d, MazeFloor floor, FloorMap map, RectangleF area, GridPos center,
-        (GridPos Cell, Direction Facing)? party, int? radius, IReadOnlySet<GridPos>? notes = null)
+        (GridPos Cell, Direction Facing)? party, int? radius, IReadOnlySet<GridPos>? notes = null, bool fitKnown = false)
     {
         d.FillRect(area, Panel);
         d.Rect(area, Frame, 1f);
 
         int cols = radius is int r ? 2 * r + 1 : floor.Width;
         int rows = radius is int r2 ? 2 * r2 + 1 : floor.Height;
+        int left = 0, top = 0;
+        if (radius == null && fitKnown) (left, top, cols, rows) = KnownBounds(floor, map, party?.Cell ?? center);
         float pad = 8f;
         float cell = MathF.Floor(MathF.Min((area.Width - 2 * pad) / cols, (area.Height - 2 * pad) / rows));
+        // 少ししか分かっていなくても、階の全体を出すときと同じ大きさのまま(広さは隠し、縮尺は変えない)
+        if (radius == null && fitKnown) cell = MathF.Min(cell, MathF.Floor(MathF.Min((area.Width - 2 * pad) / floor.Width, (area.Height - 2 * pad) / floor.Height)));
         float ox = area.X + (area.Width - cell * cols) / 2f;
         float oy = area.Y + (area.Height - cell * rows) / 2f;
         float thick = Math.Clamp(cell / 12f, 1.5f, 3f);
@@ -43,7 +48,7 @@ public static class AutoMapRenderer
         for (int row = 0; row < rows; row++)
         for (int col = 0; col < cols; col++)
         {
-            GridPos? at = radius is int rr ? Wrap(floor, center.X - rr + col, center.Y - rr + row) : new GridPos(col, row);
+            GridPos? at = radius is int rr ? Wrap(floor, center.X - rr + col, center.Y - rr + row) : new GridPos(left + col, top + row);
             float x = ox + col * cell, y = oy + row * cell;
             d.Rect(new RectangleF(x, y, cell + 1, cell + 1), Grid, 1f);
             if (at is not { } p) continue;
@@ -99,6 +104,21 @@ public static class AutoMapRenderer
 
             if (party is { } pt && pt.Cell == p) DrawArrow(d, x, y, cell, pt.Facing);
         }
+    }
+
+    /// <summary>分かっているところを囲む範囲(周りに1マスの余白。端がつながっている向きは、階の幅いっぱい)。</summary>
+    private static (int Left, int Top, int Cols, int Rows) KnownBounds(MazeFloor floor, FloorMap map, GridPos here)
+    {
+        var cells = map.Visited.Concat(map.Edges.Keys.Select(e => e.Cell)).Concat(map.Marks.Keys).Append(here).ToList();
+        int minX = cells.Min(p => p.X) - 1, maxX = cells.Max(p => p.X) + 1;
+        int minY = cells.Min(p => p.Y) - 1, maxY = cells.Max(p => p.Y) + 1;
+        if (floor.WrapX) (minX, maxX) = (0, floor.Width - 1);
+        if (floor.WrapY) (minY, maxY) = (0, floor.Height - 1);
+        minX = Math.Max(0, minX);
+        minY = Math.Max(0, minY);
+        maxX = Math.Min(floor.Width - 1, maxX);
+        maxY = Math.Min(floor.Height - 1, maxY);
+        return (minX, minY, maxX - minX + 1, maxY - minY + 1);
     }
 
     private static GridPos? Wrap(MazeFloor floor, int x, int y)

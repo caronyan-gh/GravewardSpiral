@@ -27,6 +27,18 @@ Every new game builds the whole dungeon from a seed: rooms and corridors, doors 
 | ![新しいゲーム](screenshots/newgame.png) | ![生成した階 1](screenshots/genmap1.png) |
 | | ![生成した階 2](screenshots/genmap2.png) |
 
+## 三部作のシナリオ / The trilogy
+
+決まった迷宮と物語のあるシナリオを3つ入れています。同じクランで、第1部から順に遊べます。
+
+Three scenarios with handmade dungeons and stories are included. One clan can play them in order.
+
+| | シナリオ / Scenario | レベル / Levels |
+|---|---|---|
+| 第1部 / Part 1 | 墓守の螺旋 / The Gravekeeper's Spiral | 1–5 |
+| 第2部 / Part 2 | 沈んだ王都 / The Sunken Capital | 5–8 |
+| 第3部 / Part 3 | 冒険者を食う迷宮 / The Devouring Labyrinth | 8–13 |
+
 ## 遊ぶ / Play
 
 [Releases](../../releases) から `GravewardSpiral-Setup-<版>.exe` を落として、インストールしてください(Windows 64bit。.NET を入れる必要はありません。管理者の権限も要りません)。セーブは `%LOCALAPPDATA%\GravewardSpiral` に残り、アンインストールしても消えません。

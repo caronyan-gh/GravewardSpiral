@@ -1,0 +1,13 @@
+# 第3部 C の B1: 名を刻む壁
+floor prefab_dv_b1_names
+size 3 2
+wrap none
+start 1 1 N
+walls
++-+-+-+
+|     |
++ + + +
+|     |
++-+-+-+
+mark 1 0 event:dv_b1_names
+entrance 1 1 S

@@ -179,5 +179,574 @@
         ]
       }
     ]
+  },
+  {
+    "id": "pick_spring",
+    "place": "maze",
+    "steps": [
+      {
+        "type": "text",
+        "text": {
+          "en": "A clear spring. There is only one mouthful.",
+          "ja": "澄んだ泉がある。ひと口ぶんしか湧いていない。"
+        }
+      },
+      {
+        "type": "pick",
+        "text": {
+          "en": "Who drinks?",
+          "ja": "誰が飲む?"
+        },
+        "when": [
+          {
+            "type": "alive",
+            "value": 1
+          }
+        ],
+        "then": [
+          {
+            "type": "heal"
+          },
+          {
+            "type": "cure"
+          },
+          {
+            "type": "text",
+            "text": {
+              "en": "Cold water runs down a throat.",
+              "ja": "冷たい水が喉を落ちていく。"
+            }
+          }
+        ],
+        "else": [
+          {
+            "type": "again"
+          }
+        ]
+      }
+    ],
+    "memo": false
+  },
+  {
+    "id": "slot_altar",
+    "place": "maze",
+    "steps": [
+      {
+        "type": "text",
+        "text": {
+          "en": "A black altar. The bowl on top asks for a caster's power.",
+          "ja": "黒い祭壇。台の上の鉢に、術者の力を注げと刻んである。"
+        }
+      },
+      {
+        "type": "choice",
+        "text": {
+          "en": "Pour in a spell?",
+          "ja": "呪文の力を注ぐ?"
+        },
+        "options": [
+          {
+            "label": {
+              "en": "Pour (a level 1+ slot)",
+              "ja": "注ぐ(1 レベル以上のスロット)"
+            },
+            "when": [
+              {
+                "type": "slots",
+                "value": 1
+              }
+            ],
+            "steps": [
+              {
+                "type": "spend_slot",
+                "value": 1,
+                "then": [
+                  {
+                    "type": "text",
+                    "text": {
+                      "en": "The bowl glows blue, and gold spills from its bottom.",
+                      "ja": "鉢が青く光り、底から金貨がこぼれた。"
+                    }
+                  },
+                  {
+                    "type": "gold",
+                    "value": 30
+                  }
+                ],
+                "else": []
+              }
+            ]
+          },
+          {
+            "label": {
+              "en": "Leave",
+              "ja": "立ち去る"
+            },
+            "steps": [
+              {
+                "type": "again"
+              }
+            ]
+          }
+        ]
+      }
+    ],
+    "memo": false
+  },
+  {
+    "id": "shield_statue",
+    "place": "maze",
+    "steps": [
+      {
+        "type": "text",
+        "text": {
+          "en": "A statue of a knight with a raised shield. Its open left hand is waiting.",
+          "ja": "盾を構えた騎士の像。差し出した左手が、何かを待っている。"
+        }
+      },
+      {
+        "type": "pick",
+        "text": {
+          "en": "Who touches the hand?",
+          "ja": "誰が手に触れる?"
+        },
+        "when": [
+          {
+            "type": "equipped",
+            "id": "shield"
+          }
+        ],
+        "then": [
+          {
+            "type": "text",
+            "text": {
+              "en": "A sound like shield striking shield. The statue's hand nods once.",
+              "ja": "盾どうしが打ち合うような音がした。像の手が、ひとつ頷いた。"
+            }
+          },
+          {
+            "type": "xp",
+            "value": 50
+          }
+        ],
+        "else": [
+          {
+            "type": "text",
+            "text": {
+              "en": "No one bears a shield. The hand does not move.",
+              "ja": "盾を装備している者はいない。像の手は動かない。"
+            }
+          },
+          {
+            "type": "again"
+          }
+        ]
+      }
+    ],
+    "memo": false
+  },
+  {
+    "id": "dart_trap",
+    "place": "maze",
+    "steps": [
+      {
+        "type": "text",
+        "text": {
+          "en": "Click. A single dart from a hole in the wall.",
+          "ja": "かちり。壁の穴から矢が一本。"
+        }
+      },
+      {
+        "type": "pick",
+        "value": 1,
+        "then": [
+          {
+            "type": "damage",
+            "dice": "1d4"
+          }
+        ]
+      }
+    ],
+    "memo": false
+  },
+  {
+    "id": "backstep_stone",
+    "place": "maze",
+    "steps": [
+      {
+        "type": "if",
+        "when": [
+          {
+            "type": "entered",
+            "id": "back"
+          }
+        ],
+        "then": [
+          {
+            "type": "text",
+            "text": {
+              "en": "Stepping back onto the stone, you hear a lock open to the east.",
+              "ja": "後ろ向きに石を踏むと、東で錠の外れる音がした。"
+            }
+          },
+          {
+            "type": "open",
+            "id": "backstep"
+          }
+        ],
+        "else": [
+          {
+            "type": "text",
+            "text": {
+              "en": "The floor stone reads: COME WITHOUT LOOKING.",
+              "ja": "床の石に「振り向かずに来い」と刻んである。"
+            }
+          },
+          {
+            "type": "again"
+          }
+        ]
+      }
+    ],
+    "memo": false
+  },
+  {
+    "id": "shut_stone",
+    "place": "maze",
+    "steps": [
+      {
+        "type": "text",
+        "text": {
+          "en": "The stone sinks underfoot.",
+          "ja": "足もとの石が沈んだ。"
+        }
+      },
+      {
+        "type": "close",
+        "id": "backstep"
+      }
+    ],
+    "memo": false
+  },
+  {
+    "id": "trapdoor",
+    "place": "maze",
+    "steps": [
+      {
+        "type": "text",
+        "text": {
+          "en": "The floor gives way!",
+          "ja": "床が抜けた!"
+        }
+      },
+      {
+        "type": "warp",
+        "id": "landing"
+      }
+    ],
+    "memo": false
+  },
+  {
+    "id": "dark_letters",
+    "place": "maze",
+    "memo": false,
+    "steps": [
+      {
+        "type": "if",
+        "when": [
+          {
+            "type": "lit"
+          }
+        ],
+        "then": [
+          {
+            "type": "text",
+            "text": {
+              "en": "Thin grooves cross the wall. In the light they look like scratches.",
+              "ja": "壁に細い溝が走っている。明かりの下では、ただの傷に見える。"
+            }
+          },
+          {
+            "type": "choice",
+            "text": {
+              "en": "Put out the light?",
+              "ja": "明かりを消す?"
+            },
+            "options": [
+              {
+                "label": {
+                  "en": "Put it out",
+                  "ja": "消す"
+                },
+                "steps": [
+                  {
+                    "type": "light",
+                    "value": 0
+                  },
+                  {
+                    "type": "text",
+                    "text": {
+                      "en": "In the dark the grooves glow faintly: LOOK NOT DOWN, BUT BACK THE WAY YOU CAME.",
+                      "ja": "闇の中で、溝がかすかに光った。「下ではなく、来た道を見よ」"
+                    }
+                  }
+                ]
+              },
+              {
+                "label": {
+                  "en": "Leave it",
+                  "ja": "そのまま"
+                },
+                "steps": [
+                  {
+                    "type": "again"
+                  }
+                ]
+              }
+            ]
+          }
+        ],
+        "else": [
+          {
+            "type": "text",
+            "text": {
+              "en": "In the dark, grooves in the wall glow faintly: LOOK NOT DOWN, BUT BACK THE WAY YOU CAME.",
+              "ja": "闇の中で、壁の溝がかすかに光っている。「下ではなく、来た道を見よ」"
+            }
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "id": "poison_statue",
+    "place": "maze",
+    "memo": false,
+    "steps": [
+      {
+        "type": "if",
+        "when": [
+          {
+            "type": "status",
+            "id": "poisoned"
+          }
+        ],
+        "then": [
+          {
+            "type": "text",
+            "text": {
+              "en": "The statue whispers only to the poisoned: POISONED ONE, GO TO THE EAST SPRING.",
+              "ja": "毒に苦しむ者の耳にだけ、像がささやいた。「毒の者よ、東の泉へ」"
+            }
+          }
+        ],
+        "else": [
+          {
+            "type": "text",
+            "text": {
+              "en": "A statue of a snake with an open mouth. It says nothing.",
+              "ja": "口を開けた蛇の像。何も言わない。"
+            }
+          },
+          {
+            "type": "again"
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "id": "bare_hands",
+    "place": "maze",
+    "memo": false,
+    "steps": [
+      {
+        "type": "if",
+        "when": [
+          {
+            "type": "armed",
+            "not": true
+          }
+        ],
+        "then": [
+          {
+            "type": "text",
+            "text": {
+              "en": "The guardian statue lets the unarmed party pass. Coins lie at its feet.",
+              "ja": "武器を持たない一行を、門番の像が通した。足もとに金貨が落ちている。"
+            }
+          },
+          {
+            "type": "gold",
+            "value": 20
+          }
+        ],
+        "else": [
+          {
+            "type": "text",
+            "text": {
+              "en": "The guardian's plinth reads: THOSE WHO BEAR BLADES, TURN BACK HERE.",
+              "ja": "門番の像の台座に「刃を持つ者は、ここで引き返せ」。"
+            }
+          },
+          {
+            "type": "again"
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "id": "light_statue",
+    "place": "maze",
+    "trigger": "enter,cast",
+    "memo": false,
+    "steps": [
+      {
+        "type": "if",
+        "when": [
+          {
+            "type": "cast",
+            "id": "light"
+          }
+        ],
+        "then": [
+          {
+            "type": "text",
+            "text": {
+              "en": "The light sinks into the gem on the plinth, and the statue's eyes kindle.",
+              "ja": "光が台座の宝石に吸い込まれ、像の目がともった。"
+            }
+          },
+          {
+            "type": "xp",
+            "value": 30
+          }
+        ],
+        "else": [
+          {
+            "type": "text",
+            "text": {
+              "en": "A statue holding up its hands. The plinth reads only: LIGHT. (Cast Light from the camp here...)",
+              "ja": "両手で何かを掲げる像。台座に「光を」とだけ刻んである(キャンプでライトを唱えると…)。"
+            }
+          },
+          {
+            "type": "again"
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "id": "rest_wall",
+    "place": "maze",
+    "trigger": "rest",
+    "memo": false,
+    "steps": [
+      {
+        "type": "text",
+        "text": {
+          "en": "While you rest, something drags behind the wall. One stone there has come loose.",
+          "ja": "休んでいると、壁の向こうで何かを引きずる音がした。音のした辺りの石がひとつ緩んでいる。"
+        }
+      },
+      {
+        "type": "gold",
+        "value": 15
+      }
+    ]
+  },
+  {
+    "id": "candle",
+    "place": "maze",
+    "memo": false,
+    "steps": [
+      {
+        "type": "if",
+        "when": [
+          {
+            "type": "timer",
+            "id": "candle_out"
+          }
+        ],
+        "then": [
+          {
+            "type": "text",
+            "text": {
+              "en": "The candle is still burning.",
+              "ja": "燭台の火は、まだ燃えている。"
+            }
+          }
+        ],
+        "else": [
+          {
+            "type": "text",
+            "text": {
+              "en": "A candlestick. Lit, it would burn about fifteen steps.",
+              "ja": "燭台がある。火をつけると、15 歩ほどで燃え尽きそうだ。"
+            }
+          },
+          {
+            "type": "choice",
+            "text": {
+              "en": "Light it?",
+              "ja": "火をつける?"
+            },
+            "options": [
+              {
+                "label": {
+                  "en": "Light it",
+                  "ja": "つける"
+                },
+                "steps": [
+                  {
+                    "type": "timer",
+                    "id": "candle_out",
+                    "value": 15
+                  },
+                  {
+                    "type": "flag",
+                    "id": "candle_lit"
+                  },
+                  {
+                    "type": "text",
+                    "text": {
+                      "en": "The candle is lit.",
+                      "ja": "火がともった。"
+                    }
+                  }
+                ]
+              },
+              {
+                "label": {
+                  "en": "Leave it",
+                  "ja": "やめる"
+                },
+                "steps": []
+              }
+            ]
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "id": "candle_out",
+    "place": "maze",
+    "memo": false,
+    "steps": [
+      {
+        "type": "unflag",
+        "id": "candle_lit"
+      },
+      {
+        "type": "text",
+        "text": {
+          "en": "Somewhere far off, you sense the candle has gone out.",
+          "ja": "どこか遠くで、燭台の火が消えた気配がした。"
+        }
+      }
+    ]
   }
 ]
