@@ -21,6 +21,25 @@ public static class DebugStart
     public static void Party(GameServices services) => Party(services, MazeScene.TestDungeonId);
 
     /// <summary>
+    /// 試しの迷宮に、クラスを決めた仲間で入る。spec は "クラス,クラス,...[@レベル]"(人間。6人まで。レベルを省くと 1)。
+    /// 例: party:fighter,barbarian,monk,sorcerer,druid,bard@5
+    /// </summary>
+    public static void PartyOf(GameServices services, string spec)
+    {
+        int level = 1;
+        int at = spec.LastIndexOf('@');
+        if (at >= 0 && int.TryParse(spec[(at + 1)..], out int lv))
+        {
+            level = Math.Clamp(lv, 1, 20);
+            spec = spec[..at];
+        }
+        var classes = spec.Split(',', StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries)
+            .Where(services.Data.Classes.ContainsKey).Take(6).Select(c => ("human", c)).ToArray();
+        var dungeon = DungeonLoader.Load(services.Content, MazeScene.TestDungeonId);
+        Party(services, dungeon, new GenerationRequest(1, dungeon.Floors.Count, FloorSizeMode.Fixed(10, 10)), classes.Length > 0 ? classes : null, level);
+    }
+
+    /// <summary>
     /// 名のある敵の見本: 試しの迷宮で、1歩前のマスを名のある敵のねぐらにする(id を省くと最初の1体)。--actions "U" で戦う。
     /// </summary>
     public static void Named(GameServices services, string? id)
@@ -105,16 +124,17 @@ public static class DebugStart
         services.Scenes.Push(new MapScene(state, start, state.Position));
     }
 
-    private static void Party(GameServices services, Dungeon dungeon, GenerationRequest request)
+    private static void Party(GameServices services, Dungeon dungeon, GenerationRequest request,
+        IReadOnlyList<(string Race, string Class)>? members = null, int level = 1)
     {
         var session = GameSession.New(0, request, dungeon);
         // 名前は名前辞書から(シードを決めてあるので、起動のたびに同じ6人になる)
         var names = new Pcg32(2026, 3);
-        foreach (var (race, cls) in Members)
+        foreach (var (race, cls) in members ?? Members)
         {
             string name = RandomNames.Pick(services.Data, race, GameServices.Language, names, session.Roster.Characters.Select(m => m.Name)) ?? race;
-            var c = CharacterFactory.QuickCreate(services.Data, name, race, cls);
-            if (cls == "wizard")
+            var c = CharacterFactory.QuickCreate(services.Data, name, race, cls, level);
+            if (cls == "wizard" && members == null)
             {
                 // マルチクラスの術者を試せるように、ウィザード 1 / クレリック 1 にする(確認用なので条件は見ない)
                 c.Xp = Core.Rules.Progression.XpForLevel(2);
@@ -193,7 +213,14 @@ public static class DebugStart
     /// <summary>spec は "goblinx3,wolf" の形(省くと B1 の遭遇表から)。</summary>
     public static void Combat(GameServices services, string? spec)
     {
-        Party(services);
+        // "敵/仲間" なら、仲間のクラスとレベルも決める(仲間は party: と同じ書き方)
+        int slash = spec?.IndexOf('/') ?? -1;
+        if (slash >= 0)
+        {
+            PartyOf(services, spec![(slash + 1)..]);
+            spec = spec[..slash];
+        }
+        else Party(services);
         var groups = new List<(MonsterDef, int)>();
         foreach (var token in (spec ?? "").Split(',', StringSplitOptions.RemoveEmptyEntries))
         {

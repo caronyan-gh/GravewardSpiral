@@ -6347,6 +6347,12 @@
       "type": "damage",
       "dice": "2d6",
       "damage_type": "fire"
+     },
+     {
+      "type": "dot",
+      "dice": "1d6",
+      "damage_type": "fire",
+      "rounds": 3
      }
     ]
    }
@@ -13240,6 +13246,20 @@
       "type": "damage",
       "dice": "1d10+3",
       "damage_type": "slashing"
+     },
+     {
+      "type": "save",
+      "ability": "con",
+      "dc": 12,
+      "fail": [
+       {
+        "type": "dot",
+        "dice": "1d10",
+        "damage_type": "necrotic",
+        "rounds": 10,
+        "ability": "con"
+       }
+      ]
      }
     ]
    }
@@ -16772,6 +16792,12 @@
       "type": "damage",
       "dice": "2d6+3",
       "damage_type": "fire"
+     },
+     {
+      "type": "dot",
+      "dice": "1d10",
+      "damage_type": "fire",
+      "rounds": 3
      }
     ]
    }
@@ -18274,6 +18300,11 @@
       "type": "damage",
       "dice": "2d6",
       "damage_type": "necrotic"
+     },
+     {
+      "type": "drain",
+      "value": 100,
+      "damage_type": "necrotic"
      }
     ]
    },
@@ -19633,6 +19664,13 @@
         "type": "condition",
         "condition": "poisoned",
         "repeat_save": true
+       },
+       {
+        "type": "dot",
+        "dice": "1d10",
+        "damage_type": "poison",
+        "rounds": 10,
+        "ability": "con"
        }
       ]
      }
@@ -20852,6 +20890,14 @@
       "type": "condition",
       "condition": "restrained",
       "escape_dc": 14
+     },
+     {
+      "type": "dot",
+      "dice": "2d6",
+      "damage_type": "piercing",
+      "rounds": 10,
+      "ability": "str",
+      "dc": 14
      }
     ]
    }
@@ -23707,6 +23753,20 @@
       "type": "damage",
       "dice": "1d8+6",
       "damage_type": "piercing"
+     },
+     {
+      "type": "save",
+      "ability": "con",
+      "dc": 17,
+      "fail": [
+       {
+        "type": "dot",
+        "dice": "3d6",
+        "damage_type": "necrotic",
+        "rounds": 10,
+        "ability": "con"
+       }
+      ]
      }
     ]
    },
@@ -24934,6 +24994,11 @@
       "type": "damage",
       "dice": "3d6",
       "damage_type": "necrotic"
+     },
+     {
+      "type": "drain",
+      "value": 100,
+      "damage_type": "necrotic"
      }
     ]
    },
@@ -25117,6 +25182,11 @@
      {
       "type": "damage",
       "dice": "3d6",
+      "damage_type": "necrotic"
+     },
+     {
+      "type": "drain",
+      "value": 100,
       "damage_type": "necrotic"
      }
     ]
@@ -28069,6 +28139,13 @@
         "type": "condition",
         "condition": "poisoned",
         "repeat_save": true
+       },
+       {
+        "type": "dot",
+        "dice": "6d6",
+        "damage_type": "poison",
+        "rounds": 10,
+        "ability": "con"
        }
       ]
      }

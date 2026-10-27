@@ -318,8 +318,9 @@ public sealed class GameData
             }
             if (p.Type is EffectPart.ConditionType or EffectPart.RemoveCondition && p.Condition == null)
                 content.Problems.Add($"{where}: condition がありません");
-            if (p.Type == EffectPart.Modifier && !ModifierStats.Contains(p.Stat ?? ""))
-                content.Problems.Add($"{where}: modifier の stat '{p.Stat}' は ac / attack / save / damage / attacks / disarm / flee か、技能の id です");
+            bool saveAdv = p.Stat?.StartsWith("save_adv:") == true && Enum.TryParse<Effects.Condition>(p.Stat["save_adv:".Length..], true, out _);
+            if (p.Type == EffectPart.Modifier && !ModifierStats.Contains(p.Stat ?? "") && !saveAdv)
+                content.Problems.Add($"{where}: modifier の stat '{p.Stat}' は ac / attack / save / damage / attacks / disarm / flee か、技能の id か、save_adv:<状態> です");
             if (p.Type is EffectPart.Resist or EffectPart.Vulnerable && !DamageTypes.All.Contains(p.DamageType ?? ""))
                 content.Problems.Add($"{where}: ダメージの種類 '{p.DamageType}' がありません");
             if (p.Type == EffectPart.ImmuneCondition && p.Condition == null) content.Problems.Add($"{where}: condition がありません");

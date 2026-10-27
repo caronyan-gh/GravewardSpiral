@@ -749,6 +749,12 @@
        "11": "3d4",
        "17": "4d4"
       }
+     },
+     {
+      "type": "modifier",
+      "stat": "attack",
+      "dice": "-1d6",
+      "rounds": 1
      }
     ]
    }
@@ -1587,6 +1593,12 @@
      "8": "11d6",
      "9": "12d6"
     }
+   },
+   {
+    "type": "modifier",
+    "stat": "ac",
+    "value": -4,
+    "rounds": 1
    }
   ],
   "status": "ok",
@@ -1708,6 +1720,10 @@
     "type": "temp_hp",
     "dice": "MOD",
     "by_level": {}
+   },
+   {
+    "type": "immune_condition",
+    "condition": "frightened"
    }
   ],
   "status": "ok",
@@ -2324,6 +2340,22 @@
      "8": "10d4",
      "9": "11d4"
     }
+   },
+   {
+    "type": "dot",
+    "dice": "2d4",
+    "damage_type": "acid",
+    "rounds": 1,
+    "by_level": {
+     "2": "2d4",
+     "3": "3d4",
+     "4": "4d4",
+     "5": "5d4",
+     "6": "6d4",
+     "7": "7d4",
+     "8": "8d4",
+     "9": "9d4"
+    }
    }
   ],
   "status": "ok",
@@ -2913,6 +2945,8 @@
    }
   ],
   "status": "ok",
+  "zone": true,
+  "attack": "melee",
   "use": [
    "combat"
   ],
@@ -2938,22 +2972,30 @@
   "target": "enemy",
   "effects": [
    {
-    "type": "damage",
-    "dice": "2d6",
-    "damage_type": "fire",
-    "by_level": {
-     "2": "2d6",
-     "3": "3d6",
-     "4": "4d6",
-     "5": "5d6",
-     "6": "6d6",
-     "7": "7d6",
-     "8": "8d6",
-     "9": "9d6"
-    }
+    "type": "save",
+    "ability": "dex",
+    "half": true,
+    "fail": [
+     {
+      "type": "damage",
+      "dice": "2d6",
+      "damage_type": "fire",
+      "by_level": {
+       "2": "2d6",
+       "3": "3d6",
+       "4": "4d6",
+       "5": "5d6",
+       "6": "6d6",
+       "7": "7d6",
+       "8": "8d6",
+       "9": "9d6"
+      }
+     }
+    ]
    }
   ],
   "status": "ok",
+  "zone": true,
   "use": [
    "combat"
   ],
@@ -3026,25 +3068,35 @@
   "target": "enemy",
   "effects": [
    {
-    "type": "save",
-    "ability": "con",
-    "fail": [
-     {
-      "type": "damage",
-      "dice": "2d8",
-      "damage_type": "fire",
-      "by_level": {
-       "2": "2d8",
-       "3": "3d8",
-       "4": "4d8",
-       "5": "5d8",
-       "6": "6d8",
-       "7": "7d8",
-       "8": "8d8",
-       "9": "9d8"
-      }
-     }
-    ]
+    "type": "damage",
+    "dice": "2d8",
+    "damage_type": "fire",
+    "by_level": {
+     "2": "2d8",
+     "3": "3d8",
+     "4": "4d8",
+     "5": "5d8",
+     "6": "6d8",
+     "7": "7d8",
+     "8": "8d8",
+     "9": "9d8"
+    }
+   },
+   {
+    "type": "dot",
+    "dice": "2d8",
+    "damage_type": "fire",
+    "rounds": 10,
+    "by_level": {
+     "2": "2d8",
+     "3": "3d8",
+     "4": "4d8",
+     "5": "5d8",
+     "6": "6d8",
+     "7": "7d8",
+     "8": "8d8",
+     "9": "9d8"
+    }
    }
   ],
   "status": "ok",
@@ -3503,6 +3555,17 @@
    {
     "type": "remove_condition",
     "condition": "poisoned"
+   },
+   {
+    "type": "resist",
+    "damage_type": "poison",
+    "rounds": 600
+   },
+   {
+    "type": "modifier",
+    "stat": "save_adv:poisoned",
+    "value": 0,
+    "rounds": 600
    }
   ],
   "status": "ok",
@@ -3774,6 +3837,7 @@
    }
   ],
   "status": "ok",
+  "zone": true,
   "use": [
    "combat"
   ],
@@ -4022,21 +4086,29 @@
   "target": "group",
   "effects": [
    {
-    "type": "damage",
-    "dice": "3d10",
-    "damage_type": "lightning",
-    "by_level": {
-     "3": "3d10",
-     "4": "4d10",
-     "5": "5d10",
-     "6": "6d10",
-     "7": "7d10",
-     "8": "8d10",
-     "9": "9d10"
-    }
+    "type": "save",
+    "ability": "dex",
+    "half": true,
+    "fail": [
+     {
+      "type": "damage",
+      "dice": "3d10",
+      "damage_type": "lightning",
+      "by_level": {
+       "3": "3d10",
+       "4": "4d10",
+       "5": "5d10",
+       "6": "6d10",
+       "7": "7d10",
+       "8": "8d10",
+       "9": "9d10"
+      }
+     }
+    ]
    }
   ],
   "status": "ok",
+  "zone": true,
   "use": [
    "combat"
   ],
@@ -4983,6 +5055,7 @@
   ],
   "status": "ok",
   "target": "group",
+  "zone": true,
   "use": [
    "combat"
   ],
@@ -5070,6 +5143,10 @@
      "8": "8d6",
      "9": "9d6"
     }
+   },
+   {
+    "type": "drain",
+    "value": 50
    }
   ],
   "status": "ok",
@@ -5261,6 +5338,11 @@
       "by_level": {
        "4": "3d6"
       }
+     },
+     {
+      "type": "condition",
+      "condition": "restrained",
+      "escape_dc": 0
      }
     ]
    }
@@ -5537,7 +5619,7 @@
     }
    }
   ],
-  "status": "ok",
+  "status": "roleplay",
   "use": [
    "combat"
   ],
@@ -5793,27 +5875,26 @@
   "ritual": false,
   "concentration": false,
   "time": "action",
-  "rounds": 4800,
+  "rounds": 2,
   "scale": "slot",
-  "target": "group",
+  "target": "enemy",
   "effects": [
    {
     "type": "save",
     "ability": "dex",
+    "half": true,
     "fail": [
      {
       "type": "damage",
       "dice": "20",
-      "damage_type": "radiant",
-      "by_level": {
-       "4": "20"
-      }
+      "damage_type": "radiant"
      }
-    ],
-    "half": true
+    ]
    }
   ],
   "status": "ok",
+  "zone": true,
+  "note": "近づく敵を焼く番人。5版の「合わせて 60 点まで」の代わりに、唱えたときと、そのあと2回(合わせて3回、20 ずつで 60)、近くの敵1体を焼く",
   "use": [
    "combat"
   ],
@@ -5867,6 +5948,7 @@
    {
     "type": "save",
     "ability": "dex",
+    "half": true,
     "fail": [
      {
       "type": "damage",
@@ -5880,9 +5962,13 @@
        "8": "6d8",
        "9": "7d8"
       }
+     },
+     {
+      "type": "damage",
+      "dice": "4d6",
+      "damage_type": "cold"
      }
-    ],
-    "half": true
+    ]
    }
   ],
   "status": "ok",
@@ -5945,13 +6031,24 @@
       "dice": "4d10",
       "damage_type": "psychic",
       "by_level": {
-       "4": "4d10"
+       "4": "4d10",
+       "5": "5d10",
+       "6": "6d10",
+       "7": "7d10",
+       "8": "8d10",
+       "9": "9d10"
       }
+     },
+     {
+      "type": "condition",
+      "condition": "frightened",
+      "rounds": 10
      }
     ]
    }
   ],
   "status": "ok",
+  "zone": true,
   "use": [
    "combat"
   ],
@@ -6648,6 +6745,7 @@
    {
     "type": "save",
     "ability": "dex",
+    "half": true,
     "fail": [
      {
       "type": "damage",
@@ -6660,9 +6758,13 @@
        "8": "7d6",
        "9": "8d6"
       }
+     },
+     {
+      "type": "damage",
+      "dice": "4d6",
+      "damage_type": "radiant"
      }
-    ],
-    "half": true
+    ]
    }
   ],
   "status": "ok",
@@ -7301,11 +7403,12 @@
   "time": "action",
   "rounds": 0,
   "scale": "slot",
-  "target": "enemy",
+  "target": "group",
   "effects": [
    {
     "type": "save",
     "ability": "dex",
+    "half": true,
     "fail": [
      {
       "type": "damage",
@@ -7315,11 +7418,11 @@
        "6": "10d8"
       }
      }
-    ],
-    "half": true
+    ]
    }
   ],
   "status": "ok",
+  "count": 4,
   "use": [
    "combat"
   ],
@@ -7767,6 +7870,14 @@
      "8": "90",
      "9": "100"
     }
+   },
+   {
+    "type": "remove_condition",
+    "condition": "blinded"
+   },
+   {
+    "type": "remove_condition",
+    "condition": "deafened"
    }
   ],
   "status": "ok",
@@ -7989,6 +8100,7 @@
    {
     "type": "save",
     "ability": "con",
+    "half": true,
     "fail": [
      {
       "type": "damage",
@@ -7997,9 +8109,13 @@
       "by_level": {
        "6": "6d8"
       }
+     },
+     {
+      "type": "condition",
+      "condition": "blinded",
+      "rounds": 1
      }
-    ],
-    "half": true
+    ]
    }
   ],
   "status": "ok",
@@ -8223,6 +8339,7 @@
    }
   ],
   "status": "ok",
+  "zone": true,
   "use": [
    "combat"
   ],
@@ -9298,6 +9415,7 @@
    {
     "type": "save",
     "ability": "con",
+    "half": true,
     "fail": [
      {
       "type": "damage",
@@ -9306,9 +9424,14 @@
       "by_level": {
        "8": "12d6"
       }
+     },
+     {
+      "type": "condition",
+      "condition": "blinded",
+      "rounds": 10,
+      "repeat_save": true
      }
-    ],
-    "half": true
+    ]
    }
   ],
   "status": "ok",
@@ -9462,6 +9585,14 @@
     "by_level": {
      "9": "700"
     }
+   },
+   {
+    "type": "remove_condition",
+    "condition": "blinded"
+   },
+   {
+    "type": "remove_condition",
+    "condition": "deafened"
    }
   ],
   "status": "ok",
@@ -9759,8 +9890,9 @@
    }
   ],
   "status": "ok",
+  "zone": true,
   "target": "all_enemies",
-  "note": "毎ターンのダメージは無く、唱えたときに1回",
+  "note": "集中のあいだ、毎ターン判断力のセーヴをし直し、失敗すると 4d10 の精神ダメージ",
   "use": [
    "combat"
   ],

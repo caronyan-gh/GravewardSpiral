@@ -620,6 +620,10 @@ public sealed class StatusScene : Scene
         Text(s.Format("status.xp", c.Xp, Progression.XpForLevel(c.Level + 1)), Theme.Dim, 18);
         Text(s.Format("status.gold", c.Gold), Theme.Gold, 18);
         if (!c.ArmorProficient(data)) Text(s["status.armor_unproficient"], Theme.Warn, 18);   // 呪文を唱えられず、攻撃が不利
+        // 習熟(鎧と盾は、無いと着られない。武器は持てるが、習熟ボーナスが付かない)。武器は長いので、欄の幅で折り返す
+        var (armor, weapons) = Proficiencies(sv, c);
+        Text(s.Format("status.armor_prof", armor), Theme.Text, 18);
+        y = d.TextWrapped(s.Format("status.weapon_prof", weapons), new Vector2(at.X, y), 500, 18, Theme.Text, 9);
         if (UI.SpellText.SlotLines(s, data, c) is { } slots)
             foreach (var line in slots) Text(line, Theme.Text, 18);
         return y;
@@ -647,12 +651,20 @@ public sealed class StatusScene : Scene
         y2 += 8;
         Text2(s["status.saves"], Theme.Title, 22);
         Text2(string.Join("  ", Abilities.All.Select(a => $"{s[$"ability.{a.Code()}"]} {Signed(_c.SaveBonus(data, a))}")), Theme.Text);
-        // 習熟(鎧と盾は、無いと着られない。武器は持てるが、習熟ボーナスが付かない)
-        y2 += 8;
-        Text2(s["status.proficiency"], Theme.Title, 22);
-        var (armor, weapons) = Proficiencies(Services, _c);
-        y2 = d.TextWrapped(s.Format("status.armor_prof", armor), new Vector2(x2, y2), area.X + area.Width - x2 - 24, 17, Theme.Text, 6);
-        y2 = d.TextWrapped(s.Format("status.weapon_prof", weapons), new Vector2(x2, y2), area.X + area.Width - x2 - 24, 17, Theme.Text, 6);
+        // クラスの能力(マルチクラスでは全部のクラスのもの): 回数の残りと、勝手に効く能力の名前
+        var pools = ClassFeatures.Pools.Where(p => ClassFeatures.MaxUses(_c, p) > 0).ToList();
+        var passives = ClassFeatures.Passives(_c).Distinct().Select(id => s["passive." + id]).ToList();
+        if (ClassFeatures.StyleOf(data, _c) is var style and not FightingStyle.None)
+            passives.Insert(0, s.Format("status.fighting_style", s["style." + style.ToString().ToLowerInvariant()]));
+        if (pools.Count > 0 || passives.Count > 0)
+        {
+            y2 += 8;
+            Text2(s["status.features"], Theme.Title, 22);
+            // 回数は1つずつ行を分ける(折り返しで「5/5」が切れないように)
+            foreach (var p in pools) Text2($"{s["pool." + p]}  {ClassFeatures.UsesLeft(_c, p)}/{ClassFeatures.MaxUses(_c, p)}", Theme.Text, 17);
+            if (passives.Count > 0)
+                y2 = d.TextWrapped(s.List(passives), new Vector2(x2, y2), area.X + area.Width - x2 - 24, 16, Theme.Dim, 6);
+        }
         var castable = Spellcasting.Castable(data, _c).ToList();
         if (castable.Count > 0)
         {

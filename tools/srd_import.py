@@ -200,6 +200,9 @@ def convert_action(a):
         s = save_part(hit) if SAVE_RE.search(hit) else None
         if s:
             effects.append(s)
+        elif "regains hit points equal to that amount" in hit:
+            # ヴァンパイアの噛みつき: 死霊のダメージの分だけ吸う
+            effects.append({"type": "drain", "value": 100, "damage_type": "necrotic"})
         else:
             # 命中で必ずかかる状態(つかまれる、糸で拘束される、倒される)
             m = re.search(r"the target is (grappled|restrained|knocked prone|blinded|poisoned)", hit)
@@ -364,6 +367,36 @@ def convert(m, ja):
     return mon
 
 
+# 続くダメージ(SRD の「番の初め(終わり)に〜のダメージ」)。(モンスター, 行動): (足す場所, 部品)。
+# 足す場所 hit は当たったときの効果の後ろ、fail はセーヴの失敗の中、save は新しくセーヴで包んで足す。
+# 「火を消す行動」「地獄の傷を治す判定」はこのゲームに無いので、燃えるのは 3 ラウンド、傷は耐久力のセーヴで止まる形にする
+MONSTER_DOTS = {
+    ("chain_devil", "chain"): ("hit", {"type": "dot", "dice": "2d6", "damage_type": "piercing", "rounds": 10, "ability": "str", "dc": 14}),
+    ("fire_elemental", "touch"): ("hit", {"type": "dot", "dice": "1d10", "damage_type": "fire", "rounds": 3}),
+    ("magmin", "touch"): ("hit", {"type": "dot", "dice": "1d6", "damage_type": "fire", "rounds": 3}),
+    ("pit_fiend", "bite"): ("fail", {"type": "dot", "dice": "6d6", "damage_type": "poison", "rounds": 10, "ability": "con"}),
+    ("vrock", "spores"): ("fail", {"type": "dot", "dice": "1d10", "damage_type": "poison", "rounds": 10, "ability": "con"}),
+    ("bearded_devil", "glaive"): ("save", {"ability": "con", "dc": 12, "dot": {"type": "dot", "dice": "1d10", "damage_type": "necrotic", "rounds": 10, "ability": "con"}}),
+    ("horned_devil", "tail"): ("save", {"ability": "con", "dc": 17, "dot": {"type": "dot", "dice": "3d6", "damage_type": "necrotic", "rounds": 10, "ability": "con"}}),
+}
+
+
+def add_dots(mons):
+    for m in mons:
+        for a in m.get("actions", []):
+            spec = MONSTER_DOTS.get((m["id"], a["id"]))
+            if not spec:
+                continue
+            where, part = spec
+            if where == "hit":
+                a["effects"].append(part)
+            elif where == "fail":
+                save = next(e for e in a["effects"] if e["type"] == "save")
+                save["fail"].append(part)
+            else:
+                a["effects"].append({"type": "save", "ability": part["ability"], "dc": part["dc"], "fail": [part["dot"]]})
+
+
 def main():
     src = json.loads((SRC / "5e-SRD-Monsters.json").read_text(encoding="utf-8"))
     ja = json.loads((SRC / "monsters_ja.json").read_text(encoding="utf-8"))
@@ -372,6 +405,7 @@ def main():
         print("日本語名がありません:", ", ".join(missing))
         return 1
     mons = sorted((convert(m, ja) for m in src), key=lambda x: (x["cr"], x["id"]))
+    add_dots(mons)
     OUT.write_text(json.dumps(mons, ensure_ascii=False, indent=1) + "\n", encoding="utf-8")
     usable = [m for m in mons if not m.get("needs")]
     uns = sum(len(m.get("unsupported", [])) for m in mons)

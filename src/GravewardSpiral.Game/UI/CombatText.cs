@@ -20,7 +20,9 @@ public static class CombatText
             Condition c => s["condition." + c.ToString().ToLowerInvariant()],
             Ability ab => s["ability." + ab.Code()],
             string str when e.Key == "combat.damage" && i == 2 => s["damage." + str],
+            string str when e.Key is "combat.dot" or "combat.dot_on" or "combat.dot_end" && i == 1 => s["damage." + str],
             string str when str.StartsWith("stat.") => s[str],
+            string str when str.StartsWith("feature.") => s[str],
             _ => a,
         }).ToArray();
         return s.Format(e.Key, args);
@@ -33,7 +35,8 @@ public static class CombatText
     public static Color? ColorOf(GameData data, CombatLogEntry e) => e.Key switch
     {
         "combat.damage" when e.Args.Length > 2 && e.Args[2] is string type => Element(type),
-        "combat.heal" or "combat.revive" or "combat.temp_hp" => Heal,
+        "combat.dot" or "combat.dot_on" when e.Args.Length > 1 && e.Args[1] is string dt => Element(dt),
+        "combat.heal" or "combat.revive" or "combat.temp_hp" or "combat.drain" => Heal,
         "combat.cast" when e.Args.Length > 1 && e.Args[1] is LocalizedText name => SpellColor(data, name),
         _ => null,
     };

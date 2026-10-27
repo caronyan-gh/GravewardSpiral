@@ -12,7 +12,7 @@ namespace GravewardSpiral.Game.Scenes;
 /// </summary>
 public sealed class TitleScene : Scene
 {
-    private static readonly string[] MenuKeys = ["title.new", "title.continue", "title.options", "title.quit"];
+    private static readonly string[] MenuKeys = ["title.new", "title.continue", "title.options", "title.help", "title.quit"];
     private const float MenuX = 640f;
     private const float MenuTop = 420f;
     private const float MenuStep = 44f;
@@ -88,6 +88,11 @@ public sealed class TitleScene : Scene
         if (key == "title.new")
         {
             Stack.Replace(new NewGameScene());
+            return;
+        }
+        if (key == "title.help")
+        {
+            Stack.Push(new HelpScene());
             return;
         }
         if (key == "title.options")

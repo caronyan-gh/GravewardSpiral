@@ -134,6 +134,8 @@ public static class ItemText
         var s = sv.Strings;
         if (p.Type == EffectPart.Damage)
             return s.Format(p.Only != null ? "item.on_hit_only" : "item.on_hit", p.Dice ?? "", s["damage." + p.DamageType], p.Only != null ? s["creature." + p.Only] : "");
+        if (p.Type == EffectPart.Drain) return s.Format("item.on_hit_drain", p.Value ?? 100);
+        if (p.Type == EffectPart.Dot) return s.Format("item.on_hit_dot", p.Dice ?? "", s["damage." + p.DamageType], p.Rounds ?? 10);
         if (p.Type != EffectPart.Save) return null;
         var fail = p.Fail.Select(f => f.Type switch
         {

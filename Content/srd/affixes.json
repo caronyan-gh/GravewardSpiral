@@ -968,6 +968,61 @@
   "group": "damage"
  },
  {
+  "id": "life_stealing",
+  "name": {
+   "en": "of Life Stealing",
+   "ja": "吸命の"
+  },
+  "position": "suffix",
+  "kinds": [
+   "weapon"
+  ],
+  "weight": 5,
+  "tiers": [
+   {
+    "min_level": 1,
+    "on_hit": [
+     {
+      "type": "drain",
+      "value": 10
+     }
+    ],
+    "price": 600
+   },
+   {
+    "min_level": 6,
+    "on_hit": [
+     {
+      "type": "drain",
+      "value": 15
+     }
+    ],
+    "price": 2500
+   },
+   {
+    "min_level": 11,
+    "on_hit": [
+     {
+      "type": "drain",
+      "value": 20
+     }
+    ],
+    "price": 9000
+   },
+   {
+    "min_level": 16,
+    "on_hit": [
+     {
+      "type": "drain",
+      "value": 30
+     }
+    ],
+    "price": 30000
+   }
+  ],
+  "group": "drain"
+ },
+ {
   "id": "onhit_stunning",
   "name": {
    "en": "of Stunning",

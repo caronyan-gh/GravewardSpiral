@@ -55,8 +55,17 @@ public static class SpellText
                 case EffectPart.TempHp:
                     yield return s.Format("spell.fx.temp_hp", dice);
                     break;
+                case EffectPart.Modifier when p.Stat?.StartsWith("save_adv:") == true:
+                    yield return s.Format("spell.fx.save_adv", s["condition." + p.Stat["save_adv:".Length..]]);
+                    break;
                 case EffectPart.Modifier:
                     yield return s.Format("spell.fx.modifier", s["stat." + p.Stat], p.Dice ?? (p.Value >= 0 ? $"+{p.Value}" : $"{p.Value}"));
+                    break;
+                case EffectPart.Dot:
+                    yield return s.Format("spell.fx.dot", dice, s["damage." + p.DamageType], p.Rounds ?? 10);
+                    break;
+                case EffectPart.Resist:
+                    yield return s.Format("spell.fx.resist", s["damage." + p.DamageType]);
                     break;
                 case EffectPart.ConditionType:
                     yield return s.Format("spell.fx.condition", s["condition." + p.Condition.ToString()!.ToLowerInvariant()]);

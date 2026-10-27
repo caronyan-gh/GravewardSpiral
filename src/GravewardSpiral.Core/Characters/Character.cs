@@ -89,6 +89,13 @@ public sealed class Character
     /// <summary>使ったウォーロックの協約魔術のスロット。小休憩でも戻る。</summary>
     public int PactSlotsUsed { get; set; }
 
+    /// <summary>クラスの能力の使った回数(ClassFeatures の回数の名前ごと)。大休憩で全部、小休憩で小休憩のものが戻る。</summary>
+    public Dictionary<string, int> FeatureUses { get; set; } = [];
+
+    /// <summary>直前の小休憩で、秘術の回復が戻したスロットのレベルの合計(画面で知らせる。セーブしない)。</summary>
+    [System.Text.Json.Serialization.JsonIgnore]
+    public int LastSlotsRecovered { get; set; }
+
     /// <summary>一時的な HP(ダメージはここから減る。大休憩で消える)。</summary>
     public int TempHp { get; set; }
 
@@ -177,7 +184,11 @@ public sealed class Character
     }
 
     public int SaveBonus(GameData data, Ability a) =>
-        Stats(data).Mod(a) + (data.Classes[ClassId].SavesWith(a) ? ProficiencyBonus : 0) + PassiveBonus(data, "save") + EpicBoons.Count(b => b == "save");
+        Stats(data).Mod(a) + (SaveProficient(data, a) ? ProficiencyBonus : 0) + PassiveBonus(data, "save") + EpicBoons.Count(b => b == "save");
+
+    /// <summary>セーヴの習熟(最初のクラス。ローグ L15 のつかみどころのない心で判断力、モンク L14 の金剛の魂で全部)。</summary>
+    public bool SaveProficient(GameData data, Ability a) =>
+        data.Classes[ClassId].SavesWith(a) || (a == Ability.Wis && ClassFeatures.Has(this, "rogue", 15)) || ClassFeatures.Has(this, "monk", 14);
 
     /// <summary>着ている鎧の習熟があるか(無いと攻撃が不利になり、呪文を唱えられない。5版)。鎧と盾の両方を見る。</summary>
     public bool ArmorProficient(GameData data)
@@ -228,6 +239,7 @@ public sealed class Character
         }
         if (Inventory[EquipSlot.OffHand] is { } off && data.Items.TryGetValue(off.ItemId, out var s) && s.Kind == ItemKind.Shield)
             ac += s.ArmorClass + off.HitAcBonus(s);
+        if (Inventory[EquipSlot.Armor] != null && ClassFeatures.StyleOf(data, this) == FightingStyle.Defense) ac++;   // ファイティングスタイルの防御
         return ac + PassiveBonus(data, "ac");
     }
 
@@ -284,6 +296,7 @@ public sealed class Character
         SlotsUsed.Clear();
         PactSlotsUsed = 0;
         TempHp = 0;
+        FeatureUses.Clear();
         Lasting.Clear();
         // ワンドや杖の回数が戻る
         foreach (var item in Inventory.Items.Concat(Inventory.Equipped.Values).Where(i => i.Charges != null)) item.Charges = null;
@@ -305,6 +318,7 @@ public sealed class Character
             Hp = Math.Min(MaxHp, Hp + Math.Max(1, rng.Roll(cls.HitDie) + Scores.Mod(Ability.Con)));
         }
         PactSlotsUsed = 0;   // 協約魔術のスロットが戻る(ふつうのスロットは戻らない)
+        LastSlotsRecovered = ClassFeatures.ShortRest(data, this);   // 小休憩で戻る技の回数と、ウィザードの秘術の回復
         return used;
     }
 

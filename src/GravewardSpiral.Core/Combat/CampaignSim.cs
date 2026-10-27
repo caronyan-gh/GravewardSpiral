@@ -455,8 +455,15 @@ public sealed class CampaignSim
             var e = Encounters.Build(_data, _enc, DepthOf(floor), Party.Count, _rng, _session.RosterOf(floor));
             if (Fight(e.Groups, e.Scale) == CombatOutcome.Defeat) return Outcome.Wiped;
         }
-        foreach (var c in Party.Where(c => c.CanAct)) c.ShortRest(_data, _rng);
+        ShortRest(Party);
         return null;
+    }
+
+    /// <summary>小休憩(ゲームのキャンプと同じ: ヒットダイス、技の回数、秘術の回復、休息の歌)。</summary>
+    private void ShortRest(List<Character> party)
+    {
+        var rested = party.Where(c => c.CanAct).Select(c => (c, c.ShortRest(_data, _rng))).ToList();
+        ClassFeatures.SongOfRest(rested, party, _rng);
     }
 
     /// <summary>この階をうろついて鍛える(弱るか、歩数の上限まで)。そのあと町へ戻る。</summary>
@@ -565,7 +572,7 @@ public sealed class CampaignSim
         if (max > 0 && (double)party.Sum(c => c.Hp) / max < _o.CampHp && _campedFloor != _state.Position.Floor)
         {
             _campedFloor = _state.Position.Floor;
-            foreach (var c in party.Where(c => c.CanAct)) c.ShortRest(_data, _rng);
+            ShortRest(party);
         }
         foreach (var c in party.Where(c => c.CanAct && c.Hp < c.MaxHp * 0.4))
         {

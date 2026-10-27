@@ -13,11 +13,17 @@ public enum Condition
 /// <list type="bullet">
 /// <item>damage: dice のダメージ(damage_type の種類)</item>
 /// <item>heal: dice だけ対象の HP を戻す(敵の攻撃に付けると、当たった相手が回復する)</item>
+/// <item>dot: 続くダメージ。対象の番の初めに dice の damage_type のダメージを、rounds ラウンド(省くと 10)与える。
+///   ability があれば、対象の番の終わりにそのセーヴ(dc。0 なら唱えた人の難易度、save の中なら同じ難易度)に成功すると止まる。
+///   同じもの(同じ呪文か同じ敵の行動)は重ならず、ダイスの大きいほうとラウンドの長いほうが残る。違うものは重なる</item>
+/// <item>drain: 吸う。同じ並びの前の部品で対象に与えたダメージの value % だけ、使った本人の HP が戻る。
+///   damage_type があれば、その種類のダメージだけを数える(ヴァンパイアの噛みつきは死霊の分だけ)</item>
 /// <item>condition: condition の状態にする。rounds が無ければ戦闘の終わりまで(倒れた状態は次の自分の番で起き上がる)。
 ///   repeat_save なら毎ターンの終わりにセーヴし直して解ける。escape_dc はつかみ・拘束から抜ける難易度(筋力のセーヴで扱う)</item>
 /// <item>save: ability のセーヴを dc で振らせ、失敗なら fail を、成功なら success を起こす。half ならダメージは成功で半分。
 ///   dc が 0 なら唱えた人の呪文の難易度</item>
-/// <item>modifier: stat(ac / attack / save / damage)に value か dice(負もよい。"-1d4")を rounds のあいだ足す</item>
+/// <item>modifier: stat(ac / attack / save / damage)に value か dice(負もよい。"-1d4")を rounds のあいだ足す。
+///   stat が save_adv:&lt;状態&gt; なら、その状態にするセーヴ(と、その状態を解くセーヴ)に有利</item>
 /// <item>temp_hp: dice だけ一時的な HP を得る(多い方を残す)</item>
 /// <item>hp_pool: dice を振った合計の HP ぶん、HP の低い敵から condition にする(スリープなど)</item>
 /// <item>remove_condition: condition を解く / stabilize: 倒れている人の容体を落ち着かせる</item>
@@ -58,6 +64,10 @@ public sealed class EffectPart
     /// <summary>この種類の相手にだけ効く(当たったときの追加のダメージなど)。</summary>
     public string? Only { get; set; }
 
+    /// <summary>damage で、ダイスの目がこれ以下なら1回だけ振り直す(大型武器のファイティングスタイル。データには書かない)。</summary>
+    [System.Text.Json.Serialization.JsonIgnore]
+    public int Reroll { get; set; }
+
     /// <summary>revive で、灰からも生き返らせる。</summary>
     public bool AllowAshes { get; set; }
 
@@ -70,6 +80,8 @@ public sealed class EffectPart
 
     public const string Damage = "damage";
     public const string Heal = "heal";
+    public const string Drain = "drain";
+    public const string Dot = "dot";
     public const string ConditionType = "condition";
     public const string Save = "save";
     public const string Modifier = "modifier";
@@ -94,7 +106,7 @@ public sealed class EffectPart
     public const string Knock = "knock";
 
     public static readonly string[] KnownTypes =
-        [Damage, Heal, ConditionType, Save, Modifier, TempHp, HpPool, RemoveCondition, Stabilize, Kill, Wish, Revive, Identify, RemoveCurse,
+        [Damage, Heal, Drain, Dot, ConditionType, Save, Modifier, TempHp, HpPool, RemoveCondition, Stabilize, Kill, Wish, Revive, Identify, RemoveCurse,
          Resist, Vulnerable, ImmuneCondition, SetAbility, Light, FeatherFall, Recall, Knock];
 
     /// <summary>level での dice(by_level が無ければ dice)。</summary>

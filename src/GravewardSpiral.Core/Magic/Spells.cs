@@ -48,7 +48,7 @@ public sealed class SpellDef
     /// <summary>召喚の呪文: 集中しているあいだ、呼んだものが唱えた人の番ごとに敵を攻撃する。</summary>
     public SummonDef? Summon { get; set; }
 
-    /// <summary>Allies の人数の上限(ブレスは 3)。</summary>
+    /// <summary>Allies の人数の上限(ブレスは 3)と、Group で当たる数の上限(チェイン・ライトニングは 4)。</summary>
     public int? Count { get; set; }
 
     /// <summary>効く相手の種類(ホールド・パーソンは humanoid)。</summary>

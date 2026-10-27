@@ -35,7 +35,7 @@ public sealed class CombatScene : Scene
 
     private double LineSeconds => Services.Options.LogSeconds;
 
-    private enum Phase { Input, Spell, Slot, ItemList, Target, Member, Playing, Result }
+    private enum Phase { Input, Spell, Slot, ItemList, Feature, Beast, Target, Member, Playing, Result }
 
     private readonly IReadOnlyList<(MonsterDef Def, int Count)> _groups;
     private readonly Action<CombatOutcome>? _onEnd;
@@ -49,6 +49,8 @@ public sealed class CombatScene : Scene
     private SpellDef? _spell;      // 選んでいる呪文と、スロットのレベル
     private int _slot;
     private int _itemIndex = -1;   // 使うアイテム(袋の中の何番目か)
+    private FeatureDef? _feature;  // 使うクラスの技
+    private bool _empower;         // 呪文(強化)から選んでいる(ソーサラーの呪文の強化)
     private int _shown;           // 見せ終わったログの行数
     private double _wait;
     private double _shake;         // 絵の揺れの残り時間(秒)と強さ。絵の敵にダメージが入ると揺れる
@@ -149,15 +151,27 @@ public sealed class CombatScene : Scene
         _phase = Phase.Input;
         // 前の人の呪文・アイテムの選びかけを残さない(残ると、攻撃で敵を選んだときに、その呪文やアイテムを使ってしまう)
         _pending = CommandKind.Attack;
+        _empower = false;
+        var c = Current.Character;
         bool reach = _state.AttackableGroups(Current).Any();
+        bool canCast = ClassFeatures.CanCastIn(c, Current.Raging, Current.Shape != null);   // 激怒と獣の姿では唱えられない(獣の呪文があれば獣でも)
         var items = new List<MenuItem>
         {
             new(S["combat.cmd.attack"], reach ? null : S["combat.cannot_reach"], reach, CommandKind.Attack),
             // 習熟の無い鎧を着ていると唱えられない(5版)
-            Current.Character.ArmorProficient(Services.Data)
-                ? new(S["combat.cmd.cast"], Enabled: CombatSpells().Any(x => x.Slot != null), Tag: CommandKind.Cast)
+            c.ArmorProficient(Services.Data)
+                ? new(S["combat.cmd.cast"], Enabled: canCast && CombatSpells().Any(x => x.Slot != null), Tag: CommandKind.Cast)
                 : new(S["combat.cmd.cast"], S["inv.no_proficiency"], false, CommandKind.Cast),
-            new(S["combat.cmd.item"], Enabled: UsableItems().Any(), Tag: CommandKind.Item),
+        };
+        // ソーサラーの呪文の強化(残りのポイントを出す。0 なら選べない)
+        if (ClassFeatures.Has(c, "sorcerer", 3))
+            items.Add(new(S.Format("combat.cmd.empower", ClassFeatures.UsesLeft(c, "sorcery_points")),
+                Enabled: canCast && c.ArmorProficient(Services.Data) && EmpowerSpells().Any(x => x.Slot != null), Tag: "empower"));
+        if (ClassFeatures.ActiveFor(c).Any())
+            items.Add(new(S["combat.cmd.feature"], Enabled: ClassFeatures.ActiveFor(c).Any(f => ClassFeatures.CanUse(Services.Data, c, f)), Tag: CommandKind.Feature));
+        items.AddRange(
+        [
+            new(S["combat.cmd.item"], Enabled: Current.Shape == null && UsableItems().Any(), Tag: CommandKind.Item),
             new(S["combat.cmd.dodge"], Tag: CommandKind.Dodge),
             new(S["combat.cmd.help"], Enabled: _state.Party.Count(p => p.Standing) > 1, Tag: CommandKind.Help),
             new(S["combat.cmd.hide"], Tag: CommandKind.Hide),
@@ -165,7 +179,7 @@ public sealed class CombatScene : Scene
             new(S["combat.cmd.flee"], Tag: CommandKind.Flee),
             new(S["combat.cmd.auto"], Tag: "auto"),
             new(S["combat.cmd.auto_nospell"], Tag: "auto_nospell"),
-        };
+        ]);
         if (_state.Party.Take(_member).Any(p => p.CanAct)) items.Add(new MenuItem(S["combat.cmd.back"], Tag: "back"));
         SetMenu(items);
     }
@@ -178,6 +192,56 @@ public sealed class CombatScene : Scene
         if (CurrentClass is not { } cls) return [];
         return Spellcasting.Castable(Services.Data, Current.Character).Where(x => x.InCombat)
             .Select(x => (x, Spellcasting.LowestSlot(cls, Current.Character, x)));
+    }
+
+    /// <summary>強化して唱えられる呪文(ダメージのある呪文)と、唱えられる一番低いスロット。</summary>
+    private IEnumerable<(SpellDef Spell, int? Slot)> EmpowerSpells() =>
+        CombatSpells().Where(x => CombatEngine.CanEmpower(Current.Character, x.Spell));
+
+    /// <summary>クラスの技の一覧(残りの回数を右に。使えないものはグレー)。</summary>
+    private void ShowFeatures()
+    {
+        _phase = Phase.Feature;
+        var c = Current.Character;
+        SetMenu(ClassFeatures.ActiveFor(c).Select(f =>
+        {
+            string? left = f.Pool != null ? S.Format("combat.feature_left", ClassFeatures.UsesLeft(c, f.Pool)) : null;
+            return new MenuItem(S["feature." + f.Id], left, ClassFeatures.CanUse(Services.Data, c, f), f);
+        }));
+    }
+
+    /// <summary>ワイルドシェイプでなる獣を選ぶ(HP と AC を右に。攻撃の中身は左上)。</summary>
+    private void ShowBeasts()
+    {
+        _phase = Phase.Beast;
+        SetMenu(ClassFeatures.WildShapeBeasts(Current.Character).Select(id => Services.Data.Monsters[id])
+            .Select(b => new MenuItem(Services.Name(b.Name), S.Format("combat.beast_stats", b.HpAverage, b.Ac), Tag: b)));
+    }
+
+    /// <summary>クラスの技の相手を決める。</summary>
+    private void ChooseFeatureTarget(FeatureDef f)
+    {
+        _feature = f;
+        _pending = CommandKind.Feature;
+        if (f.Id == "wild_shape")
+        {
+            ShowBeasts();
+            return;
+        }
+        switch (f.Target)
+        {
+            case FeatureTarget.Ally:
+                ShowMembers();
+                break;
+            case FeatureTarget.EnemyGroup:
+                var reach = _state.AttackableGroups(Current).ToList();
+                if (reach.Count == 1) Set(new PlayerCommand(CommandKind.Feature, reach[0], FeatureId: f.Id));
+                else ShowGroups();
+                break;
+            default:
+                Set(new PlayerCommand(CommandKind.Feature, FeatureId: f.Id));
+                break;
+        }
     }
 
     /// <summary>戦闘で使える袋の中のアイテム(袋の何番目か)。</summary>
@@ -241,7 +305,7 @@ public sealed class CombatScene : Scene
         _phase = Phase.Spell;
         var tabs = SpellTabs();
         _spellTab = Services.CombatCursor.TryGetValue((Current.Id, "SpellTab"), out var last) && int.TryParse(last, out int t) && tabs.Contains(t)
-            ? t : UI.SpellTabs.First(Services.Data, Current.Character, CombatSpells().Select(x => x.Spell));
+            ? t : UI.SpellTabs.First(Services.Data, Current.Character, (_empower ? EmpowerSpells() : CombatSpells()).Select(x => x.Spell));
         ShowSpellTab();
     }
 
@@ -250,14 +314,14 @@ public sealed class CombatScene : Scene
     {
         Services.CombatCursor[(Current.Id, "SpellTab")] = _spellTab.ToString();
         bool castable = UI.SpellTabs.CanCast(Services.Data, Current.Character, _spellTab);
-        var items = CombatSpells().Where(x => UI.SpellTabs.Shows(Services.Data, Current.Character, x.Spell, _spellTab))
+        var items = (_empower ? EmpowerSpells() : CombatSpells()).Where(x => UI.SpellTabs.Shows(Services.Data, Current.Character, x.Spell, _spellTab))
             .Select(x => SpellText.CastItem(Services, Current.Character, x.Spell, null, castable)).ToList();
         if (items.Count == 0) items.Add(new MenuItem(S["combat.no_spells_at_level"], Enabled: false));
         SetMenu(items);
     }
 
     /// <summary>選べるタブ(左右で回る先)。</summary>
-    private List<int> SpellTabs() => UI.SpellTabs.Tabs(Services.Data, Current.Character, CombatSpells().Select(x => x.Spell));
+    private List<int> SpellTabs() => UI.SpellTabs.Tabs(Services.Data, Current.Character, (_empower ? EmpowerSpells() : CombatSpells()).Select(x => x.Spell));
 
     /// <summary>タブを左右に動かす(選べるタブだけを回る)。</summary>
     private void MoveSpellTab(int step)
@@ -276,11 +340,11 @@ public sealed class CombatScene : Scene
         if (sp.TargetsEnemies)
         {
             var reach = CombatEngine.SpellReach(_state, Current, sp).ToList();
-            if (reach.Count == 1) Set(new PlayerCommand(CommandKind.Cast, reach[0], -1, sp.Id, _slot));
+            if (reach.Count == 1) Set(new PlayerCommand(CommandKind.Cast, reach[0], -1, sp.Id, _slot, Empower: _empower));
             else ShowGroups(reach.ToHashSet());
         }
         else if (sp.Target == SpellTarget.Ally) ShowMembers();
-        else Set(new PlayerCommand(CommandKind.Cast, -1, -1, sp.Id, _slot));
+        else Set(new PlayerCommand(CommandKind.Cast, -1, -1, sp.Id, _slot, Empower: _empower));
     }
 
     private void ShowGroups(HashSet<int>? allowed = null)
@@ -296,8 +360,13 @@ public sealed class CombatScene : Scene
     {
         _phase = Phase.Member;
         var items = _state.Party.Select((p, i) => new MenuItem($"{i + 1} {p.Character.Name}", $"{p.Hp}/{p.MaxHp}",
-            _pending == CommandKind.Cast ? p.Character.State is LifeState.Alive or LifeState.Unconscious
-                : p != Current && (_pending != CommandKind.Help || p.Standing), i));
+            _pending switch
+            {
+                CommandKind.Cast => p.Character.State is LifeState.Alive or LifeState.Unconscious,
+                // レイ・オン・ハンズは自分にも倒れた人にも。鼓舞は自分以外の立っている人
+                CommandKind.Feature => _feature?.Id == "lay_on_hands" ? p.Character.State is LifeState.Alive or LifeState.Unconscious : p != Current && p.Standing,
+                _ => p != Current && (_pending != CommandKind.Help || p.Standing),
+            }, i));
         SetMenu(items);
     }
 
@@ -317,6 +386,7 @@ public sealed class CombatScene : Scene
     private string? CursorKey(object? tag) => (_phase, tag) switch
     {
         (_, SpellDef sp) => sp.Id,
+        (_, FeatureDef f) => f.Id,
         (Phase.Target, int g) when g >= 0 && g < _state.Groups.Count => _state.Groups[g].Def.Id,
         (Phase.Member, int m) when m >= 0 && m < _state.Party.Count => _state.Party[m].Id,
         (_, "back") => null,
@@ -344,6 +414,25 @@ public sealed class CombatScene : Scene
             case Phase.Input when item.Tag is CommandKind.Cast:
                 ShowSpells();
                 break;
+            case Phase.Input when item.Tag is "empower":
+                _empower = true;
+                ShowSpells();
+                break;
+            case Phase.Input when item.Tag is CommandKind.Feature:
+                ShowFeatures();
+                break;
+            case Phase.Feature when item.Tag is FeatureDef f:
+                ChooseFeatureTarget(f);
+                break;
+            case Phase.Beast when item.Tag is MonsterDef beast:
+                Set(new PlayerCommand(CommandKind.Feature, FeatureId: "wild_shape", Option: beast.Id));
+                break;
+            case Phase.Target when item.Tag is int fg && _pending == CommandKind.Feature:
+                Set(new PlayerCommand(CommandKind.Feature, fg, FeatureId: _feature!.Id));
+                break;
+            case Phase.Member when item.Tag is int fm && _pending == CommandKind.Feature:
+                Set(new PlayerCommand(CommandKind.Feature, -1, fm, FeatureId: _feature!.Id));
+                break;
             case Phase.Input when item.Tag is CommandKind.Item:
                 ShowItems();
                 break;
@@ -367,10 +456,10 @@ public sealed class CombatScene : Scene
                 ChooseSpellTarget();
                 break;
             case Phase.Target when item.Tag is int tg && _pending == CommandKind.Cast:
-                Set(new PlayerCommand(CommandKind.Cast, tg, -1, _spell!.Id, _slot));
+                Set(new PlayerCommand(CommandKind.Cast, tg, -1, _spell!.Id, _slot, Empower: _empower));
                 break;
             case Phase.Member when item.Tag is int tm && _pending == CommandKind.Cast:
-                Set(new PlayerCommand(CommandKind.Cast, -1, tm, _spell!.Id, _slot));
+                Set(new PlayerCommand(CommandKind.Cast, -1, tm, _spell!.Id, _slot, Empower: _empower));
                 break;
             case Phase.Input when item.Tag is CommandKind.Help or CommandKind.Swap:
                 _pending = (CommandKind)item.Tag;
@@ -458,6 +547,21 @@ public sealed class CombatScene : Scene
                         return;
                     }
                 }
+                // 仲間は左下のパーティの欄、敵は右上の敵の一覧からも、マウスで選べる
+                if (PointedItem(input.Mouse) is int pointed)
+                {
+                    if (input.MouseMoved && _menu.Cursor != pointed)
+                    {
+                        _menu.Cursor = pointed;
+                        Services.Audio.PlaySe(Sounds.Cursor);
+                    }
+                    if (input.LeftClicked)
+                    {
+                        Services.Audio.PlaySe(Sounds.Confirm);
+                        Choose(_menu.Items[pointed]);
+                        return;
+                    }
+                }
                 var chosen = _menu.Update(input, Services.Audio);
                 if (chosen is int i) Choose(_menu.Items[i]);
                 else if (input.Pressed(GameAction.Cancel))
@@ -465,10 +569,31 @@ public sealed class CombatScene : Scene
                     Services.Audio.PlaySe(Sounds.Cancel);
                     if (_phase == Phase.Input) PreviousMember();
                     else if (_phase == Phase.Slot) ShowSpells();
+                    else if (_phase == Phase.Beast) ShowFeatures();
                     else ShowCommands();
                 }
                 break;
         }
+    }
+
+    /// <summary>敵の一覧の、生きているグループの行(上から)。</summary>
+    private RectangleF GroupRow(int n) => new(GroupArea.X + 8, GroupArea.Y + 42 + n * 44, GroupArea.Width - 16, 40);
+
+    /// <summary>マウスの下にある、選べる相手(仲間を選ぶときはパーティの欄、敵を選ぶときは敵の一覧)のメニューの番号。</summary>
+    private int? PointedItem(Vector2? mouse)
+    {
+        if (mouse is not { } m) return null;
+        object? tag = null;
+        if (_phase == Phase.Member && PartyPanel.HitTest(PartyArea, _state.Party.Count, m) is int who) tag = who;
+        else if (_phase == Phase.Target)
+        {
+            var live = _state.Groups.Select((g, i) => (g, i)).Where(x => !x.g.Wiped).ToList();
+            for (int n = 0; n < live.Count; n++)
+                if (GroupRow(n).Contains(m)) tag = live[n].i;
+        }
+        if (tag is not int t) return null;
+        int at = _menu.Items.FindIndex(x => x.Tag is int v && v == t && x.Enabled);
+        return at >= 0 ? at : null;
     }
 
     private void Play(GameTime time, InputState input)
@@ -610,10 +735,12 @@ public sealed class CombatScene : Scene
         Theme.Panel(d, CommandArea);
         switch (_phase)
         {
-            case Phase.Input or Phase.Spell or Phase.Slot or Phase.ItemList or Phase.Target or Phase.Member:
+            case Phase.Input or Phase.Spell or Phase.Slot or Phase.ItemList or Phase.Feature or Phase.Beast or Phase.Target or Phase.Member:
                 string ask = _phase switch
                 {
                     Phase.Spell => S["combat.ask_spell"],
+                    Phase.Feature => S["combat.cmd.feature"],
+                    Phase.Beast => S["combat.ask_beast"],
                     Phase.ItemList => S["combat.ask_item"],
                     Phase.Slot => S["combat.ask_slot"],
                     Phase.Target => S["combat.ask_group"],
@@ -635,8 +762,15 @@ public sealed class CombatScene : Scene
         if (_phase is Phase.Playing or Phase.Result)
             d.Text(S["combat.backlog_hint"], new Vector2(CommandArea.X + 16, CommandArea.Y + CommandArea.Height - 22), 15, Theme.Dim);
 
-        int? highlight = _phase is Phase.Input or Phase.Spell or Phase.Slot or Phase.ItemList or Phase.Target or Phase.Member ? _member : null;
-        PartyPanel.Draw(d, Services, PartyArea, highlight, Shown?.Party);
+        int? highlight = _phase is Phase.Input or Phase.Spell or Phase.Slot or Phase.ItemList or Phase.Feature or Phase.Beast or Phase.Target or Phase.Member ? _member : null;
+        PartyPanel.Draw(d, Services, PartyArea, highlight, Shown?.Party ?? _state.Snapshot());
+        if (_phase == Phase.Member && _menu.Current?.Tag is int target && target < _state.Party.Count)
+            d.Rect(PartyPanel.RowRect(PartyArea, target), Theme.SelectedFrame, 2f);
+        if (_phase == Phase.Target && _menu.Current?.Tag is int group)
+        {
+            int n = _state.Groups.Take(group).Count(g => !g.Wiped);
+            if (group < _state.Groups.Count && !_state.Groups[group].Wiped) d.Rect(GroupRow(n), Theme.SelectedFrame, 2f);
+        }
         DrawSpellInfo(d);
     }
 
@@ -657,6 +791,25 @@ public sealed class CombatScene : Scene
             sp = _spell;
             level = _menu.Current?.Tag is int l ? l : _spell.Level;
         }
+        if (_phase == Phase.Beast && _menu.Current?.Tag is MonsterDef b)
+        {
+            // 獣の HP・AC と攻撃
+            Theme.Panel(d, SpellInfoArea);
+            float bx = SpellInfoArea.X + 20, bw = SpellInfoArea.Width - 40;
+            float by = d.TextWrapped(Services.Name(b.Name), new Vector2(bx, SpellInfoArea.Y + 16), bw, 26, Theme.Title) + 2;
+            by = d.TextWrapped(S.Format("combat.beast_stats", b.HpAverage, b.Ac), new Vector2(bx, by), bw, 18, Theme.Dim) + 6;
+            foreach (var line in BeastLines(b)) by = d.TextWrapped(line, new Vector2(bx, by), bw, 19, Theme.Text, 6);
+            return;
+        }
+        if (_phase == Phase.Feature && _menu.Current?.Tag is FeatureDef f)
+        {
+            // クラスの技の説明
+            Theme.Panel(d, SpellInfoArea);
+            float fx = SpellInfoArea.X + 20, fw = SpellInfoArea.Width - 40;
+            float fy = d.TextWrapped(S["feature." + f.Id], new Vector2(fx, SpellInfoArea.Y + 16), fw, 26, Theme.Title) + 8;
+            d.TextWrapped(S["feature.about." + f.Id], new Vector2(fx, fy), fw, 19, Theme.Text, 6);
+            return;
+        }
         if (sp == null) return;
         if (sp.Scale == "character") level = Current.Character.Level;
         Theme.Panel(d, SpellInfoArea);
@@ -667,6 +820,21 @@ public sealed class CombatScene : Scene
         foreach (var line in SpellText.Effects(S, sp, Math.Max(1, level)))
             y = d.TextWrapped(line, new Vector2(x, y), w, 19, Theme.Text, 6);
         if (sp.Note != null) d.TextWrapped(sp.Note, new Vector2(x, y + 6), w, 15, Theme.Dim, 4);
+    }
+
+    /// <summary>獣の攻撃の説明(複数回攻撃、攻撃ごとの命中とダメージ、倒す効果、群れの戦術)。</summary>
+    private IEnumerable<string> BeastLines(MonsterDef b)
+    {
+        var multi = b.Multiattack.FirstOrDefault();
+        if (multi != null && multi.Sum(x => x.Count) > 1) yield return S.Format("combat.beast_multi", multi.Sum(x => x.Count));
+        foreach (var a in b.Actions.Where(a => a.IsAttack))
+        {
+            string dmg = string.Join(" + ", a.Effects.Where(e => e.Type == EffectPart.Damage).Select(e => $"{e.Dice} {S["damage." + e.DamageType]}"));
+            string line = S.Format("combat.beast_attack", Services.Name(a.Name), a.ToHit ?? 0, dmg);
+            if (a.Effects.Any(e => e.Type == EffectPart.Save && e.Fail.Any(f => f.Condition == Condition.Prone))) line += S["combat.beast_prone"];
+            yield return line;
+        }
+        if (b.Has("pack_tactics")) yield return S["combat.beast_pack"];
     }
 
     /// <summary>最後に見せたログの行(その時点の HP と敵の数を出す)。</summary>

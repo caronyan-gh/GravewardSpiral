@@ -106,6 +106,7 @@ public sealed class GravewardGame : Microsoft.Xna.Framework.Game
         else if (_options.Start == "maze") _services.Scenes.Push(MazeScene.StartTestDungeon(_services));
         else if (_options.Start == "newgame") _services.Scenes.Push(new NewGameScene());
         else if (_options.Start == "party") DebugStart.Party(_services);
+        else if (_options.Start?.StartsWith("party:") == true) DebugStart.PartyOf(_services, _options.Start["party:".Length..]);
         else if (_options.Start == "events") DebugStart.Events(_services);
         else if (_options.Start == "boss") DebugStart.Boss(_services);
         else if (_options.Start == "town") DebugStart.Town(_services);

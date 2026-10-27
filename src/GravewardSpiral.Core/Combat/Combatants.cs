@@ -42,6 +42,25 @@ public sealed class ActiveModifier
     public string? SpellId { get; init; }
 }
 
+/// <summary>続くダメージ1つ(番の初めにダメージ。Key が同じものは重ならない)。</summary>
+public sealed class ActiveDot
+{
+    /// <summary>重ならないかの見分け(呪文の id か、敵の行動の id)。</summary>
+    public string Key { get; init; } = "";
+    public string Dice { get; set; } = "1";
+    public string DamageType { get; init; } = "necrotic";
+    public int RoundsLeft { get; set; }
+
+    /// <summary>番の終わりのセーヴ(成功で止まる)。null なら止まらない。</summary>
+    public Ability? SaveAbility { get; init; }
+    public int Dc { get; init; }
+    public bool Magical { get; init; }
+
+    /// <summary>かけた人と呪文(集中が切れたら消える)。</summary>
+    public string? SourceId { get; init; }
+    public string? SpellId { get; init; }
+}
+
 /// <summary>戦闘に出ている1人(パーティの1人か、モンスター1体)。</summary>
 public abstract class Combatant
 {
@@ -92,6 +111,9 @@ public abstract class Combatant
 
     public int Initiative { get; set; }
     public List<ActiveCondition> Conditions { get; } = [];
+
+    /// <summary>受け続けているダメージ(毒、燃える、地獄の傷など)。</summary>
+    public List<ActiveDot> Dots { get; } = [];
     public List<ActiveModifier> Modifiers { get; } = [];
 
     /// <summary>集中している呪文(1つだけ)。</summary>
@@ -105,6 +127,12 @@ public abstract class Combatant
 
     /// <summary>援護を受けた(次の攻撃が有利)。</summary>
     public bool Helped { get; set; }
+
+    /// <summary>次に受けるダメージを半分にする(アンキャニー・ドッジ、回避。受けたら戻す側で消す)。</summary>
+    public bool Halving { get; set; }
+
+    /// <summary>次に受ける物理のダメージから引く量(モンクの飛び道具そらし)。</summary>
+    public int Deflect { get; set; }
 
     public bool Has(Condition c) => Conditions.Any(x => x.Condition == c);
 
@@ -127,12 +155,34 @@ public sealed class PartyMember(Character character, GameData data) : Combatant
 
     public override int Hp
     {
-        get => Character.Hp;
-        set => Character.Hp = Math.Clamp(value, 0, Character.MaxHp);
+        get => Shape != null ? ShapeHp : Character.Hp;
+        set
+        {
+            if (Shape != null) ShapeHp = Math.Clamp(value, 0, Shape.HpAverage);
+            else Character.Hp = Math.Clamp(value, 0, Character.MaxHp);
+        }
     }
 
-    public override int MaxHp => Character.MaxHp;
-    public override int BaseAc => Character.ArmorClass(_data);
+    public override int MaxHp => Shape?.HpAverage ?? Character.MaxHp;
+    public override int BaseAc => Shape?.Ac ?? Character.ArmorClass(_data);
+
+    /// <summary>同じパーティの仲間(パラディンのオーラを見る)。戦闘を始めるときに入れる。</summary>
+    public IReadOnlyList<PartyMember> Allies { get; set; } = [];
+
+    /// <summary>激怒している(この戦闘の終わりまで)。</summary>
+    public bool Raging { get; set; }
+
+    /// <summary>不屈の激怒の難易度(倒れずに踏みとどまるたびに 5 上がる)。</summary>
+    public int RelentlessDc { get; set; } = 10;
+
+    /// <summary>ワイルドシェイプで変身している獣(この戦闘の終わりまで。獣の HP が 0 になると戻る)。</summary>
+    public MonsterDef? Shape { get; set; }
+
+    public int ShapeHp { get; set; }
+
+    /// <summary>倒れずに立っている、オーラを持つパラディンの中で一番高い魅力の修正(守りのオーラ。最低 +1。重ねない)。</summary>
+    private int AuraOfProtection() => Allies.Where(a => a.Standing && ClassFeatures.Has(a.Character, "paladin", 6))
+        .Select(a => Math.Max(1, a.Character.Scores.Mod(Ability.Cha))).DefaultIfEmpty(0).Max();
 
     public override int TempHp
     {
@@ -142,21 +192,25 @@ public sealed class PartyMember(Character character, GameData data) : Combatant
     /// <summary>能力値の修正値(装備の効果と、水薬などのしばらくのあいだの能力値の高い方)。</summary>
     public override int AbilityMod(Ability a)
     {
+        if (Shape != null && a is Ability.Str or Ability.Dex or Ability.Con) return Shape.Mod(a);   // 変身中は、体の能力値が獣のもの
         int score = Character.Stats(_data)[a];
         foreach (var m in Modifiers.Where(m => m.Stat == "set:" + a.Code())) score = Math.Max(score, m.Value);
         return Abilities.Modifier(score);
     }
-    public override int SaveBonus(Ability a) => Character.SaveBonus(_data, a);
+    public override int SaveBonus(Ability a) => Character.SaveBonus(_data, a) + AuraOfProtection();
 
+    /// <summary>状態の耐性: 装備、モンクの体の清浄(L10 毒)、パラディンの勇気のオーラ(L10 恐怖)。</summary>
     public override bool ImmuneTo(Condition c) =>
-        Character.Passive(_data).Any(p => p.Type == EffectPart.ImmuneCondition && p.Condition == c);
+        Character.Passive(_data).Any(p => p.Type == EffectPart.ImmuneCondition && p.Condition == c)
+        || (c == Condition.Poisoned && ClassFeatures.Has(Character, "monk", 10))
+        || (c == Condition.Frightened && Allies.Any(a => a.Standing && ClassFeatures.Has(a.Character, "paladin", 10)));
 
     /// <summary>装備の抵抗と脆弱。</summary>
     protected override (bool Immune, bool Resist, bool Vulnerable) DamageTraits(string damageType, bool magical)
     {
         var passive = Character.Passive(_data).ToList();
-        return (false,
-            passive.Any(p => p.Type == EffectPart.Resist && p.DamageType == damageType),
+        return (damageType == "poison" && ClassFeatures.Has(Character, "monk", 10),
+            passive.Any(p => p.Type == EffectPart.Resist && p.DamageType == damageType) || (Raging && DamageTypes.IsPhysical(damageType)),
             passive.Any(p => p.Type == EffectPart.Vulnerable && p.DamageType == damageType));
     }
 
@@ -204,7 +258,7 @@ public sealed class PartyMember(Character character, GameData data) : Combatant
     public int Left(ItemInstance item) => item.Count - Thrown.GetValueOrDefault(item);
 
     /// <summary>飛び道具か投げられる武器を装備している(後列や遠くのグループに届く)。</summary>
-    public bool HasReach => WeaponChoices(melee: false).Any();
+    public bool HasReach => Shape == null && WeaponChoices(melee: false).Any();   // 獣の姿では近接だけ
 
     public int PassivePerception => 10 + Character.SkillBonus(_data, "perception");
     public int StealthBonus => Character.SkillBonus(_data, "stealth");

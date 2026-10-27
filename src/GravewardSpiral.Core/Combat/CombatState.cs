@@ -4,15 +4,17 @@ namespace GravewardSpiral.Core.Combat;
 
 public enum CombatOutcome { Ongoing, Victory, Defeat, Fled }
 
-public enum CommandKind { Attack, Cast, Item, Dodge, Help, Hide, Swap, Flee }
+public enum CommandKind { Attack, Cast, Item, Dodge, Help, Hide, Swap, Flee, Feature }
 
 /// <summary>
 /// パーティの1人の、そのラウンドの行動。Attack は TargetGroup、Help と Swap は TargetMember(パーティの並びの番号)を使う。
 /// Cast は SpellId と SlotLevel(初級呪文は 0)と、呪文の対象に合わせて TargetGroup か TargetMember を使う。
 /// Item は ItemIndex(袋の中の何番目か)と、対象に合わせて TargetGroup か TargetMember を使う。
+/// Feature はクラスの技(FeatureId。ClassFeatures.Active)で、技の相手に合わせて TargetGroup か TargetMember を使う。
+/// Empower は、ソーサラーが呪文を強化して唱える(ソーサリーポイントを1使う)。Option は技の中の選び(ワイルドシェイプの獣の id)。
 /// </summary>
 public sealed record PlayerCommand(CommandKind Kind, int TargetGroup = -1, int TargetMember = -1, string? SpellId = null, int SlotLevel = 0,
-    int ItemIndex = -1)
+    int ItemIndex = -1, string? FeatureId = null, bool Empower = false, string? Option = null)
 {
     public static readonly PlayerCommand Dodge = new(CommandKind.Dodge);
 }
@@ -23,8 +25,8 @@ public sealed record PlayerCommand(CommandKind Kind, int TargetGroup = -1, int T
 /// </summary>
 public sealed record CombatLogEntry(string Key, params object[] Args)
 {
-    /// <summary>この行の時点のパーティの HP と状態(並びは CombatState.Party の順)。画面はログを見せた行の値を出す。</summary>
-    public IReadOnlyList<(string Id, int Hp, Characters.LifeState State)> Party { get; init; } = [];
+    /// <summary>この行の時点のパーティの HP と状態と、変身している獣の id(並びは CombatState.Party の順)。画面はログを見せた行の値を出す。</summary>
+    public IReadOnlyList<(string Id, int Hp, Characters.LifeState State, string? Shape)> Party { get; init; } = [];
 
     /// <summary>この行の時点の、グループごとの生きている数。</summary>
     public IReadOnlyList<int> GroupAlive { get; init; } = [];
@@ -79,9 +81,13 @@ public sealed class CombatState
 
     public void Add(string key, params object[] args) => Log.Add(new CombatLogEntry(key, args)
     {
-        Party = Party.Select(p => (p.Id, p.Hp, p.Character.State)).ToList(),
+        Party = Snapshot(),
         GroupAlive = Groups.Select(g => g.AliveCount).ToList(),
     });
+
+    /// <summary>今のパーティの HP と状態と獣の姿。</summary>
+    public List<(string Id, int Hp, Characters.LifeState State, string? Shape)> Snapshot() =>
+        Party.Select(p => (p.Id, p.Hp, p.Character.State, p.Shape?.Id)).ToList();
 
     /// <summary>そのラウンドで、パーティの1人が狙えるグループの番号(Groups の添え字)。</summary>
     public IEnumerable<int> AttackableGroups(PartyMember p)
@@ -113,4 +119,10 @@ public sealed class Lingering
 
     /// <summary>召喚したもの(攻撃されて数が減る)。</summary>
     public SummonUnit? Unit { get; init; }
+
+    /// <summary>攻撃の目を振る呪文(アーケイン・ソード、スピリチュアル・ウェポンなど)の命中の修正。</summary>
+    public int AttackBonus { get; init; }
+
+    /// <summary>集中の要らない続く呪文(スピリチュアル・ウェポン)の残りのラウンド。null なら集中のあいだ続く。</summary>
+    public int? RoundsLeft { get; set; }
 }

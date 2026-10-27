@@ -64,6 +64,8 @@ public sealed class NewGameScene : Scene
                   .. ClanFile.List(AppPaths.Clans)];
         _aiAvailable = Services.AiClient() != null;
         if (_startClan != null) _clan = _clans.FindIndex(x => x.Path == "clan:" + _startClan);
+        // セーブにクランがあれば、最後に遊んだクランを最初から選んでおく(気づかずに空の新しいクランで始めないように。新しく作るには左右で選ぶ)
+        else if (_clan < 0) _clan = _clans.FindIndex(x => x.Path.StartsWith("clan:"));
         if (_clan >= 0) _clanName = _clans[_clan].Clan.Name;
         if (_startFree)
         {
@@ -331,9 +333,14 @@ public sealed class NewGameScene : Scene
                 session.EventsSeen = clan.EventsSeen.ToHashSet(StringComparer.Ordinal);
                 session.ClanName ??= clan.Name;
                 Services.Saves.MarkAway(session);
-                var latest = Services.Saves.ListClans().FirstOrDefault(x => x.Id == clanId)?.Latest;
-                foreach (var id in latest?.PartyIds ?? [])
-                    if (session.Roster.Find(id) is { } c) session.Roster.AddToParty(c);
+                // 最近遊んだ世界から順に、使える人(ほかの世界の迷宮にいない人)のいるパーティを引き継ぐ
+                // (最後の世界がパーティを組む前に閉じた世界や、全員がその迷宮の中にいる世界でも、空のまま始めない)
+                foreach (var world in Services.Saves.ListClans().FirstOrDefault(x => x.Id == clanId)?.Worlds ?? [])
+                {
+                    foreach (var id in world.PartyIds)
+                        if (session.Roster.Find(id) is { } c) session.Roster.AddToParty(c);
+                    if (session.Roster.Party.Count > 0) break;
+                }
                 session.SetWorldLevel(enc, ClanPower(_clans[_clan].Clan));   // 世界のレベル帯を、クランの強さに合わせる(周回)
             }
             else if (_clan >= 0 && Rows().Contains(Row.Clan))

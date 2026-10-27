@@ -305,8 +305,10 @@ public class MagicTests
     [Fact]
     public void AShortRestBringsBackOnlyThePactSlots()
     {
-        // ウィザード 3 / ウォーロック 3: 2 レベルはふつうのスロット 2 と協約のスロット 2。小休憩で戻るのは協約の 2 だけ
-        var c = Multi(("wizard", 3), ("warlock", 3));
+        // ウォーロック 3 / ウィザード 3: 2 レベルはふつうのスロット 2 と協約のスロット 2。小休憩で戻るのは協約の 2 だけ
+        // (ウィザードの秘術の回復は、使ったことにして止める)
+        var c = Multi(("warlock", 3), ("wizard", 3));
+        c.FeatureUses["arcane_recovery"] = 1;
         var wiz = Data.Classes["wizard"];
         Assert.Equal(4, Spellcasting.SlotsLeft(wiz, c, 2));
         for (int i = 0; i < 4; i++) Spellcasting.UseSlot(c, 2);

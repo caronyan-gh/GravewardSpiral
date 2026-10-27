@@ -292,14 +292,19 @@ public sealed class CampScene : MenuScene
         var rng = Services.Session!.Rng[RngStreams.Names.Combat];
         // 人ごとに、戻った HP と残りのヒットダイスを知らせる(HP が満タンで使わなかった人は出さない)
         var rested = new List<string>();
+        var dice = new List<(Character, int)>();
         foreach (var c in Party)
         {
             int hp = c.Hp;
             int used = c.ShortRest(Services.Data, rng);
             if (!c.IsAlive) continue;
+            dice.Add((c, used));
             if (used > 0) rested.Add(s.Format("camp.rest_healed", c.Name, c.Hp - hp, c.HitDice, c.Level));
             else if (c.Hp < c.MaxHp) rested.Add(s.Format("camp.rest_no_dice", c.Name, c.Hp, c.MaxHp));
+            if (c.LastSlotsRecovered > 0) rested.Add(s.Format("camp.arcane_recovery", c.Name, c.LastSlotsRecovered));
         }
+        // 休息の歌(バード): ヒットダイスを使った仲間の HP が、さらに戻る
+        if (ClassFeatures.SongOfRest(dice, Party, rng) is int sung and > 0) rested.Add(s.Format("camp.song_of_rest", sung));
         // 休むあいだに、1人1個ずつ未鑑定の品を調べる(休みが邪魔されたら分からない)
         var unknownNames = Party.SelectMany(c => c.Inventory.Items.Concat(c.Inventory.Equipped.Values)).Where(i => !i.Identified)
             .ToDictionary(i => (object)i, i => ItemText.Name(Services, i, count: false), ReferenceEqualityComparer.Instance);

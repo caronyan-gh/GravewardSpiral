@@ -1,6 +1,29 @@
 {
   "_about": "自動で変換できない呪文を、効果の部品で手で書く(tools/srd_import.py --spells が、変換した結果に上書きする)。status は ok / roleplay / unsupported / later(迷宮の仕掛けなど、あとの段階で入れる)。dc を省いたセーヴは術者の難易度、rounds は 1分 = 10。",
+  "guardian-of-faith": {"target": "enemy", "zone": true, "concentration": false, "rounds": 2, "note": "近づく敵を焼く番人。5版の「合わせて 60 点まで」の代わりに、唱えたときと、そのあと2回(合わせて3回、20 ずつで 60)、近くの敵1体を焼く", "effects": [{"type": "save", "ability": "dex", "half": true, "fail": [{"type": "damage", "dice": "20", "damage_type": "radiant"}]}]},
+  "flaming-sphere": {"zone": true, "effects": [{"type": "save", "ability": "dex", "half": true, "fail": [{"type": "damage", "dice": "2d6", "damage_type": "fire", "by_level": {"2": "2d6", "3": "3d6", "4": "4d6", "5": "5d6", "6": "6d6", "7": "7d6", "8": "8d6", "9": "9d6"}}]}]},
+  "flame-blade": {"zone": true, "attack": "melee", "effects": [{"type": "damage", "dice": "3d6", "damage_type": "fire", "by_level": {"2": "3d6", "4": "4d6", "6": "5d6", "8": "6d6"}}]},
+  "spiritual-weapon": {"zone": true},
+  "arcane-sword": {"zone": true},
+  "acid-arrow": {"effects": [{"type": "damage", "dice": "4d4", "damage_type": "acid", "by_level": {"2": "4d4", "3": "5d4", "4": "6d4", "5": "7d4", "6": "8d4", "7": "9d4", "8": "10d4", "9": "11d4"}}, {"type": "dot", "dice": "2d4", "damage_type": "acid", "rounds": 1, "by_level": {"2": "2d4", "3": "3d4", "4": "4d4", "5": "5d4", "6": "6d4", "7": "7d4", "8": "8d4", "9": "9d4"}}]},
+  "heat-metal": {"effects": [{"type": "damage", "dice": "2d8", "damage_type": "fire", "by_level": {"2": "2d8", "3": "3d8", "4": "4d8", "5": "5d8", "6": "6d8", "7": "7d8", "8": "8d8", "9": "9d8"}}, {"type": "dot", "dice": "2d8", "damage_type": "fire", "rounds": 10, "by_level": {"2": "2d8", "3": "3d8", "4": "4d8", "5": "5d8", "6": "6d8", "7": "7d8", "8": "8d8", "9": "9d8"}}]},
 
+  "ice-storm": {"effects": [{"type": "save", "ability": "dex", "half": true, "fail": [{"type": "damage", "dice": "2d8", "damage_type": "bludgeoning", "by_level": {"4": "2d8", "5": "3d8", "6": "4d8", "7": "5d8", "8": "6d8", "9": "7d8"}}, {"type": "damage", "dice": "4d6", "damage_type": "cold"}]}]},
+  "flame-strike": {"effects": [{"type": "save", "ability": "dex", "half": true, "fail": [{"type": "damage", "dice": "4d6", "damage_type": "fire", "by_level": {"5": "4d6", "6": "5d6", "7": "6d6", "8": "7d6", "9": "8d6"}}, {"type": "damage", "dice": "4d6", "damage_type": "radiant"}]}]},
+  "chain-lightning": {"target": "group", "count": 4, "effects": [{"type": "save", "ability": "dex", "half": true, "fail": [{"type": "damage", "dice": "10d8", "damage_type": "lightning", "by_level": {"6": "10d8"}}]}]},
+  "call-lightning": {"zone": true, "effects": [{"type": "save", "ability": "dex", "half": true, "fail": [{"type": "damage", "dice": "3d10", "damage_type": "lightning", "by_level": {"3": "3d10", "4": "4d10", "5": "5d10", "6": "6d10", "7": "7d10", "8": "8d10", "9": "9d10"}}]}]},
+  "sunburst": {"effects": [{"type": "save", "ability": "con", "half": true, "fail": [{"type": "damage", "dice": "12d6", "damage_type": "radiant", "by_level": {"8": "12d6"}}, {"type": "condition", "condition": "blinded", "rounds": 10, "repeat_save": true}]}]},
+  "sunbeam": {"effects": [{"type": "save", "ability": "con", "half": true, "fail": [{"type": "damage", "dice": "6d8", "damage_type": "radiant", "by_level": {"6": "6d8"}}, {"type": "condition", "condition": "blinded", "rounds": 1}]}]},
+  "phantasmal-killer": {"zone": true, "effects": [{"type": "save", "ability": "wis", "fail": [{"type": "damage", "dice": "4d10", "damage_type": "psychic", "by_level": {"4": "4d10", "5": "5d10", "6": "6d10", "7": "7d10", "8": "8d10", "9": "9d10"}}, {"type": "condition", "condition": "frightened", "rounds": 10}]}]},
+  "heal": {"effects": [{"type": "heal", "dice": "70", "by_level": {"6": "70", "7": "80", "8": "90", "9": "100"}}, {"type": "remove_condition", "condition": "blinded"}, {"type": "remove_condition", "condition": "deafened"}]},
+  "mass-heal": {"effects": [{"type": "heal", "dice": "700", "by_level": {"9": "700"}}, {"type": "remove_condition", "condition": "blinded"}, {"type": "remove_condition", "condition": "deafened"}]},
+  "guiding-bolt": {"effects": [{"type": "damage", "dice": "4d6", "damage_type": "radiant", "by_level": {"1": "4d6", "2": "5d6", "3": "6d6", "4": "7d6", "5": "8d6", "6": "9d6", "7": "10d6", "8": "11d6", "9": "12d6"}}, {"type": "modifier", "stat": "ac", "value": -4, "rounds": 1}]},
+  "vicious-mockery": {"effects": [{"type": "save", "ability": "wis", "fail": [{"type": "damage", "dice": "1d4", "damage_type": "psychic", "by_level": {"1": "1d4", "5": "2d4", "11": "3d4", "17": "4d4"}}, {"type": "modifier", "stat": "attack", "dice": "-1d6", "rounds": 1}]}]},
+  "dimension-door": {"status": "roleplay"},
+
+  "vampiric-touch": { "status": "ok", "effects": [
+    { "type": "damage", "dice": "3d6", "damage_type": "necrotic", "by_level": { "3": "3d6", "4": "4d6", "5": "5d6", "6": "6d6", "7": "7d6", "8": "8d6", "9": "9d6" } },
+    { "type": "drain", "value": 50 } ] },
   "bless": { "status": "ok", "target": "allies", "count": 3, "effects": [
     { "type": "modifier", "stat": "attack", "dice": "1d4", "rounds": 10 },
     { "type": "modifier", "stat": "save", "dice": "1d4", "rounds": 10 } ] },
@@ -14,7 +37,7 @@
   "mage-armor": { "status": "ok", "target": "ally", "concentration": false, "effects": [ { "type": "modifier", "stat": "ac", "value": 3, "rounds": 4800 } ] },
   "barkskin": { "status": "ok", "target": "ally", "effects": [ { "type": "modifier", "stat": "ac", "value": 2, "rounds": 600 } ] },
   "divine-favor": { "status": "ok", "target": "self", "effects": [ { "type": "modifier", "stat": "damage", "dice": "1d4", "rounds": 10 } ] },
-  "heroism": { "status": "ok", "target": "ally", "effects": [ { "type": "temp_hp", "dice": "MOD", "by_level": {} } ] },
+  "heroism": { "status": "ok", "target": "ally", "effects": [ { "type": "temp_hp", "dice": "MOD", "by_level": {} }, { "type": "immune_condition", "condition": "frightened" } ] },
   "false-life": { "status": "ok", "target": "self", "scale": "slot", "effects": [ { "type": "temp_hp", "dice": "1d4+4",
     "by_level": { "1": "1d4+4", "2": "1d4+9", "3": "1d4+14", "4": "1d4+19", "5": "1d4+24", "6": "1d4+29", "7": "1d4+34", "8": "1d4+39", "9": "1d4+44" } } ] },
   "aid": { "status": "ok", "target": "allies", "count": 3, "scale": "slot", "effects": [ { "type": "temp_hp", "dice": "5",
@@ -41,15 +64,17 @@
     { "type": "save", "ability": "str", "fail": [ { "type": "condition", "condition": "restrained", "rounds": 10, "escape_dc": 0 } ] } ] },
   "hypnotic-pattern": { "status": "ok", "target": "group", "effects": [
     { "type": "save", "ability": "wis", "fail": [ { "type": "condition", "condition": "incapacitated", "rounds": 10 } ] } ] },
-  "stinking-cloud": { "status": "ok", "target": "group", "effects": [
-    { "type": "save", "ability": "con", "fail": [ { "type": "condition", "condition": "incapacitated", "rounds": 1 } ] } ] },
+  "stinking-cloud": { "status": "ok", "target": "group", "zone": true, "effects": [ { "type": "save", "ability": "con", "fail": [ { "type": "condition", "condition": "incapacitated", "rounds": 1 } ] } ] },
   "faerie-fire": { "status": "ok", "target": "group", "effects": [
     { "type": "save", "ability": "dex", "fail": [ { "type": "modifier", "stat": "ac", "value": -2, "rounds": 10 } ] } ],
     "note": "5版では攻撃が有利になる。ここでは AC -2 で代わりにする" },
   "lesser-restoration": { "status": "ok", "target": "ally", "use": ["combat", "camp"], "effects": [
     { "type": "remove_condition", "condition": "blinded" }, { "type": "remove_condition", "condition": "deafened" },
     { "type": "remove_condition", "condition": "paralyzed" }, { "type": "remove_condition", "condition": "poisoned" } ] },
-  "protection-from-poison": { "status": "ok", "target": "ally", "use": ["combat", "camp"], "effects": [ { "type": "remove_condition", "condition": "poisoned" } ] },
+  "protection-from-poison": { "status": "ok", "target": "ally", "use": ["combat", "camp"], "effects": [
+    { "type": "remove_condition", "condition": "poisoned" },
+    { "type": "resist", "damage_type": "poison", "rounds": 600 },
+    { "type": "modifier", "stat": "save_adv:poisoned", "value": 0, "rounds": 600 } ] },
   "greater-restoration": { "status": "ok", "target": "ally", "use": ["combat", "camp"], "effects": [
     { "type": "remove_condition", "condition": "charmed" }, { "type": "remove_condition", "condition": "petrified" },
     { "type": "remove_condition", "condition": "paralyzed" }, { "type": "remove_condition", "condition": "poisoned" } ] },
@@ -114,13 +139,13 @@
   "holy-aura": {"status": "ok", "target": "allies", "rounds": 10, "concentration": true, "note": "有利と不利を、セーヴ +3・AC +3 で近似", "effects": [{"type": "modifier", "stat": "save", "value": 3, "rounds": 10}, {"type": "modifier", "stat": "ac", "value": 3, "rounds": 10}]},
   "mind-blank": {"status": "ok", "target": "ally", "rounds": 600, "effects": [{"type": "immune_condition", "condition": "charmed", "rounds": 600}, {"type": "resist", "damage_type": "psychic", "rounds": 600}]},
   "maze": {"status": "ok", "target": "enemy", "rounds": 100, "concentration": true, "note": "迷路から出るのは、毎ターンの知力のセーヴ(難易度 20)", "effects": [{"type": "condition", "condition": "incapacitated", "rounds": 10, "repeat_save": true, "ability": "int", "dc": 20}]},
-  "weird": {"status": "ok", "target": "all_enemies", "rounds": 10, "concentration": true, "note": "毎ターンのダメージは無く、唱えたときに1回", "effects": [{"type": "save", "ability": "wis", "fail": [{"type": "damage", "dice": "4d10", "damage_type": "psychic"}, {"type": "condition", "condition": "frightened", "rounds": 10, "repeat_save": true}]}]},
+  "weird": { "zone": true,"status": "ok", "target": "all_enemies", "rounds": 10, "concentration": true, "note": "集中のあいだ、毎ターン判断力のセーヴをし直し、失敗すると 4d10 の精神ダメージ", "effects": [{"type": "save", "ability": "wis", "fail": [{"type": "damage", "dice": "4d10", "damage_type": "psychic"}, {"type": "condition", "condition": "frightened", "rounds": 10, "repeat_save": true}]}]},
   "foresight": {"status": "ok", "icon": "buff", "target": "ally", "rounds": 600, "note": "有利と不利を、命中・AC・セーヴ +5 で近似", "effects": [{"type": "modifier", "stat": "attack", "value": 5, "rounds": 600}, {"type": "modifier", "stat": "ac", "value": 5, "rounds": 600}, {"type": "modifier", "stat": "save", "value": 5, "rounds": 600}]},
   "true-polymorph": {"status": "ok", "target": "enemy", "rounds": 600, "concentration": true, "note": "敵を小さな獣に変える使い方だけ(動けない)", "effects": [{"type": "save", "ability": "wis", "fail": [{"type": "condition", "condition": "incapacitated", "rounds": 600}]}]},
   "meteor-swarm": {"status": "ok", "target": "all_enemies", "scale": "slot", "note": "4 つの球で、敵の全部のグループに当たる", "effects": [{"type": "save", "ability": "dex", "half": true, "fail": [{"type": "damage", "dice": "20d6", "damage_type": "fire", "by_level": {"9": "20d6"}}, {"type": "damage", "dice": "20d6", "damage_type": "bludgeoning", "by_level": {"9": "20d6"}}]}]},
   "dominate-person": {"status": "ok", "target": "enemy", "only": "humanoid", "rounds": 10, "concentration": true, "note": "味方にする代わりに、動けなくする(毎ターンのセーヴで解ける)", "effects": [{"type": "save", "ability": "wis", "fail": [{"type": "condition", "condition": "incapacitated", "rounds": 10, "repeat_save": true}]}]},
   "moonbeam": {"zone": true},
-  "black-tentacles": {"zone": true},
+  "black-tentacles": { "zone": true, "effects": [ { "type": "save", "ability": "dex", "fail": [ { "type": "damage", "dice": "3d6", "damage_type": "bludgeoning", "by_level": { "4": "3d6" } }, { "type": "condition", "condition": "restrained", "escape_dc": 0 } ] } ] },
   "cloudkill": {"zone": true},
   "insect-plague": {"zone": true},
   "incendiary-cloud": {"zone": true},

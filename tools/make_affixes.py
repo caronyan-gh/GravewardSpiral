@@ -50,6 +50,11 @@ add("brutal", "残忍な", "Brutal", "prefix", ["weapon"], group="damage", tiers
     {"min_level": lv, "passive": [{"type": "modifier", "stat": "damage", "value": v}], "price": p}
     for lv, v, p in zip(LEVELS, [1, 2, 3, 5], [300, 1500, 5000, 15000])])
 
+# ---- 武器: 吸う(当てたダメージの何割かが、自分の HP に戻る) ----
+add("life_stealing", "吸命の", "of Life Stealing", "suffix", ["weapon"], group="drain", weight=5, tiers=[
+    {"min_level": lv, "on_hit": [{"type": "drain", "value": v}], "price": p}
+    for lv, v, p in zip(LEVELS, [10, 15, 20, 30], [600, 2500, 9000, 30000])])
+
 # ---- 武器: 当たると状態(セーヴ) ----
 STATUS = [
     ("stunning", "打ちのめす", "of Stunning", "con", "stunned", 1, 6, 3),

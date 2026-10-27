@@ -7,7 +7,7 @@ using Microsoft.Xna.Framework;
 namespace GravewardSpiral.Game.Scenes;
 
 /// <summary>
-/// 取消 (Esc) で開く小さなメニュー。下の画面に重ねて出す。「(その画面の項目)」「設定」「やめる(中断してタイトルへ など)」「閉じる」。
+/// 取消 (Esc) で開く小さなメニュー。下の画面に重ねて出す。「(その画面の項目)」「ヘルプ」「設定」「やめる(中断してタイトルへ など)」「閉じる」。
 /// </summary>
 public sealed class SystemMenuScene : Scene
 {
@@ -28,7 +28,7 @@ public sealed class SystemMenuScene : Scene
         _extra = extra;
     }
 
-    private RectangleF BoxRect => new(Box.X, Box.Y - _extra.Length * 23, Box.Width, Box.Height + _extra.Length * 46);
+    private RectangleF BoxRect => new(Box.X, Box.Y - (_extra.Length + 1) * 23, Box.Width, Box.Height + (_extra.Length + 1) * 46);
 
     public override bool IsOverlay => true;
 
@@ -38,7 +38,7 @@ public sealed class SystemMenuScene : Scene
         var b = BoxRect;
         _menu.Area = new RectangleF(b.X + 30, b.Y + 60, b.Width - 60, b.Height - 70);
         _menu.SetItems(_extra.Select((x, i) => new MenuItem(x.Label, Tag: i))
-            .Concat([new MenuItem(s["options.title"], Tag: "options"), new MenuItem(_quitLabel, Tag: "quit"), new MenuItem(s["system.close"], Tag: "close")]), 0);
+            .Concat([new MenuItem(s["help.title"], Tag: "help"), new MenuItem(s["options.title"], Tag: "options"), new MenuItem(_quitLabel, Tag: "quit"), new MenuItem(s["system.close"], Tag: "close")]), 0);
     }
 
     public override void Update(GameTime time, InputState input)
@@ -47,6 +47,10 @@ public sealed class SystemMenuScene : Scene
         {
             switch (_menu.Items[i].Tag)
             {
+                case "help":
+                    Stack.Pop();
+                    Stack.Push(new HelpScene());
+                    break;
                 case "options":
                     // 設定を閉じたら、このメニューにも戻らずに元の画面へ
                     Stack.Pop();

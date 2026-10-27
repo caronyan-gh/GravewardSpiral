@@ -26,16 +26,72 @@ public static class CombatSimulator
     /// </summary>
     public static Dictionary<string, PlayerCommand> AutoCommands(CombatState s, GameData data) => AutoCommands(s, data, useSpells: true);
 
-    /// <summary>おまかせの行動。useSpells が false なら呪文を使わない(スロットを温存する。届く武器が無い人は身構える)。</summary>
+    /// <summary>
+    /// おまかせの行動。useSpells が false なら呪文もクラスの技も使わない(スロットと回数を温存する。届く武器が無い人は身構える)。
+    /// ソーサラーの呪文の強化は、おまかせでは使わない(決めたこと)。
+    /// </summary>
     public static Dictionary<string, PlayerCommand> AutoCommands(CombatState s, GameData data, bool useSpells)
     {
         var d = new Dictionary<string, PlayerCommand>();
         foreach (var p in s.Party.Where(p => p.CanAct))
         {
             var targets = s.AttackableGroups(p).ToList();
-            d[p.Id] = (useSpells ? AutoSpell(s, data, p) : null) ?? (targets.Count > 0 ? new PlayerCommand(CommandKind.Attack, targets[0]) : PlayerCommand.Dodge);
+            bool canCast = ClassFeatures.CanCastIn(p.Character, p.Raging, p.Shape != null);
+            d[p.Id] = (useSpells ? AutoFeature(s, data, p) : null) ?? (useSpells && canCast ? AutoSpell(s, data, p) : null)
+                ?? (targets.Count > 0 ? new PlayerCommand(CommandKind.Attack, targets[0]) : PlayerCommand.Dodge);
         }
         return d;
+    }
+
+    /// <summary>強い戦い(敵の HP の合計が、立っているパーティの HP の合計の半分を超える)。</summary>
+    private static bool Dangerous(CombatState s) =>
+        s.LiveGroups.Sum(g => g.Alive.Sum(u => u.Hp)) > s.Party.Where(m => m.Standing).Sum(m => m.Hp) * 0.5;
+
+    /// <summary>
+    /// おまかせのクラスの技。弱った仲間の手当て(レイ・オン・ハンズ、セカンド・ウィンド)、アンデッドの退散、
+    /// 前列の激怒と変身は、いつでも使う。アクション・サージ、スマイト、気の技、鼓舞は強い戦いのときだけ。
+    /// </summary>
+    private static PlayerCommand? AutoFeature(CombatState s, GameData data, PartyMember p)
+    {
+        var c = p.Character;
+        var have = ClassFeatures.ActiveFor(c).Where(f => ClassFeatures.CanUse(data, c, f)).Select(f => f.Id).ToHashSet();
+        if (have.Count == 0) return null;
+        var targets = s.AttackableGroups(p).ToList();
+        int target = targets.Count > 0 ? targets[0] : -1;
+        bool dangerous = Dangerous(s);
+        PlayerCommand Use(string id, int group = -1, int member = -1) => new(CommandKind.Feature, group, member, FeatureId: id);
+
+        if (have.Contains("second_wind") && p.Hp < p.MaxHp / 2) return Use("second_wind");
+        if (have.Contains("lay_on_hands"))
+        {
+            var hurt = s.Party.Select((m, i) => (m, i)).Where(x => x.m.Character.State is LifeState.Alive or LifeState.Unconscious && x.m.Shape == null
+                && x.m.Hp < x.m.MaxHp * 0.4).OrderBy(x => x.m.Hp).FirstOrDefault();
+            if (hurt.m != null) return Use("lay_on_hands", member: hurt.i);
+        }
+        if (have.Contains("turn_undead"))
+        {
+            var undead = s.LiveGroups.SelectMany(g => g.Alive).Where(u => u.Def.CreatureType == "undead" && !u.Incapacitated).ToList();
+            if (undead.Count >= 2 || (dangerous && undead.Any(u => u.LegendaryResistLeft == 0))) return Use("turn_undead");
+        }
+        // 変身(熊の型)は、呪文スロットを使い切った前列のドルイドだけ(スロットがあるうちは呪文のほうが強い)
+        if (have.Contains("wild_shape") && p.Shape == null && s.InFront(p) && s.LiveGroups.Any(g => s.IsNear(g))
+            && !Spellcasting.CasterClasses(data, c).Any(cls => Enumerable.Range(1, 9).Any(lv => Spellcasting.SlotsLeft(cls, c, lv) > 0)))
+            return Use("wild_shape");
+        if (target < 0) return null;
+        if (have.Contains("rage") && !p.Raging && s.InFront(p)) return Use("rage", target);
+        if (!dangerous) return null;
+        if (have.Contains("action_surge")) return Use("action_surge", target);
+        if (have.Contains("divine_smite") && s.InFront(p)) return Use("divine_smite", target);
+        if (have.Contains("stunning_strike") && s.InFront(p) && s.Groups[target].Alive.Any(u => !u.Incapacitated && !u.Immune(Condition.Stunned)))
+            return Use("stunning_strike", target);
+        if (have.Contains("flurry_of_blows") && s.InFront(p)) return Use("flurry_of_blows", target);
+        if (have.Contains("bardic_inspiration"))
+        {
+            var best = s.Party.Select((m, i) => (m, i)).Where(x => x.m != p && x.m.Standing && !x.m.Modifiers.Any(m => m.Stat == "inspire"))
+                .OrderByDescending(x => CombatEngine.AttacksPerAction(x.m.Character)).FirstOrDefault();
+            if (best.m != null) return Use("bardic_inspiration", member: best.i);
+        }
+        return null;
     }
 
     private static PlayerCommand? AutoSpell(CombatState s, GameData data, PartyMember p)
@@ -138,7 +194,8 @@ public static class CombatSimulator
             };
             return each * hits;
         }
-        var options = spells.Where(x => x.TargetsEnemies && Has(x, EffectPart.Damage))
+        // 続いている呪文(スピリチュアル・ウェポンなど)は、かけ直さない
+        var options = spells.Where(x => x.TargetsEnemies && Has(x, EffectPart.Damage) && !s.Lingerings.Any(l => l.Caster == p && l.Spell.Id == x.Id))
             .SelectMany(x => reachable(x).Select(g => (x, g, slot: SlotFor(x))))
             .Where(o => o.slot != null).Select(o => (o.x, o.g, slot: o.slot!.Value, v: Value(o.x, o.slot!.Value, o.g))).ToList();
         // 召喚: 呼んだ数 × 1回の攻撃の平均 × 当たる見込み × 続く見込みのラウンド(集中していないときだけ)

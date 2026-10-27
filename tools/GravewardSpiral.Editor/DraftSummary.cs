@@ -118,6 +118,10 @@ public sealed class DraftSummary(EditorContext context)
     {
         EffectPart.Damage => T($"{p.Dice ?? DiceText(p)} {DamageType(p.DamageType)}のダメージ", $"{p.Dice ?? DiceText(p)} {DamageType(p.DamageType)} damage") + (p.Only != null ? T($"({p.Only} にだけ)", $" (only vs {p.Only})") : ""),
         EffectPart.Heal => T($"HP を {p.Dice ?? "全部"} 戻す", $"heal {p.Dice ?? "fully"}"),
+        EffectPart.Dot => T($"毎ターン {p.Dice ?? DiceText(p)} {DamageType(p.DamageType)}のダメージ({p.Rounds ?? 10} ラウンド)", $"{p.Dice ?? DiceText(p)} {DamageType(p.DamageType)} damage each turn ({p.Rounds ?? 10} rounds)")
+            + (p.Ability != null ? T($"、{Ability(p.Ability)}のセーヴで止まる", $", ends on a {Ability(p.Ability)} save") : ""),
+        EffectPart.Drain => T($"与えたダメージの {p.Value ?? 100}% を吸う", $"drain {p.Value ?? 100}% of the damage")
+            + (p.DamageType != null ? T($"({DamageType(p.DamageType)}の分だけ)", $" ({DamageType(p.DamageType)} only)") : ""),
         EffectPart.ConditionType => T($"{(p.Condition is { } c ? ConditionName(c) : "?")}の状態", $"{(p.Condition is { } c2 ? ConditionName(c2) : "?")} condition")
             + (p.Rounds is { } r ? T($" {r} ラウンド", $" for {r} rounds") : "") + (p.RepeatSave ? T("(毎ターンセーヴし直す)", " (save again each turn)") : "")
             + (p.EscapeDc is { } e ? T($"(抜けるのは DC {e})", $" (escape DC {e})") : ""),
