@@ -1,0 +1,3 @@
+# Windows のバッチは CRLF でないと cmd.exe が行を読み違える(日本語を含むと特に)
+*.cmd text eol=crlf
+*.bat text eol=crlf
