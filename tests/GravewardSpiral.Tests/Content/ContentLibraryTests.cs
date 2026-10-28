@@ -125,6 +125,39 @@ public class ContentLibraryTests
     }
 
     [Fact]
+    public void EveryItemHasAnUnidentifiedNameAndEveryStatAName()
+    {
+        // 鑑定していない品の仮の名前(「指輪?」「矢?」など)と、効果で上がるもの(逃げる・知覚など)の名前の文言がある(無いとキーがそのまま出る)
+        foreach (var dir in new[] { TestPaths.Content }.Concat(Directory.GetDirectories(Path.Combine(TestPaths.Content, "scenarios"))))
+        {
+            var lib = dir == TestPaths.Content ? ContentLibrary.Load(dir) : ContentLibrary.Load(TestPaths.Content, dir);
+            var data = Core.Characters.GameData.Load(lib);
+            foreach (var lang in new[] { "ja", "en" })
+            {
+                var texts = lib.Texts(lang);
+                var missing = data.Items.Values.Select(i => i.UnknownNameKey)
+                    .Concat(Core.Characters.GameData.ModifierStats.Select(x => "stat." + x))   // 効果の説明の「〜 +5」の名前
+                    .Distinct().Where(k => !texts.ContainsKey(k)).ToList();
+                Assert.True(missing.Count == 0, $"{dir} {lang}: {string.Join(", ", missing)}");
+            }
+        }
+    }
+
+    [Fact]
+    public void BundledScatterEventsThatRewardHappenOnce()
+    {
+        // 散らすイベントがほうび(経験値・お金・品)をくれるなら一度きり(無いと、戻って踏み直すたびにもらえる)
+        foreach (var dir in new[] { TestPaths.Content }.Concat(Directory.GetDirectories(Path.Combine(TestPaths.Content, "scenarios"))))
+        {
+            var lib = dir == TestPaths.Content ? ContentLibrary.Load(dir) : ContentLibrary.Load(TestPaths.Content, dir);
+            var data = Core.Characters.GameData.Load(lib);
+            var repeat = data.Events.Values.Where(e => e.Scatter != null && e.Once == null && Core.Save.EventAuthoring.Steps(e)
+                .Any(st => st.Type is "xp" or "treasure" or "give_item" || st.Type == "gold" && st.Value > 0)).Select(e => e.Id).ToList();
+            Assert.True(repeat.Count == 0, $"{dir}: {string.Join(", ", repeat)}");
+        }
+    }
+
+    [Fact]
     public void RepositoryContentLoadsCleanly()
     {
         var lib = ContentLibrary.Load(TestPaths.Content);

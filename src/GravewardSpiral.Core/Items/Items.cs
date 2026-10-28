@@ -136,6 +136,14 @@ public sealed class ItemDef
     /// <summary>弾の種類(arrow / bolt / bullet / needle)。弾なら、その種類。弓などなら、使う弾の種類(無ければ名前から決める)。</summary>
     public string? AmmoType { get; set; }
 
+    /// <summary>鑑定していないときの仮の名前の文言のキー(装身具は枠、弾は弾の種類、ほかは種類。巻物・水薬と武器・鎧は画面の側で別に決める)。</summary>
+    public string UnknownNameKey => "item.unknown." + Kind switch
+    {
+        ItemKind.Accessory => Slot,
+        ItemKind.Ammo => "ammo." + (AmmoType ?? "arrow"),
+        _ => Kind.ToString().ToLowerInvariant(),
+    };
+
     /// <summary>弾の、魔法でない上乗せ(鉄やミスリルの矢じり)。命中とダメージ。魔法の +N は Bonus。</summary>
     public int AmmoHit { get; set; }
     public int AmmoDamage { get; set; }

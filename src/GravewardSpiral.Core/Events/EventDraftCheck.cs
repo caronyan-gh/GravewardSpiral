@@ -45,6 +45,9 @@ public static class EventDraftCheck
             if (e.Place == "maze" && e.Scatter == null && !handPlaced) problems.Add($"{source} '{e.Id}': 迷宮のイベントに scatter がありません");
             if (e.Place == "town" && e.Title == null) problems.Add($"{source} '{e.Id}': 町のイベントに title がありません");
             problems.AddRange(EventCheck.Check(data, e, content).Select(x => $"{source} '{e.Id}': {x}"));
+            // 散らすイベントがほうびをくれるなら、一度きりにする(無いと、戻って踏み直すたびにもらえる)。読み込みは止めないので、ここ(書くときの検査)だけで見る
+            if (e.Scatter != null && e.Once == null && Save.EventAuthoring.Steps(e).Any(st => st.Type is "xp" or "treasure" or "give_item" || st.Type == "gold" && st.Value > 0))
+                problems.Add($"{source} '{e.Id}': 散らすイベントが経験値・お金・品をくれるのに once がありません(ふつうは once: place)");
             // 払う選択肢(gold が負)には、所持金の条件を付ける(足りなくても払えたことになって、ただで賭けられてしまう)
             foreach (var (label, need) in PayingOptions(e.Steps).Where(x => x.Need > 0))
                 problems.Add($"{source} '{e.Id}': 選択肢「{label}」は {need} G を払うのに、when に gold {need} 以上の条件がありません");

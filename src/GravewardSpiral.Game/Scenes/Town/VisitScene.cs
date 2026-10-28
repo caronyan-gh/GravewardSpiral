@@ -24,12 +24,17 @@ public sealed class VisitScene : MenuScene
     {
         var list = Available(Services, Context()).Select(e => new MenuItem(Services.Name(e.Title), Tag: e)).ToList();
         if (list.Count == 0) Message = Services.Strings["town.visit_none"];
+        list.Add(new MenuItem(Services.Strings["common.back"], Tag: "back"));
         return list;
     }
 
     protected override void Choose(MenuItem item, int index)
     {
-        var def = (EventDef)item.Tag!;
+        if (item.Tag is not EventDef def)
+        {
+            Stack.Pop();
+            return;
+        }
         // 町のイベントでは戦わない(戦闘の手順は、勝ったことにせず飛ばす)
         Stack.Push(new EventScene(new EventRunner(def, Context()), new EventScene.Callbacks((_, after) => after(false), () => { }, Done)));
     }

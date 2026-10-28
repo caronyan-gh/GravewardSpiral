@@ -2525,6 +2525,7 @@
   {
     "id": "gkx_sunken_plot",
     "place": "maze",
+    "once": "place",
     "steps": [
       {
         "type": "text",

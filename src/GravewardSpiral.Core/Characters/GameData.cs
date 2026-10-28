@@ -292,12 +292,12 @@ public sealed class GameData
 
     /// <summary>効果の部品の種類・ダイス式・能力値を確かめる。MOD(呪文の能力値)は 0 として読む。</summary>
     /// <summary>modifier の stat に書けるもの(技能は 5版の 18 個)。</summary>
-    private static readonly HashSet<string> ModifierStats =
-    [
+    public static readonly IReadOnlySet<string> ModifierStats = new HashSet<string>
+    {
         "ac", "attack", "save", "damage", "attacks", "disarm", "flee",
         "acrobatics", "animal_handling", "arcana", "athletics", "deception", "history", "insight", "intimidation", "investigation",
         "medicine", "nature", "perception", "performance", "persuasion", "religion", "sleight_of_hand", "stealth", "survival",
-    ];
+    };
 
     private static void CheckEffects(ContentLibrary content, string where, IEnumerable<EffectPart> parts)
     {

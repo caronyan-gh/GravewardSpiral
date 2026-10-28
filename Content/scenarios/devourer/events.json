@@ -3520,6 +3520,7 @@
   {
     "id": "dvx_b3_tag_wall",
     "place": "maze",
+    "once": "place",
     "steps": [
       {
         "type": "text",
@@ -3913,6 +3914,7 @@
   {
     "id": "dvx_b4_footsteps",
     "place": "maze",
+    "once": "place",
     "steps": [
       {
         "type": "text",
@@ -4040,6 +4042,7 @@
   {
     "id": "dvx_b4_called_name",
     "place": "maze",
+    "once": "place",
     "steps": [
       {
         "type": "text",
@@ -4179,6 +4182,7 @@
   {
     "id": "dvx_b4_painted_fire",
     "place": "maze",
+    "once": "place",
     "steps": [
       {
         "type": "text",
@@ -4313,6 +4317,7 @@
   {
     "id": "dvx_b4_copied_trail",
     "place": "maze",
+    "once": "place",
     "steps": [
       {
         "type": "text",
@@ -4466,6 +4471,7 @@
   {
     "id": "dvx_b4_taproom",
     "place": "maze",
+    "once": "place",
     "steps": [
       {
         "type": "text",
@@ -4782,6 +4788,7 @@
   {
     "id": "dvx_b5_fresh_grave",
     "place": "maze",
+    "once": "place",
     "steps": [
       {
         "type": "text",
@@ -7809,6 +7816,7 @@
   {
     "id": "dvy_burning_lantern",
     "place": "maze",
+    "once": "place",
     "steps": [
       {
         "type": "text",

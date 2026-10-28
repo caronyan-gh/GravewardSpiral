@@ -4036,6 +4036,7 @@
   {
     "id": "skx_water_hammer",
     "place": "maze",
+    "once": "place",
     "steps": [
       {
         "type": "text",

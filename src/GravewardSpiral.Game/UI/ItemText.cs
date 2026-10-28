@@ -22,7 +22,7 @@ public static class ItemText
                 : def.Kind is ItemKind.Weapon or ItemKind.Armor or ItemKind.Shield ? sv.Name(def.Name) + "?"
                 : def.Id.StartsWith("scroll_") ? sv.Strings["item.unknown.scroll"]
                 : def.Id.StartsWith("potion_") ? sv.Strings["item.unknown.potion"]
-                : sv.Strings["item.unknown." + (def.Kind == ItemKind.Accessory ? def.Slot : def.Kind.ToString().ToLowerInvariant())];
+                : sv.Strings[def.UnknownNameKey];
         }
         else
         {
