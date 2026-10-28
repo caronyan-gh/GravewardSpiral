@@ -26,7 +26,7 @@ public sealed record PlayerCommand(CommandKind Kind, int TargetGroup = -1, int T
 public sealed record CombatLogEntry(string Key, params object[] Args)
 {
     /// <summary>この行の時点のパーティの HP と状態と、変身している獣の id(並びは CombatState.Party の順)。画面はログを見せた行の値を出す。</summary>
-    public IReadOnlyList<(string Id, int Hp, Characters.LifeState State, string? Shape)> Party { get; init; } = [];
+    public IReadOnlyList<(string Id, int Hp, Characters.LifeState State, string? Shape, int Ac)> Party { get; init; } = [];
 
     /// <summary>この行の時点の、グループごとの生きている数。</summary>
     public IReadOnlyList<int> GroupAlive { get; init; } = [];
@@ -85,9 +85,9 @@ public sealed class CombatState
         GroupAlive = Groups.Select(g => g.AliveCount).ToList(),
     });
 
-    /// <summary>今のパーティの HP と状態と獣の姿。</summary>
-    public List<(string Id, int Hp, Characters.LifeState State, string? Shape)> Snapshot() =>
-        Party.Select(p => (p.Id, p.Hp, p.Character.State, p.Shape?.Id)).ToList();
+    /// <summary>今のパーティの HP と状態と獣の姿と、そのときの AC(呪文などの上げ下げを含む)。</summary>
+    public List<(string Id, int Hp, Characters.LifeState State, string? Shape, int Ac)> Snapshot() =>
+        Party.Select(p => (p.Id, p.Hp, p.Character.State, p.Shape?.Id, p.Ac)).ToList();
 
     /// <summary>そのラウンドで、パーティの1人が狙えるグループの番号(Groups の添え字)。</summary>
     public IEnumerable<int> AttackableGroups(PartyMember p)

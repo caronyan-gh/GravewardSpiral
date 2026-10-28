@@ -304,7 +304,7 @@ public sealed class CombatEngine(GameData data, IRandom rng)
         var c = p.Character;
         var style = ClassFeatures.StyleOf(_data, c);
         bool martial = ClassFeatures.MartialArts(_data, c);
-        bool sneakUsed = false, techniqueUsed = false, monkMelee = false;
+        bool techniqueUsed = false, monkMelee = false;
         int attacks = AttacksPerAction(p.Character) + p.Modifiers.Where(m => m.Stat == "attacks").Sum(m => m.Value);   // ヘイストなど
         bool usedMainMelee = false;
         var offItem = p.Character.Inventory[EquipSlot.OffHand];
@@ -405,11 +405,11 @@ public sealed class CombatEngine(GameData data, IRandom rng)
             }
             var roll = AttackRoll(s, p, target, plan.ToHit, melee: !plan.Shoot, out bool advantage, extraDisadvantage: plan.Shoot && adjacent);
             int rogue = p.Character.LevelIn("rogue");
-            if (!sneakUsed && rogue > 0 && (plan.Finesse || weapon is { Ranged: true }) && roll.Hit
+            if (p.SneakRound != s.Round && rogue > 0 && (plan.Finesse || weapon is { Ranged: true }) && roll.Hit   // 1ラウンドに1回(アクション・サージの2回目でも出ない)
                 && (advantage || (s.IsNear(group) && s.FrontRowMembers.Any(x => x != p))))
             {
                 parts.Add(new EffectPart { Type = EffectPart.Damage, Dice = $"{(rogue + 1) / 2}d6", DamageType = weapon?.DamageType ?? "piercing" });
-                sneakUsed = true;
+                p.SneakRound = s.Round;
             }
             // ディヴァイン・スマイト: 最初に当たった近接の攻撃に、スロットを使って光輝のダメージを足す(アンデッドと悪魔には +1d8)
             if (technique == StrikeTechnique.Smite && !techniqueUsed && melee && roll.Hit && ClassFeatures.SmiteSlot(_data, c) is int slot)
@@ -431,8 +431,8 @@ public sealed class CombatEngine(GameData data, IRandom rng)
             if (melee && weapon != null && ClassFeatures.Has(c, "warlock", 12))
                 parts.Add(new EffectPart { Type = EffectPart.Drain, Value = 30 });   // 命を吸う刃(このゲームでは吸う)
             ResolveAttack(s, p, target, weapon?.Name ?? LocalizedText.Of("unarmed strike", "素手"), roll, parts, plan.Magical);
-            // 残忍な一撃(バーバリアン L9): クリティカルで武器のダイスを足す
-            if (roll.Crit && melee && ClassFeatures.BrutalCritical(c) is int brutal and > 0 && target.Standing
+            // 残忍な一撃(バーバリアン L9)と獰猛な攻撃(ハーフオーク): 近接のクリティカルで武器のダイスを足す
+            if (roll.Crit && melee && ClassFeatures.BrutalCritical(c) + (p.Trait("savage_attacks") ? 1 : 0) is int brutal and > 0 && target.Standing
                 && DiceExpression.Parse(plan.Dice).Terms.FirstOrDefault(t => !t.IsFlat) is { Sides: > 0 } die)
                 Damage(s, target, RollDice($"{brutal}d{die.Sides}"), weapon?.DamageType ?? "bludgeoning", false, plan.Magical);
             // 投げた武器は、この戦闘では手元から無くなる(勝てば拾う)。戻ってくる武器(returning)は減らない
@@ -580,6 +580,9 @@ public sealed class CombatEngine(GameData data, IRandom rng)
             case "turn_undead":
                 TurnUndead(s, p);
                 break;
+            case "breath_weapon":
+                BreathWeapon(s, p, cmd.TargetGroup);
+                break;
             case "bardic_inspiration":
             {
                 var ally = cmd.TargetMember >= 0 && cmd.TargetMember < s.Party.Count && s.Party[cmd.TargetMember] is { Standing: true } a && a != p ? a : null;
@@ -617,6 +620,32 @@ public sealed class CombatEngine(GameData data, IRandom rng)
     /// アンデッド退散(クレリックのチャネル・ディヴィニティ): すべてのアンデッドが判断力のセーヴ(呪文の難易度)。失敗すると 10 ラウンド何もできない
     /// (ダメージを受けると解ける)。アンデッドの破壊の脅威度以下なら、失敗で滅びる。
     /// </summary>
+    /// <summary>竜の息(ドラゴンボーン): 近くのグループに火を吐く。敏捷力のセーヴ(8 + 耐久力 + 習熟)、成功で半分。2d6(L6 3d6、L11 4d6、L16 5d6)。</summary>
+    private void BreathWeapon(CombatState s, PartyMember p, int groupHint)
+    {
+        var c = p.Character;
+        var near = s.Groups.Select((g, i) => (g, i)).Where(x => !x.g.Wiped && s.IsNear(x.g)).Select(x => x.i).ToList();
+        if (near.Count == 0)
+        {
+            p.Dodging = true;
+            s.Add("combat.dodge", p.Name);
+            return;
+        }
+        ClassFeatures.Spend(c, "breath_weapon");
+        s.Add("combat.feature", p.Name, "feature.breath_weapon");
+        var group = s.Groups[near.Contains(groupHint) ? groupHint : near[0]];
+        int dc = 8 + p.AbilityMod(Ability.Con) + c.ProficiencyBonus;
+        int dice = c.Level >= 16 ? 5 : c.Level >= 11 ? 4 : c.Level >= 6 ? 3 : 2;
+        foreach (var u in group.Alive.ToList())
+        {
+            int dmg = RollDice($"{dice}d6");
+            bool saved = SaveOrResist(s, u, Ability.Dex, dc, magical: false);
+            s.Add(saved ? "combat.save_ok" : "combat.save_fail", group.DisplayName, Ability.Dex);
+            Damage(s, u, saved ? dmg / 2 : dmg, "fire", false, true);
+        }
+        CheckOutcome(s);
+    }
+
     private void TurnUndead(CombatState s, PartyMember p)
     {
         var c = p.Character;
@@ -795,7 +824,7 @@ public sealed class CombatEngine(GameData data, IRandom rng)
         if (pool != null)
         {
             int left = RollDice(DiceOf(pool, ctx));
-            foreach (var t in targets.OrderBy(t => t.Hp))
+            foreach (var t in targets.Where(t => !SleepImmune(t, pool)).OrderBy(t => t.Hp))
             {
                 if (t.Hp > left) break;
                 left -= t.Hp;
@@ -884,6 +913,12 @@ public sealed class CombatEngine(GameData data, IRandom rng)
         bool disadvantage = dis > 0 && adv == 0;
         int a = D20(), b = D20();
         int nat = advantage ? Math.Max(a, b) : disadvantage ? Math.Min(a, b) : a;
+        // 幸運(ハーフリング): 使う d20 が 1 なら、その1つを振り直す
+        if (nat == 1 && Lucky(attacker))
+        {
+            if (a == 1 && (!advantage || b == 1) && (!disadvantage || a <= b)) a = D20(); else b = D20();
+            nat = advantage ? Math.Max(a, b) : disadvantage ? Math.Min(a, b) : a;
+        }
         int total = nat + toHit + ModifierRoll(attacker, "attack");
         bool hit = nat != 1 && (nat == 20 || total >= target.Ac);
         // 鼓舞: 外れそうなら、もらったダイスを足す(足して当たるときだけ使う)
@@ -1429,7 +1464,7 @@ public sealed class CombatEngine(GameData data, IRandom rng)
         if (pool != null)
         {
             int left = RollDice(DiceOf(pool, ctx));
-            foreach (var t in targets.Where(t => t.Standing && !(pool.Condition is { } pc && t.Immune(pc))).OrderBy(t => t.Hp))
+            foreach (var t in targets.Where(t => t.Standing && !(pool.Condition is { } pc && t.Immune(pc)) && !SleepImmune(t, pool)).OrderBy(t => t.Hp))
             {
                 if (t.Hp > left) break;
                 left -= t.Hp;
@@ -1438,6 +1473,11 @@ public sealed class CombatEngine(GameData data, IRandom rng)
             return;
         }
 
+        if (spell.Beams != null && spell.Attack != null && targets.FirstOrDefault() is MonsterUnit beamTarget)
+        {
+            Beams(s, p, spell, ctx, attackBonus, beamTarget, spread: cmd.Option == "spread");
+            return;
+        }
         foreach (var t in targets)
         {
             if (s.Outcome != CombatOutcome.Ongoing && s.Groups.Count > 0) break;
@@ -1474,6 +1514,51 @@ public sealed class CombatEngine(GameData data, IRandom rng)
         }
         s.Add(roll.Crit ? "combat.crit" : "combat.hit", p.Name, spell.Name, whom);
         Apply(s, p, t, spell.Effects, roll.Crit, true, null, ctx);
+    }
+
+    /// <summary>
+    /// 味方に向ける呪文で、その人を選べるか(画面の選ぶ一覧もこれで決める)。蘇生の呪文は死んだ人(灰も戻せる呪文なら灰も)だけ、
+    /// ほかは立っている人と気絶した人。
+    /// </summary>
+    public static bool AllyTargetable(SpellDef spell, LifeState state) =>
+        spell.Effects.FirstOrDefault(e => e.Type == EffectPart.Revive) is { } revive
+            ? state == LifeState.Dead || (revive.AllowAshes && state == LifeState.Ashes)
+            : state is LifeState.Alive or LifeState.Unconscious;
+
+    /// <summary>
+    /// 光線の呪文。集中は狙った1体に撃ち、倒れたら残りは同じグループの生き残りへランダムに。分散はグループの生き残りから本数分を
+    /// ばらばらに選んで1本ずつ(足りなければ余りを生き残りへ)。光線ごとに攻撃ロールとダメージ(余ったダメージは持ち越さない)。
+    /// </summary>
+    private void Beams(CombatState s, PartyMember p, SpellDef spell, CastContext ctx, int attackBonus, MonsterUnit first, bool spread)
+    {
+        var group = s.GroupOf(first);
+        int n = spell.BeamsAt(ctx.Level);
+        var order = new List<MonsterUnit>();
+        if (spread)
+        {
+            var alive = group.Alive.ToList();
+            while (alive.Count > 0 && order.Count < n)
+            {
+                int i = _rng.Next(0, alive.Count);
+                order.Add(alive[i]);
+                alive.RemoveAt(i);
+            }
+        }
+        else order.Add(first);
+        for (int beam = 0; beam < n && s.Outcome == CombatOutcome.Ongoing; beam++)
+        {
+            var t = beam < order.Count ? order[beam] : null;
+            if (t is not { Standing: true })
+            {
+                var alive = group.Alive.ToList();
+                if (alive.Count == 0) break;
+                // 集中は同じ相手を撃ち続ける(倒れたらほかの1体へ)。分散の余りは生き残りへ
+                t = !spread && order.Count > 0 && order[^1].Standing ? order[^1] : alive[_rng.Next(0, alive.Count)];
+                if (!spread) order.Add(t);
+            }
+            var roll = AttackRoll(s, p, t, attackBonus, spell.Attack == "melee", out _);
+            ResolveSpellAttack(s, p, t, spell, roll, ctx);
+        }
     }
 
     /// <summary>呪文の対象。敵は TargetGroup のグループ(届かなければ届く先頭)、味方は TargetMember。</summary>
@@ -1556,6 +1641,8 @@ public sealed class CombatEngine(GameData data, IRandom rng)
     private bool SaveOrResist(CombatState s, Combatant c, Ability a, int dc, bool magical, bool advantage = false)
     {
         advantage |= magical && c.MagicResistant;
+        // ノームの知恵: 魔法への知力・判断力・魅力のセーヴに有利
+        advantage |= magical && a is Ability.Int or Ability.Wis or Ability.Cha && c is PartyMember gn && gn.Trait("gnome_cunning");
         if (SavingThrow(c, a, dc, advantage)) return true;
         // 不屈(ファイター L9): 失敗したセーヴを振り直す
         if (c is PartyMember ip && ClassFeatures.Spend(ip.Character, "indomitable"))
@@ -1657,8 +1744,17 @@ public sealed class CombatEngine(GameData data, IRandom rng)
     }
 
     /// <summary>その状態にする(か、その状態を解く)セーヴに有利か(修正値 save_adv:&lt;状態&gt;)。</summary>
+    /// 種族: ドワーフの毒(ドワーフの頑健)、エルフとハーフエルフの魅了(妖精の血)、ハーフリングの恐怖(勇敢)。
     private static bool SaveAdvantage(Combatant c, Condition condition) =>
-        c.Modifiers.Any(m => m.Stat == "save_adv:" + condition.ToString().ToLowerInvariant());
+        c.Modifiers.Any(m => m.Stat == "save_adv:" + condition.ToString().ToLowerInvariant())
+        || c is PartyMember p && ((condition == Condition.Poisoned && p.Trait("dwarven_resilience"))
+            || (condition == Condition.Charmed && p.Trait("fey_ancestry")) || (condition == Condition.Frightened && p.Trait("brave")));
+
+    /// <summary>幸運(ハーフリング): 攻撃・セーヴ・死亡のセーヴの d20 の 1 を振り直す。</summary>
+    private static bool Lucky(Combatant c) => c is PartyMember p && p.Trait("lucky");
+
+    /// <summary>魔法で眠らされないか(エルフとハーフエルフの妖精の血)。</summary>
+    private static bool SleepImmune(Combatant c, EffectPart pool) => pool.Condition == Condition.Unconscious && c is PartyMember p && p.Trait("fey_ancestry");
 
     /// <summary>セーヴを振る。advantage なら d20 を2回振って良いほう(拘束の敏捷力のセーヴの不利と打ち消し合う)。</summary>
     public bool SavingThrow(Combatant c, Ability a, int dc, bool advantage = false)
@@ -1669,8 +1765,18 @@ public sealed class CombatEngine(GameData data, IRandom rng)
         bool disadvantage = a == Ability.Dex && c.Has(Condition.Restrained);
         // 危険感知(バーバリアン L2): 目が見えていれば、敏捷力のセーヴが有利
         if (a == Ability.Dex && c is PartyMember ds && ClassFeatures.Has(ds.Character, "barbarian", 2) && !c.Has(Condition.Blinded)) advantage = true;
-        if (advantage && !disadvantage) roll = Math.Max(roll, D20());
-        else if (disadvantage && !advantage) roll = Math.Min(roll, D20());
+        if (advantage != disadvantage)
+        {
+            int second = D20();
+            int used = advantage ? Math.Max(roll, second) : Math.Min(roll, second);
+            if (used == 1 && Lucky(c))   // 幸運: 使う方の 1 を振り直す
+            {
+                if (roll == 1 && (disadvantage || second == 1)) roll = D20(); else second = D20();
+                used = advantage ? Math.Max(roll, second) : Math.Min(roll, second);
+            }
+            roll = used;
+        }
+        else if (roll == 1 && Lucky(c)) roll = D20();
         int total = roll + c.SaveBonus(a) + ModifierRoll(c, "save");
         // 鼓舞: 失敗しそうなら、もらったダイスを足す(足して成功するときだけ使う)
         if (total < dc && c.Modifiers.FirstOrDefault(m => m.Stat == "inspire") is { Dice: { } inspire } im && total + RollDice(inspire) is int lifted && lifted >= dc)
@@ -1689,6 +1795,8 @@ public sealed class CombatEngine(GameData data, IRandom rng)
     {
         if (part.Condition is not { } cond || !target.Standing) return;
         if (target.Immune(cond)) return;
+        // 妖精の血(エルフ・ハーフエルフ): 呪文では眠らされない(アイバイトの眠りなども)
+        if (cond == Condition.Unconscious && ctx != null && target is PartyMember fp && fp.Trait("fey_ancestry")) return;
         target.Conditions.RemoveAll(x => x.Condition == cond);
         int escape = part.EscapeDc is 0 && ctx != null ? ctx.Dc : part.EscapeDc ?? 0;
         Ability? repeat = part.EscapeDc.HasValue ? Ability.Str
@@ -1805,6 +1913,13 @@ public sealed class CombatEngine(GameData data, IRandom rng)
             s.Add("combat.relentless", p.Name);
             return taken;
         }
+        // 不屈の耐久(ハーフオーク): 即死でなければ、大休憩までに1回、HP 1 で踏みとどまる
+        if (dealt - before < p.MaxHp && p.Trait("relentless_endurance") && ClassFeatures.Spend(p.Character, "relentless_endurance"))
+        {
+            p.Hp = 1;
+            s.Add("combat.endurance", p.Name);
+            return taken;
+        }
         p.Raging = false;
         EndConcentration(s, p);
         p.Conditions.Clear();
@@ -1832,6 +1947,7 @@ public sealed class CombatEngine(GameData data, IRandom rng)
     {
         if (p.Stable) return;
         int r = D20();
+        if (r == 1 && Lucky(p)) r = D20();   // 幸運(ハーフリング)
         if (r == 20)
         {
             p.Character.State = LifeState.Alive;

@@ -47,10 +47,15 @@ public sealed class CombatScene : Scene
     private int _member;          // 行動を選んでいる人(_state.Party の添え字)
     private CommandKind _pending; // 援護・並び替え・呪文で、相手を選んでいるとき
     private SpellDef? _spell;      // 選んでいる呪文と、スロットのレベル
+    private SpellDef? _itemSpell;  // 使う道具が唱える呪文(無ければ null)
     private int _slot;
     private int _itemIndex = -1;   // 使うアイテム(袋の中の何番目か)
     private FeatureDef? _feature;  // 使うクラスの技
     private bool _empower;         // 呪文(強化)から選んでいる(ソーサラーの呪文の強化)
+    private bool _spread;          // 光線の呪文を分散で撃つ(エルドリッチ・ブラスト(分散)など)
+
+    /// <summary>光線の呪文の「(分散)」の行(同じ呪文の撃ち方の違い)。</summary>
+    private sealed record SpreadPick(SpellDef Spell);
     private int _shown;           // 見せ終わったログの行数
     private double _wait;
     private double _shake;         // 絵の揺れの残り時間(秒)と強さ。絵の敵にダメージが入ると揺れる
@@ -152,6 +157,7 @@ public sealed class CombatScene : Scene
         // 前の人の呪文・アイテムの選びかけを残さない(残ると、攻撃で敵を選んだときに、その呪文やアイテムを使ってしまう)
         _pending = CommandKind.Attack;
         _empower = false;
+        _spread = false;
         var c = Current.Character;
         bool reach = _state.AttackableGroups(Current).Any();
         bool canCast = ClassFeatures.CanCastIn(c, Current.Raging, Current.Shape != null);   // 激怒と獣の姿では唱えられない(獣の呪文があれば獣でも)
@@ -236,9 +242,12 @@ public sealed class CombatScene : Scene
                 ShowMembers();
                 break;
             case FeatureTarget.EnemyGroup:
-                var reach = _state.AttackableGroups(Current).ToList();
+                // 竜の息は近くのグループに(列に関係なく)。ほかは、その人が攻撃の届くグループ
+                var reach = f.Id == "breath_weapon"
+                    ? _state.Groups.Select((g, i) => (g, i)).Where(x => !x.g.Wiped && _state.IsNear(x.g)).Select(x => x.i).ToList()
+                    : _state.AttackableGroups(Current).ToList();
                 if (reach.Count == 1) Set(new PlayerCommand(CommandKind.Feature, reach[0], FeatureId: f.Id));
-                else ShowGroups();
+                else ShowGroups(reach.ToHashSet());
                 break;
             default:
                 Set(new PlayerCommand(CommandKind.Feature, FeatureId: f.Id));
@@ -281,6 +290,7 @@ public sealed class CombatScene : Scene
             return;
         }
         var spell = def.UseSpell != null ? Services.Data.Spells.GetValueOrDefault(def.UseSpell) : null;
+        _itemSpell = spell;
         bool enemies = spell?.TargetsEnemies ?? def.UseTarget is "enemy" or "group";
         bool ally = spell != null ? spell.Target == SpellTarget.Ally : def.UseTarget is null or "ally";
         if (enemies)
@@ -316,8 +326,19 @@ public sealed class CombatScene : Scene
     {
         Services.CombatCursor[(Current.Id, "SpellTab")] = _spellTab.ToString();
         bool castable = UI.SpellTabs.CanCast(Services.Data, Current.Character, _spellTab);
-        var items = (_empower ? EmpowerSpells() : CombatSpells()).Where(x => UI.SpellTabs.Shows(Services.Data, Current.Character, x.Spell, _spellTab))
-            .Select(x => SpellText.CastItem(Services, Current.Character, x.Spell, null, castable)).ToList();
+        var items = new List<MenuItem>();
+        foreach (var x in (_empower ? EmpowerSpells() : CombatSpells()).Where(x => UI.SpellTabs.Shows(Services.Data, Current.Character, x.Spell, _spellTab)))
+        {
+            var item = SpellText.CastItem(Services, Current.Character, x.Spell, null, castable);
+            // 光線が2本以上なら、集中と分散の2行にする(1つの呪文の撃ち方の違い)
+            int beams = x.Spell.BeamsAt(x.Spell.Scale == "character" ? Current.Character.Level : Math.Max(_spellTab, x.Spell.Level));
+            if (x.Spell.Beams != null && beams >= 2)
+            {
+                items.Add(item with { Label = S.Format("combat.beams_focus", item.Label, beams) });
+                items.Add(item with { Label = S.Format("combat.beams_spread", item.Label, beams), Tag = new SpreadPick(x.Spell) });
+            }
+            else items.Add(item);
+        }
         if (items.Count == 0) items.Add(new MenuItem(S["combat.no_spells_at_level"], Enabled: false));
         SetMenu(items);
     }
@@ -342,7 +363,7 @@ public sealed class CombatScene : Scene
         if (sp.TargetsEnemies)
         {
             var reach = CombatEngine.SpellReach(_state, Current, sp).ToList();
-            if (reach.Count == 1) Set(new PlayerCommand(CommandKind.Cast, reach[0], -1, sp.Id, _slot, Empower: _empower));
+            if (reach.Count == 1) Set(new PlayerCommand(CommandKind.Cast, reach[0], -1, sp.Id, _slot, Empower: _empower, Option: _spread ? "spread" : null));
             else ShowGroups(reach.ToHashSet());
         }
         else if (sp.Target == SpellTarget.Ally) ShowMembers();
@@ -364,7 +385,9 @@ public sealed class CombatScene : Scene
         var items = _state.Party.Select((p, i) => new MenuItem($"{i + 1} {p.Character.Name}", $"{p.Hp}/{p.MaxHp}",
             _pending switch
             {
-                CommandKind.Cast => p.Character.State is LifeState.Alive or LifeState.Unconscious,
+                // 呪文と道具は、その効果で選べる人(蘇生は死んだ人)。道具は自分にも使える
+                CommandKind.Cast => CombatEngine.AllyTargetable(_spell!, p.Character.State),
+                CommandKind.Item => _itemSpell != null ? CombatEngine.AllyTargetable(_itemSpell, p.Character.State) : p.Character.State is LifeState.Alive or LifeState.Unconscious,
                 // レイ・オン・ハンズは自分にも倒れた人にも。鼓舞は自分以外の立っている人
                 CommandKind.Feature => _feature?.Id == "lay_on_hands" ? p.Character.State is LifeState.Alive or LifeState.Unconscious : p != Current && p.Standing,
                 _ => p != Current && (_pending != CommandKind.Help || p.Standing),
@@ -448,8 +471,15 @@ public sealed class CombatScene : Scene
             case Phase.Member when item.Tag is int im && _pending == CommandKind.Item:
                 Set(new PlayerCommand(CommandKind.Item, -1, im, ItemIndex: _itemIndex));
                 break;
+            case Phase.Spell when item.Tag is SpreadPick spread:
+                _spell = spread.Spell;
+                _spread = true;
+                _slot = _spellTab;
+                ChooseSpellTarget();
+                break;
             case Phase.Spell when item.Tag is SpellDef sp:
                 _spell = sp;
+                _spread = false;
                 _slot = _spellTab;   // タブのレベルのスロットで唱える
                 ChooseSpellTarget();
                 break;
@@ -458,7 +488,7 @@ public sealed class CombatScene : Scene
                 ChooseSpellTarget();
                 break;
             case Phase.Target when item.Tag is int tg && _pending == CommandKind.Cast:
-                Set(new PlayerCommand(CommandKind.Cast, tg, -1, _spell!.Id, _slot, Empower: _empower));
+                Set(new PlayerCommand(CommandKind.Cast, tg, -1, _spell!.Id, _slot, Empower: _empower, Option: _spread ? "spread" : null));
                 break;
             case Phase.Member when item.Tag is int tm && _pending == CommandKind.Cast:
                 Set(new PlayerCommand(CommandKind.Cast, -1, tm, _spell!.Id, _slot, Empower: _empower));
@@ -779,11 +809,28 @@ public sealed class CombatScene : Scene
     private static readonly RectangleF SpellInfoArea = new(60, 50, 560, 330);
 
     /// <summary>呪文やスロットを選んでいるあいだ、左上に呪文の効果を出す(スロットを選ぶときは、そのレベルでの効果)。</summary>
+    /// <summary>コマンドの一覧で選んでいるコマンドの説明(無いものは null。攻撃と呪文などは、敵の絵を隠さないように出さない)。</summary>
+    private string? CommandAbout(object tag)
+    {
+        string? key = tag switch
+        {
+            CommandKind.Dodge => "combat.about.dodge",
+            CommandKind.Help => "combat.about.help",
+            CommandKind.Hide => "combat.about.hide",
+            CommandKind.Swap => "combat.about.swap",
+            CommandKind.Flee => "combat.about.flee",
+            "auto" => "combat.about.auto",
+            "auto_nospell" => "combat.about.auto_nospell",
+            _ => null,
+        };
+        return key == null ? null : S[key];
+    }
+
     private void DrawSpellInfo(Draw2D d)
     {
         SpellDef? sp = null;
         int level = 0;
-        if (_phase == Phase.Spell && _menu.Current?.Tag is SpellDef cur)
+        if (_phase == Phase.Spell && (_menu.Current?.Tag as SpellDef ?? (_menu.Current?.Tag as SpreadPick)?.Spell) is { } cur)
         {
             sp = cur;
             level = cur.IsCantrip ? 0 : Math.Max(cur.Level, _spellTab);   // タブのレベルで唱えたときの効果
@@ -809,7 +856,19 @@ public sealed class CombatScene : Scene
             Theme.Panel(d, SpellInfoArea);
             float fx = SpellInfoArea.X + 20, fw = SpellInfoArea.Width - 40;
             float fy = d.TextWrapped(S["feature." + f.Id], new Vector2(fx, SpellInfoArea.Y + 16), fw, 26, Theme.Title) + 8;
-            d.TextWrapped(S["feature.about." + f.Id], new Vector2(fx, fy), fw, 19, Theme.Text, 6);
+            fy = d.TextWrapped(S["feature.about." + f.Id], new Vector2(fx, fy), fw, 19, Theme.Text, 6);
+            // スマイト: 当たったら使う呪文の回数のレベル
+            if (f.Id == "divine_smite" && ClassFeatures.SmiteSlot(Services.Data, Current.Character) is int smite)
+                d.TextWrapped(S.Format("combat.smite_slot", smite), new Vector2(fx, fy + 6), fw, 18, Theme.Gold, 6);
+            return;
+        }
+        if (_phase == Phase.Input && _menu.Current?.Tag is { } cmdTag && CommandAbout(cmdTag) is { } about)
+        {
+            // 基本のコマンドの効果
+            Theme.Panel(d, SpellInfoArea);
+            float cx = SpellInfoArea.X + 20, cw = SpellInfoArea.Width - 40;
+            float cy = d.TextWrapped(_menu.Current.Label, new Vector2(cx, SpellInfoArea.Y + 16), cw, 26, Theme.Title) + 8;
+            d.TextWrapped(about, new Vector2(cx, cy), cw, 19, Theme.Text, 6);
             return;
         }
         if (sp == null) return;

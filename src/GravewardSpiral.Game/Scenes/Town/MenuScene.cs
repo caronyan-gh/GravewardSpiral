@@ -37,10 +37,22 @@ public abstract class MenuScene : Scene
     public override void Enter() => Refresh();
 
     /// <summary>一覧を作り直す(カーソルの位置は保つ)。</summary>
-    protected void Refresh() => List.SetItems(Items());
+    protected void Refresh()
+    {
+        _shownLanguage = GameServices.Language;
+        List.SetItems(Items());
+    }
+
+    /// <summary>一覧を作った言語(設定で言語を変えたら、戻ったときに一覧を作り直す)。</summary>
+    private string? _shownLanguage;
 
     public override void Update(GameTime time, InputState input)
     {
+        if (_shownLanguage != GameServices.Language)
+        {
+            Message = null;   // 前の言語のメッセージは消す
+            Refresh();
+        }
         var chosen = List.Update(input, Services.Audio);
         if (chosen is int i)
         {
@@ -81,5 +93,5 @@ public abstract class MenuScene : Scene
 
     /// <summary>説明の欄に、行を順に描く道具(欄の幅で折り返す)。次の行の y を返す。</summary>
     protected static float Line(Draw2D d, RectangleF area, float y, string text, Color color, float size = 20f) =>
-        d.TextWrapped(text, new Vector2(area.X + 20, y), area.Width - 40, size, color) + 2;
+        d.TextWrapped(text, new Vector2(area.X + 20, y), area.Width - 70, size, color) + 2;   // 測った幅より少し広く描かれることがあるので、枠に余裕を持たせる
 }

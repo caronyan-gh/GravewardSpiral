@@ -99,7 +99,7 @@ public sealed class TownScene : MenuScene
             Place.Tavern => "town.about_tavern",
             Place.Inn => "town.about_inn",
             Place.Shop => "town.about_shop",
-            Place.Temple => "town.about_temple",
+            Place.Temple => Services.Session!.Difficulty.RiskyRevive ? "town.about_temple" : "town.about_temple_sure",   // 蘇生が失敗しない難易度では、灰の警告を出さない
             Place.Training => "town.about_training",
             Place.House => "town.about_house",
             Place.Visit => "town.about_visit",
@@ -568,6 +568,29 @@ public sealed class TrainingScene : MenuScene
         _onLeave();
     }
 
+    /// <summary>そのクラスを1つ上げると増えるもの(クラスの技、勝手に効く能力、能力値上昇の点、攻撃の回数、使える呪文のレベル)。</summary>
+    private List<string> LevelGains(Character who, ClassDef cls)
+    {
+        var s = Services.Strings;
+        var data = Services.Data;
+        var next = Core.Save.EventAuthoring.Copy(who);
+        next.NormalizeClasses();
+        if (next.Classes.FirstOrDefault(x => x.ClassId == cls.Id) is { } entry) entry.Level++;
+        else next.Classes.Add(new ClassLevel { ClassId = cls.Id, Level = 1 });
+        next.Level++;
+        var gains = new List<string>();
+        var had = ClassFeatures.ActiveFor(who).Select(f => f.Id).ToHashSet();
+        gains.AddRange(ClassFeatures.ActiveFor(next).Where(f => !had.Contains(f.Id)).Select(f => s["feature." + f.Id]));
+        var hadPassive = ClassFeatures.Passives(who).ToHashSet();
+        gains.AddRange(ClassFeatures.Passives(next).Distinct().Where(p => !hadPassive.Contains(p)).Select(p => s["passive." + p]));
+        if (next.AbilityPoints > who.AbilityPoints) gains.Add(s.Format("training.gain_asi", next.AbilityPoints - who.AbilityPoints));
+        if (Core.Combat.CombatEngine.AttacksPerAction(next) > Core.Combat.CombatEngine.AttacksPerAction(who)) gains.Add(s.Format("training.gain_attacks", Core.Combat.CombatEngine.AttacksPerAction(next)));
+        // そのクラスで覚えられる呪文のレベル(マルチクラスの合算のスロットのレベルではない)
+        if (cls.Spellcasting != null && Spellcasting.ClassMaxSpellLevel(cls, next) is var lv and > 0 && lv > Spellcasting.ClassMaxSpellLevel(cls, who))
+            gains.Add(s.Format("training.gain_spell_level", lv));
+        return gains;
+    }
+
     protected override void DrawInfo(Draw2D d, RectangleF area)
     {
         // 上げるクラスを選んでいるときは、カーソルのクラスの説明
@@ -579,8 +602,15 @@ public sealed class TrainingScene : MenuScene
             y = Line(d, area, y, now > 0 ? s.Format("training.class_next", now, now + 1) : s["training.class_new"], Theme.Gold, 19);
             y = Line(d, area, y, s.Format("create.hit_die", cls.HitDie), Theme.Text, 19);
             y = Line(d, area, y, s.Format("create.saves", s.List(cls.Saves.Select(x => s[$"ability.{x}"]))), Theme.Text, 19);
+            if (now == 0 && who.ClassIds.Any()) y = Line(d, area, y, s["training.no_multiclass_saves"], Theme.Dim, 16);   // マルチクラスでは、セーヴの習熟は得ない(5版)
             y = Line(d, area, y, s.Format("create.primary", s.List(cls.PrimaryAbilities.Take(2).Select(a => s[$"ability.{a.Code()}"]))), Theme.Text, 19);
-            Line(d, area, y + 6, Services.Name(cls.Description), Theme.Dim, 18);
+            var gains = LevelGains(who, cls);
+            y = Line(d, area, y + 6, gains.Count > 0 ? s.Format("training.gains", s.List(gains)) : s["training.gains_none"], Theme.Good, 18);
+            // クラスの説明は、欄に収まる大きさで(英語は長い)
+            string desc = Services.Name(cls.Description);
+            float room = area.Y + area.Height - 12 - (y + 6), size = 17;
+            while (size > 12 && d.WrapLines(desc, area.Width - 40, size).Count * (size + 8) > room) size--;
+            Line(d, area, y + 6, desc, Theme.Dim, size);
             return;
         }
         var c = _selected ?? List.Current?.Tag as Character;
@@ -619,30 +649,50 @@ public sealed class StatusScene : Scene
         }
     }
 
-    /// <summary>短い要約(名前・種族とクラス・レベル・HP・AC・能力値)。</summary>
-    public static float DrawSummary(Draw2D d, GameServices sv, Character c, Vector2 at)
+    /// <summary>
+    /// 短い要約(名前・種族とクラス・レベル・HP・AC・能力値)。能力値は装備などを含めた今の値。detail(状態の画面)では
+    /// 「能力値 現在値(ベース)」の見出しで3つずつ2行にし、変わったものだけ色を付けてカッコにベースを出す。
+    /// </summary>
+    /// <param name="width">欄の幅(長い行は折り返す。英語のヒットダイスの行など)。</param>
+    public static float DrawSummary(Draw2D d, GameServices sv, Character c, Vector2 at, bool detail = false, float width = 540f)
     {
         var s = sv.Strings;
         var data = sv.Data;
         float y = at.Y;
-        void Text(string t, Color color, float size = 20f)
-        {
-            d.Text(t, new Vector2(at.X, y), size, color);
-            y += size + 9;
-        }
+        void Text(string t, Color color, float size = 20f) => y = d.TextWrapped(t, new Vector2(at.X, y), width, size, color, 9);
         var race = data.Races[c.RaceId];
         Text(c.Name, Theme.Title, 26);
         Text($"{sv.Name(race.Subrace ?? race.Name)}  {sv.Name(data.Classes[c.ClassId].Name)}  Lv{c.Level}  {s[$"alignment.{c.Alignment.ToString().ToLowerInvariant()}"]}", Theme.Text);
         Text(s.Format("status.hp_ac", c.Hp, c.MaxHp, c.ArmorClass(data), c.ProficiencyBonus), Theme.Text);
         Text(s.Format("status.hit_dice", c.HitDice, c.Level, data.Classes[c.ClassId].HitDie), c.HitDice == 0 ? Theme.Warn : Theme.Dim, 18);
-        Text(string.Join("  ", Abilities.All.Select(a => $"{s[$"ability_short.{a.Code()}"]} {c.Scores[a]}")), Theme.Text, 18);
+        var now = c.Stats(data);
+        if (!detail) Text(string.Join("  ", Abilities.All.Select(a => $"{s[$"ability_short.{a.Code()}"]} {now[a]}")), Theme.Text, 18);
+        else
+        {
+            Text(s["status.abilities_header"], Theme.Dim, 16);
+            foreach (var three in Abilities.All.Chunk(3))
+            {
+                float x = at.X;
+                foreach (var a in three)
+                {
+                    bool changed = now[a] != c.Scores[a];
+                    string label = $"{s[$"ability.{a.Code()}"]} ";
+                    d.Text(label, new Vector2(x, y), 18, Theme.Text);
+                    x += d.Fonts.Measure(label, 18).X;
+                    string value = changed ? $"{now[a]}({c.Scores[a]})" : $"{now[a]}";
+                    d.Text(value, new Vector2(x, y), 18, changed ? Theme.Good : Theme.Text);
+                    x += d.Fonts.Measure(value, 18).X + 18;
+                }
+                y += 18 + 9;
+            }
+        }
         Text(s.Format("status.xp", c.Xp, Progression.XpForLevel(c.Level + 1)), Theme.Dim, 18);
         Text(s.Format("status.gold", c.Gold), Theme.Gold, 18);
         if (!c.ArmorProficient(data)) Text(s["status.armor_unproficient"], Theme.Warn, 18);   // 呪文を唱えられず、攻撃が不利
         // 習熟(鎧と盾は、無いと着られない。武器は持てるが、習熟ボーナスが付かない)。武器は長いので、欄の幅で折り返す
         var (armor, weapons) = Proficiencies(sv, c);
         Text(s.Format("status.armor_prof", armor), Theme.Text, 18);
-        y = d.TextWrapped(s.Format("status.weapon_prof", weapons), new Vector2(at.X, y), 500, 18, Theme.Text, 9);
+        y = d.TextWrapped(s.Format("status.weapon_prof", weapons), new Vector2(at.X, y), width, 18, Theme.Text, 9);
         if (UI.SpellText.SlotLines(s, data, c) is { } slots)
             foreach (var line in slots) Text(line, Theme.Text, 18);
         return y;
@@ -654,7 +704,7 @@ public sealed class StatusScene : Scene
         var data = Services.Data;
         var area = new RectangleF(80, 60, 1120, 600);
         Theme.Panel(d, area);
-        float y = DrawSummary(d, Services, _c, new Vector2(area.X + 30, area.Y + 24));
+        float y = DrawSummary(d, Services, _c, new Vector2(area.X + 30, area.Y + 24), detail: true, width: 525f);
 
         // 右側: 技能・セーヴ・クラスの能力か、呪文(術者は左右で切り替える)
         float x2 = area.X + 600;
@@ -736,12 +786,18 @@ public sealed class StatusScene : Scene
         // クラスの能力(マルチクラスでは全部のクラスのもの): 回数の残りと、勝手に効く能力の名前
         var pools = ClassFeatures.Pools.Where(p => ClassFeatures.MaxUses(_c, p) > 0).ToList();
         var passives = ClassFeatures.Passives(_c).Distinct().Select(id => s["passive." + id]).ToList();
-        if (ClassFeatures.StyleOf(data, _c) is var style and not FightingStyle.None)
-            passives.Insert(0, s.Format("status.fighting_style", s["style." + style.ToString().ToLowerInvariant()]));
-        if (pools.Count > 0 || passives.Count > 0)
+        var style = ClassFeatures.StyleOf(data, _c);
+        if (pools.Count > 0 || passives.Count > 0 || style != FightingStyle.None)
         {
             y2 += 8;
             Text2(s["status.features"], Theme.Title, 22);
+            // ファイティングスタイル: 今のスタイルとその効果、持つ武器で変わること
+            if (style != FightingStyle.None)
+            {
+                string sid = style.ToString().ToLowerInvariant();
+                y2 = d.TextWrapped(s.Format("status.fighting_style", s["style." + sid], s["style.about." + sid]), new Vector2(x2, y2), area.X + area.Width - x2 - 24, 17, Theme.Text, 4);
+                y2 = d.TextWrapped(s["status.style_auto"], new Vector2(x2, y2 + 2), area.X + area.Width - x2 - 24, 15, Theme.Dim, 4) + 4;
+            }
             // 回数は1つずつ行を分ける(折り返しで「5/5」が切れないように)
             foreach (var p in pools) Text2($"{s["pool." + p]}  {ClassFeatures.UsesLeft(_c, p)}/{ClassFeatures.MaxUses(_c, p)}", Theme.Text, 17);
             if (passives.Count > 0)
@@ -753,10 +809,13 @@ public sealed class StatusScene : Scene
     }
 
     /// <summary>鎧と武器の習熟の一覧(クラスを合わせて。分類は名前で、決まった武器は品の名前で)。</summary>
-    public static (string Armor, string Weapons) Proficiencies(GameServices sv, Character c)
+    public static (string Armor, string Weapons) Proficiencies(GameServices sv, Character c) =>
+        Proficiencies(sv, c.ClassIds.Select(id => sv.Data.Classes[id]).ToList());
+
+    /// <summary>そのクラスを合わせた鎧と武器の習熟(キャラ作成では、選んでいるクラスの最初の習熟)。</summary>
+    public static (string Armor, string Weapons) Proficiencies(GameServices sv, IReadOnlyList<ClassDef> classes)
     {
         var s = sv.Strings;
-        var classes = c.ClassIds.Select(id => sv.Data.Classes[id]).ToList();
         var armor = new[] { "light", "medium", "heavy", "shield" }.Where(a => classes.Any(k => k.Armor.Contains(a)))
             .Select(a => a == "shield" ? s["status.prof_shield"] : s["armor." + a]).ToList();
         var weapons = classes.SelectMany(k => k.Weapons).Distinct()

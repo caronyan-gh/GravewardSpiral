@@ -222,6 +222,9 @@ public sealed class ShopScene : MenuScene
         {
             y = Line(d, area, y, ItemText.Name(Services, it), Theme.Title, 24);
             foreach (var line in ItemText.Lines(Services, it)) y = Line(d, area, y, line, Theme.Text, 18);
+            // 買う人を選んでいるとき、その人に習熟が無ければ色付きで知らせる
+            if (_mode == Mode.BuyFor && List.Current?.Tag is Character buyer && ItemText.ProficiencyNote(Services, it, buyer) is { } pn)
+                Line(d, area, y + 4, pn, Theme.Caution, 18);
             return;
         }
         if (List.Current?.Tag is Character c)
@@ -290,6 +293,6 @@ public sealed class TempleScene : MenuScene
     protected override void DrawInfo(Draw2D d, RectangleF area)
     {
         if (List.Current?.Tag is Character c) StatusScene.DrawSummary(d, Services, c, new Vector2(area.X + 20, area.Y + 20));
-        else Line(d, area, area.Y + 20, Services.Strings["town.about_temple"], Theme.Text, 19);
+        else Line(d, area, area.Y + 20, Services.Strings[Services.Session!.Difficulty.RiskyRevive ? "town.about_temple" : "town.about_temple_sure"], Theme.Text, 19);
     }
 }

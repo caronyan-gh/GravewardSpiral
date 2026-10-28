@@ -54,7 +54,17 @@ public sealed class ChestScene(Chest chest, Action onTeleport, Action onAlarm) :
                 yield return new MenuItem(s["chest.close"], Tag: "leave");
                 break;
             default:
-                foreach (var c in Party) yield return new MenuItem(c.Name, Enabled: c.CanAct && !c.Lasting.Any(l => l.Condition == Condition.Paralyzed), Tag: c);
+                // 担当を選ぶ: 調べるなら調べる判定の値、外すなら外す判定の値と盗賊道具の有無
+                foreach (var c in Party)
+                {
+                    string? detail = _mode switch
+                    {
+                        Mode.InspectWho => Signed(Chest.InspectBonus(Data, c)),
+                        Mode.DisarmWho => Chest.DisarmBonus(Data, c) is var (b, tools) ? $"{Signed(b)} {s[tools ? "chest.tools" : "chest.no_tools"]}" : null,
+                        _ => null,
+                    };
+                    yield return new MenuItem(c.Name, detail, c.CanAct && !c.Lasting.Any(l => l.Condition == Condition.Paralyzed), c);
+                }
                 break;
         }
     }
@@ -163,9 +173,20 @@ public sealed class ChestScene(Chest chest, Action onTeleport, Action onAlarm) :
         else Go(Mode.Main);
     }
 
+    private static string Signed(int v) => v >= 0 ? $"+{v}" : v.ToString();
+
     protected override void DrawInfo(Draw2D d, RectangleF area)
     {
         float y = area.Y + 20;
+        // 担当を選ぶときは、その判定の中身と危険を先に出す
+        string? hint = _mode switch
+        {
+            Mode.InspectWho => "chest.about_inspect",
+            Mode.DisarmWho => "chest.about_disarm",
+            Mode.OpenWho => "chest.about_open",
+            _ => null,
+        };
+        if (hint != null) y = Line(d, area, y, Services.Strings[hint], Theme.Dim, 17) + 6;
         foreach (var line in _lines) y = Line(d, area, y, line, Theme.Text, 19);
     }
 }

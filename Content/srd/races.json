@@ -7,7 +7,7 @@
     "darkvision": true,
     "hp_per_level": 1,
     "traits": ["dwarven_resilience", "stonecunning", "dwarven_toughness"],
-    "description": { "en": "Stout and enduring. Resistant to poison.", "ja": "頑丈でねばり強い。毒に強い。レベルごとに HP が 1 多い。" }
+    "description": { "en": "Stout and enduring. Takes half poison damage and has advantage on saves against being poisoned. +1 HP per level.", "ja": "頑丈でねばり強い。毒のダメージを半分にし、毒にするものへのセーヴに有利。レベルごとに HP が 1 多い。" }
   },
   {
     "id": "elf",
@@ -17,7 +17,7 @@
     "darkvision": true,
     "skills": ["perception"],
     "traits": ["keen_senses", "fey_ancestry", "trance"],
-    "description": { "en": "Graceful and keen-eyed. Hard to charm, cannot be put to sleep by magic.", "ja": "身軽で目がよい。魅了されにくく、魔法では眠らない。" }
+    "description": { "en": "Graceful and keen-eyed. Advantage on saves against being charmed, and magic can't put you to sleep.", "ja": "身軽で目がよい。魅了するものへのセーヴに有利で、魔法では眠らない。" }
   },
   {
     "id": "halfling",
@@ -25,7 +25,7 @@
     "subrace": { "en": "Lightfoot", "ja": "ライトフット" },
     "ability_bonus": { "dex": 2, "cha": 1 },
     "traits": ["lucky", "brave", "halfling_nimbleness", "naturally_stealthy"],
-    "description": { "en": "Small and lucky. Rerolls natural 1s.", "ja": "小柄で運がよい。d20 で 1 を出しても振り直せる。" }
+    "description": { "en": "Small and lucky. Rerolls a natural 1 on attacks, saves and death saves. Advantage on saves against being frightened.", "ja": "小柄で運がよい。攻撃・セーヴ・死亡のセーヴの d20 で 1 を出したら振り直す。恐怖にするものへのセーヴに有利。" }
   },
   {
     "id": "human",
@@ -39,7 +39,7 @@
     "name": { "en": "Dragonborn", "ja": "ドラゴンボーン" },
     "ability_bonus": { "str": 2, "cha": 1 },
     "traits": ["breath_weapon", "damage_resistance"],
-    "description": { "en": "Draconic heritage. Breathes fire.", "ja": "竜の血を引く。火の息を吐き、火に強い。" }
+    "description": { "en": "Draconic heritage. Can breathe fire on a nearby enemy group in battle (recharges on a short rest). Takes half fire damage.", "ja": "竜の血を引く。戦闘で近くの敵のグループに火を吐ける(小休憩で戻る)。火のダメージを半分にする。" }
   },
   {
     "id": "gnome",
@@ -48,7 +48,7 @@
     "ability_bonus": { "int": 2, "con": 1 },
     "darkvision": true,
     "traits": ["gnome_cunning", "tinker"],
-    "description": { "en": "Clever. Resists magic that targets the mind.", "ja": "賢い。心に働く魔法(知力・判断力・魅力のセーヴ)に強い。" }
+    "description": { "en": "Clever. Advantage on Intelligence, Wisdom and Charisma saves against magic.", "ja": "賢い。魔法への知力・判断力・魅力のセーヴに有利。" }
   },
   {
     "id": "half_elf",
@@ -58,7 +58,7 @@
     "darkvision": true,
     "free_skills": 2,
     "traits": ["fey_ancestry", "skill_versatility"],
-    "description": { "en": "Charismatic. +1 to two other abilities and two extra skills.", "ja": "人をひきつける。ほかの能力値 2 つが 1 上がり、技能を 2 つ多く覚える。" }
+    "description": { "en": "Charismatic. +1 to two other abilities and two extra skills. Advantage on saves against being charmed, and magic can't put you to sleep.", "ja": "人をひきつける。ほかの能力値 2 つが 1 上がり、技能を 2 つ多く覚える。魅了するものへのセーヴに有利で、魔法では眠らない。" }
   },
   {
     "id": "half_orc",
@@ -67,7 +67,7 @@
     "darkvision": true,
     "skills": ["intimidation"],
     "traits": ["menacing", "relentless_endurance", "savage_attacks"],
-    "description": { "en": "Fierce. Once per rest, drops to 1 HP instead of 0.", "ja": "猛々しい。休憩ごとに1回、HP が 0 になっても 1 で踏みとどまる。" }
+    "description": { "en": "Fierce. Once per long rest, drops to 1 HP instead of 0 (unless killed outright). Rolls one extra weapon die on melee critical hits.", "ja": "猛々しい。大休憩までに1回、HP が 0 になっても 1 で踏みとどまる(即死のときは除く)。近接のクリティカルで武器のダイスを1つ多く振る。" }
   },
   {
     "id": "tiefling",
@@ -75,6 +75,6 @@
     "ability_bonus": { "cha": 2, "int": 1 },
     "darkvision": true,
     "traits": ["hellish_resistance", "infernal_legacy"],
-    "description": { "en": "Infernal heritage. Resistant to fire.", "ja": "地獄の血を引く。火に強い。" }
+    "description": { "en": "Infernal heritage. Takes half fire damage.", "ja": "地獄の血を引く。火のダメージを半分にする。" }
   }
 ]

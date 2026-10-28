@@ -24,7 +24,7 @@ Bardic Inspiration recovers on a short rest from bard level 5 onward. Before tha
 
 - Second Wind: Recover your own HP. It is a bonus action, so you also attack that turn.
 - Action Surge: Make two normal attack actions in succession. Extra Attack applies, but bonus attacks such as an off-hand attack are not doubled.
-- Rage: Attack and enter a rage. For this battle, deal more melee damage and take half damage from bludgeoning, piercing, and slashing. You cannot cast spells, and any spell you were concentrating on ends.
+- Rage: Attack and enter a rage. For this battle, deal more damage with Strength melee attacks and take half damage from bludgeoning, piercing, and slashing. You cannot cast spells, and any spell you were concentrating on ends. From barbarian level 2, your melee attacks while raging have advantage, but so do attacks against you.
 
 ## Paladin and monk abilities
 
@@ -38,7 +38,7 @@ Bardic Inspiration recovers on a short rest from bard level 5 onward. Before tha
 
 - Turn Undead: Prevent undead that fail their saves from acting. Taking damage ends this effect. Sufficiently weak undead are destroyed instead.
 - Bardic Inspiration: Help an ally's attacks or saves. A bonus die is used automatically when it might turn a failure into a success. It is a bonus action, so you also use an attack cantrip or attack that turn.
-- Wild Shape: Transform into a beast. Wolf is available at druid level 2, with black bear added at level 4. Dire wolf and brown bear become available at level 8. Wolves can knock enemies prone; bears have more HP and attack twice. When the beast's HP runs out, you return to your normal form.
+- Wild Shape: Transform into a beast. Wolf is available at druid level 2, with black bear added at level 4. Dire wolf and brown bear become available at level 8. Wolves can knock enemies prone; bears have more HP and attack twice. You fight with the beast's HP and AC and return to your normal form when its HP runs out or the battle ends. While transformed you can't use items, and you can't cast spells below druid level 18.
 
 ## Empowered spells
 
@@ -55,7 +55,7 @@ These abilities work without selecting a combat command. Levels below refer to l
 - Fighting Style: Fighters, paladins, and rangers learn this ability. Equipment determines whether Archery, Two-Weapon Fighting, Great Weapon Fighting, Dueling, or Defense applies.
 - Paladin auras: From level 6, a paladin able to act improves the whole party's saves with Aura of Protection. At level 10, Aura of Courage protects allies from fear.
 - Rogue's Uncanny Dodge: From level 5, reduce damage from an attack. At level 7, Evasion further reduces damage that allows a Dexterity save for reduced damage.
-- Monk's Martial Arts and Evasion: Martial Arts improves unarmed and related attacks. Evasion becomes available at level 7.
+- Monk's Martial Arts and Evasion: Without armor or a shield, you can use Dexterity with unarmed strikes and monk weapons (shortswords and simple melee weapons that aren't heavy or two-handed), and make an extra unarmed strike after attacking. With armor or a shield, Martial Arts stops working and Flurry of Blows can't be chosen. Evasion becomes available at level 7.
 - Wizard's Arcane Recovery: Recover some spell slots during a short rest, once between long rests.
 - Bard's Song of Rest: Restore additional HP to allies who spent Hit Dice healing during a short rest.
 - Warlock invocations: Automatically learn Agonizing Blast at level 2, Thirsting Blade at level 5, and Lifedrinker at level 12. Thirsting Blade grants two attacks, and Lifedrinker drains HP with melee attacks. This game does not offer invocation or Pact Boon selection.

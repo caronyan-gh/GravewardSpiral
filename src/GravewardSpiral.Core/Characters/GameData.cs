@@ -294,7 +294,7 @@ public sealed class GameData
     /// <summary>modifier の stat に書けるもの(技能は 5版の 18 個)。</summary>
     public static readonly IReadOnlySet<string> ModifierStats = new HashSet<string>
     {
-        "ac", "attack", "save", "damage", "attacks", "disarm", "flee",
+        "ac", "ac_unarmored", "ac_min", "attack", "save", "damage", "attacks", "disarm", "flee",
         "acrobatics", "animal_handling", "arcana", "athletics", "deception", "history", "insight", "intimidation", "investigation",
         "medicine", "nature", "perception", "performance", "persuasion", "religion", "sleight_of_hand", "stealth", "survival",
     };

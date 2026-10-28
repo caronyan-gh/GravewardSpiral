@@ -76,13 +76,16 @@ public static class ItemText
                 yield return s.Format("item.weapon", def.Damage ?? "-", s["damage." + def.DamageType], s["weapon." + (def.Category ?? "simple")]);
                 yield return def.Has("two_handed") ? s["item.hands_two"]
                     : def.VersatileDamage != null ? s.Format("item.hands_versatile", def.VersatileDamage) : s["item.hands_one"];
+                if (def.Has("finesse")) yield return s["item.finesse"];   // 技巧: 筋力か敏捷力の高い方
+                if (def.Has("light")) yield return s["item.light"];       // 軽い: 両手に持つと二刀流
                 if (def.Has("returning")) yield return s["item.returning"];
                 else if (def.Has("thrown")) yield return s["item.thrown"];
                 if (bonus != 0) yield return s.Format("item.bonus_attack", Signed(ItemInstance.HitAcBonus(bonus)), Signed(bonus));
                 break;
             case ItemKind.Armor:
                 yield return s.Format("item.armor", def.ArmorClass + ItemInstance.HitAcBonus(bonus), s["armor." + def.ArmorType.ToString()!.ToLowerInvariant()]);
-                if (def.StrengthRequired > 0) yield return s.Format("item.str_required", def.StrengthRequired);
+                // 敏捷力の修正の足し方(重装鎧は足さない、中装鎧は上限まで、軽装鎧はそのまま)
+                yield return def.DexCap is 0 ? s["item.dex_none"] : def.DexCap is int cap ? s.Format("item.dex_cap", cap) : s["item.dex_full"];
                 if (def.StealthDisadvantage) yield return s["item.stealth_disadvantage"];
                 break;
             case ItemKind.Shield:
@@ -109,7 +112,15 @@ public static class ItemText
             var parts = tier.Passive.Select(p => Passive(sv, p)).Concat(tier.OnHit.Select(p => OnHit(sv, p)).OfType<string>());
             yield return s.Format("item.affix", sv.Name(affix.Name).Trim(), string.Join(s["item.affix_sep"], parts));
         }
-        if (def.UseSpell != null && sv.Data.Spells.TryGetValue(def.UseSpell, out var sp)) yield return s.Format("item.use_spell", sv.Name(sp.Name));
+        // 使える回数(残り/最大と戻り方)
+        if (def.Charges is int max) yield return s.Format("item.charges", item.Charges ?? max, max);
+        if (def.UseSpell != null && sv.Data.Spells.TryGetValue(def.UseSpell, out var sp))
+        {
+            yield return s.Format("item.use_spell", sv.Name(sp.Name));
+            // 唱える呪文の効果(道具が唱えるレベルで。戦闘で使うときと同じ)
+            int useLevel = Math.Max(1, Math.Max(sp.Level, def.UseSlot));
+            foreach (var line in SpellText.Effects(s, sp, useLevel)) yield return s["item.use"] + line;
+        }
         foreach (var line in SpellText.Effects(s, new Core.Magic.SpellDef { Effects = def.Use }, 1)) yield return s["item.use"] + line;
         if (def.Description != null) yield return sv.Name(def.Description);
         yield return s.Format("item.price", Treasure.Price(def, item));
@@ -126,6 +137,15 @@ public static class ItemText
         var ok = party.Where(c => c.Proficient(sv.Data, def)).Select(c => c.Name).ToList();
         string key = def.Kind == ItemKind.Weapon ? "item.proficient_members" : "item.can_wear_members";
         return s.Format(key, ok.Count == 0 ? s["item.nobody_in_party"] : ok.Count == party.Count ? s["item.whole_party"] : s.List(ok));
+    }
+
+    /// <summary>その人に習熟の無い武器・鎧・盾なら、その注意の1行(武器は持てるが命中に習熟ボーナスが付かない。鎧と盾は付けられない)。</summary>
+    public static string? ProficiencyNote(GameServices sv, ItemInstance item, Core.Characters.Character who)
+    {
+        if (!sv.Data.Items.TryGetValue(item.ItemId, out var def)) return null;
+        if (def.Kind == ItemKind.Weapon && !who.WeaponProficient(sv.Data, def)) return sv.Strings.Format("item.no_weapon_prof_for", who.Name);
+        if (def.Kind is ItemKind.Armor or ItemKind.Shield && !who.CanWear(sv.Data, def)) return sv.Strings.Format("item.no_armor_prof_for", who.Name);
+        return null;
     }
 
     /// <summary>当たったときの効果の1行(ダメージと、セーヴに失敗したときの効果)。書けないものは null。</summary>

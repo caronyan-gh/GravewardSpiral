@@ -19,7 +19,19 @@ At class levels 4, 8, 12, 16 and 19 (fighters also at 6 and 14, rogues at 10), g
 
 ## Races and classes
 
-The nine races are Human, Elf, Dwarf, Halfling, Gnome, Half-Elf, Half-Orc, Tiefling, and Dragonborn. There are twelve classes.
+The nine races are Human, Elf, Dwarf, Halfling, Gnome, Half-Elf, Half-Orc, Tiefling, and Dragonborn. Besides ability score increases, races have traits.
+
+- Dwarf: Takes half poison damage and has advantage on saves against being poisoned. +1 HP per level.
+- Elf and Half-Elf: Advantage on saves against being charmed, and magic can't put you to sleep.
+- Halfling: Rerolls a natural 1 on attacks, saves and death saves. Advantage on saves against being frightened.
+- Dragonborn: Can breathe fire on a nearby enemy group in battle (listed with class features, recharges on a short rest). Takes half fire damage.
+- Gnome: Advantage on Intelligence, Wisdom and Charisma saves against magic.
+- Half-Orc: Once per long rest, drops to 1 HP instead of 0 (unless killed outright). Rolls one extra weapon die on melee critical hits.
+- Tiefling: Takes half fire damage.
+
+Darkvision currently has no effect on how the dungeon looks.
+
+There are twelve classes.
 
 - Fighter: specializes in weapon attacks and makes a straightforward front-row combatant.
 - Barbarian: uses Rage to strengthen melee attacks and reduce physical damage.

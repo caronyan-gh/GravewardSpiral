@@ -21,6 +21,7 @@ public sealed class CharacterCreateScene : Scene
     private static readonly RectangleF DetailArea = new(620, 110, 600, 540);
 
     private readonly MenuList _list = new(ListArea, 44f, 24f);
+    private const float HeaderHeight = 34f;
     private readonly Action<Character> _onCreated;
     private Step _step;
     private string _name = "";
@@ -73,6 +74,8 @@ public sealed class CharacterCreateScene : Scene
         _message = null;
         _list.Cursor = 0;   // 新しい段は一番上から(一覧で選ぶ段は、下で今の選択に合わせ直す)
         var s = Services.Strings;
+        // クラスの一覧だけ、1行目に見出し(クラス / ヒットダイス)を出すので、そのぶん一覧を下げる
+        _list.Area = step == Step.Class ? new RectangleF(ListArea.X, ListArea.Y + HeaderHeight, ListArea.Width, ListArea.Height - HeaderHeight) : ListArea;
         switch (step)
         {
             case Step.Race:
@@ -213,19 +216,30 @@ public sealed class CharacterCreateScene : Scene
 
     // ---- 入力 --------------------------------------------------------------------
 
+    /// <summary>ポイント購入で、その能力値を delta だけ上げ下げする(8〜15、27 点の中で)。</summary>
+    private void AddPoint(Ability a, int delta)
+    {
+        int old = _base[a];
+        _base[a] = Math.Clamp(old + delta, 8, 15);
+        if (PointsUsed > CharacterFactory.PointBuyBudget) _base[a] = old;
+        else if (_base[a] != old) Services.Audio.PlaySe(Sounds.Cursor);
+        RefreshScores();
+    }
+
     public override void Update(GameTime time, InputState input)
     {
-        if (_step == Step.Scores && _pointBuy && _list.Current?.Tag is Ability pa)
+        if (_step == Step.Scores && _pointBuy)
         {
-            int delta = (input.Repeat(GameAction.Right) ? 1 : 0) - (input.Repeat(GameAction.Left) ? 1 : 0);
-            if (delta != 0)
+            // マウス: 左の欄の中にマウスがあり、選択中の行が能力値なら、左クリックで上げ、右クリックで下げる(右クリックを取消にしない)
+            if ((input.LeftClicked || input.RightClicked) && input.Mouse is { } m && ListArea.Contains(m) && _list.Current?.Tag is Ability ma)
             {
-                int next = Math.Clamp(_base[pa] + delta, 8, 15);
-                int old = _base[pa];
-                _base[pa] = next;
-                if (PointsUsed > CharacterFactory.PointBuyBudget) _base[pa] = old;
-                else Services.Audio.PlaySe(Sounds.Cursor);
-                RefreshScores();
+                AddPoint(ma, input.LeftClicked ? 1 : -1);
+                return;
+            }
+            if (_list.Current?.Tag is Ability pa)
+            {
+                int delta = (input.Repeat(GameAction.Right) ? 1 : 0) - (input.Repeat(GameAction.Left) ? 1 : 0);
+                if (delta != 0) AddPoint(pa, delta);
             }
         }
 
@@ -359,6 +373,13 @@ public sealed class CharacterCreateScene : Scene
         d.Text(s[$"create.step.{_step.ToString().ToLowerInvariant()}"], new Vector2(60, 50), 32, Theme.Title);
         d.Text(_name, new Vector2(60, 92), 22, Theme.Gold);
         Theme.Panel(d, new RectangleF(ListArea.X - 10, ListArea.Y - 10, ListArea.Width + 20, ListArea.Height + 20));
+        if (_step == Step.Class)
+        {
+            float hy = ListArea.Y + 4;
+            d.Text(s["create.class_header"], new Vector2(ListArea.X + 14, hy), 18, Theme.Dim);
+            d.Text(s["create.hit_die_header"], new Vector2(ListArea.X + ListArea.Width - 14, hy), 18, Theme.Dim, TextAlign.Right);
+            d.FillRect(new RectangleF(ListArea.X, ListArea.Y + HeaderHeight - 8, ListArea.Width, 1), Theme.Dim * 0.5f);
+        }
         _list.Draw(d);
         Theme.Panel(d, DetailArea);
         DrawDetail(d, new Vector2(DetailArea.X + 24, DetailArea.Y + 20));
@@ -380,7 +401,7 @@ public sealed class CharacterCreateScene : Scene
                 Line(RaceLabel(rid), Theme.Title, 26);
                 Line(string.Join("  ", r.AbilityBonus.Select(kv => $"{AbilityName(Abilities.Parse(kv.Key))} +{kv.Value}")) +
                      (r.FreeAbilityPoints > 0 ? s.Format("create.free_abilities", r.FreeAbilityPoints) : ""));
-                if (r.Darkvision) Line(s["create.darkvision"], Theme.Dim);
+                if (r.Skills.Count > 0) Line(s.Format("create.gain_skills", Services.Strings.List(r.Skills.Select(SkillName))), Theme.Text, 18);   // 種族の技能
                 Wrap(d, Services.Name(r.Description), at.X, ref y);
                 break;
             }
@@ -391,6 +412,10 @@ public sealed class CharacterCreateScene : Scene
                 Line(s.Format("create.hit_die", c.HitDie));
                 Line(s.Format("create.saves", Services.Strings.List(c.Saves.Select(x => AbilityName(Abilities.Parse(x))))));
                 Line(s.Format("create.primary", Services.Strings.List(c.PrimaryAbilities.Take(2).Select(AbilityName))));
+                // 最初の習熟(データから。マルチクラスで別のクラスを取れば増える)
+                var (armor, weapons) = Town.StatusScene.Proficiencies(Services, [c]);
+                Line(s.Format("create.armor_prof", armor), Theme.Text, 18);
+                Line(s.Format("create.weapon_prof", weapons), Theme.Text, 18);
                 Wrap(d, Services.Name(c.Description), at.X, ref y);
                 break;
             }
@@ -414,6 +439,7 @@ public sealed class CharacterCreateScene : Scene
                 break;
             case Step.Background when _list.Current?.Tag is string bid:
                 Line(Services.Name(Data.Backgrounds[bid].Name), Theme.Title, 26);
+                Line(s.Format("create.gain_skills", Services.Strings.List(Data.Backgrounds[bid].Skills.Select(SkillName))), Theme.Text, 18);   // 経歴で得る技能
                 Wrap(d, Services.Name(Data.Backgrounds[bid].Description), at.X, ref y);
                 break;
             case Step.Alignment:

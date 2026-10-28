@@ -73,7 +73,9 @@ public abstract class Combatant
     /// <summary>修正値を足す前の AC。</summary>
     public abstract int BaseAc { get; }
 
-    public int Ac => BaseAc + Modifiers.Where(m => m.Stat == "ac").Sum(m => m.Value);
+    /// <summary>今の AC。ac の修正値を足し、ac_min(バークスキン)があれば、その値より下げない。</summary>
+    public int Ac => Math.Max(BaseAc + Modifiers.Where(m => m.Stat == "ac").Sum(m => m.Value),
+        Modifiers.Where(m => m.Stat == "ac_min").Select(m => m.Value).DefaultIfEmpty(0).Max());
 
     /// <summary>一時的な HP(ダメージはここから減る)。</summary>
     public abstract int TempHp { get; set; }
@@ -164,7 +166,9 @@ public sealed class PartyMember(Character character, GameData data) : Combatant
     }
 
     public override int MaxHp => Shape?.HpAverage ?? Character.MaxHp;
-    public override int BaseAc => Shape?.Ac ?? Character.ArmorClass(_data);
+    /// <summary>修正値の前の AC。ac_unarmored(メイジ・アーマー)は、鎧を着ていないときの基本の値(13 + 敏捷力)にする。</summary>
+    public override int BaseAc => Shape?.Ac ?? Character.ArmorClass(_data,
+        Modifiers.Where(m => m.Stat == "ac_unarmored").Select(m => (int?)m.Value).Max());
 
     /// <summary>同じパーティの仲間(パラディンのオーラを見る)。戦闘を始めるときに入れる。</summary>
     public IReadOnlyList<PartyMember> Allies { get; set; } = [];
@@ -174,6 +178,9 @@ public sealed class PartyMember(Character character, GameData data) : Combatant
 
     /// <summary>不屈の激怒の難易度(倒れずに踏みとどまるたびに 5 上がる)。</summary>
     public int RelentlessDc { get; set; } = 10;
+
+    /// <summary>急所攻撃を最後に使ったラウンド(1ラウンドに1回)。</summary>
+    public int SneakRound { get; set; } = -1;
 
     /// <summary>ワイルドシェイプで変身している獣(この戦闘の終わりまで。獣の HP が 0 になると戻る)。</summary>
     public MonsterDef? Shape { get; set; }
@@ -205,12 +212,18 @@ public sealed class PartyMember(Character character, GameData data) : Combatant
         || (c == Condition.Poisoned && ClassFeatures.Has(Character, "monk", 10))
         || (c == Condition.Frightened && Allies.Any(a => a.Standing && ClassFeatures.Has(a.Character, "paladin", 10)));
 
-    /// <summary>装備の抵抗と脆弱。</summary>
+    /// <summary>種族の特性を持っているか(races.json の traits)。</summary>
+    public bool Trait(string trait) => Character.HasTrait(_data, trait);
+
+    /// <summary>
+    /// 装備の抵抗と脆弱。種族の抵抗: ドワーフの毒(ドワーフの頑健)、ティーフリングの火(地獄の抵抗)、ドラゴンボーンの火(このゲームでは赤い竜の血)。
+    /// </summary>
     protected override (bool Immune, bool Resist, bool Vulnerable) DamageTraits(string damageType, bool magical)
     {
         var passive = Character.Passive(_data).ToList();
+        bool raceResist = (damageType == "poison" && Trait("dwarven_resilience")) || (damageType == "fire" && (Trait("hellish_resistance") || Trait("damage_resistance")));
         return (damageType == "poison" && ClassFeatures.Has(Character, "monk", 10),
-            passive.Any(p => p.Type == EffectPart.Resist && p.DamageType == damageType) || (Raging && DamageTypes.IsPhysical(damageType)),
+            passive.Any(p => p.Type == EffectPart.Resist && p.DamageType == damageType) || (Raging && DamageTypes.IsPhysical(damageType)) || raceResist,
             passive.Any(p => p.Type == EffectPart.Vulnerable && p.DamageType == damageType));
     }
 

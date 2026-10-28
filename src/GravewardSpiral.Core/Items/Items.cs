@@ -310,13 +310,15 @@ public sealed class Inventory
 
     /// <summary>
     /// 効いている装備(同調が要るものは同調しているときだけ)。持っているあいだの効果や、当たったときの効果を集めるのに使う。
+    /// 同調の要る同じ品は1つだけ効く(5版: 同じ品の2つ目には同調できない。前のセーブで2つ同調していても、2つ目は効かせない)。
     /// </summary>
     public IEnumerable<(EquipSlot Slot, ItemInstance Item, ItemDef Def)> Active(IReadOnlyDictionary<string, ItemDef> defs)
     {
+        var attuned = new HashSet<string>();
         foreach (var (slot, item) in Equipped)
         {
             if (!defs.TryGetValue(item.ItemId, out var def)) continue;
-            if (def.Attunement && !item.Attuned) continue;
+            if (def.Attunement && (!item.Attuned || !attuned.Add(item.ItemId))) continue;
             yield return (slot, item, def);
         }
     }
@@ -412,7 +414,9 @@ public sealed class Inventory
             if (!TryAdd(old, defs)) Items.Add(old);   // 同じ品が袋にあれば重ねる
         }
         Equipped[slot] = item;
-        if (def.Attunement && !item.Attuned && AttunedCount < MaxAttuned) item.Attuned = true;
+        // 同調は空きがあり、同じ品にまだ同調していないときだけ(同じ品の2つ目には同調できない。5版)
+        if (def.Attunement && !item.Attuned && AttunedCount < MaxAttuned
+            && !Equipped.Values.Any(x => x != item && x.Attuned && x.ItemId == item.ItemId)) item.Attuned = true;
         if (slot == EquipSlot.MainHand && def.Has("two_handed") && this[EquipSlot.OffHand] is { } off)
         {
             Equipped.Remove(EquipSlot.OffHand);

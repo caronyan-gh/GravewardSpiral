@@ -39,6 +39,11 @@ public sealed class LockScene(ExplorationState state, Direction dir, int tier, A
         _lines.Add(Services.Strings["lock.found"]);
     }
 
+    /// <summary>蹴破る判定に足す値(筋力の修正 + 運動の習熟)。</summary>
+    private int KickBonus(Character c) => c.Stats(Data).Mod(Ability.Str) + (c.IsProficient("athletics") ? c.ProficiencyBonus : 0);
+
+    private static string Signed(int v) => v >= 0 ? $"+{v}" : v.ToString();
+
     /// <summary>ノックを唱えられる人(ノックを持っていて、スロットが残っている)。</summary>
     private bool CanKnock(Character c) =>
         c.CanAct && Spellcasting.CasterClass(Data, c) is { } cls && Data.Spells.TryGetValue("knock", out var k)
@@ -58,8 +63,19 @@ public sealed class LockScene(ExplorationState state, Direction dir, int tier, A
                 yield return new MenuItem(s["lock.leave"], Tag: "leave");
                 break;
             default:
+                // 担当を選ぶ: 解錠は判定の値と本人の盗賊道具、ノックは使うスロット、蹴破りは判定の値
                 foreach (var c in Party)
-                    yield return new MenuItem(c.Name, Enabled: c.CanAct && (_mode != Mode.KnockWho || CanKnock(c)), Tag: c);
+                {
+                    string? detail = _mode switch
+                    {
+                        Mode.PickWho => Core.Items.Chest.DisarmBonus(Data, c) is var (b, tools) ? $"{Signed(b)} {s[tools ? "chest.tools" : "chest.no_tools"]}" : null,
+                        Mode.KnockWho => CanKnock(c) && Spellcasting.CasterClass(Data, c) is { } kc && Spellcasting.LowestSlot(kc, c, Data.Spells["knock"]) is int slot
+                            ? s.Format("lock.knock_slot", slot) : null,
+                        Mode.KickWho => Signed(KickBonus(c)),
+                        _ => null,
+                    };
+                    yield return new MenuItem(c.Name, detail, c.CanAct && (_mode != Mode.KnockWho || CanKnock(c)), c);
+                }
                 break;
         }
     }
@@ -117,8 +133,7 @@ public sealed class LockScene(ExplorationState state, Direction dir, int tier, A
             }
             case (Mode.KickWho, Character c):
             {
-                int athletics = c.IsProficient("athletics") ? c.ProficiencyBonus : 0;
-                if (Rng.Roll(20) + c.Stats(Data).Mod(Ability.Str) + athletics >= Dc + 2)
+                if (Rng.Roll(20) + KickBonus(c) >= Dc + 2)
                 {
                     _lines.Add(s.Format("lock.kicked", c.Name));
                     Open();
@@ -155,12 +170,16 @@ public sealed class LockScene(ExplorationState state, Direction dir, int tier, A
 
     protected override void DrawInfo(Draw2D d, RectangleF area)
     {
+        float y = area.Y + 20;
+        // 開け方の中身と危険(選んでいる開け方か、担当を選んでいる開け方)
+        var how = _mode != Mode.Main ? _mode : List.Current?.Tag as Mode?;
+        string? hint = how switch { Mode.PickWho => "lock.about_pick", Mode.KnockWho => "lock.about_knock", Mode.KickWho => "lock.about_kick", _ => null };
+        if (hint != null) y = Line(d, area, y, Services.Strings[hint], Theme.Dim, 17) + 6;
         if (List.Current?.Tag is Character c)
         {
-            StatusScene.DrawSummary(d, Services, c, new Vector2(area.X + 20, area.Y + 20));
+            StatusScene.DrawSummary(d, Services, c, new Vector2(area.X + 20, y));
             return;
         }
-        float y = area.Y + 20;
         foreach (var line in _lines.TakeLast(8)) y = Line(d, area, y, line, Theme.Text, 19);
     }
 }

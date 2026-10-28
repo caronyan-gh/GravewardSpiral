@@ -141,6 +141,31 @@ public class SpellFixTests
         Assert.Equal(Spellcasting.PreparedCount(cls, c), c.Book("wizard").Prepared.Count);
     }
 
+    [Theory]
+    [InlineData(4, null, 1)]
+    [InlineData(5, null, 2)]
+    [InlineData(11, "spread", 3)]
+    [InlineData(17, "spread", 4)]
+    public void EldritchBlastFiresMoreBeamsWithCharacterLevel(int level, string? option, int beams)
+    {
+        var c = CharacterFactory.QuickCreate(Data, "T", "human", "warlock", level);
+        if (!c.Book("warlock").Cantrips.Contains("eldritch_blast")) c.Book("warlock").Cantrips.Add("eldritch_blast");
+        var engine = new CombatEngine(Data, new Pcg32(9, 9));
+        var s = engine.Start([c], [(Data.Monsters["ogre"], 6)]);   // 1本では倒れない相手
+        s.Surprised = null;
+        foreach (var u in s.Groups[0].Units) u.Conditions.Add(new ActiveCondition { Condition = Condition.Incapacitated });
+        engine.RunRound(s, new Dictionary<string, PlayerCommand> { [c.Id] = new(CommandKind.Cast, 0, -1, "eldritch_blast", 0, Option: option) });
+        Assert.Equal(beams, s.Log.Count(l => l.Key is "combat.hit" or "combat.crit" or "combat.miss"));
+    }
+
+    [Fact]
+    public void ScorchingRayFiresOneMoreRayPerSlotLevel()
+    {
+        Assert.Equal(3, Data.Spells["scorching_ray"].BeamsAt(2));
+        Assert.Equal(5, Data.Spells["scorching_ray"].BeamsAt(4));
+        Assert.Equal("ranged", Data.Spells["scorching_ray"].Attack);
+    }
+
     [Fact]
     public void ChainLightningHitsAtMostFour()
     {

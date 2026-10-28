@@ -152,7 +152,19 @@ At class levels 4, 8, 12, 16 and 19 (fighters also at 6 and 14, rogues at 10), g
 
 ### Races and classes
 
-The nine races are Human, Elf, Dwarf, Halfling, Gnome, Half-Elf, Half-Orc, Tiefling, and Dragonborn. There are twelve classes.
+The nine races are Human, Elf, Dwarf, Halfling, Gnome, Half-Elf, Half-Orc, Tiefling, and Dragonborn. Besides ability score increases, races have traits.
+
+- Dwarf: Takes half poison damage and has advantage on saves against being poisoned. +1 HP per level.
+- Elf and Half-Elf: Advantage on saves against being charmed, and magic can't put you to sleep.
+- Halfling: Rerolls a natural 1 on attacks, saves and death saves. Advantage on saves against being frightened.
+- Dragonborn: Can breathe fire on a nearby enemy group in battle (listed with class features, recharges on a short rest). Takes half fire damage.
+- Gnome: Advantage on Intelligence, Wisdom and Charisma saves against magic.
+- Half-Orc: Once per long rest, drops to 1 HP instead of 0 (unless killed outright). Rolls one extra weapon die on melee critical hits.
+- Tiefling: Takes half fire damage.
+
+Darkvision currently has no effect on how the dungeon looks.
+
+There are twelve classes.
 
 - Fighter: specializes in weapon attacks and makes a straightforward front-row combatant.
 - Barbarian: uses Rage to strengthen melee attacks and reduce physical damage.
@@ -261,6 +273,8 @@ Spells that improve with higher-level slots also appear on higher tabs. For exam
 Even a spell that does not improve at higher levels appears on the lowest available higher-slot tab when its own level's slots cannot be used.
 
 ### Bonus-action spells
+
+Eldritch Blast (2, 3 and 4 beams at total character level 5, 11 and 17) and Scorching Ray (3 rays at 2nd level, one more per higher slot) fire several beams, each with its own attack roll and damage. Once there are two or more, the spell list shows a Focused and a Spread line. Focused fires at one creature in the chosen group, moving to another in the group if it falls. Spread fires one beam at each of different creatures in the group, and any extra beams go to the survivors.
 
 Spells cast as a bonus action, such as Healing Word or Shield of Faith, are followed by an automatic action that same turn. In the front row you attack with your weapon; in the back row you use an attack cantrip (or a weapon that reaches, or Dodge if neither). To only heal, use an action spell such as Cure Wounds.
 
@@ -485,7 +499,7 @@ Bardic Inspiration recovers on a short rest from bard level 5 onward. Before tha
 
 - Second Wind: Recover your own HP. It is a bonus action, so you also attack that turn.
 - Action Surge: Make two normal attack actions in succession. Extra Attack applies, but bonus attacks such as an off-hand attack are not doubled.
-- Rage: Attack and enter a rage. For this battle, deal more melee damage and take half damage from bludgeoning, piercing, and slashing. You cannot cast spells, and any spell you were concentrating on ends.
+- Rage: Attack and enter a rage. For this battle, deal more damage with Strength melee attacks and take half damage from bludgeoning, piercing, and slashing. You cannot cast spells, and any spell you were concentrating on ends. From barbarian level 2, your melee attacks while raging have advantage, but so do attacks against you.
 
 ### Paladin and monk abilities
 
@@ -499,7 +513,7 @@ Bardic Inspiration recovers on a short rest from bard level 5 onward. Before tha
 
 - Turn Undead: Prevent undead that fail their saves from acting. Taking damage ends this effect. Sufficiently weak undead are destroyed instead.
 - Bardic Inspiration: Help an ally's attacks or saves. A bonus die is used automatically when it might turn a failure into a success. It is a bonus action, so you also use an attack cantrip or attack that turn.
-- Wild Shape: Transform into a beast. Wolf is available at druid level 2, with black bear added at level 4. Dire wolf and brown bear become available at level 8. Wolves can knock enemies prone; bears have more HP and attack twice. When the beast's HP runs out, you return to your normal form.
+- Wild Shape: Transform into a beast. Wolf is available at druid level 2, with black bear added at level 4. Dire wolf and brown bear become available at level 8. Wolves can knock enemies prone; bears have more HP and attack twice. You fight with the beast's HP and AC and return to your normal form when its HP runs out or the battle ends. While transformed you can't use items, and you can't cast spells below druid level 18.
 
 ### Empowered spells
 
@@ -516,7 +530,7 @@ These abilities work without selecting a combat command. Levels below refer to l
 - Fighting Style: Fighters, paladins, and rangers learn this ability. Equipment determines whether Archery, Two-Weapon Fighting, Great Weapon Fighting, Dueling, or Defense applies.
 - Paladin auras: From level 6, a paladin able to act improves the whole party's saves with Aura of Protection. At level 10, Aura of Courage protects allies from fear.
 - Rogue's Uncanny Dodge: From level 5, reduce damage from an attack. At level 7, Evasion further reduces damage that allows a Dexterity save for reduced damage.
-- Monk's Martial Arts and Evasion: Martial Arts improves unarmed and related attacks. Evasion becomes available at level 7.
+- Monk's Martial Arts and Evasion: Without armor or a shield, you can use Dexterity with unarmed strikes and monk weapons (shortswords and simple melee weapons that aren't heavy or two-handed), and make an extra unarmed strike after attacking. With armor or a shield, Martial Arts stops working and Flurry of Blows can't be chosen. Evasion becomes available at level 7.
 - Wizard's Arcane Recovery: Recover some spell slots during a short rest, once between long rests.
 - Bard's Song of Rest: Restore additional HP to allies who spent Hit Dice healing during a short rest.
 - Warlock invocations: Automatically learn Agonizing Blast at level 2, Thirsting Blade at level 5, and Lifedrinker at level 12. Thirsting Blade grants two attacks, and Lifedrinker drains HP with melee attacks. This game does not offer invocation or Pact Boon selection.
@@ -688,6 +702,8 @@ This game adapts the D&D 5th edition SRD 5.1 for dungeon exploration. These are 
 - Warlock: Invocations are learned automatically at fixed levels. There is no invocation or Pact Boon selection.
 - Multiclassing: Gain all weapon and armor proficiencies of each new class you take.
 - Ability Score Improvements and feats: Gain 2 points at class levels 4, 8, 12, 16 and 19 (fighters also at 6 and 14, rogues at 10) and spend them one at a time at the training grounds. There are no feats (the only SRD 5.1 feat is for grappling, which this game does not have).
+- Fighting Style: You don't choose one. It follows what you wield (ranged weapon: Archery, two light weapons: Two-Weapon Fighting, two-handed: Great Weapon Fighting, one-handed melee: Dueling, no weapon: Defense). The status screen shows your current style.
+- Wild Shape: While transformed, your AC is the beast's fixed value. Unarmored Defense and gear don't add to it.
 - Level cap: Total character level has no cap. From level 21 onward, gain an epic boon with each level.
 
 ### Combat
@@ -702,7 +718,10 @@ This game adapts the D&D 5th edition SRD 5.1 for dungeon exploration. These are 
 - Party and distance: Up to six members form a front row of three and a back row of three. Combat distance uses these rows and near or far enemy groups.
 - Inventory: Carrying capacity depends on free bag slots rather than weight.
 - Ammunition: Ordinary arrows and bolts need no replenishment. Special ammunition is consumed with each attack.
-- Attunement: No rest is required. Equipping an item attunes it automatically if an attunement slot is available.
+- Attunement: No rest is required. Equipping an item attunes it automatically if an attunement slot is available. You can't attune to a second copy of the same item (as in 5e).
+- Armor and shields without proficiency: They can't be equipped (in 5e you can wear them, but they only hurt you, such as by stopping spellcasting).
+- Protective gear: Some items, such as Bracers of Defense and the Robe of the Archmagi, simply add to AC instead of working only without armor.
+- High magic bonuses: Weapons and armor above +4 have their attack and AC bonus capped (+4 gives +3; +5 and higher give +4). Damage keeps the full bonus.
 
 ### Resting and death
 

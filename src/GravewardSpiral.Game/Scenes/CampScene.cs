@@ -138,7 +138,7 @@ public sealed class CampScene : MenuScene
             case Mode.CastTarget:
                 foreach (var c in Party)
                     yield return new MenuItem(c.Name, c.IsAlive ? $"{c.Hp}/{c.MaxHp}" : s[$"state.{c.State.ToString().ToLowerInvariant()}"],
-                        c.State is LifeState.Alive or LifeState.Unconscious, c);
+                        CombatEngine.AllyTargetable(_spell!, c.State), c);   // 蘇生の呪文は死んだ人だけ
                 break;
         }
     }

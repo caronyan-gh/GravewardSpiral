@@ -282,4 +282,14 @@ public class ClassFeatureTests
         Assert.Equal("rage", cmd.FeatureId);
         Assert.Equal(CommandKind.Attack, CombatSimulator.AutoCommands(s, Data, useSpells: false)[c.Id].Kind);
     }
+
+    [Fact]
+    public void FlurryIsNotOfferedInArmor()
+    {
+        var c = Make("monk", 3);
+        var flurry = ClassFeatures.Active.First(f => f.Id == "flurry_of_blows");
+        Assert.True(ClassFeatures.CanUse(Data, c, flurry));
+        c.Inventory.Equipped[GravewardSpiral.Core.Items.EquipSlot.Armor] = new GravewardSpiral.Core.Items.ItemInstance { ItemId = "leather_armor", Identified = true };
+        Assert.False(ClassFeatures.CanUse(Data, c, flurry));   // 鎧では素手の連打が出ないので、選べない(気だけ減らない)
+    }
 }

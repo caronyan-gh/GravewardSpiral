@@ -38,12 +38,13 @@ public static class ClassFeatures
         new("turn_undead", "cleric", 2, FeatureTarget.None, "channel_divinity"),
         new("bardic_inspiration", "bard", 1, FeatureTarget.Ally, "bardic_inspiration"),
         new("wild_shape", "druid", 2, FeatureTarget.Self, "wild_shape"),
+        new("breath_weapon", "race:dragonborn", 1, FeatureTarget.EnemyGroup, "breath_weapon"),   // 種族の技(クラスの代わりに race:<種族>)
     ];
 
     /// <summary>小休憩で戻る回数(ほかは大休憩で戻る)。呪歌の泉(バード L5)からは鼓舞も小休憩で戻る。</summary>
     private static bool ShortRecharge(Character c, string pool) => pool switch
     {
-        "second_wind" or "action_surge" or "ki" or "channel_divinity" or "wild_shape" => true,
+        "second_wind" or "action_surge" or "ki" or "channel_divinity" or "wild_shape" or "breath_weapon" => true,
         "bardic_inspiration" => Level(c, "bard") >= 5,
         _ => false,
     };
@@ -64,7 +65,9 @@ public static class ClassFeatures
     }
 
     /// <summary>そのクラスを持っていて、レベルが足りているか。</summary>
-    public static bool Has(Character c, string classId, int level) => level > 0 && Level(c, classId) >= level;
+    /// classId が race:<種族> なら、その種族で、合計のレベルが足りているか(種族の技)。
+    public static bool Has(Character c, string classId, int level) =>
+        classId.StartsWith("race:") ? c.RaceId == classId[5..] && c.Level >= level : level > 0 && Level(c, classId) >= level;
 
     /// <summary>その人が持っている戦闘の技。</summary>
     public static IEnumerable<FeatureDef> ActiveFor(Character c) => Active.Where(f => Has(c, f.ClassId, f.MinLevel));
@@ -83,6 +86,8 @@ public static class ClassFeatures
         "wild_shape" => Level(c, "druid") switch { >= 20 => 99, >= 2 => 2, _ => 0 },   // 大ドルイド(L20)は何回でも
         "sorcery_points" => Level(c, "sorcerer") >= 2 ? Level(c, "sorcerer") : 0,
         "arcane_recovery" => Level(c, "wizard") >= 1 ? 1 : 0,
+        "breath_weapon" => c.RaceId == "dragonborn" ? 1 : 0,           // 竜の息(小休憩で戻る)
+        "relentless_endurance" => c.RaceId == "half_orc" ? 1 : 0,      // 不屈の耐久(大休憩で戻る)
         _ => 0,
     };
 
@@ -102,6 +107,7 @@ public static class ClassFeatures
         if (!Has(c, f.ClassId, f.MinLevel)) return false;
         if (f.Id == "divine_smite") return SmiteSlot(data, c) != null;
         if (f.Id == "lay_on_hands") return UsesLeft(c, "lay_on_hands") > 0;
+        if (f.Id == "flurry_of_blows" && !MartialArts(data, c)) return false;   // 鎧か盾を着けていると素手の連打は出ない(気だけ減らないように選べなくする)
         return f.Pool == null || UsesLeft(c, f.Pool) >= f.Cost;
     }
 
@@ -109,7 +115,7 @@ public static class ClassFeatures
     /// 獣の姿でも使える技か。武器や素手の打撃に乗せる技(連打・朦朧打撃・スマイト)は、獣の攻撃では使えない
     /// (使っても気やスロットだけが減るので、選べないようにする)。
     /// </summary>
-    public static bool UsableInBeastForm(FeatureDef f) => f.Id is not ("flurry_of_blows" or "stunning_strike" or "divine_smite");
+    public static bool UsableInBeastForm(FeatureDef f) => f.Id is not ("flurry_of_blows" or "stunning_strike" or "divine_smite" or "breath_weapon");
 
     /// <summary>スマイトに使うスロット(4 レベルまでの、空いている一番上。5版ではそれより上でもダメージは 5d8 で止まる)。</summary>
     public static int? SmiteSlot(GameData data, Character c)
@@ -169,7 +175,7 @@ public static class ClassFeatures
     /// <summary>回数を数えるもの(状態の画面に残りを出す順)。</summary>
     public static readonly string[] Pools =
         ["second_wind", "action_surge", "indomitable", "rage", "lay_on_hands", "ki", "channel_divinity", "bardic_inspiration", "wild_shape",
-         "sorcery_points", "arcane_recovery"];
+         "sorcery_points", "arcane_recovery", "breath_weapon", "relentless_endurance"];
 
     /// <summary>勝手に効く能力(状態の画面に名前を出す)。id とクラスと覚えるレベル。</summary>
     private static readonly (string Id, string ClassId, int Level)[] PassiveList =

@@ -37,11 +37,16 @@ public static class CombatSimulator
         {
             var targets = s.AttackableGroups(p).ToList();
             bool canCast = ClassFeatures.CanCastIn(p.Character, p.Raging, p.Shape != null);
-            d[p.Id] = (useSpells ? AutoFeature(s, data, p) : null) ?? (useSpells && canCast ? AutoSpell(s, data, p) : null)
+            d[p.Id] = (useSpells ? AutoFeature(s, data, p) : null) ?? (useSpells && canCast ? Spread(s, data, AutoSpell(s, data, p)) : null)
                 ?? (targets.Count > 0 ? new PlayerCommand(CommandKind.Attack, targets[0]) : PlayerCommand.Dodge);
         }
         return d;
     }
+
+    /// <summary>光線の呪文は、狙うグループに2体以上いれば分散で、1体なら集中で撃つ。</summary>
+    private static PlayerCommand? Spread(CombatState s, GameData data, PlayerCommand? cmd) =>
+        cmd is { Kind: CommandKind.Cast, SpellId: { } id, TargetGroup: >= 0 and var g } && data.Spells.TryGetValue(id, out var sp) && sp.Beams != null
+            && g < s.Groups.Count && s.Groups[g].AliveCount >= 2 ? cmd with { Option = "spread" } : cmd;
 
     /// <summary>強い戦い(敵の HP の合計が、立っているパーティの HP の合計の半分を超える)。</summary>
     private static bool Dangerous(CombatState s) =>
@@ -78,6 +83,9 @@ public static class CombatSimulator
         if (have.Contains("wild_shape") && p.Shape == null && s.InFront(p) && s.LiveGroups.Any(g => s.IsNear(g))
             && !Spellcasting.CasterClasses(data, c).Any(cls => Enumerable.Range(1, 9).Any(lv => Spellcasting.SlotsLeft(cls, c, lv) > 0)))
             return Use("wild_shape");
+        // 竜の息: 近くに2体以上いるグループに
+        if (have.Contains("breath_weapon") && s.Groups.Select((g, i) => (g, i)).FirstOrDefault(x => !x.g.Wiped && s.IsNear(x.g) && x.g.AliveCount >= 2) is { g: not null } br)
+            return Use("breath_weapon", br.i);
         if (target < 0) return null;
         if (have.Contains("rage") && !p.Raging && s.InFront(p)) return Use("rage", target);
         if (!dangerous) return null;

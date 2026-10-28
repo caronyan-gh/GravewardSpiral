@@ -48,6 +48,8 @@ Even a spell that does not improve at higher levels appears on the lowest availa
 
 ## Bonus-action spells
 
+Eldritch Blast (2, 3 and 4 beams at total character level 5, 11 and 17) and Scorching Ray (3 rays at 2nd level, one more per higher slot) fire several beams, each with its own attack roll and damage. Once there are two or more, the spell list shows a Focused and a Spread line. Focused fires at one creature in the chosen group, moving to another in the group if it falls. Spread fires one beam at each of different creatures in the group, and any extra beams go to the survivors.
+
 Spells cast as a bonus action, such as Healing Word or Shield of Faith, are followed by an automatic action that same turn. In the front row you attack with your weapon; in the back row you use an attack cantrip (or a weapon that reaches, or Dodge if neither). To only heal, use an action spell such as Cure Wounds.
 
 ## Where you can cast and restrictions

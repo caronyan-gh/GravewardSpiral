@@ -35,6 +35,17 @@ public sealed class SpellDef
     /// <summary>強化のしかた: slot(上のスロットで唱える)/ character(キャラクターのレベル。初級呪文)。</summary>
     public string? Scale { get; set; }
 
+    /// <summary>
+    /// 光線の本数(エルドリッチ・ブラスト、スコーチング・レイ)。レベル(scale が character ならキャラクターの合計のレベル、slot なら唱えたスロット)
+    /// ごとの本数で、そのレベル以下の一番大きなキーを使う。光線ごとに攻撃ロールとダメージを振る。唱え方は集中(1体に。倒れたら同じグループの別の1体へ)と
+    /// 分散(グループのばらばらの相手に1本ずつ)。
+    /// </summary>
+    public Dictionary<string, int>? Beams { get; set; }
+
+    /// <summary>そのレベルで撃つ光線の本数(光線の呪文でなければ 1)。</summary>
+    public int BeamsAt(int level) => Beams == null ? 1
+        : Beams.Select(kv => (Level: int.Parse(kv.Key), kv.Value)).Where(x => x.Level <= level).OrderBy(x => x.Level).Select(x => x.Value).DefaultIfEmpty(1).Last();
+
     /// <summary>呪文の攻撃ロール(melee / ranged)。melee は前列から近くのグループにだけ届く。</summary>
     public string? Attack { get; set; }
 

@@ -134,6 +134,9 @@ public sealed class Character
 
     public const int MaxIncreasedScore = 20;
 
+    /// <summary>種族の特性を持っているか(races.json の traits)。</summary>
+    public bool HasTrait(GameData data, string trait) => data.Races.TryGetValue(RaceId, out var r) && r.Traits.Contains(trait);
+
     /// <summary>まだ振っていない能力値上昇の点。</summary>
     public int AbilityPoints => 2 * Classes.Sum(x => ClassFeatures.AbilityIncreaseCount(x.ClassId, x.Level)) - AbilityIncreases.Count;
 
@@ -257,22 +260,28 @@ public sealed class Character
     /// AC。鎧を着ていれば鎧の AC + 敏捷力の修正値(上限あり)。着ていなければ 10 + 敏捷力
     /// (バーバリアンとモンクは、それに耐久力か判断力の修正値も足す)。盾を持っていれば +2。
     /// </summary>
-    public int ArmorClass(GameData data)
+    /// <param name="unarmoredBase">鎧を着ていないときの基本の AC の別の計算(メイジ・アーマーの 13。敏捷力の修正を足す)。鎧なしの防御と比べて高い方を使う(5版)。</param>
+    public int ArmorClass(GameData data, int? unarmoredBase = null)
     {
         var stats = Stats(data);
         int dex = stats.Mod(Ability.Dex);
         int ac;
         if (Inventory[EquipSlot.Armor] is { } armor && data.Items.TryGetValue(armor.ItemId, out var a))
         {
-            ac = a.ArmorClass + armor.HitAcBonus(a) + (a.DexCap is int cap ? Math.Min(dex, cap) : dex);
+            // 重装鎧(上限 0)は敏捷力の修正を足さない(マイナスでも引かない)。中装鎧は上限まで
+            ac = a.ArmorClass + armor.HitAcBonus(a) + (a.DexCap is 0 ? 0 : a.DexCap is int cap ? Math.Min(dex, cap) : dex);
         }
         else
         {
             ac = 10 + dex;
-            var cls = data.Classes[ClassId];
-            bool shieldOk = cls.UnarmoredDefense != "wis";   // モンクは盾を持つと使えない
-            if (cls.UnarmoredDefense is { } extra && (shieldOk || Inventory[EquipSlot.OffHand] == null))
+            // 鎧なしの防御: 最初に得たクラスのもの(マルチクラスであとから取っても付く。2つ目は付かない。5版)
+            var unarmored = (Classes.Count > 0 ? Classes.Select(x => x.ClassId) : [ClassId])   // 古いセーブはクラスの並びを持たない
+                .Select(id => data.Classes.GetValueOrDefault(id)).FirstOrDefault(x => x?.UnarmoredDefense != null);
+            bool holdingShield = Inventory[EquipSlot.OffHand] is { } held && data.Items.TryGetValue(held.ItemId, out var hd) && hd.Kind == ItemKind.Shield;
+            bool shieldOk = unarmored?.UnarmoredDefense != "wis";   // モンクは盾を持つと使えない(もう片方の手の武器はよい)
+            if (unarmored?.UnarmoredDefense is { } extra && (shieldOk || !holdingShield))
                 ac += stats.Mod(Abilities.Parse(extra));
+            if (unarmoredBase is int ub) ac = Math.Max(ac, ub + dex);
         }
         if (Inventory[EquipSlot.OffHand] is { } off && data.Items.TryGetValue(off.ItemId, out var s) && s.Kind == ItemKind.Shield)
             ac += s.ArmorClass + off.HitAcBonus(s);

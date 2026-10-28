@@ -9,7 +9,7 @@ public static class PartyPanel
 {
     /// <param name="shown">見せる HP と状態(戦闘のログの途中の値)。null ならキャラクターの今の値。</param>
     public static void Draw(Draw2D d, GameServices services, RectangleF area, int? highlight = null,
-        IReadOnlyList<(string Id, int Hp, LifeState State, string? Shape)>? shown = null)
+        IReadOnlyList<(string Id, int Hp, LifeState State, string? Shape, int Ac)>? shown = null)
     {
         Theme.Panel(d, area);
         var session = services.Session;
@@ -37,14 +37,13 @@ public static class PartyPanel
             var state = c.State;
             if (shown?.FirstOrDefault(x => x.Id == c.Id) is { Id: not null } snap)
             {
-                (hpNow, state) = (snap.Hp, snap.State);
+                (hpNow, state, ac) = (snap.Hp, snap.State, snap.Ac);   // 戦闘中は、そのときの AC(呪文などの分を含む)
                 // ワイルドシェイプ中は、クラスのところに獣の名前、HP は獣のもの
                 if (snap.Shape != null && services.Data.Monsters.TryGetValue(snap.Shape, out var beast))
                 {
                     cls = services.Name(beast.Name);
                     level = "";
                     hpMax = beast.HpAverage;
-                    ac = beast.Ac;
                 }
             }
             var color = state == LifeState.Alive ? (hpNow <= hpMax / 4 ? Theme.Warn : Theme.Text) : Theme.Disabled;

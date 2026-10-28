@@ -166,6 +166,12 @@
    }
   ],
   "status": "ok",
+  "beams": {
+   "1": 1,
+   "5": 2,
+   "11": 3,
+   "17": 4
+  },
   "use": [
    "combat"
   ],
@@ -1960,8 +1966,8 @@
   "effects": [
    {
     "type": "modifier",
-    "stat": "ac",
-    "value": 3,
+    "stat": "ac_unarmored",
+    "value": 13,
     "rounds": 4800
    }
   ],
@@ -1970,7 +1976,7 @@
   "use": [
    "combat"
   ],
-  "icon": "protect"
+  "icon": "buff"
  },
  {
   "id": "magic_missile",
@@ -2538,8 +2544,8 @@
   "effects": [
    {
     "type": "modifier",
-    "stat": "ac",
-    "value": 2,
+    "stat": "ac_min",
+    "value": 16,
     "rounds": 600
    }
   ],
@@ -2548,7 +2554,7 @@
   "use": [
    "combat"
   ],
-  "icon": "protect"
+  "icon": "buff"
  },
  {
   "id": "blindness_deafness",
@@ -3651,6 +3657,17 @@
    }
   ],
   "status": "ok",
+  "attack": "ranged",
+  "beams": {
+   "2": 3,
+   "3": 4,
+   "4": 5,
+   "5": 6,
+   "6": 7,
+   "7": 8,
+   "8": 9,
+   "9": 10
+  },
   "use": [
    "combat"
   ],

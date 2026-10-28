@@ -21,7 +21,10 @@ public sealed class NewGameScene : Scene
 {
     private enum Row { Scenario, Clan, ClanName, Seed, Floors, SizeMode, Width, Height, MaxWidth, MaxHeight, Difficulty, Bodies, Revive, Save, UseAi, Create, Back }
 
-    private const float Left = 300f, ValueX = 760f, Top = 112f, Step = 34f;
+    private const float Left = 300f, ValueX = 760f, Top = 112f, FullStep = 34f;
+
+    /// <summary>行の間隔。行が多いとき(自由な迷宮でランダムな大きさ)は、下の説明に重ならないように詰める。</summary>
+    private float Step => Math.Min(FullStep, 490f / Math.Max(1, Rows().Count));
 
     private Difficulty _difficulty = new();
     private List<ScenarioInfo> _scenarios = [];
@@ -108,14 +111,14 @@ public sealed class NewGameScene : Scene
             if (_randomSize) rows.AddRange([Row.MaxWidth, Row.MaxHeight]);
         }
         rows.Add(Row.Difficulty);
-        if (_difficulty.Preset == Difficulty.Custom) rows.AddRange([Row.Bodies, Row.Revive, Row.Save]);
+        rows.AddRange([Row.Bodies, Row.Revive, Row.Save]);   // プリセットでも中身を見せる(変えられるのはカスタムだけ)
         // 文の決まったシナリオ(自由な迷宮から作ったもの)では、AI に書かせないので出さない
         if (_aiAvailable && Core.Save.WorldPackDef.Of(Services.Content)?.Text == null) rows.Add(Row.UseAi);
         rows.AddRange([Row.Create, Row.Back]);
         return rows;
     }
 
-    private static RectangleF RowRect(int i) => new(Left - 20, Top + i * Step - 6, 760, Step - 4);
+    private RectangleF RowRect(int i) => new(Left - 20, Top + i * Step - 6, 760, Step - 4);
 
     public override void Update(GameTime time, InputState input)
     {
@@ -232,6 +235,7 @@ public sealed class NewGameScene : Scene
                 if (_clan >= 0) _clanName = _clans[_clan].Clan.Name;
                 else if (_clans.Any(c => c.Clan.Name == _clanName)) _clanName = "";
                 break;
+            case Row.Bodies or Row.Revive or Row.Save when _difficulty.Preset != Difficulty.Custom: return;   // プリセットの中身は読むだけ
             case Row.Bodies: _difficulty.BodiesRemain = !_difficulty.BodiesRemain; break;
             case Row.Revive: _difficulty.RiskyRevive = !_difficulty.RiskyRevive; break;
             case Row.Save: _difficulty.StrictSave = !_difficulty.StrictSave; break;
@@ -410,20 +414,23 @@ public sealed class NewGameScene : Scene
             }
             var color = selected ? Color.White : new Color(160, 170, 180);
             if (rows[i] == Row.Create && locked) color = selected ? new Color(170, 170, 170) : new Color(100, 104, 110);
+            bool readOnly = rows[i] is Row.Bodies or Row.Revive or Row.Save && _difficulty.Preset != Difficulty.Custom;
+            if (readOnly) color = selected ? new Color(170, 170, 170) : new Color(110, 116, 124);
             float y = Top + i * Step;
             var (label, value) = Describe(rows[i]);
-            d.Text(label, new Vector2(Left, y), 24, color);
+            float size = Math.Min(24f, Step - 6);   // 行を詰めたときは字も少し小さく
+            d.Text(label, new Vector2(Left, y), size, color);
             if (value != null)
             {
-                bool adjustable = rows[i] is not (Row.Seed or Row.ClanName);
+                bool adjustable = rows[i] is not (Row.Seed or Row.ClanName) && !readOnly;
                 // ◀ ▶ は値の長さによらず決まった位置に出す
                 // 長い値(シナリオの名前など)は、◀ ▶ に重ならないように字を小さくする
-                float valueSize = Math.Min(24f, 24f * (ArrowSpan * 2 - 40) / Math.Max(1f, d.Fonts.Measure(value, 24).X));
-                d.Text(value, new Vector2(ValueX, y + (24 - valueSize) / 2), valueSize, color, TextAlign.Center);
+                float valueSize = Math.Min(size, size * (ArrowSpan * 2 - 40) / Math.Max(1f, d.Fonts.Measure(value, size).X));
+                d.Text(value, new Vector2(ValueX, y + (size - valueSize) / 2), valueSize, color, TextAlign.Center);
                 if (adjustable)
                 {
-                    d.Text("◀", new Vector2(ValueX - ArrowSpan, y), 24, color, TextAlign.Center);
-                    d.Text("▶", new Vector2(ValueX + ArrowSpan, y), 24, color, TextAlign.Center);
+                    d.Text("◀", new Vector2(ValueX - ArrowSpan, y), size, color, TextAlign.Center);
+                    d.Text("▶", new Vector2(ValueX + ArrowSpan, y), size, color, TextAlign.Center);
                 }
             }
         }

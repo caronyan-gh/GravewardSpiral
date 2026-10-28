@@ -46,12 +46,23 @@ public sealed class Chest
         };
     }
 
+    /// <summary>調べる判定に足す値(知力の修正 + 調査の習熟)。担当を選ぶ画面にも出す。</summary>
+    public static int InspectBonus(GameData data, Character c) => c.Stats(data).Mod(Ability.Int) + (c.IsProficient("investigation") ? c.ProficiencyBonus : 0);
+
+    /// <summary>罠を外す判定に足す値(敏捷力の修正 + 盗賊道具の習熟と道具 + 装備の disarm)と、道具を持っているか。</summary>
+    public static (int Bonus, bool Tools) DisarmBonus(GameData data, Character c)
+    {
+        bool tools = c.Inventory.Items.Any(i => i.ItemId == "thieves_tools");
+        bool proficient = tools && c.ClassIds.Any(id => data.Classes[id].Tools.Contains("thieves_tools"));
+        return (c.Stats(data).Mod(Ability.Dex) + (proficient ? c.ProficiencyBonus : 0) + c.PassiveBonus(data, "disarm"), tools);
+    }
+
     /// <summary>調べる。成功すれば本当の罠、失敗すれば違う罠(か「罠は無い」)が分かったつもりになる。1 が出ると罠が動く。</summary>
     public (ChestTrap Seen, bool Triggered) Inspect(GameData data, Character c, IRandom rng)
     {
         int nat = rng.Roll(20);
         if (nat == 1 && Trap != ChestTrap.None) return (Trap, true);
-        int total = nat + c.Stats(data).Mod(Ability.Int) + (c.IsProficient("investigation") ? c.ProficiencyBonus : 0);
+        int total = nat + InspectBonus(data, c);
         if (total >= Dc) return (Trap, false);
         var wrong = Enum.GetValues<ChestTrap>().Where(t => t != Trap).ToList();
         return (wrong[rng.Next(0, wrong.Count)], false);
@@ -64,9 +75,7 @@ public sealed class Chest
     {
         if (Trap == ChestTrap.None) return guess == ChestTrap.None ? DisarmResult.NoTrap : DisarmResult.Failed;
         if (guess != Trap) return DisarmResult.Triggered;
-        bool tools = c.Inventory.Items.Any(i => i.ItemId == "thieves_tools");
-        bool proficient = tools && c.ClassIds.Any(id => data.Classes[id].Tools.Contains("thieves_tools"));
-        int total = rng.Roll(20) + c.Stats(data).Mod(Ability.Dex) + (proficient ? c.ProficiencyBonus : 0) + c.PassiveBonus(data, "disarm");
+        int total = rng.Roll(20) + DisarmBonus(data, c).Bonus;
         if (total >= Dc)
         {
             Trap = ChestTrap.None;
@@ -89,9 +98,20 @@ public sealed class Chest
         void Hurt(Character c, int dmg, string type)
         {
             if (!c.IsAlive || dmg <= 0) return;
-            if (c.Passive(data).Any(p => p.Type == EffectPart.Resist && p.DamageType == type)) dmg /= 2;
+            // 抵抗: 装備と種族(ドワーフの毒、ティーフリングとドラゴンボーンの火)
+            bool raceResist = (type == "poison" && c.HasTrait(data, "dwarven_resilience"))
+                || (type == "fire" && (c.HasTrait(data, "hellish_resistance") || c.HasTrait(data, "damage_resistance")));
+            if (raceResist || c.Passive(data).Any(p => p.Type == EffectPart.Resist && p.DamageType == type)) dmg /= 2;
+            int before = c.Hp;
             c.Hp -= dmg;
             lines.Add(("chest.hurt", [c.Name, dmg]));
+            // 不屈の耐久(ハーフオーク): 大休憩までに1回、HP 1 で踏みとどまる(即死になる大きなダメージ、残りを超えた分が最大 HP 以上のときは除く)
+            if (c.Hp <= 0 && dmg - before < c.MaxHp && c.HasTrait(data, "relentless_endurance") && ClassFeatures.Spend(c, "relentless_endurance"))
+            {
+                c.Hp = 1;
+                lines.Add(("chest.endure", [c.Name]));
+                return;
+            }
             if (c.Hp <= 0)
             {
                 c.Hp = 0;
@@ -99,7 +119,14 @@ public sealed class Chest
                 lines.Add(("chest.died", [c.Name]));
             }
         }
-        bool Save(Character c, Ability a) => rng.Roll(20) + c.SaveBonus(data, a) >= Dc;
+        // セーヴ: ハーフリングの幸運(1 を振り直す)、ドワーフの頑健(毒にするものに有利)
+        bool Save(Character c, Ability a, Condition? against = null)
+        {
+            int Die() { int r = rng.Roll(20); return r == 1 && c.HasTrait(data, "lucky") ? rng.Roll(20) : r; }
+            int roll = Die();
+            if (against == Condition.Poisoned && c.HasTrait(data, "dwarven_resilience")) roll = Math.Max(roll, Die());
+            return roll + c.SaveBonus(data, a) >= Dc;
+        }
         void Lasting(Character c, Condition cond, int? minutes)
         {
             if (!c.IsAlive || c.Passive(data).Any(p => p.Type == EffectPart.ImmuneCondition && p.Condition == cond)) return;
@@ -113,10 +140,10 @@ public sealed class Chest
         {
             case ChestTrap.PoisonNeedle:
                 Hurt(opener, Roll($"{1 + t}d4"), "piercing");
-                if (!Save(opener, Ability.Con)) Lasting(opener, Condition.Poisoned, 60);
+                if (!Save(opener, Ability.Con, Condition.Poisoned)) Lasting(opener, Condition.Poisoned, 60);
                 break;
             case ChestTrap.GasBomb:
-                foreach (var c in party.Where(c => c.IsAlive && !Save(c, Ability.Con))) Lasting(c, Condition.Poisoned, 30);
+                foreach (var c in party.Where(c => c.IsAlive && !Save(c, Ability.Con, Condition.Poisoned))) Lasting(c, Condition.Poisoned, 30);
                 break;
             case ChestTrap.CrossbowBolt:
                 Hurt(opener, Roll($"{2 + t}d10"), "piercing");

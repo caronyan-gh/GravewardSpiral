@@ -23,7 +23,6 @@ public sealed class InventoryScene(Character owner) : MenuScene
     private enum Mode { List, Actions, GiveTo, UseOn, SlotPick }
 
     /// <summary>部位を選んだときの、右の欄の候補(外す・付けられる品)。</summary>
-    private readonly MenuList _slotMenu = new(new RectangleF(InfoArea.X + 20, InfoArea.Y + 64, InfoArea.Width - 40, 190), 36f, 21f);
 
     private Mode _mode;
 
@@ -31,7 +30,7 @@ public sealed class InventoryScene(Character owner) : MenuScene
 
     private Tab _tab;
 
-    private static RectangleF TabRect(Tab t) => new(ListArea.X - 12 + (int)t * 190, 90, 180, 32);
+    private static RectangleF TabRect(Tab t) => new(ListArea.X - 12 + (int)t * 130, 90, 120, 32);   // 右に AC と同調の数を置くので、短めに
     private object? _picked;   // 選んだもの(EquipSlot か、袋の中の ItemInstance)
 
     private Inventory Inv => owner.Inventory;
@@ -69,6 +68,19 @@ public sealed class InventoryScene(Character owner) : MenuScene
                 }
                 yield return new MenuItem(s["common.back"], Tag: "back");
                 break;
+            case Mode.SlotPick when _picked is EquipSlot ps:
+            {
+                // 部位の付け替え: 1行目は部位と今付けているもの(選べない)、次に外す、袋の候補(習熟のあるものを上に)
+                string now = Inv[ps] is { } cur ? ItemText.Name(Services, cur) : "-";
+                yield return new MenuItem($"{s["slot." + ps.ToString().ToLowerInvariant()]}: {now}", Enabled: false);
+                if (Inv[ps] != null) yield return new MenuItem(s["inv.unequip"], Tag: "unequip");
+                foreach (var i in Candidates(ps).OrderBy(i => owner.Proficient(Data, Data.Items[i.ItemId]) ? 0 : 1))
+                    yield return owner.CanWear(Data, Data.Items[i.ItemId])
+                        ? new MenuItem(ItemText.Name(Services, i), ItemText.Hands(Services, i), Tag: i)
+                        : new MenuItem(ItemText.Name(Services, i), s["inv.no_proficiency"], false, i);
+                yield return new MenuItem(s["common.back"], Tag: "back");
+                break;
+            }
             case Mode.Actions:
                 if (_picked is EquipSlot)
                 {
@@ -79,8 +91,7 @@ public sealed class InventoryScene(Character owner) : MenuScene
                     if (def.IsEquippable)
                     {
                         bool wear = owner.CanWear(Data, def);   // 習熟の無い鎧と盾は付けられない
-                        string? note = !wear ? s["inv.no_proficiency"] : !owner.WeaponProficient(Data, def) ? s["inv.no_weapon_proficiency"] : null;   // 武器は持てるが、習熟ボーナスが付かない
-                        yield return new MenuItem(s["inv.equip"], note, wear, "equip");
+                        yield return new MenuItem(s["inv.equip"], wear ? null : s["inv.no_proficiency"], wear, "equip");   // 習熟の無い武器は、品の名前の色で知らせる
                     }
                     if (def.IsUsable) yield return new MenuItem(s["inv.use"], Tag: "use");
                     yield return new MenuItem(s["inv.give"], Enabled: Party.Count > 1, Tag: "give");
@@ -111,6 +122,10 @@ public sealed class InventoryScene(Character owner) : MenuScene
         switch (_mode, item.Tag)
         {
             case (Mode.List, "back"): Stack.Pop(); return;
+            case (Mode.SlotPick, "back"): BackToList(); return;
+            case (Mode.SlotPick, _):
+                PickForSlot(item);
+                return;
             case (Mode.List, EquipSlot slot):
                 _picked = slot;
                 OpenSlot(slot);
@@ -218,16 +233,12 @@ public sealed class InventoryScene(Character owner) : MenuScene
     private IEnumerable<ItemInstance> Candidates(EquipSlot slot) =>
         Inv.Items.Where(i => Data.Items.TryGetValue(i.ItemId, out var d) && Inventory.Fits(d, slot));
 
+    /// <summary>部位の付け替えを開く(左の一覧を、その部位の候補にする。右は説明だけ)。</summary>
     private void OpenSlot(EquipSlot slot)
     {
-        var s = Services.Strings;
-        var items = new List<MenuItem>();
-        if (Inv[slot] != null) items.Add(new MenuItem(s["inv.unequip"], Tag: "unequip"));
-        items.AddRange(Candidates(slot).Select(i => owner.CanWear(Data, Data.Items[i.ItemId])
-            ? new MenuItem(ItemText.Name(Services, i), ItemText.Hands(Services, i), Tag: i)
-            : new MenuItem(ItemText.Name(Services, i), Services.Strings["inv.no_proficiency"], false, i)));
-        _slotMenu.SetItems(items, Math.Max(0, items.FindIndex(i => i.Enabled)));
         _mode = Mode.SlotPick;
+        var items = Items().ToList();
+        List.SetItems(items, Math.Max(0, items.FindIndex(i => i.Enabled)));
     }
 
     /// <summary>部位の候補から選んだもの: 外すか、その品に替える。</summary>
@@ -244,11 +255,13 @@ public sealed class InventoryScene(Character owner) : MenuScene
         BackToList();
     }
 
-    /// <summary>一覧へ戻る(カーソルは今の行のまま)。</summary>
+    /// <summary>一覧へ戻る(付け替えから戻ったときは、その部位の行に)。</summary>
     private void BackToList()
     {
         _mode = Mode.List;
-        Refresh();
+        var items = Items().ToList();
+        int at = _picked is EquipSlot slot ? items.FindIndex(i => i.Tag is EquipSlot e && e == slot) : -1;
+        List.SetItems(items, at >= 0 ? at : null);
     }
 
     private void SwitchTab(Tab t)
@@ -281,17 +294,7 @@ public sealed class InventoryScene(Character owner) : MenuScene
                 }
             }
         }
-        if (_mode != Mode.SlotPick)
-        {
-            base.Update(time, input);
-            return;
-        }
-        if (_slotMenu.Update(input, Services.Audio) is int i) PickForSlot(_slotMenu.Items[i]);
-        else if (input.Pressed(GameAction.Cancel))
-        {
-            Services.Audio.PlaySe(Sounds.Cancel);
-            BackToList();
-        }
+        base.Update(time, input);
     }
 
     private string Result(EquipResult r) => Services.Strings["inv.result." + r.ToString().ToLowerInvariant()];
@@ -317,35 +320,28 @@ public sealed class InventoryScene(Character owner) : MenuScene
             string label = t == Tab.Equip ? s["inv.tab_equip"] : s.Format("inv.tab_bag", Inv.Items.Count, Inv.Capacity(Data.Items));
             d.Text(label, new Vector2(r.X + r.Width / 2, r.Y + 6), 20, on ? Color.White : Theme.Dim, TextAlign.Center);
         }
+        // タブの右、左の欄の右端にそろえて AC と同調の数(袋の数はタブに出ている)
+        d.Text(s.Format("inv.summary_top", owner.ArmorClass(Data), Inv.AttunedCount, Inventory.MaxAttuned),
+            new Vector2(ListArea.X + ListArea.Width + 4, TabRect(Tab.Equip).Y + 7), 18, Theme.Dim, TextAlign.Right);
     }
 
     protected override void DrawInfo(Draw2D d, RectangleF area)
     {
         var s = Services.Strings;
         float y = area.Y + 20;
-        if (_mode == Mode.SlotPick && _picked is EquipSlot ps2)
-        {
-            // 右の欄: 部位の候補と、指している品の説明
-            Line(d, area, y, s.Format("inv.slot_pick", s["slot." + ps2.ToString().ToLowerInvariant()]), Theme.Title, 22);
-            _slotMenu.Draw(d);
-            float yy = _slotMenu.Area.Y + Math.Min(_slotMenu.Items.Count, _slotMenu.VisibleRows) * 36f + 8;
-            var cur = _slotMenu.Current?.Tag as ItemInstance ?? Inv[ps2];
-            if (cur != null)
-                foreach (var line in ItemText.Lines(Services, cur)) yy = Line(d, area, yy, line, Theme.Dim, 17);
-            return;
-        }
         var it = List.Current?.Tag switch
         {
             EquipSlot slot => Inv[slot],
             ItemInstance i => i,
+            // 付け替えで、外すや部位の行を指しているときは、今付けているもの
+            _ when _mode == Mode.SlotPick && _picked is EquipSlot ps2 => Inv[ps2],
             _ => _picked as ItemInstance ?? (_picked is EquipSlot ps ? Inv[ps] : null),
         };
         if (it != null)
         {
             y = Line(d, area, y, ItemText.Name(Services, it), Theme.Title, 24);
             foreach (var line in ItemText.Lines(Services, it)) y = Line(d, area, y, line, Theme.Text, 18);
+            if (ItemText.ProficiencyNote(Services, it, owner) is { } pn) y = Line(d, area, y + 4, pn, Theme.Caution, 18);   // この人に習熟が無ければ
         }
-        Line(d, area, Math.Max(y + 10, area.Y + area.Height - 110), s.Format("inv.summary",
-            owner.ArmorClass(Data), Inv.Items.Count, Inv.Capacity(Data.Items), Inv.AttunedCount, Inventory.MaxAttuned), Theme.Dim, 17);
     }
 }

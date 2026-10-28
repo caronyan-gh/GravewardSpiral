@@ -164,6 +164,8 @@ public static class Theme
     public static readonly Color Warn = new(255, 170, 150);
     public static readonly Color Good = new(150, 230, 160);
     public static readonly Color Gold = new(230, 200, 120);
+    /// <summary>注意してほしい品(習熟の無い武器など)。濃いめの黄色。</summary>
+    public static readonly Color Caution = new(240, 200, 40);
 
     public static void Panel(Draw2D d, RectangleF r)
     {

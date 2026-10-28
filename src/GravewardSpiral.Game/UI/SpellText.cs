@@ -32,11 +32,26 @@ public static class SpellText
         return string.Join(" / ", parts);
     }
 
+    /// <summary>ラウンドの数を、読みやすい長さに(10 ラウンド = 1分、60分 = 1時間)。</summary>
+    public static string Duration(Strings s, int rounds) =>
+        rounds < 10 ? s.Format("spell.rounds", rounds) : rounds < 600 ? s.Format("spell.minutes", rounds / 10) : s.Format("spell.hours", rounds / 600);
+
     /// <summary>効果を短い文で並べる(レベル level で唱えたときのダイス)。</summary>
     public static IEnumerable<string> Effects(Strings s, SpellDef sp, int level)
     {
         if (sp.Attack != null) yield return s["spell.attack_" + sp.Attack];
+        if (sp.Beams != null && sp.BeamsAt(level) >= 2) yield return s.Format("spell.beams", sp.BeamsAt(level));   // 光線の本数と、集中・分散
+        if (sp.Summon is { } summon) yield return s.Format("spell.summon", summon.CountAt(sp.Level, Math.Max(level, sp.Level)));   // 召喚
+        // 対象の制限と人数(ホールド・パーソンは人型だけ、ブレスは 3 人まで、チェイン・ライトニングは 4 体まで)
+        if (sp.Only != null) yield return s.Format("spell.only", s["creature." + sp.Only]);
+        if (sp.Count is int count) yield return s.Format(sp.Target == SpellTarget.Allies ? "spell.count_allies" : "spell.count_enemies", count);
         foreach (var line in Parts(s, sp.Effects, level)) yield return line;
+        // 毎番続く呪文(地帯・自動の攻撃)
+        if (sp.Zone) yield return sp.Concentration ? s["spell.zone_concentration"] : s.Format("spell.zone_rounds", Math.Max(1, sp.Rounds));
+        // 続く時間(修正値や状態の一番長いもの。毎番続く呪文と続くダメージは、それぞれの行で書いている)
+        else if (sp.Summon == null && sp.Effects.SelectMany(e => e.Flatten()).Where(e => e.Type != EffectPart.Dot && e.Rounds > 0)
+                     .Select(e => e.Rounds!.Value).DefaultIfEmpty(0).Max() is int r and > 0)
+            yield return s.Format("spell.duration", Duration(s, r));
     }
 
     private static IEnumerable<string> Parts(Strings s, IEnumerable<EffectPart> parts, int level)
@@ -57,6 +72,9 @@ public static class SpellText
                     break;
                 case EffectPart.Modifier when p.Stat?.StartsWith("save_adv:") == true:
                     yield return s.Format("spell.fx.save_adv", s["condition." + p.Stat["save_adv:".Length..]]);
+                    break;
+                case EffectPart.Modifier when p.Stat is "ac_unarmored" or "ac_min":
+                    yield return s.Format("spell.fx." + p.Stat, p.Value ?? 0);   // 鎧なしの AC を 13 + 敏捷力に / AC が 16 より下がらない
                     break;
                 case EffectPart.Modifier:
                     yield return s.Format("spell.fx.modifier", s["stat." + p.Stat], p.Dice ?? (p.Value >= 0 ? $"+{p.Value}" : $"{p.Value}"));
@@ -81,6 +99,28 @@ public static class SpellText
                     break;
                 case EffectPart.Kill:
                     yield return s.Format("spell.fx.kill", p.MaxHp ?? 0);
+                    break;
+                // 迷宮とキャンプの呪文(value は続く歩数。1歩 = 1分)
+                case EffectPart.Light:
+                    yield return s.Format("spell.fx.light", p.Value ?? 60);
+                    break;
+                case EffectPart.FeatherFall:
+                    yield return s.Format("spell.fx.feather_fall", p.Value ?? 60);
+                    break;
+                case EffectPart.Recall:
+                    yield return s["spell.fx.recall"];
+                    break;
+                case EffectPart.Knock:
+                    yield return s["spell.fx.knock"];
+                    break;
+                case EffectPart.Identify:
+                    yield return s["spell.fx.identify"];
+                    break;
+                case EffectPart.RemoveCurse:
+                    yield return s["spell.fx.remove_curse"];
+                    break;
+                case EffectPart.Revive:
+                    yield return s.Format(p.AllowAshes ? "spell.fx.revive_ashes" : "spell.fx.revive", Math.Max(1, p.Value ?? 1));
                     break;
                 case EffectPart.Wish:
                     yield return s["spell.fx.wish"];

@@ -71,6 +71,13 @@ public sealed class HelpScene : Scene
             Jump();
         }
 
+        // ホイール: 目次の上なら目次を、ほかでは本文をスクロールする
+        bool overToc = input.Mouse is { } wm && TocArea.Contains(wm);
+        if (overToc && input.WheelDelta != 0)
+        {
+            _tocTop = Math.Clamp(_tocTop - input.WheelDelta, 0, Math.Max(0, _toc.Length - TocVisible));
+            return;   // カーソルは動かさない(見えている範囲に合わせ直さない)
+        }
         float scroll = _scroll;
         if (input.Repeat(GameAction.PageUp) || input.Repeat(GameAction.Left)) _scroll -= BodyView - 40;
         if (input.Repeat(GameAction.PageDown) || input.Repeat(GameAction.Right)) _scroll += BodyView - 40;
@@ -83,7 +90,8 @@ public sealed class HelpScene : Scene
             for (int i = 0; i < _toc.Length; i++)
                 if (_headingY.TryGetValue(_toc[i], out var y) && y <= _scroll + 4) _cursor = i;
         }
-        _tocTop = Math.Clamp(_tocTop, Math.Max(0, _cursor - TocVisible + 1), _cursor);
+        // カーソルや本文が動いたときだけ、目次の見えている範囲をカーソルに合わせる(ホイールで目次だけ動かしたあとは、そのまま)
+        if (_cursor != before || _scroll != scroll) _tocTop = Math.Clamp(_tocTop, Math.Max(0, _cursor - TocVisible + 1), _cursor);
     }
 
     private void Jump()

@@ -13,7 +13,7 @@
     "unarmored_defense": "con",
     "start_gold": "2d4",
     "start_items": ["greataxe", "handaxe", "sack"],
-    "description": { "en": "A fierce warrior who fights with rage.", "ja": "怒りの力で戦う荒々しい戦士。鎧なしでも耐久力の分だけ AC が上がる。" }
+    "description": { "en": "Rage (level 1, recharges on a long rest): more damage on Strength melee attacks and half damage from physical attacks.\nWhile raging you can't cast spells, and concentration ends.\nFrom level 2 your melee attacks have advantage, but so do attacks against you.\nWithout armor, add your Constitution modifier to AC (a shield is fine).", "ja": "激怒(L1、大休憩で戻る): 筋力の近接攻撃のダメージが上がり、物理のダメージを半分にする。\n激怒中は呪文を使えず、集中も切れる。\nL2 からは自分の近接攻撃が有利になるが、敵からの攻撃も有利になる。\n鎧を着ていないとき、AC に耐久力の修正値も足す(盾は持ってよい)。" }
   },
   {
     "id": "bard",
@@ -29,7 +29,7 @@
     "spellcasting": "cha",
     "start_gold": "5d4",
     "start_items": ["rapier", "leather_armor", "dagger", "sack"],
-    "description": { "en": "A magician whose music weaves magic.", "ja": "歌と言葉で魔法を紡ぐ。技能が多い。" }
+    "description": { "en": "A Charisma caster who casts the spells they know.\nChoose any three skills.\nFrom level 1, Bardic Inspiration helps another ally's attacks and saves (recharges on a short rest from level 5).", "ja": "魅力で呪文を使う術者(覚えた呪文を使う)。\n技能をどれからでも3つ選べる。\nL1 から鼓舞で、自分以外の仲間の攻撃とセーヴを助ける(L5 から小休憩で戻る)。" }
   },
   {
     "id": "cleric",
@@ -45,7 +45,7 @@
     "spellcasting": "wis",
     "start_gold": "5d4",
     "start_items": ["mace", "scale_mail", "shield", "sack"],
-    "description": { "en": "A priestly champion who wields divine magic.", "ja": "神の力を借りる聖職者。回復の呪文が得意。" }
+    "description": { "en": "A Wisdom caster who prepares spells from the class list.\nStrong at healing and support.\nTurns undead from level 2.", "ja": "判断力で呪文を使う術者(クラスの呪文から準備する)。\n回復と補助が得意。\nL2 からアンデッドを退散させる。" }
   },
   {
     "id": "druid",
@@ -61,7 +61,7 @@
     "spellcasting": "wis",
     "start_gold": "2d4",
     "start_items": ["scimitar", "leather_armor", "shield", "sack"],
-    "description": { "en": "A priest of nature who wields its power.", "ja": "自然の力を使う祭司。" }
+    "description": { "en": "A Wisdom caster who prepares spells.\nFrom level 2, can turn into a beast in battle, fighting with the beast's HP and AC. Uses come back on a short rest.\nBelow level 18, no spells while transformed.", "ja": "判断力で呪文を使う術者(準備する)。\nL2 から戦闘中に獣に変身できる。獣の HP と AC で戦い、変身の回数は小休憩で戻る。\nL18 未満では、変身中は呪文を使えない。" }
   },
   {
     "id": "fighter",
@@ -76,7 +76,7 @@
     "skills": ["acrobatics", "animal_handling", "athletics", "history", "insight", "intimidation", "perception", "survival"],
     "start_gold": "5d4",
     "start_items": ["longsword", "chain_mail", "shield", "sack"],
-    "description": { "en": "A master of weapons and armor.", "ja": "武器と鎧の達人。どんな装備も使いこなす。" }
+    "description": { "en": "Proficient with all weapons and armor.\nSecond Wind (level 1) heals you, and Action Surge (level 2) gives one more set of weapon attacks.\nAttacks per turn rise to 2, 3 and 4 at levels 5, 11 and 20.", "ja": "すべての武器と鎧に習熟。\nL1 のセカンド・ウィンドで回復し、L2 のアクション・サージで武器の攻撃をもう1回分行う。\nL5・11・20 で攻撃の回数が 2・3・4 回に増える。" }
   },
   {
     "id": "monk",
@@ -92,7 +92,7 @@
     "unarmored_defense": "wis",
     "start_gold": "5d4",
     "start_items": ["shortsword", "sack"],
-    "description": { "en": "A master of martial arts.", "ja": "素手と体術で戦う。鎧なしでも判断力の分だけ AC が上がる。" }
+    "description": { "en": "Only without armor or a shield, two things work:\n- Martial Arts: use Dexterity with unarmed strikes and monk weapons, plus an extra unarmed strike after attacking.\n- Add your Wisdom modifier to AC.\nKi powers Flurry of Blows and Patient Defense from level 2 and Stunning Strike from level 5 (ki recharges on a short rest).", "ja": "鎧も盾も着けないときだけ、次の2つが働く。\n・武術: 素手とモンクの武器で敏捷力を使い、攻撃のあとに素手でもう1回。\n・AC に判断力の修正値も足す。\nL2 から気で連打や忍耐の守り、L5 から朦朧打撃(気は小休憩で戻る)。" }
   },
   {
     "id": "paladin",
@@ -108,7 +108,7 @@
     "spellcasting": "cha",
     "start_gold": "5d4",
     "start_items": ["longsword", "chain_mail", "shield", "sack"],
-    "description": { "en": "A holy warrior bound to a sacred oath.", "ja": "誓いに生きる聖なる戦士。戦いも回復もできる。" }
+    "description": { "en": "A holy warrior who casts Charisma spells from level 2.\nLay on Hands heals from level 1.\nFrom level 2, Divine Smite spends a spell slot to add damage to a hit.\nFrom level 6, every ally gets a bonus to saves while you stand.", "ja": "魅力で呪文を使う聖なる戦士(呪文は L2 から)。\nL1 からレイ・オン・ハンズで回復する。\nL2 から、当てた攻撃に呪文の回数を使って神の一撃を足す。\nL6 から、立っているあいだ仲間全員のセーヴが上がる。" }
   },
   {
     "id": "ranger",
@@ -124,7 +124,7 @@
     "spellcasting": "wis",
     "start_gold": "5d4",
     "start_items": ["shortsword", "longbow", "scale_mail", "sack"],
-    "description": { "en": "A hunter and tracker of the wilds.", "ja": "荒野の狩人。弓も剣も使う。" }
+    "description": { "en": "A warrior with medium armor.\nCasts Wisdom spells they know from level 2.\nAttacks twice from level 5.", "ja": "中装鎧まで扱える戦士。\nL2 から判断力で呪文を使う(覚えた呪文)。\nL5 から攻撃が2回になる。" }
   },
   {
     "id": "rogue",
@@ -140,7 +140,7 @@
     "skills": ["acrobatics", "athletics", "deception", "insight", "intimidation", "investigation", "perception", "performance", "persuasion", "sleight_of_hand", "stealth"],
     "start_gold": "4d4",
     "start_items": ["rapier", "shortbow", "leather_armor", "dagger", "sack"],
-    "description": { "en": "A scoundrel who uses stealth and trickery. Best at traps and locks.", "ja": "隠密と小細工の名手。罠と錠前の扱いが一番うまい。" }
+    "description": { "en": "Many skills and proficiency with thieves' tools.\nSneak Attack: once per round, a hit with a finesse or ranged weapon deals extra damage when you have advantage, or when an ally is in the front row and the target is near.\nGood with traps and locks.", "ja": "技能が多く、盗賊道具に習熟。\n急所攻撃: 技巧の武器か飛び道具の攻撃は、有利なときか、前列に仲間がいて近くの敵を狙うとき、1ラウンドに1回ダメージが増える。\n罠と錠前の扱いが得意。" }
   },
   {
     "id": "sorcerer",
@@ -156,7 +156,7 @@
     "spellcasting": "cha",
     "start_gold": "3d4",
     "start_items": ["light_crossbow", "dagger", "sack"],
-    "description": { "en": "A spellcaster with innate magic.", "ja": "生まれつきの魔力を持つ術者。" }
+    "description": { "en": "A Charisma caster who casts the spells they know.\nFrom level 3, spend sorcery points to reroll low damage dice on a damage spell.", "ja": "魅力で呪文を使う術者(覚えた呪文)。\nL3 から、ソーサリー・ポイントを使ってダメージの呪文の低い出目を振り直せる。" }
   },
   {
     "id": "warlock",
@@ -172,7 +172,7 @@
     "spellcasting": "cha",
     "start_gold": "4d4",
     "start_items": ["light_crossbow", "leather_armor", "dagger", "sack"],
-    "description": { "en": "A wielder of magic granted by a pact.", "ja": "契約で魔力を得た術者。呪文の回数は小休憩で戻る。" }
+    "description": { "en": "A Charisma caster.\nFew spell slots, but they all come back on a short rest (spell level up to 5).\nInvocations such as Agonizing Blast are added automatically at levels 2, 5 and 12.", "ja": "魅力で呪文を使う術者。\n呪文の回数は少ないが、小休憩で全部戻る(呪文のレベルは5まで)。\nL2・5・12 で苦痛の魔撃などの祈りが自動で付く。" }
   },
   {
     "id": "wizard",
@@ -188,6 +188,6 @@
     "spellcasting": "int",
     "start_gold": "4d4",
     "start_items": ["quarterstaff", "dagger", "sack"],
-    "description": { "en": "A scholarly magic-user.", "ja": "学んで魔法を身につけた術者。覚える呪文が一番多い。" }
+    "description": { "en": "An Intelligence caster.\nWrites spells in a spellbook and prepares which to use (you can change them at the Training Grounds).\nOnce per long rest, a short rest recovers some spell slots.", "ja": "知力で呪文を使う術者。\n呪文書に呪文を書き、その中から使うものを準備する(訓練場で選び直せる)。\n小休憩で、大休憩までに1回、呪文の回数を少し取り戻せる。" }
   }
 ]
