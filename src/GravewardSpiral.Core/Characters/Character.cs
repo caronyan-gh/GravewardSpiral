@@ -504,6 +504,7 @@ public static class CharacterFactory
             c.Xp = Progression.XpForLevel(level);
             c.LevelUp(data);
             c.AutoIncreaseAbilities(data);
+            Spellcasting.AutoPick(data, c);   // 能力値が上がって増えた準備の枠を埋める
         }
         return c;
     }

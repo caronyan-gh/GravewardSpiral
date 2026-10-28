@@ -1,4 +1,5 @@
 using GravewardSpiral.Core.Characters;
+using GravewardSpiral.Core.Magic;
 using GravewardSpiral.Core.Rules;
 using GravewardSpiral.Game.Audio;
 using GravewardSpiral.Game.Rendering;
@@ -66,6 +67,7 @@ public sealed class AbilityIncreaseScene(Character c, Action? onClose = null) : 
                 if (i == 0)
                 {
                     foreach (var a in _pending) c.IncreaseAbility(a);
+                    Spellcasting.AutoPick(Services.Data, c);   // 準備できる数が増えた分を、おまかせで足す(訓練場で選び直せる)
                     Services.Audio.PlaySe(Sounds.LevelUp);
                 }
                 if (i is 0 or 2) Stack.Pop();

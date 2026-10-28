@@ -113,6 +113,34 @@ public class SpellFixTests
         Assert.Equal(1, s.Log.Count(l => l.Key is "combat.hit" or "combat.crit" or "combat.miss"));
     }
 
+    [Theory]
+    [InlineData("rage", "barbarian")]
+    [InlineData("patient_defense", null)]
+    public void FeaturesThatUseTheBonusActionStrikeOnce(string feature, string? second)
+    {
+        // 激怒に入る番と忍耐の守りの番は、ボーナスアクションを使うので、武術の素手の一撃をしない
+        var c = CharacterFactory.QuickCreate(Data, "T", "human", "monk", 4);
+        if (second != null)
+        {
+            c.Classes.Add(new ClassLevel { ClassId = second, Level = 1 });
+            c.Level = 5;
+        }
+        var engine = new CombatEngine(Data, new Pcg32(4, 4));
+        var s = engine.Start([c], [(Data.Monsters["ogre"], 1)]);
+        s.Surprised = null;
+        s.Groups[0].Units[0].Conditions.Add(new ActiveCondition { Condition = Condition.Incapacitated });
+        engine.RunRound(s, new Dictionary<string, PlayerCommand> { [c.Id] = new(CommandKind.Feature, 0, FeatureId: feature) });
+        Assert.Equal(1, s.Log.Count(l => l.Key is "combat.hit" or "combat.crit" or "combat.miss"));
+    }
+
+    [Fact]
+    public void QuickCreateFillsThePreparedSpellsAfterTheAbilityRaise()
+    {
+        var c = CharacterFactory.QuickCreate(Data, "T", "human", "wizard", 8);
+        var cls = Data.Classes["wizard"];
+        Assert.Equal(Spellcasting.PreparedCount(cls, c), c.Book("wizard").Prepared.Count);
+    }
+
     [Fact]
     public void ChainLightningHitsAtMostFour()
     {

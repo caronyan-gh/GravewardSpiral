@@ -532,14 +532,15 @@ public sealed class CombatEngine(GameData data, IRandom rng)
                 if (s.Outcome == CombatOutcome.Ongoing) PlayerAttack(s, p, cmd.TargetGroup, bonusAction: false);
                 break;
             case "rage":
-                if (!p.Raging)
+                bool started = !p.Raging;
+                if (started)
                 {
                     ClassFeatures.Spend(c, "rage");
                     p.Raging = true;
                     EndConcentration(s, p);   // 激怒のあいだは呪文に集中できない
                     s.Add("combat.rage", p.Name);
                 }
-                PlayerAttack(s, p, cmd.TargetGroup);
+                PlayerAttack(s, p, cmd.TargetGroup, bonusAction: !started);   // 激怒に入るのはボーナスアクション(その番は二刀流・武術の打撃をしない)
                 break;
             case "lay_on_hands":
             {
@@ -569,7 +570,7 @@ public sealed class CombatEngine(GameData data, IRandom rng)
                 break;
             case "patient_defense":
                 ClassFeatures.Spend(c, "ki");
-                PlayerAttack(s, p, cmd.TargetGroup);
+                PlayerAttack(s, p, cmd.TargetGroup, bonusAction: false);   // 身構えるのがボーナスアクション
                 p.Dodging = true;
                 s.Add("combat.dodge", p.Name);
                 break;
