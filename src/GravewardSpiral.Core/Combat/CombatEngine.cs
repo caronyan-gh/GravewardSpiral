@@ -523,6 +523,7 @@ public sealed class CombatEngine(GameData data, IRandom rng)
                 ClassFeatures.Spend(c, "second_wind");
                 s.Add("combat.feature", p.Name, name);
                 Heal(s, p, RollDice("1d10") + ClassFeatures.Level(c, "fighter"));
+                FollowUp(s, p, cmd.TargetGroup);   // ボーナスアクションなので、そのあと攻撃する
                 break;
             case "action_surge":
                 ClassFeatures.Spend(c, "action_surge");
@@ -590,6 +591,7 @@ public sealed class CombatEngine(GameData data, IRandom rng)
                 ally.Modifiers.RemoveAll(m => m.Stat == "inspire");
                 ally.Modifiers.Add(new ActiveModifier { Stat = "inspire", Dice = $"1d{ClassFeatures.InspirationDie(c)}", RoundsLeft = 10, SourceId = p.Id });
                 s.Add("combat.feature_on", p.Name, name, ally.Name);
+                FollowUp(s, p, cmd.TargetGroup);   // ボーナスアクションなので、そのあと攻撃か初級呪文
                 break;
             }
             case "wild_shape":
@@ -1214,7 +1216,11 @@ public sealed class CombatEngine(GameData data, IRandom rng)
         }
         if (!spell.IsCantrip) Spellcasting.UseSlot(c, slot);
         s.Add("combat.cast", p.Name, spell.Name);
-        if (TryCounter(s, p, spell, slot)) return;   // 敵のカウンタースペル
+        if (TryCounter(s, p, spell, slot))   // 敵のカウンタースペル
+        {
+            if (IsBonusAction(spell)) FollowUp(s, p, cmd.TargetGroup);
+            return;
+        }
 
         var ctx = new CastContext(p, spell, spell.Scale == "character" ? c.Level : slot, Spellcasting.Mod(cls, c), Spellcasting.SaveDc(cls, c));   // 初級呪文はキャラクターの合計のレベルで強くなる(5版)
         if (cmd.Empower && CanEmpower(c, spell) && ClassFeatures.Spend(c, "sorcery_points"))
@@ -1223,6 +1229,54 @@ public sealed class CombatEngine(GameData data, IRandom rng)
             s.Add("combat.empowered", p.Name);
         }
         Resolve(s, p, spell, cmd, ctx, Spellcasting.AttackBonus(cls, c));
+        if (IsBonusAction(spell)) FollowUp(s, p, cmd.TargetGroup);
+    }
+
+    /// <summary>
+    /// ボーナスアクションで唱える呪文か(唱えたあと、同じ番の行動を自動で行う)。フレイム・ブレードは、このゲームでは唱えたときに
+    /// もう斬っている(5版の「行動で斬る」まで含めている)ので外す。
+    /// </summary>
+    public static bool IsBonusAction(SpellDef spell) => spell.Time == "bonus" && spell.Id != "flame_blade";
+
+    /// <summary>
+    /// ボーナスアクションのあとの、同じ番の行動(決めたこと)。前列で近くに敵がいれば武器で攻撃、そうでなければ攻撃の初級呪文
+    /// (無ければ届く武器、どちらも無ければ身構える)。狙いは、選んだグループに届けばそこ、届かなければ届く先頭。
+    /// </summary>
+    private void FollowUp(CombatState s, PartyMember p, int groupHint)
+    {
+        if (s.Outcome != CombatOutcome.Ongoing || s.Groups.Count == 0 || !p.CanAct) return;   // キャンプで唱えたときは何もしない
+        var reach = s.AttackableGroups(p).ToList();
+        int Target(IEnumerable<int> groups)
+        {
+            var list = groups.ToList();
+            return list.Contains(groupHint) ? groupHint : list.FirstOrDefault(-1);
+        }
+        bool melee = s.InFront(p) && s.LiveGroups.Any(s.IsNear);
+        var cantrip = melee ? null : FollowUpCantrip(s, p);
+        if (cantrip != null)
+        {
+            CastSpell(s, p, new PlayerCommand(CommandKind.Cast, Target(SpellReach(s, p, cantrip)), -1, cantrip.Id, 0));
+            return;
+        }
+        if (reach.Count > 0)
+        {
+            PlayerAttack(s, p, Target(reach));
+            return;
+        }
+        p.Dodging = true;
+        s.Add("combat.dodge", p.Name);
+    }
+
+    /// <summary>あとの行動に使う攻撃の初級呪文(平均のダメージが一番大きいもの)。唱えられなければ null。</summary>
+    private SpellDef? FollowUpCantrip(CombatState s, PartyMember p)
+    {
+        var c = p.Character;
+        if (s.NoMagic || !c.ArmorProficient(_data) || !ClassFeatures.CanCastIn(c, p.Raging, p.Shape != null)) return null;
+        return Spellcasting.Castable(_data, c)
+            .Where(x => x.IsCantrip && x.InCombat && x.TargetsEnemies && SpellReach(s, p, x).Any())
+            .Select(x => (x, avg: x.Effects.SelectMany(e => e.Flatten()).Where(e => e.Type == EffectPart.Damage && e.DiceAt(c.Level) != null)
+                .Sum(e => DiceExpression.Parse(e.DiceAt(c.Level)!.Replace("MOD", "0")).Average)))
+            .Where(x => x.avg > 0).OrderByDescending(x => x.avg).Select(x => x.x).FirstOrDefault();
     }
 
     /// <summary>呪文の強化ができるか(ソーサラー L3 がメインで、ポイントが残っていて、ダメージのある呪文)。</summary>

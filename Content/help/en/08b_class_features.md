@@ -22,7 +22,7 @@ Bardic Inspiration recovers on a short rest from bard level 5 onward. Before tha
 
 ## Fighter and barbarian abilities
 
-- Second Wind: Recover your own HP.
+- Second Wind: Recover your own HP. It is a bonus action, so you also attack that turn.
 - Action Surge: Make two normal attack actions in succession. Extra Attack applies, but bonus attacks such as an off-hand attack are not doubled.
 - Rage: Attack and enter a rage. For this battle, deal more melee damage and take half damage from bludgeoning, piercing, and slashing. You cannot cast spells, and any spell you were concentrating on ends.
 
@@ -37,7 +37,7 @@ Bardic Inspiration recovers on a short rest from bard level 5 onward. Before tha
 ## Cleric, bard, and druid abilities
 
 - Turn Undead: Prevent undead that fail their saves from acting. Taking damage ends this effect. Sufficiently weak undead are destroyed instead.
-- Bardic Inspiration: Help an ally's attacks or saves. A bonus die is used automatically when it might turn a failure into a success.
+- Bardic Inspiration: Help an ally's attacks or saves. A bonus die is used automatically when it might turn a failure into a success. It is a bonus action, so you also use an attack cantrip or attack that turn.
 - Wild Shape: Transform into a beast. Wolf is available at druid level 2, with black bear added at level 4. Dire wolf and brown bear become available at level 8. Wolves can knock enemies prone; bears have more HP and attack twice. When the beast's HP runs out, you return to your normal form.
 
 ## Empowered spells

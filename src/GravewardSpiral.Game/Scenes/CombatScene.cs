@@ -821,6 +821,7 @@ public sealed class CombatScene : Scene
         y = d.TextWrapped(SpellText.Header(S, sp), new Vector2(x, y), w, 17, Theme.Dim) + 6;
         foreach (var line in SpellText.Effects(S, sp, Math.Max(1, level)))
             y = d.TextWrapped(line, new Vector2(x, y), w, 19, Theme.Text, 6);
+        if (CombatEngine.IsBonusAction(sp)) y = d.TextWrapped(S["spell.bonus_followup"], new Vector2(x, y + 6), w, 16, Theme.Gold, 4);
         if (sp.Note != null) d.TextWrapped(sp.Note, new Vector2(x, y + 6), w, 15, Theme.Dim, 4);
     }
 

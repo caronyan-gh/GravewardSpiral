@@ -46,6 +46,10 @@ Spells that improve with higher-level slots also appear on higher tabs. For exam
 
 Even a spell that does not improve at higher levels appears on the lowest available higher-slot tab when its own level's slots cannot be used.
 
+## Bonus-action spells
+
+Spells cast as a bonus action, such as Healing Word or Shield of Faith, are followed by an automatic action that same turn. In the front row you attack with your weapon; in the back row you use an attack cantrip (or a weapon that reaches, or Dodge if neither). To only heal, use an action spell such as Cure Wounds.
+
 ## Where you can cast and restrictions
 
 - Combat lists spells usable in battle.

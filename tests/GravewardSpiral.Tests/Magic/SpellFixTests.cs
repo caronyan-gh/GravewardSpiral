@@ -65,6 +65,39 @@ public class SpellFixTests
     }
 
     [Fact]
+    public void ABonusActionSpellIsFollowedByAnAction()
+    {
+        // 後列のクレリックがヒーリング・ワードを唱えると、同じ番に攻撃の初級呪文も唱える
+        var front = Enumerable.Range(0, 3).Select(i => CharacterFactory.QuickCreate(Data, "F" + i, "human", "fighter", 3)).ToList();
+        var cleric = CharacterFactory.QuickCreate(Data, "C", "human", "cleric", 3);
+        cleric.Book("cleric").Prepared.Add("healing_word");
+        cleric.Book("cleric").Cantrips.Add("sacred_flame");
+        front[0].Hp = 5;
+        var engine = new CombatEngine(Data, new Pcg32(4, 4));
+        var s = engine.Start([.. front, cleric], [(Data.Monsters["ogre"], 1)]);
+        s.Surprised = null;
+        s.Groups[0].Units[0].Conditions.Add(new ActiveCondition { Condition = Condition.Incapacitated });
+        engine.RunRound(s, new Dictionary<string, PlayerCommand> { [cleric.Id] = new(CommandKind.Cast, -1, 0, "healing_word", 1) });
+        var casts = s.Log.Where(l => l.Key == "combat.cast" && l.Args[0] is LocalizedText t && t.Get("en") == "C").ToList();
+        Assert.Equal(2, casts.Count);
+        Assert.Equal("Sacred Flame", ((LocalizedText)casts[1].Args[1]).Get("en"));
+        Assert.False(CombatEngine.IsBonusAction(Data.Spells["flame_blade"]));
+    }
+
+    [Fact]
+    public void SecondWindIsFollowedByAnAttack()
+    {
+        var c = CharacterFactory.QuickCreate(Data, "T", "human", "fighter", 3);
+        c.Hp = 5;
+        var engine = new CombatEngine(Data, new Pcg32(4, 4));
+        var s = engine.Start([c], [(Data.Monsters["ogre"], 1)]);
+        s.Surprised = null;
+        s.Groups[0].Units[0].Conditions.Add(new ActiveCondition { Condition = Condition.Incapacitated });
+        engine.RunRound(s, new Dictionary<string, PlayerCommand> { [c.Id] = new(CommandKind.Feature, 0, FeatureId: "second_wind") });
+        Assert.Contains(s.Log, l => l.Key is "combat.hit" or "combat.crit" or "combat.miss");
+    }
+
+    [Fact]
     public void ChainLightningHitsAtMostFour()
     {
         var c = CharacterFactory.QuickCreate(Data, "T", "human", "wizard", 11);

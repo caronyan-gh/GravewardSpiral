@@ -14,6 +14,7 @@ The same text as Help in the in-game Esc menu (and on the title screen). Topics:
 - Items and Equipment
 - Death and Rescue
 - Options and More
+- Main Differences from the SRD
 
 ## Controls
 
@@ -257,6 +258,10 @@ Spells that improve with higher-level slots also appear on higher tabs. For exam
 
 Even a spell that does not improve at higher levels appears on the lowest available higher-slot tab when its own level's slots cannot be used.
 
+### Bonus-action spells
+
+Spells cast as a bonus action, such as Healing Word or Shield of Faith, are followed by an automatic action that same turn. In the front row you attack with your weapon; in the back row you use an attack cantrip (or a weapon that reaches, or Dodge if neither). To only heal, use an action spell such as Cure Wounds.
+
 ### Where you can cast and restrictions
 
 - Combat lists spells usable in battle.
@@ -476,7 +481,7 @@ Bardic Inspiration recovers on a short rest from bard level 5 onward. Before tha
 
 ### Fighter and barbarian abilities
 
-- Second Wind: Recover your own HP.
+- Second Wind: Recover your own HP. It is a bonus action, so you also attack that turn.
 - Action Surge: Make two normal attack actions in succession. Extra Attack applies, but bonus attacks such as an off-hand attack are not doubled.
 - Rage: Attack and enter a rage. For this battle, deal more melee damage and take half damage from bludgeoning, piercing, and slashing. You cannot cast spells, and any spell you were concentrating on ends.
 
@@ -491,7 +496,7 @@ Bardic Inspiration recovers on a short rest from bard level 5 onward. Before tha
 ### Cleric, bard, and druid abilities
 
 - Turn Undead: Prevent undead that fail their saves from acting. Taking damage ends this effect. Sufficiently weak undead are destroyed instead.
-- Bardic Inspiration: Help an ally's attacks or saves. A bonus die is used automatically when it might turn a failure into a success.
+- Bardic Inspiration: Help an ally's attacks or saves. A bonus die is used automatically when it might turn a failure into a success. It is a bonus action, so you also use an attack cantrip or attack that turn.
 - Wild Shape: Transform into a beast. Wolf is available at druid level 2, with black bear added at level 4. Dire wolf and brown bear become available at level 8. Wolves can knock enemies prone; bears have more HP and attack twice. When the beast's HP runs out, you return to your normal form.
 
 ### Empowered spells
@@ -666,3 +671,34 @@ Open their storage location with Scenario Folder in Options. A separate scenario
 ### Suspending and resuming
 
 In the dungeon, choose Suspend and Quit from the Esc menu to save and return to the title screen. Choose Continue on the title screen to resume.
+
+## Main Differences from the SRD
+
+This game adapts the D&D 5th edition SRD 5.1 for dungeon exploration. These are the main changes that may surprise players familiar with the SRD. See the other help topics and in-game descriptions for details.
+
+### Spells and classes
+
+- Preparing spells: Change prepared spells at the training grounds, inn, or camp at any time. You do not need to complete a rest.
+- Reselecting spells: Reselect cantrips, known spells, and wizard spellbook choices at the training grounds at any time.
+- Bonus actions: Bonus-action spells (such as Healing Word), Second Wind, and Bardic Inspiration are followed by an automatic action that same turn: the front row attacks; the back row uses an attack cantrip (or a weapon that reaches). To only heal, use an action spell such as Cure Wounds.
+- Class features: There are no subclasses. Some features and choices are omitted, and abilities are adapted for dungeon combat.
+- Sorcerer: The only Metamagic option spends one sorcery point to reroll low spell damage dice. Sorcery points and spell slots cannot be converted into each other.
+- Warlock: Invocations are learned automatically at fixed levels. There is no invocation or Pact Boon selection.
+- Multiclassing: Gain all weapon and armor proficiencies of each new class you take.
+- Level cap: Total character level has no cap. From level 21 onward, gain an epic boon with each level.
+
+### Exploration and equipment
+
+- Party and distance: Up to six members form a front row of three and a back row of three. Combat distance uses these rows and near or far enemy groups.
+- Inventory: Carrying capacity depends on free bag slots rather than weight.
+- Ammunition: Ordinary arrows and bolts need no replenishment. Special ammunition is consumed with each attack.
+- Attunement: No rest is required. Equipping an item attunes it automatically if an attunement slot is available.
+
+### Resting and death
+
+- Short rests: Hit Dice are spent automatically until HP is full or no dice remain. If the rest ends without an ambush, each member able to act identifies one unidentified item.
+- Long rests: Available only at the town inn or a clan house with beds. The HP recovery limit depends on where you sleep; the stables restore HP up to 50% of maximum.
+- Chest traps: Reaching 0 HP from a chest trap causes death without death saves.
+- Resurrection and wipes: Depending on settings, failed resurrection can turn a character to ash or cause permanent loss. A wipe may require a rescue party to retrieve bodies from the dungeon.
+
+The 5e-style (gentle) difficulty also includes this game's own rules. It does not reproduce the SRD unchanged.
