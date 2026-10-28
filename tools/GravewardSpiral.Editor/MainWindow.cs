@@ -41,6 +41,12 @@ public sealed class MainWindow : Window
         Icon = System.Windows.Media.Imaging.BitmapFrame.Create(new Uri("pack://application:,,,/Icon.ico"));
         Width = 1280;
         Height = 820;
+        if (EditorOptions.Position is { Length: 2 } position)
+        {
+            WindowStartupLocation = WindowStartupLocation.Manual;
+            Left = position[0]; Top = position[1];
+        }
+        if (options.Screenshot != null || EditorOptions.Position != null) ShowActivated = false;
         FontSize = 13;
         Background = Theme.Brush(Theme.Palette.Background);
         _tabList =
@@ -55,6 +61,14 @@ public sealed class MainWindow : Window
             new StoryTab(context, Say),
             new CheckTab(context, Say, Save),
         ];
+        // 他のタブで変えた階数やイベント数を、表示する時点で反映する。
+        // 入力のたびに再構築するとフォーカスを失うので、タブを切り替えたときだけ。
+        _tabs.SelectionChanged += (_, args) =>
+        {
+            if (!ReferenceEquals(args.Source, _tabs)) return;
+            if ((_tabs.SelectedItem as TabItem)?.Tag is string key && key is "basic" or "story")
+                _tabList.First(t => t.Key == key).Reload();
+        };
         // タブ: アイコンと名前。中身は白いカードに載せる
         foreach (var t in _tabList)
         {
@@ -235,12 +249,57 @@ public sealed class MainWindow : Window
                     _tabList.OfType<EventsTab>().First().SelectForCheck(parts[0], parts.Length > 1 ? int.Parse(parts[1]) : 0);
                     await Dispatcher.Yield(DispatcherPriority.ApplicationIdle);
                 }
+                foreach (string label in EditorOptions.Click)
+                {
+                    if (label.StartsWith("tab:"))
+                        _tabs.SelectedItem = _tabs.Items.OfType<TabItem>().Single(t => t.Tag as string == label[4..] && t.IsEnabled);
+                    else if (label.StartsWith("event:"))
+                    {
+                        var parts = label[6..].Split('/');
+                        _tabList.OfType<EventsTab>().First().SelectForCheck(parts[0], parts.Length > 1 ? int.Parse(parts[1]) : 0);
+                    }
+                    else if (label.StartsWith("menu:")) _tabList.OfType<EventsTab>().First().MenuForCheck(label[5..]);
+                    else if (label.StartsWith("choose:"))
+                    {
+                        var parts = label[7..].Split(':', 2);
+                        var box = VisualChildren(this).OfType<ComboBox>().Single(c => c.IsVisible && System.Windows.Automation.AutomationProperties.GetAutomationId(c) == parts[0]);
+                        box.SelectedItem = box.Items.OfType<Choice>().Single(c => c.Key == parts[1]);
+                    }
+                    else if (label.StartsWith("radio:"))
+                        VisualChildren(this).OfType<RadioButton>().Single(b => b.IsVisible && b.Content as string == label[6..]).IsChecked = true;
+                    else
+                    {
+                        var button = VisualChildren(this).OfType<Button>().Single(b => b.IsVisible && b.IsEnabled && b.Content as string == label);
+                        button.RaiseEvent(new RoutedEventArgs(Button.ClickEvent));
+                    }
+                    await Dispatcher.Yield(DispatcherPriority.ApplicationIdle);
+                }
+                if (EditorOptions.Click.Count > 0 || EditorOptions.EventNode != null)
+                {
+                    Directory.CreateDirectory(Path.GetDirectoryName(Path.GetFullPath(shot))!);
+                    File.WriteAllText(Path.ChangeExtension(shot, ".state.json"), Core.Save.ScenarioPack.CleanJson(new
+                    {
+                        events = _context.Pack?.Events, floors = _context.Pack?.Floors.Count, story = _context.Pack?.Text,
+                        editor = _tabList.OfType<EventsTab>().First().StateForCheck(),
+                        visibleText = VisualChildren(this).OfType<TextBlock>().Where(t => t.IsVisible).Select(t => t.Text).ToArray(),
+                    }));
+                }
                 if (EditorOptions.Scroll > 0 && (_tabs.SelectedItem as TabItem)?.Content is Border { Child: ScrollViewer view })
                 {
                     view.ScrollToVerticalOffset(EditorOptions.Scroll);
                     await Dispatcher.Yield(DispatcherPriority.ApplicationIdle);
                 }
-                if (EditorOptions.Picker is { } kind && kind.StartsWith("data:"))
+                if (EditorOptions.Picker is "flags" or "sets")
+                {
+                    Window window = EditorOptions.Picker == "flags" ? EventFlagsUi.Manager(_context)
+                        : _options.Tab == "maze" ? _tabList.OfType<MazeTab>().First().CreateSetsWindow() : new EventSetsWindow(_context);
+                    window.ShowActivated = false;
+                    window.Show();
+                    await Dispatcher.Yield(DispatcherPriority.ApplicationIdle);
+                    SaveScreenshot(shot, window);
+                    window.Close();
+                }
+                else if (EditorOptions.Picker is { } kind && kind.StartsWith("data:"))
                 {
                     // データの写す元を選ぶ窓(--picker data:items など。確かめ用)
                     var picker = new DataPickerWindow(kind["data:".Length..], _context.BaseData, _context.BaseContent) { Owner = this, ShowActivated = false };
@@ -267,7 +326,21 @@ public sealed class MainWindow : Window
                     SaveScreenshot(shot, picker);
                     picker.Close();
                 }
-                else SaveScreenshot(shot, this);
+                else
+                {
+                    if (EditorOptions.Combo is { } comboIndex)
+                    {
+                        var boxes = VisualChildren(this).OfType<ComboBox>().Where(c => c.IsVisible).ToList();
+                        var combo = boxes[comboIndex];
+                        combo.Focus();
+                        combo.IsDropDownOpen = true;
+                        await Dispatcher.Yield(DispatcherPriority.ApplicationIdle);
+                        if (combo.Template.FindName("PART_Popup", combo) is System.Windows.Controls.Primitives.Popup { IsOpen: true, Child: FrameworkElement popup })
+                            SaveVisualScreenshot(Path.ChangeExtension(shot, ".dropdown.png"), popup, Theme.Brush(Theme.Palette.Surface));
+                        File.WriteAllLines(Path.ChangeExtension(shot, ".controls.txt"), boxes.Select((c, i) => $"Combo {i}: editable={c.IsEditable}, enabled={c.IsEnabled}, text={c.Text}, items={c.Items.Count}"));
+                    }
+                    SaveScreenshot(shot, this);
+                }
                 Close();
             });
     }
@@ -467,11 +540,27 @@ public sealed class MainWindow : Window
     private static void SaveScreenshot(string path, Window window)
     {
         var root = (FrameworkElement)window.Content;
+        SaveVisualScreenshot(path, root, window.Background);
+    }
+
+    private static IEnumerable<DependencyObject> VisualChildren(DependencyObject parent)
+    {
+        for (int i = 0; i < VisualTreeHelper.GetChildrenCount(parent); i++)
+        {
+            var child = VisualTreeHelper.GetChild(parent, i);
+            yield return child;
+            foreach (var nested in VisualChildren(child)) yield return nested;
+        }
+    }
+
+    // Popup は別の表示面なので、窓と同じ方法で中身だけを保存する。
+    private static void SaveVisualScreenshot(string path, FrameworkElement root, Brush background)
+    {
         root.UpdateLayout();
-        var dpi = VisualTreeHelper.GetDpi(window);
+        var dpi = VisualTreeHelper.GetDpi(root);
         var bmp = new RenderTargetBitmap((int)(root.ActualWidth * dpi.DpiScaleX), (int)(root.ActualHeight * dpi.DpiScaleY), dpi.PixelsPerInchX, dpi.PixelsPerInchY, PixelFormats.Pbgra32);
         var bg = new DrawingVisual();
-        using (var dc = bg.RenderOpen()) dc.DrawRectangle(window.Background, null, new Rect(0, 0, root.ActualWidth, root.ActualHeight));
+        using (var dc = bg.RenderOpen()) dc.DrawRectangle(background, null, new Rect(0, 0, root.ActualWidth, root.ActualHeight));
         bmp.Render(bg);
         bmp.Render(root);
         var encoder = new PngBitmapEncoder();

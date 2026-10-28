@@ -14,10 +14,10 @@ namespace GravewardSpiral.Editor;
 public sealed class EventList
 {
     private readonly TextBox _search = new() { Margin = new Thickness(0, 2, 0, 2), ToolTip = T("id・名前・メモ・文で探す", "Search by id, name, note or text") };
-    private readonly ComboBox _place = new() { Width = 96, Margin = new Thickness(0, 0, 4, 0) };
-    private readonly ComboBox _how = new() { Width = 110 };
-    private readonly ComboBox _kind = new() { Width = 120, Margin = new Thickness(0, 0, 4, 0) };
-    private readonly ComboBox _rarity = new() { Width = 96 };
+    private readonly ComboBox _place = new() { Width = 120, DisplayMemberPath = nameof(Choice.Label), Margin = new Thickness(0, 0, 4, 0) };
+    private readonly ComboBox _how = new() { Width = 120, DisplayMemberPath = nameof(Choice.Label) };
+    private readonly ComboBox _kind = new() { Width = 120, DisplayMemberPath = nameof(Choice.Label), Margin = new Thickness(0, 0, 4, 0) };
+    private readonly ComboBox _rarity = new() { Width = 120, DisplayMemberPath = nameof(Choice.Label) };
 
     /// <summary>中身の種類(キー、名前、合うか)。使っている部品で決める。</summary>
     private static readonly (string Key, string Ja, string En, Func<EventDef, bool> Has)[] Kinds =
@@ -226,6 +226,12 @@ public sealed class EventPickerWindow : Window
                         _preview.Inlines.Add(new System.Windows.Documents.Run($"\n{indent}  「{label}」") { Foreground = Theme.Brush(Theme.Palette.Accent) });
                     Walk(o.Steps, indent + "    ");
                 }
+                for (int i = 0; i < s.Cases.Count; i++)
+                {
+                    _preview.Inlines.Add(new System.Windows.Documents.Run($"\n{indent}  " + T($"場合 {i + 1}(上から最初に合う場合だけ)", $"Case {i + 1} (first match only)")) { Foreground = Ui.Dim });
+                    Walk(s.Cases[i].Then, indent + "    ");
+                }
+                if (s.Type == "cases") _preview.Inlines.Add(new System.Windows.Documents.Run($"\n{indent}  " + T("それ以外", "Otherwise")) { Foreground = Ui.Dim });
                 foreach (var child in new[] { s.Then, s.Else, s.Success, s.Fail, s.Win, s.Lose }) Walk(child, indent + "  ");
             }
         }

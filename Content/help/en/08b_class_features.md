@@ -1,38 +1,61 @@
 # Class Features
 
-## Multiclassing
+## Using class abilities
 
-With several classes, each class's features work at that class's level. A fighter 5 / barbarian 2, for example, can use both Action Surge and Rage. Extra Attack does not stack; the highest count applies.
+Class features are simplified from the SRD for dungeon play. Subclasses and some abilities or choices are not included.
 
-The features you have and the uses left appear under "Class Features" on the character status screen.
+Choose Class Feature in combat to use an ability you have learned. Other abilities work automatically.
 
-## Uses
+Check learned abilities and remaining uses on the Skills page of the status screen.
 
-Uses come back when you rest. Second Wind, Action Surge, ki, Channel Divinity and Wild Shape return on a short rest. The rest return on a long rest at the inn.
+## Multiclass abilities
 
-## Class feature command
+Each ability is learned and scales with levels in its own class. A fighter 5 / barbarian 2 can use both the fighter's Action Surge and the barbarian's Rage.
 
-Choose them with "Class Feature" in battle.
+Extra Attack from multiple classes does not stack. The highest attack count among your classes applies.
 
-- Fighter: Second Wind (regain HP), Action Surge (attack twice over).
-- Barbarian: Rage (for this battle, melee damage rises and you take half bludgeoning, piercing and slashing damage; no spells).
-- Paladin: Lay on Hands (restore an ally's HP from a pool; also cures poison), Divine Smite (spend a spell slot to add radiant damage to a melee hit).
-- Monk: Flurry of Blows, Patient Defense, Stunning Strike (all spend ki).
-- Cleric: Turn Undead (turns undead; weak undead are destroyed).
-- Bard: Bardic Inspiration (adds a die to an ally's attack or save).
-- Druid: Wild Shape (choose a wolf or a bear form: the wolf is hard to hit and knocks foes down, the bear has more HP and attacks twice; from L8, a dire wolf or a brown bear. You return when the beast's HP runs out).
+## Recovering uses
 
-## Empowered spell
+Second Wind, Action Surge, ki, Channel Divinity, and Wild Shape recover on a short rest.
 
-From level 3, a sorcerer gets "Spell (Empower: n)" under "Spell" in battle, where n is the sorcery points left. It casts a damage spell with its low dice rerolled. The normal "Spell" never spends points, and auto battle never empowers.
+Bardic Inspiration recovers on a short rest from bard level 5 onward. Before that, it requires a long rest, as do Rage, Lay on Hands, sorcery points, and similar resources.
 
-## Passive features
+## Fighter and barbarian abilities
 
-Some features work without choosing them.
+- Second Wind: Recover your own HP.
+- Action Surge: Make two normal attack actions in succession. Extra Attack applies, but bonus attacks such as an off-hand attack are not doubled.
+- Rage: Attack and enter a rage. For this battle, deal more melee damage and take half damage from bludgeoning, piercing, and slashing. You cannot cast spells, and any spell you were concentrating on ends.
 
-- Fighting Style (fighter, paladin, ranger): one style that fits your weapon works: Archery, Two-Weapon, Great Weapon, Dueling or Defense.
-- Paladin's Aura of Protection (L6): while the paladin stands, the whole party's saves rise. Aura of Courage (L10) keeps the party from being frightened.
-- Rogue's Uncanny Dodge (L5) and Evasion (L7), monk's Martial Arts and Evasion (L7), and more.
-- Wizard's Arcane Recovery: regain a few spell slots on a short rest (once per long rest).
-- Bard's Song of Rest: allies regain extra HP on a short rest.
-- Warlock invocations: Agonizing Blast (L2), Thirsting Blade (L5, two attacks) and Lifedrinker (L12, melee hits drain HP) come automatically with level.
+## Paladin and monk abilities
+
+- Lay on Hands: Heal an ally using a pool equal to five times your paladin level. If the target is poisoned and enough points remain, five points first cure poison. The remaining pool restores missing HP.
+- Divine Smite: When a melee attack hits, spend a spell slot to add radiant damage.
+- Flurry of Blows: Spend ki to make two unarmed strikes in addition to your normal attacks.
+- Patient Defense: Spend ki to attack and Dodge.
+- Stunning Strike: Spend ki on a hit. If the enemy fails its save, it becomes Stunned.
+
+## Cleric, bard, and druid abilities
+
+- Turn Undead: Prevent undead that fail their saves from acting. Taking damage ends this effect. Sufficiently weak undead are destroyed instead.
+- Bardic Inspiration: Help an ally's attacks or saves. A bonus die is used automatically when it might turn a failure into a success.
+- Wild Shape: Transform into a beast. Wolf is available at druid level 2, with black bear added at level 4. Dire wolf and brown bear become available at level 8. Wolves can knock enemies prone; bears have more HP and attack twice. When the beast's HP runs out, you return to your normal form.
+
+## Empowered spells
+
+From sorcerer level 3, Cast (Empowered:n) appears below Cast in combat. The number is your remaining sorcery points.
+
+This command spends one point to reroll low damage dice for a spell. Normal Cast does not spend sorcery points. Auto does not use empowered casting.
+
+This is the game's only Metamagic option. Other Metamagic choices and conversions between sorcery points and spell slots are not available.
+
+## Automatic abilities
+
+These abilities work without selecting a combat command. Levels below refer to levels in the relevant class.
+
+- Fighting Style: Fighters, paladins, and rangers learn this ability. Equipment determines whether Archery, Two-Weapon Fighting, Great Weapon Fighting, Dueling, or Defense applies.
+- Paladin auras: From level 6, a paladin able to act improves the whole party's saves with Aura of Protection. At level 10, Aura of Courage protects allies from fear.
+- Rogue's Uncanny Dodge: From level 5, reduce damage from an attack. At level 7, Evasion further reduces damage that allows a Dexterity save for reduced damage.
+- Monk's Martial Arts and Evasion: Martial Arts improves unarmed and related attacks. Evasion becomes available at level 7.
+- Wizard's Arcane Recovery: Recover some spell slots during a short rest, once between long rests.
+- Bard's Song of Rest: Restore additional HP to allies who spent Hit Dice healing during a short rest.
+- Warlock invocations: Automatically learn Agonizing Blast at level 2, Thirsting Blade at level 5, and Lifedrinker at level 12. Thirsting Blade grants two attacks, and Lifedrinker drains HP with melee attacks. This game does not offer invocation or Pact Boon selection.

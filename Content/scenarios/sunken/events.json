@@ -1452,24 +1452,25 @@
     "place": "town",
     "steps": [
       {
-        "type": "if",
+        "type": "cases",
         "per_place": false,
-        "when": [
-          {
-            "type": "flag",
-            "id": "sk_keystone",
-            "value": 1,
-            "count": 1,
-            "op": ">=",
-            "not": false
-          }
-        ],
-        "then": [
+        "else": [
           {
             "type": "text",
             "text": {
-              "en": "\"She's still sitting there, isn't she. ...Then the lake should come back. Somebody ought to keep her company, even if it's only water.\"",
-              "ja": "「あの方は、まだ座ってらっしゃるんだね。……なら、湖は戻さなきゃ。水だけでも、そばにいてあげないと」"
+              "en": "An old woman sits on an overturned ferry at the edge of the dry lake, mending a net she will never use again.",
+              "ja": "干上がった湖のふちで、伏せた渡し舟に老婆が腰かけ、もう使うことのない網を繕っている。"
+            },
+            "per_place": false,
+            "dc": 10,
+            "value": 0,
+            "count": 1
+          },
+          {
+            "type": "text",
+            "text": {
+              "en": "\"Going down to Selem, are you. People here say the queen drowned her own city. That's true. The boats gathered at the upper harbor, and the lower city was to walk out by the gate. Plenty didn't make it. But nobody says she stayed in it herself.\"",
+              "ja": "「セレムへ下りるのかい。ここらの者は、女王様が自分の都を沈めたって言う。それは本当さ。舟は上の港に集められて、下の街の者は門から歩いて逃げる手はずだった。間に合わなかった者も、大勢いた。でも、女王様がご自分も残ったってことは、誰も言わない」"
             },
             "speaker": {
               "en": "Osa",
@@ -1479,12 +1480,80 @@
             "dc": 10,
             "value": 0,
             "count": 1
+          },
+          {
+            "type": "text",
+            "text": {
+              "en": "\"The drowned don't like noise. My mother used to sing them a lullaby from the boat, when the nets came up heavy. Listen, now.\"",
+              "ja": "「溺れた者は、騒がしいのを嫌う。網が重く上がった晩は、母さんが舟の上から子守歌を聞かせてたよ。いいかい、聞きな」"
+            },
+            "speaker": {
+              "en": "Osa",
+              "ja": "オーサ"
+            },
+            "per_place": false,
+            "dc": 10,
+            "value": 0,
+            "count": 1
+          },
+          {
+            "type": "text",
+            "text": {
+              "en": "\"Sleep in the tide, the city is still.\nBow to the waves and accept their will.\n...The rest went under with the city. If you find it down there, sing it all the way through.\"",
+              "ja": "「潮に眠れ 都は静か\n波に頭を垂れ その心のままに\n……続きは、都と一緒に沈んじまった。下で見つけたら、最後まで歌っておやり」"
+            },
+            "speaker": {
+              "en": "Osa",
+              "ja": "オーサ"
+            },
+            "per_place": false,
+            "dc": 10,
+            "value": 0,
+            "count": 1
+          },
+          {
+            "type": "flag",
+            "per_place": false,
+            "dc": 10,
+            "id": "sk_lullaby_a",
+            "value": 0,
+            "count": 1
           }
         ],
-        "else": [
+        "dc": 10,
+        "value": 0,
+        "count": 1,
+        "cases": [
           {
-            "type": "if",
-            "per_place": false,
+            "when": [
+              {
+                "type": "flag",
+                "id": "sk_keystone",
+                "value": 1,
+                "count": 1,
+                "op": ">=",
+                "not": false
+              }
+            ],
+            "then": [
+              {
+                "type": "text",
+                "text": {
+                  "en": "\"She's still sitting there, isn't she. ...Then the lake should come back. Somebody ought to keep her company, even if it's only water.\"",
+                  "ja": "「あの方は、まだ座ってらっしゃるんだね。……なら、湖は戻さなきゃ。水だけでも、そばにいてあげないと」"
+                },
+                "speaker": {
+                  "en": "Osa",
+                  "ja": "オーサ"
+                },
+                "per_place": false,
+                "dc": 10,
+                "value": 0,
+                "count": 1
+              }
+            ]
+          },
+          {
             "when": [
               {
                 "type": "flag",
@@ -1547,81 +1616,9 @@
                 "value": 0,
                 "count": 1
               }
-            ],
-            "else": [
-              {
-                "type": "text",
-                "text": {
-                  "en": "An old woman sits on an overturned ferry at the edge of the dry lake, mending a net she will never use again.",
-                  "ja": "干上がった湖のふちで、伏せた渡し舟に老婆が腰かけ、もう使うことのない網を繕っている。"
-                },
-                "per_place": false,
-                "dc": 10,
-                "value": 0,
-                "count": 1
-              },
-              {
-                "type": "text",
-                "text": {
-                  "en": "\"Going down to Selem, are you. People here say the queen drowned her own city. That's true. The boats gathered at the upper harbor, and the lower city was to walk out by the gate. Plenty didn't make it. But nobody says she stayed in it herself.\"",
-                  "ja": "「セレムへ下りるのかい。ここらの者は、女王様が自分の都を沈めたって言う。それは本当さ。舟は上の港に集められて、下の街の者は門から歩いて逃げる手はずだった。間に合わなかった者も、大勢いた。でも、女王様がご自分も残ったってことは、誰も言わない」"
-                },
-                "speaker": {
-                  "en": "Osa",
-                  "ja": "オーサ"
-                },
-                "per_place": false,
-                "dc": 10,
-                "value": 0,
-                "count": 1
-              },
-              {
-                "type": "text",
-                "text": {
-                  "en": "\"The drowned don't like noise. My mother used to sing them a lullaby from the boat, when the nets came up heavy. Listen, now.\"",
-                  "ja": "「溺れた者は、騒がしいのを嫌う。網が重く上がった晩は、母さんが舟の上から子守歌を聞かせてたよ。いいかい、聞きな」"
-                },
-                "speaker": {
-                  "en": "Osa",
-                  "ja": "オーサ"
-                },
-                "per_place": false,
-                "dc": 10,
-                "value": 0,
-                "count": 1
-              },
-              {
-                "type": "text",
-                "text": {
-                  "en": "\"Sleep in the tide, the city is still.\nBow to the waves and accept their will.\n...The rest went under with the city. If you find it down there, sing it all the way through.\"",
-                  "ja": "「潮に眠れ 都は静か\n波に頭を垂れ その心のままに\n……続きは、都と一緒に沈んじまった。下で見つけたら、最後まで歌っておやり」"
-                },
-                "speaker": {
-                  "en": "Osa",
-                  "ja": "オーサ"
-                },
-                "per_place": false,
-                "dc": 10,
-                "value": 0,
-                "count": 1
-              },
-              {
-                "type": "flag",
-                "per_place": false,
-                "dc": 10,
-                "id": "sk_lullaby_a",
-                "value": 0,
-                "count": 1
-              }
-            ],
-            "dc": 10,
-            "value": 0,
-            "count": 1
+            ]
           }
-        ],
-        "dc": 10,
-        "value": 0,
-        "count": 1
+        ]
       }
     ],
     "bgm": "audio/bgm/story.mp3",
@@ -1719,24 +1716,25 @@
     "place": "town",
     "steps": [
       {
-        "type": "if",
+        "type": "cases",
         "per_place": false,
-        "when": [
-          {
-            "type": "flag",
-            "id": "sk_keystone",
-            "value": 1,
-            "count": 1,
-            "op": ">=",
-            "not": false
-          }
-        ],
-        "then": [
+        "else": [
           {
             "type": "text",
             "text": {
-              "en": "\"So that's what's under there. ...All right. I'll close the sluice tomorrow. The fields can wait a thousand years more.\"",
-              "ja": "「下に、そんなものがあったのか。……わかった。明日、水門を閉める。畑は、あと千年待ってもらうさ」"
+              "en": "A broad man with mud to his knees is shouting orders at the ditch-diggers.",
+              "ja": "膝まで泥につかった大柄な男が、溝掘りたちに怒鳴っている。"
+            },
+            "per_place": false,
+            "dc": 10,
+            "value": 0,
+            "count": 1
+          },
+          {
+            "type": "text",
+            "text": {
+              "en": "\"Five more years and this lake is wheat. That's the plan. Then the roofs came up, and the dead came up in the nets, and now half my men won't dig after dark.\"",
+              "ja": "「あと五年で、この湖は麦畑になる。そういう話だった。それが、屋根が出てきて、網に死人がかかって、今じゃ半分の連中が日が暮れたら掘らない」"
             },
             "speaker": {
               "en": "Borg",
@@ -1748,10 +1746,40 @@
             "count": 1
           }
         ],
-        "else": [
+        "dc": 10,
+        "value": 0,
+        "count": 1,
+        "cases": [
           {
-            "type": "if",
-            "per_place": false,
+            "when": [
+              {
+                "type": "flag",
+                "id": "sk_keystone",
+                "value": 1,
+                "count": 1,
+                "op": ">=",
+                "not": false
+              }
+            ],
+            "then": [
+              {
+                "type": "text",
+                "text": {
+                  "en": "\"So that's what's under there. ...All right. I'll close the sluice tomorrow. The fields can wait a thousand years more.\"",
+                  "ja": "「下に、そんなものがあったのか。……わかった。明日、水門を閉める。畑は、あと千年待ってもらうさ」"
+                },
+                "speaker": {
+                  "en": "Borg",
+                  "ja": "ボルグ"
+                },
+                "per_place": false,
+                "dc": 10,
+                "value": 0,
+                "count": 1
+              }
+            ]
+          },
+          {
             "when": [
               {
                 "type": "flag",
@@ -1778,43 +1806,9 @@
                 "value": 0,
                 "count": 1
               }
-            ],
-            "else": [
-              {
-                "type": "text",
-                "text": {
-                  "en": "A broad man with mud to his knees is shouting orders at the ditch-diggers.",
-                  "ja": "膝まで泥につかった大柄な男が、溝掘りたちに怒鳴っている。"
-                },
-                "per_place": false,
-                "dc": 10,
-                "value": 0,
-                "count": 1
-              },
-              {
-                "type": "text",
-                "text": {
-                  "en": "\"Five more years and this lake is wheat. That's the plan. Then the roofs came up, and the dead came up in the nets, and now half my men won't dig after dark.\"",
-                  "ja": "「あと五年で、この湖は麦畑になる。そういう話だった。それが、屋根が出てきて、網に死人がかかって、今じゃ半分の連中が日が暮れたら掘らない」"
-                },
-                "speaker": {
-                  "en": "Borg",
-                  "ja": "ボルグ"
-                },
-                "per_place": false,
-                "dc": 10,
-                "value": 0,
-                "count": 1
-              }
-            ],
-            "dc": 10,
-            "value": 0,
-            "count": 1
+            ]
           }
-        ],
-        "dc": 10,
-        "value": 0,
-        "count": 1
+        ]
       }
     ],
     "note": "B: 干拓を進めている。終わりに水門を閉じる役(エンディングの文)",
@@ -2122,7 +2116,7 @@
         "type": "text",
         "text": {
           "en": "\"Majesty — not yet. Not yet! They're still at the gate—\"",
-          "ja": "「陛下、まだだ。まだだ！　門には、まだ――」"
+          "ja": "「陛下、まだだ。まだだ！\u3000門には、まだ――」"
         },
         "speaker": {
           "en": "A voice from the gate",

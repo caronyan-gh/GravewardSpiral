@@ -2,40 +2,44 @@
 
 ## Tavern
 
-Gather companions and form a party. A party holds up to 6. The first three are the front row and the rest are the back row. You can add members, remove them, and reorder them. You can also hear rumors from the patrons.
+Form and manage your party here. Add or remove companions and change their order. A party holds up to six members: the first three are the front row and the rest are the back row. You can also hear rumors from patrons.
 
 ## Inn
 
-Stay the night and take a long rest. Each member pays from their own money.
+Staying at the inn gives a long rest, restoring HP, spell slots, and class feature uses. In this game, HP recovery depends on where you sleep. Fees are paid from the party's combined gold.
 
-- Stable: you sleep on straw. HP is restored only up to half.
-- Room: you rest in a proper bed. HP is fully restored.
+- Stable: free. Restores HP up to 50% of maximum. It does not reduce HP that is already above that amount.
+- Room: costs 10 gold per character level for each guest. Restores HP fully.
 
-At camp in the maze you can only take a short rest. The inn is the only place for a long rest.
+If funds run short, members rest in party order as their fees can be paid. The stable also restores spell slots and class feature uses. For Hit Dice recovery, see "Long rests" under "Camp".
 
 ## Shop
 
-Buy and sell gear and items, identify items, and remove curses. Purchases are paid from party gold, and sale proceeds are shared among the party.
+Buy and sell gear, identify items, and remove curses. Purchases use the party's combined gold; sale proceeds are shared among party members.
 
 ## Temple
 
-Resurrects dead companions and cures poison, paralysis, and more. See "Death and the Temple" for details.
+Resurrect dead companions and treat conditions such as poison and paralysis. You can check the price and success chance before attempting resurrection. See "Death and Rescue".
 
 ## Training Grounds
 
-Create, inspect, level up, rename, or delete characters. You can also choose spells for spellcasters here. The roster can be exported as a clan.
+Create characters, inspect their status, level up, rename them, or delete them. You can also change spell selections here. "Export Clan" saves the roster to a file.
 
 ## Clan House
 
-The clan's home. Store items in its storehouse. Invest gold to rebuild it larger.
+Your clan's shared base. Deposit or withdraw items, manage equipment, and use "View Status" to inspect current party members.
+
+Upgrades require gold and sometimes materials. They increase storage and add facilities. Once you have beds, you can take a long rest for free. Basic beds restore HP up to 70% of maximum; better beds restore it fully. HP above the recovery limit is not reduced.
+
+Other facilities offer benefits such as cheaper identification with a library. The screen shows the cost, materials, and facilities for an upgrade.
 
 ## Enter the Maze
 
-Enter the maze with your party. You cannot go in without a party that can act.
+Set out with the current party. At least one companion must be able to act.
 
 ## Other entries
 
-- Items: look at your companions' items and change their equipment.
-- Visit People: talk to the townsfolk. Selectable only when someone is available.
-- The Tale of This Dungeon: in scenarios with a story, read the tale and the town's request again.
-- Save and Quit: saves and returns to the title screen.
+- Items: change equipment, use items, give them to companions, or discard them.
+- Visit People: speak to townsfolk. Available when there is someone to visit.
+- The Tale of This Dungeon: reread the scenario's introduction and the town's request.
+- Save and Quit: save your progress and return to the title screen.

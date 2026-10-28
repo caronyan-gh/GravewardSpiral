@@ -18,6 +18,8 @@ public sealed class EventDef
 
     public string Id { get; set; } = "";
     public LocalizedText? Title { get; set; }
+    /// <summary>このイベント専用のフラグ。エディタが一意な名前を作る。省略なら専用フラグなし。実行時は通常の flag / unflag / 条件 flag でこの名前を使う。</summary>
+    public string? OwnFlag { get; set; }
     public string Place { get; set; } = "maze";
     public string? Once { get; set; }
 
@@ -154,6 +156,7 @@ public sealed class EventOption
 /// - text: text(か文言のキー key)、speaker、art(モンスターの id か、パックの画像のパス)
 /// - choice: text(問い)、options[label, when, steps]。when の合わない選択肢は出さない
 /// - if: when、then、else
+/// - cases: cases[{when, then}]、else。上から条件を調べ、最初に全部合った場合の then だけを行う。合わなければ else
 /// - check: skill か ability、dc。パーティで一番得意な人が振る(pick で選んだあとは、その人)。success、fail
 /// - random: options[weight, steps] から1つ。per_place を true にすると、同じ迷宮の同じマスでは毎回同じものを選ぶ(壁の文字など)
 /// - flag / unflag: id
@@ -188,7 +191,7 @@ public sealed class EventStep
 {
     public static readonly HashSet<string> KnownTypes =
     [
-        "text", "choice", "if", "check", "random", "flag", "unflag", "counter", "counter_set", "give_item", "take_item", "treasure", "gold",
+        "text", "choice", "if", "cases", "check", "random", "flag", "unflag", "counter", "counter_set", "give_item", "take_item", "treasure", "gold",
         "xp", "heal", "damage", "condition", "cure", "light", "combat", "open", "sound", "run", "town", "end", "again",
         "world_doc", "ending", "close", "pick", "spend_slot", "warp", "timer", "timer_stop",
     ];
@@ -205,6 +208,8 @@ public sealed class EventStep
     public List<EventCondition> When { get; set; } = [];
     public List<EventStep> Then { get; set; } = [];
     public List<EventStep> Else { get; set; } = [];
+    /// <summary>cases の場合の一覧。上から when を調べ、最初にすべて合う場合の then だけを行う。どれにも合わなければ else。空なら else。</summary>
+    public List<EventCase> Cases { get; set; } = [];
 
     public string? Skill { get; set; }
     public string? Ability { get; set; }
@@ -235,5 +240,18 @@ public sealed class EventStep
         yield return Win;
         yield return Lose;
         foreach (var o in Options) yield return o.Steps;
+        foreach (var c in Cases) yield return c.Then;
     }
+
+    /// <summary>この部品が直接持つ条件(入れ子の手順は Children でたどる)。</summary>
+    public IEnumerable<EventCondition> Conditions() => When.Concat(Options.SelectMany(o => o.When)).Concat(Cases.SelectMany(c => c.When));
+}
+
+/// <summary>値で分ける場合。when が空なら必ず合う(if と同じ)。</summary>
+public sealed class EventCase
+{
+    /// <summary>今ある条件の部品を使う。すべて合えば選ばれる。空なら必ず合い、後ろの場合は調べない。</summary>
+    public List<EventCondition> When { get; set; } = [];
+    /// <summary>この場合が最初に合ったときの流れ。終わると cases の次へ進む(ほかの場合には進まない)。</summary>
+    public List<EventStep> Then { get; set; } = [];
 }

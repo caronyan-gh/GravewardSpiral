@@ -23,6 +23,8 @@ public static class EventCheck
         var problems = new List<string>();
         string where = $"events '{e.Id}'";
         void Add(string text) => problems.Add($"{where}: {text}");
+        if (e.OwnFlag != null && string.IsNullOrWhiteSpace(e.OwnFlag)) Add("own_flag に空の名前は使えません");
+        if (e.OwnFlag != null && data.Events.Values.Any(other => other.Id != e.Id && other.OwnFlag == e.OwnFlag)) Add("専用フラグの名前が、ほかのイベントと重複しています");
         if (!Places.Contains(e.Place)) Add($"place '{e.Place}' は {string.Join(" / ", Places)} のどれかです");
         if (e.Once != null && !OnceKinds.Contains(e.Once)) Add($"once '{e.Once}' は game / place のどちらかです");
         if (e.Place == "town" && e.Title == null) Add("町のイベントには title が要ります");
@@ -95,8 +97,7 @@ public static class EventCheck
                     foreach (var g in s.Groups.Where(g => !data.Monsters.ContainsKey(g.Monster))) Add($"手順 combat: monsters に '{g.Monster}' がありません");
                     if (s.Boss != null && !data.Bosses.ContainsKey(s.Boss)) Add($"手順 combat: bosses に '{s.Boss}' がありません");
                 }
-                Conditions(s.When);
-                foreach (var o in s.Options) Conditions(o.When);
+                Conditions(s.Conditions());
                 foreach (var child in s.Children()) Steps(child, depth + 1);
             }
         }

@@ -2,28 +2,35 @@
 
 ## Basic keys
 
-You can play with a keyboard or a gamepad. Menus also work with the mouse (click, and the wheel to scroll).
+Play with a keyboard or gamepad. Menus also support the mouse: click to confirm and use the wheel to scroll through a list.
 
 - Confirm: Enter / Space / Z / gamepad A
-- Cancel: Esc / Backspace / X / gamepad B
-- Move and choose: arrow keys / WASD / D-pad / left stick
-- Menu (camp, in the maze): Tab / C / gamepad Start or Y
+- Cancel or go back: Esc / Backspace / X / gamepad B
+- Move or select: arrow keys / WASD / D-pad / left stick
+- Menu (camp in the maze): Tab / C / gamepad Start or Y
 - Map: M / gamepad Back or X
-- Page through lists: PageUp and PageDown / Q and E / gamepad LB and RB
-- Toggle fullscreen: F11 or Alt+Enter
+- Page through lists: PageUp / PageDown / Q / E / gamepad LB / RB
+- Toggle fullscreen: F11 / Alt+Enter
+
+Some screens use Left and Right to switch tabs or pages. Check the controls shown at the bottom of each screen.
 
 ## Moving in the maze
 
-- Up moves forward. Left and Right turn on the spot.
-- Down does what the "Back key" option says: step back or turn around.
-- Q and E (gamepad LB and RB) sidestep one square without turning.
-- Confirm examines what is in front of you or under your feet (stairs, doors, chests, and so on).
-- Hold Shift (gamepad L2) while pressing the back key to get the opposite action. If the option is "step back", you turn around instead.
+- Up: move forward one square.
+- Left and Right: turn on the spot.
+- Down: step backward or turn around, depending on the "Back key" option.
+- Q and E (gamepad LB and RB): move one square sideways without turning.
+- Confirm: examine what is ahead or underfoot, such as a door, chest, or staircase.
+- Hold Shift (gamepad L2) and press Down: perform the opposite of the "Back key" setting. If Down normally steps backward, you turn around; if it normally turns around, you step backward.
 
 ## The Esc menu
 
-Esc opens a small menu. From here you can open Help, Options, or quit (in the maze this is "Suspend and Quit"). In the maze you can also open Camp from here.
+Press Esc to open the menu for Help, Options, and quitting. In the maze, it also offers Camp and "Suspend and Quit".
+
+## Reading the help
+
+Use Up and Down to select a heading in the contents on the left. The text on the right jumps to that heading. Scroll the text with Left, Right, PageUp, PageDown, or the mouse wheel. Press Cancel or the menu key to close Help.
 
 ## Changing keys
 
-The key assignments are stored in input.json in the user data folder (%LOCALAPPDATA%\GravewardSpiral). Edit that file to change them. Only the fullscreen toggle cannot be changed.
+Edit input.json in the user data folder (%LOCALAPPDATA%\GravewardSpiral) to change key assignments. The fullscreen shortcut cannot be changed.

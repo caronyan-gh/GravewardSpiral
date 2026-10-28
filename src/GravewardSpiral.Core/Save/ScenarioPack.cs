@@ -19,6 +19,8 @@ public sealed class ScenarioPack
     public PackManifest Manifest { get; set; } = new();
     public List<MazeFloor> Floors { get; set; } = [];
     public List<EventDef> Events { get; set; } = [];
+    public List<EventFlagDef> Flags { get; set; } = [];
+    public List<EventSetDef> EventSets { get; set; } = [];
 
     /// <summary>酒場の噂(rumors.json。条件付き)。</summary>
     public List<RumorDef> Rumors { get; set; } = [];
@@ -193,6 +195,8 @@ public sealed class ScenarioPack
             pack.ConvertLegacyElevators();
         }
         pack.Events = Json<List<EventDef>>("events.json") ?? [];
+        pack.Flags = Json<List<EventFlagDef>>("flags.json") ?? [];
+        pack.EventSets = Json<List<EventSetDef>>("event_sets.json") ?? [];
         foreach (var (collection, list) in pack.DataLists())
         {
             try
@@ -316,6 +320,8 @@ public sealed class ScenarioPack
         if (Named is { Count: 0 }) dungeonNode[0]!.AsObject()["named"] = new JsonArray();
         File.WriteAllText(Path.Combine(Directory, "dungeons.json"), dungeonNode.ToJsonString(Indented));
         WriteJson("events.json", Events, prune: true);
+        WriteJson("flags.json", Flags);
+        WriteJson("event_sets.json", EventSets);
         string rumors = Path.Combine(Directory, RumorDef.Collection + ".json");
         if (Rumors.Count > 0) WriteJson(RumorDef.Collection + ".json", Rumors, prune: true);
         else if (File.Exists(rumors)) File.Delete(rumors);

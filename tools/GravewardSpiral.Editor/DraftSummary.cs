@@ -197,6 +197,16 @@ public sealed class DraftSummary(EditorContext context)
                         Steps(o.Steps, depth + 2, lines);
                     }
                     break;
+                case "cases":
+                    lines.Add(pad + T("値で分ける(上から最初に合う場合だけ):", "Branch by value (first match only):"));
+                    for (int i = 0; i < s.Cases.Count; i++)
+                    {
+                        lines.Add(pad + "  " + CaseLabel(s, i));
+                        Steps(s.Cases[i].Then, depth + 2, lines);
+                    }
+                    lines.Add(pad + T("  それ以外", "  Otherwise"));
+                    Steps(s.Else, depth + 2, lines);
+                    break;
                 case "if":
                     lines.Add(pad + T("もし ", "If ") + string.Join(T("、かつ ", " and "), s.When.Select(Condition)));
                     Steps(s.Then, depth + 1, lines);
@@ -252,7 +262,26 @@ public sealed class DraftSummary(EditorContext context)
         }
     }
 
-    /// <summary>手順1つ(入れ子の無いもの)。</summary>
+    /// <summary>場合の見出し。安全に範囲に直せるときだけ、前の場合を除いた範囲を出す。</summary>
+    public string CaseLabel(EventStep s, int index)
+    {
+        var branch = s.Cases[index];
+        if (EventBranches.Ranges(s) is { } ranges)
+        {
+            var c = branch.When[0];
+            string subject = c.Type switch
+            {
+                "gold" => T("所持金", "Gold"),
+                "hp" => "HP(%)",
+                "timer" => T($"残り歩数 {c.Id}", $"Steps left {c.Id}"),
+                _ => c.Id ?? "?",
+            };
+            var (min, max) = ranges[index];
+            return subject + " " + (min.HasValue ? T($"{min}〜{max}", $"{min}–{max}") : T($"〜{max}", $"up to {max}"));
+        }
+        return branch.When.Count == 0 ? T("いつでも", "Always") : string.Join(T("、かつ ", " and "), branch.When.Select(Condition));
+    }
+
     public string Step(EventStep s) => s.Type switch
     {
         "gold" => s.Value >= 0 ? T($"金貨 {s.Value} 枚をもらう", $"Receive {s.Value} gold") : T($"金貨 {-s.Value} 枚を払う", $"Pay {-s.Value} gold"),

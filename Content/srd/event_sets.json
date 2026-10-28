@@ -1,0 +1,15 @@
+[
+  {
+    "id": "twin_switches",
+    "name": { "ja": "双子のスイッチ", "en": "Twin switches" },
+    "kind": { "ja": "双子のスイッチ", "en": "Twin switches" },
+    "owned_flags": ["twin_a", "twin_b"],
+    "parts": [
+      { "kind": "event", "target": "twin_switch_a", "own_flag": "twin_a", "name": { "ja": "スイッチA", "en": "Switch A" }, "place": true },
+      { "kind": "event", "target": "twin_switch_b", "own_flag": "twin_b", "name": { "ja": "スイッチB", "en": "Switch B" }, "place": true },
+      { "kind": "gate", "target": "twin", "name": { "ja": "開く扉", "en": "Gate" }, "place": true },
+      { "kind": "event", "target": "twin_vault", "name": { "ja": "奥の宝", "en": "Treasure" }, "place": true },
+      { "kind": "event", "target": "twin_check", "name": { "ja": "両方の確認(内部処理)", "en": "Check both (internal)" }, "place": false }
+    ]
+  }
+]

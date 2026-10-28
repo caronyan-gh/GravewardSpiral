@@ -275,6 +275,9 @@ public sealed class EventRunner
             case "if":
                 _frames.Push((Test(s.When, _ctx) ? s.Then : s.Else, 0));
                 break;
+            case "cases":
+                _frames.Push((s.Cases.FirstOrDefault(c => Test(c.When, _ctx))?.Then ?? s.Else, 0));
+                break;
             case "check":
                 _frames.Push((Check(s, able) ? s.Success : s.Fail, 0));
                 break;

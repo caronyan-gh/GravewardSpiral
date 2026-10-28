@@ -7,460 +7,662 @@ The same text as Help in the in-game Esc menu (and on the title screen). Topics:
 - Town Facilities
 - Characters
 - Spells
-- Exploring the Maze
+- Exploring the Dungeon
 - Camp
 - Combat
 - Class Features
 - Items and Equipment
-- Death and the Temple
+- Death and Rescue
 - Options and More
 
 ## Controls
 
 ### Basic keys
 
-You can play with a keyboard or a gamepad. Menus also work with the mouse (click, and the wheel to scroll).
+Play with a keyboard or gamepad. Menus also support the mouse: click to confirm and use the wheel to scroll through a list.
 
 - Confirm: Enter / Space / Z / gamepad A
-- Cancel: Esc / Backspace / X / gamepad B
-- Move and choose: arrow keys / WASD / D-pad / left stick
-- Menu (camp, in the maze): Tab / C / gamepad Start or Y
+- Cancel or go back: Esc / Backspace / X / gamepad B
+- Move or select: arrow keys / WASD / D-pad / left stick
+- Menu (camp in the maze): Tab / C / gamepad Start or Y
 - Map: M / gamepad Back or X
-- Page through lists: PageUp and PageDown / Q and E / gamepad LB and RB
-- Toggle fullscreen: F11 or Alt+Enter
+- Page through lists: PageUp / PageDown / Q / E / gamepad LB / RB
+- Toggle fullscreen: F11 / Alt+Enter
+
+Some screens use Left and Right to switch tabs or pages. Check the controls shown at the bottom of each screen.
 
 ### Moving in the maze
 
-- Up moves forward. Left and Right turn on the spot.
-- Down does what the "Back key" option says: step back or turn around.
-- Q and E (gamepad LB and RB) sidestep one square without turning.
-- Confirm examines what is in front of you or under your feet (stairs, doors, chests, and so on).
-- Hold Shift (gamepad L2) while pressing the back key to get the opposite action. If the option is "step back", you turn around instead.
+- Up: move forward one square.
+- Left and Right: turn on the spot.
+- Down: step backward or turn around, depending on the "Back key" option.
+- Q and E (gamepad LB and RB): move one square sideways without turning.
+- Confirm: examine what is ahead or underfoot, such as a door, chest, or staircase.
+- Hold Shift (gamepad L2) and press Down: perform the opposite of the "Back key" setting. If Down normally steps backward, you turn around; if it normally turns around, you step backward.
 
 ### The Esc menu
 
-Esc opens a small menu. From here you can open Help, Options, or quit (in the maze this is "Suspend and Quit"). In the maze you can also open Camp from here.
+Press Esc to open the menu for Help, Options, and quitting. In the maze, it also offers Camp and "Suspend and Quit".
+
+### Reading the help
+
+Use Up and Down to select a heading in the contents on the left. The text on the right jumps to that heading. Scroll the text with Left, Right, PageUp, PageDown, or the mouse wheel. Press Cancel or the menu key to close Help.
 
 ### Changing keys
 
-The key assignments are stored in input.json in the user data folder (%LOCALAPPDATA%\GravewardSpiral). Edit that file to change them. Only the fullscreen toggle cannot be changed.
+Edit input.json in the user data folder (%LOCALAPPDATA%\GravewardSpiral) to change key assignments. The fullscreen shortcut cannot be changed.
 
 ## Getting Started
 
 ### What kind of game is this
 
-GRAVEWARD SPIRAL is a dungeon crawler in the style of early Wizardry. Its rules are based on the D&D 5th edition SRD 5.1. You prepare in town, enter the maze with a party, fight, and bring treasure home.
+GRAVEWARD SPIRAL is a dungeon crawler in the style of early Wizardry, using rules based on the D&D 5th edition SRD 5.1. Prepare in town, explore with your companions, and bring treasure home.
+
+The game adapts SRD 5.1 with its own rules and simplifications for dungeon exploration. Familiar spells and abilities may work differently. Use this help and the in-game descriptions when playing.
 
 ### Starting a new game
 
-Choose "New Game" on the title screen and decide how you want to play.
+Choose "New Game" on the title screen, then select a scenario, clan, and difficulty.
 
-- Scenario: pick a world with a story, or "Free dungeon (no story)". In a free dungeon you can set the seed, the number of floors, and the floor size.
-- Clan: choose the clan (the roster of characters) to bring along. You can keep using a clan you played before, or make a new one.
-- Difficulty: sets how harsh wipes, revivals, and saving are (see "Options and More").
+- Scenario: choose a story scenario or "Free dungeon (no story)". For a free dungeon, you can set the map-generation seed, number of floors, and floor size.
+- Clan: the roster of characters you bring on the adventure. Create a new clan or keep using one from a previous adventure.
+- Difficulty: determines what happens after a party wipe, whether resurrection can fail, and how saving works. See "Difficulty" under "Options and More".
 
-When you start a new world, the party is carried over from the most recently played world, as long as it has members who can be used.
+A new world may carry over the party from a previous world, selecting available companions starting with the most recent world. Check the members and formation at the Tavern before setting out.
 
 ### What to do first
 
-- Make characters at the Training Grounds.
-- Form a party at the Tavern. A party holds up to 6. The front 3 are the front row and the other 3 are the back row. Only the front row can attack in melee.
-- Buy gear at the Shop if you need it.
-- Choose "Enter the Maze" in town. You cannot enter without a party that can act.
+- Create characters at the Training Grounds. For a brief guide to each class, see "Races and classes" under "Characters".
+- Form a party of up to six at the Tavern. The first three members are the front row; the rest are the back row. Put melee fighters in front and companions using bows or spells in back.
+- Check equipment under "Items". A weapon or armor in a pack is not equipped. Buy any gear or supplies you need at the Shop.
+- Check your spellcasters' spells at the Training Grounds. Some classes must prepare spells before using them, even if they already know them. "Auto-fill" fills unused choices.
+- Choose "Enter the Maze" in town to set out. You need a companion who can act.
+
+Start on the shallow floors while learning combat and exploration. Return to town before HP and spell slots run too low.
 
 ### Returning to town
 
-You can return to town by the up stairs on B1. The game saves when you return to town.
+Press Confirm at the up stairs on B1 to return to town. The game saves automatically when you return.
 
 ## Town Facilities
 
 ### Tavern
 
-Gather companions and form a party. A party holds up to 6. The first three are the front row and the rest are the back row. You can add members, remove them, and reorder them. You can also hear rumors from the patrons.
+Form and manage your party here. Add or remove companions and change their order. A party holds up to six members: the first three are the front row and the rest are the back row. You can also hear rumors from patrons.
 
 ### Inn
 
-Stay the night and take a long rest. Each member pays from their own money.
+Staying at the inn gives a long rest, restoring HP, spell slots, and class feature uses. In this game, HP recovery depends on where you sleep. Fees are paid from the party's combined gold.
 
-- Stable: you sleep on straw. HP is restored only up to half.
-- Room: you rest in a proper bed. HP is fully restored.
+- Stable: free. Restores HP up to 50% of maximum. It does not reduce HP that is already above that amount.
+- Room: costs 10 gold per character level for each guest. Restores HP fully.
 
-At camp in the maze you can only take a short rest. The inn is the only place for a long rest.
+If funds run short, members rest in party order as their fees can be paid. The stable also restores spell slots and class feature uses. For Hit Dice recovery, see "Long rests" under "Camp".
 
 ### Shop
 
-Buy and sell gear and items, identify items, and remove curses. Purchases are paid from party gold, and sale proceeds are shared among the party.
+Buy and sell gear, identify items, and remove curses. Purchases use the party's combined gold; sale proceeds are shared among party members.
 
 ### Temple
 
-Resurrects dead companions and cures poison, paralysis, and more. See "Death and the Temple" for details.
+Resurrect dead companions and treat conditions such as poison and paralysis. You can check the price and success chance before attempting resurrection. See "Death and Rescue".
 
 ### Training Grounds
 
-Create, inspect, level up, rename, or delete characters. You can also choose spells for spellcasters here. The roster can be exported as a clan.
+Create characters, inspect their status, level up, rename them, or delete them. You can also change spell selections here. "Export Clan" saves the roster to a file.
 
 ### Clan House
 
-The clan's home. Store items in its storehouse. Invest gold to rebuild it larger.
+Your clan's shared base. Deposit or withdraw items, manage equipment, and use "View Status" to inspect current party members.
+
+Upgrades require gold and sometimes materials. They increase storage and add facilities. Once you have beds, you can take a long rest for free. Basic beds restore HP up to 70% of maximum; better beds restore it fully. HP above the recovery limit is not reduced.
+
+Other facilities offer benefits such as cheaper identification with a library. The screen shows the cost, materials, and facilities for an upgrade.
 
 ### Enter the Maze
 
-Enter the maze with your party. You cannot go in without a party that can act.
+Set out with the current party. At least one companion must be able to act.
 
 ### Other entries
 
-- Items: look at your companions' items and change their equipment.
-- Visit People: talk to the townsfolk. Selectable only when someone is available.
-- The Tale of This Dungeon: in scenarios with a story, read the tale and the town's request again.
-- Save and Quit: saves and returns to the title screen.
+- Items: change equipment, use items, give them to companions, or discard them.
+- Visit People: speak to townsfolk. Available when there is someone to visit.
+- The Tale of This Dungeon: reread the scenario's introduction and the town's request.
+- Save and Quit: save your progress and return to the title screen.
 
 ## Characters
 
 ### Ability scores
 
-There are six ability scores: Strength, Dexterity, Constitution, Intelligence, Wisdom, and Charisma. The modifier is (score - 10) divided by 2, rounded down.
+Six ability scores describe a character's strengths.
 
-Ability scores are not rolled at random when you create a character. You assign the standard values (15, 14, 13, 12, 10, 8) or use point buy. Starting gold is also a fixed amount for each class.
+- Strength: affects weapon force and physical tasks.
+- Dexterity: affects agility, accuracy with weapons such as bows, and combat turn order.
+- Constitution: affects maximum HP and checks to withstand effects such as poison.
+- Intelligence: affects investigation, knowledge, and wizard spells.
+- Wisdom: affects awareness and cleric, druid, and ranger spells.
+- Charisma: affects social checks and bard, sorcerer, warlock, and paladin spells.
+
+Checks use an ability modifier calculated as (score - 10) divided by 2, rounded down. A score of 10 gives +0, 14 gives +2, and 8 gives -1.
+
+At creation, assign the standard values (15, 14, 13, 12, 10, 8) or use point buy. Ability scores are not rolled randomly. Starting gold depends on the class.
 
 ### Races and classes
 
-There are nine SRD races (Human, Elf, Dwarf, Halfling, Gnome, Half-Elf, Half-Orc, Tiefling, Dragonborn) and twelve SRD classes (Fighter, Barbarian, Paladin, Ranger, Rogue, Monk, Cleric, Druid, Wizard, Sorcerer, Warlock, Bard).
+The nine races are Human, Elf, Dwarf, Halfling, Gnome, Half-Elf, Half-Orc, Tiefling, and Dragonborn. There are twelve classes.
+
+- Fighter: specializes in weapon attacks and makes a straightforward front-row combatant.
+- Barbarian: uses Rage to strengthen melee attacks and reduce physical damage.
+- Paladin: fights with weapons while healing and protecting allies.
+- Ranger: fights with weapons and gains spells as the class develops.
+- Rogue: excels at skills and disarming traps. Sneak Attack adds damage when its conditions are met.
+- Monk: fights with unarmed attacks and techniques fueled by ki.
+- Cleric: uses healing and support magic and can counter undead.
+- Druid: uses nature magic and transforms into beasts.
+- Wizard: prepares spells from a spellbook to handle varied situations.
+- Sorcerer: casts known spells and later gains the ability to empower damage spells.
+- Warlock: has spell slots that recover on a short rest.
+- Bard: supports companions with spells and inspiration.
 
 ### Leveling up
 
-You gain experience by winning battles. When you have enough, level up at the Training Grounds. Characters who can level up are marked with an arrow in the list, and you are told after a battle, too.
+When a character has enough experience, level up at the Training Grounds. An arrow marks eligible characters in the list, and a notice also appears after battle.
 
-There is no level cap. From level 21 you enter the "epic" levels, and each level lets you choose a boon.
+As a game-specific progression rule, there is no cap on total character level. From level 21, each "epic" level lets you choose a boon.
 
 ### Multiclassing
 
-When you level up, you choose which class to raise: your current class, or a new one. To take a new class you must meet its ability score requirement (for the new class and for your current ones). The requirement is shown on the selection screen.
+Each time you level up, choose which class to advance. Taking a new class does not remove the levels or features of your existing classes.
 
-Spells are learned and prepared separately for each spellcasting class. A newly taken class gives you all of that class's weapon and armor proficiencies.
+To take a new class, meet the ability score requirements for your current classes and the new class. The selection screen shows the required scores. Unlike the narrower SRD multiclass proficiency rules, this game grants all weapon and armor proficiencies of the new class.
+
+Total character level and individual class levels are different. A fighter 5 / barbarian 2 has a total level of 7, but their barbarian features work at level 2.
+
+Learn and prepare spells separately for each spellcasting class. See "Multiclass spellcasting" under "Spells" for how this relates to spell slots.
 
 ### Proficiency
 
-The proficiency bonus grows with level. You can check proficiencies in the character summary (the status screen).
+Proficiency represents training with weapons, armor, skills, or similar tasks. Attacks and checks you are proficient in receive a proficiency bonus based on total character level.
 
-- Armor and shields: you cannot equip them without proficiency.
-- Weapons: you can use them without proficiency, but you do not get the proficiency bonus to hit.
+- Armor and shields: require proficiency to equip.
+- Weapons: can be used without proficiency, but attacks receive no proficiency bonus.
 
-Item descriptions show who in the party can wear the item and who is proficient. Check them before you buy.
+Check equipment proficiencies on the status screen. Item descriptions also show which companions can equip an item and who is proficient.
+
+### Reading the status screen
+
+Inspect companions at the Training Grounds, at camp, or in the Clan House. The left panel shows a summary; the right panel shows details.
+
+Use Left and Right to switch the right panel between skills and features, spells, equipment, and carried items. Companions with no castable spells have no spells page. Press Confirm or Cancel to close the screen.
+
+"Slots 1: 3/4" means three of four level-1 spell slots remain. Other current/maximum values, such as HP and Hit Dice, help you track remaining resources.
+
+### Dice and checks
+
+The game rolls dice automatically. "1d20" means one twenty-sided die; "2d6+3" means two six-sided dice added together, plus three.
+
+- Attack roll: add the attack bonus to the roll. A total at least as high as the target's AC hits. A natural 1 misses; a natural 20 hits.
+- AC: how difficult a target is to hit. Higher is better.
+- Saving throw (save): a check to resist an effect such as a spell or trap. A Dexterity save uses the relevant Dexterity bonuses.
+- DC: the target number for a check. A saving throw or skill check succeeds when its total meets or exceeds the DC.
+- Advantage and disadvantage: roll a d20 twice. Advantage uses the higher result; disadvantage uses the lower. If both apply, they cancel out.
+
+Skills describe proficiency in tasks such as investigation or stealth. Checks use the ability modifier plus applicable proficiency, equipment, and other bonuses.
 
 ## Spells
 
-### Spell slots
+### Spell slots and remaining uses
 
-Spells are cast by using spell slots of each level. Some spells can be cast stronger by using a higher slot. Cantrips use no slots and can be cast any number of times.
+Spell slots are the uses available for casting spells. They have levels from 1 to 9. Casting a spell consumes one slot of the level used. A character's spells share the slots of each level.
 
-Slots are restored by a long rest at the inn. A warlock's slots are also restored by a short rest at camp.
+With three level-1 slots, you can cast level-1 spells three times in total: the same spell three times or different spells. Cantrips consume no slots and can be cast any number of times.
+
+Using a higher-level slot can increase a spell's damage, healing, or other effects. The description shown when selecting a spell reflects the casting level.
+
+A long rest restores spell slots. Warlock slots also recover on a short rest.
 
 ### Known and prepared spells
 
-Spellcasting classes work in two ways.
+Choosing which spells you can use is separate from having slots to cast them. Casting a spell does not remove it from your known or prepared list; it consumes a spell slot.
 
-- Prepared (Cleric, Druid, Paladin): you choose spells to prepare from the class spell list.
-- Wizard: you prepare spells from those written in your spellbook.
-- Known (Sorcerer, Bard, Ranger, Warlock): you simply cast the spells you know. No preparation is needed.
+- Cleric, Druid, and Paladin: prepare the spells you want to use from the class spell list. Unprepared spells cannot be cast.
+- Wizard: first choose spells for your spellbook, then prepare the ones you want to use. A spell must be prepared, not merely written in the book.
+- Sorcerer, Bard, Ranger, and Warlock: cast known spells directly. No preparation is needed.
 
-You can learn more cantrips as you level up.
+Cantrips are chosen separately. The number you can learn increases with class level.
 
-### The spell selection screen
+### Choosing known and prepared spells
 
-On the selection screen, press Confirm to mark (◆) or unmark a spell, up to the limit. "Auto-fill" picks the missing ones for you. If you have more than one spellcasting class, press Left or Right to switch between them.
+On spell selection screens at the Training Grounds or camp, press Confirm to mark or unmark a spell (◆), up to the limit. "Auto-fill" fills any unused choices.
+
+If you have several spellcasting classes, Left and Right switch classes on this screen.
 
 ### Changing your choices
 
-- Prepared spells can be swapped at any time, in town (Training Grounds) and at camp.
-- Cantrips and known spells (including a wizard's spellbook) can be re-chosen at the Training Grounds at any time. Sorcerers, bards, warlocks, and the like can swap their known spells and cantrips whenever they like. This is looser than 5th edition, and it is a deliberate rule of this game.
+In this game, change prepared spells at any time at the Training Grounds, the inn, or camp, without waiting to complete a rest.
 
-### Where you can cast
+Rechoose cantrips, known spells, and a wizard's spellbook at the Training Grounds whenever you like. You do not need to wait for a level-up. This is a rule specific to this game.
 
-- In combat: choose "Cast" in the command list, then the spell, the slot, and the target.
-- At camp: use "Cast Spell" for healing and other spells that work in the maze. Combat-only spells cannot be cast at camp.
-- In anti-magic zones, neither spells nor spell items work.
+### Choosing a spell to cast
 
-You cannot cast spells while wearing armor or a shield you are not proficient with.
+Choose "Cast" in combat or "Cast Spell" at camp. First select the slot level using the tabs at the top, then choose a spell and its target. There is no separate slot-selection prompt afterward.
 
-## Exploring the Maze
+- The cantrip tab uses no slots. Tabs 1 to 9 select the slot level.
+- Switch tabs with Left, Right, or a mouse click.
+- A number such as "(3)" on the selected tab shows the remaining slots at that level.
+- Red means 0 left, yellow 1, green 2–3, and blue 4 or more.
+- Black means you do not have slots of that level yet. Gray means there are no selectable spells for that tab on the current screen.
+
+Spells that improve with higher-level slots also appear on higher tabs. For example, choosing Cure Wounds from tab 2 spends one level-2 slot.
+
+Even a spell that does not improve at higher levels appears on the lowest available higher-slot tab when its own level's slots cannot be used.
+
+### Where you can cast and restrictions
+
+- Combat lists spells usable in battle.
+- Camp lists healing and other spells usable while exploring. Combat-only spells cannot be cast there.
+- Anti-magic zones prevent spellcasting and the use of items that cast spells.
+- Wearing armor or a shield without proficiency also prevents spellcasting.
+
+### Concentration
+
+A spell marked "Concentration" continues while its caster maintains concentration. A character can concentrate on only one spell at a time.
+
+Casting another concentration spell ends the previous one. You can cast spells that do not require concentration while maintaining it.
+
+Taking damage requires a Constitution save to maintain concentration. Becoming unable to act, such as falling unconscious, also ends it.
+
+### Multiclass spellcasting
+
+The spells you can learn and prepare depend on each class's own level. Slot counts depend on your combination of spellcasting classes, so you may have slots above the level of spells you can learn.
+
+For example, a cleric 3 / wizard 2 has level-3 slots but can select cleric spells only up to level 2 and wizard spells up to level 1. The level-3 slots can still cast lower-level spells you have learned or prepared.
+
+Warlock slots can also cast spells from other classes. When regular and warlock slots exist at the same level, warlock slots are spent first because they recover on a short rest.
+
+## Exploring the Dungeon
 
 ### Moving around
 
-The maze is a grid, shown in a first-person line-art view. You can see up to four squares ahead. Move forward, turn, and sidestep to explore. Each floor you enter is named B1, B2, and so on.
+Move one square at a time through a first-person wireframe dungeon. You can see up to four squares ahead. Move forward, step back, sidestep, and turn to explore. Floors are labeled B1, B2, and so on.
 
 ### Maps
 
-A small map (the automap) of your surroundings is shown at the top right. Press M to open the full map.
+The minimap in the upper-right corner shows your surroundings. Press M to open a larger map.
 
-- The map shows the squares you walked through and the walls and doors you saw.
-- The full map shows only the area around what you know. You cannot tell how large the unexplored parts are.
-- Secret doors are drawn as walls until you find them.
-- In Options, "Maze Map" lets you choose mini-map and map, map only, or none. With "none", you keep your own notes on graph paper.
+- Visited squares and discovered walls and doors are recorded automatically.
+- The larger map shows only the area revealed by exploration. It does not reveal the full size of an unexplored floor.
+- Secret doors appear as walls until discovered.
+- In Options, choose minimap and map, map only, or no map. You can also explore with your own graph-paper map.
 
 ### Darkness and fog
 
-- Darkness: you cannot see ahead. The map still records where you go. Light spells and the like let you see for a while.
-- Fog: you can see ahead, but the map does not record anything. In fog, your own position is not shown on the map either.
+- Darkness hides the view ahead, but exploration is still recorded on the map. A light spell or similar effect restores visibility while it lasts.
+- Fog leaves the view ahead visible, but stops mapping and hides your current position on the map.
 
 ### Doors and keys
 
-- Secret doors can sometimes be found by searching.
-- A one-way door looks like a door from the side you can pass through and like a wall from the other side.
-- A locked door can be opened with the floor's key, thieves' tools, the Knock spell, or by kicking it open. If kicking fails, enemies may hear the noise and come.
-- Keys are found in the maze. A key opens the locked doors on the floor where you found it.
+Press Confirm while facing a wall or door to investigate it.
 
-### Traps and the like
+- Searching a wall may reveal a secret door.
+- A one-way door looks like a door from the side that allows passage, and a wall from the other side.
+- A locked door can be opened with that floor's key, thieves' tools, Knock, or a kick. A failed kick may attract enemies.
+- Keys found in the dungeon work on locks on the floor where they were found.
 
-The maze has spinners, teleporters, pits, chutes, anti-magic zones, and other features. On some floors, leaving one edge brings you out on the opposite side. Everyone in the party takes damage from a pit.
+### Dungeon hazards
 
-### Chests
+Spinners change your facing, and teleporters move you elsewhere. Pits damage the whole party, while chutes drop you onto another floor. You cannot cast spells in an anti-magic area.
 
-A chest may appear after a victory. You can choose from these actions.
+Some floors wrap around: moving past one edge brings you to the opposite edge. If you lose your bearings, check the map and your surroundings.
 
-- Inspect: look for the type of trap. If it fails, you may be misled into thinking it is a different trap.
-- Disarm Trap: choose the trap's name and try to disarm it. If the name is wrong, the trap goes off.
-- Open It: if there is a trap, it usually goes off.
-- Leave.
+### Treasure chests
 
-There are nine kinds of traps: poison needle, gas, crossbow bolt, explosion, stun, teleporter, mage blaster, priest blaster, and alarm.
+A chest may appear after a victory. Choose a party member to inspect or disarm it.
+
+- Inspect: Use Intelligence and Investigation proficiency to identify the trap. The result can be wrong, and a very poor attempt can trigger the trap.
+- Disarm: Name the trap and try to remove it. Even the correct answer does not guarantee success. A character with high Dexterity, proficiency with thieves' tools, and those tools in their inventory is a good choice. Naming the wrong trap triggers it.
+- Open: Open the chest without disarming it. Any trap has a high chance of going off.
+- Leave: Walk away without opening it.
+
+There are nine trap types: poison needle, gas, crossbow, bomb, stun, teleporter, mage blaster, priest blaster, and alarm. A chest trap that reduces a character to 0 HP kills them without the death saves used in combat. Opening a chest with little HP left can be dangerous.
 
 ### Stairs and elevators
 
-Use Confirm to climb or descend stairs. Elevators take you to floors you have already visited. The up stairs on B1 lead back to town.
+Press Confirm on a staircase to use it. Elevators let you choose among floors you have already visited. The stairs up from B1 lead back to town.
 
 ### Notes
 
-At camp in the maze, you can read the notes you have jotted down.
+Notes recorded during exploration can be read again at camp.
 
 ## Camp
 
-### What camp is
+### Opening camp
 
-Press the menu key (Tab or C, for example) in the maze to open it. You can also open it from the Esc menu. Camp is where you rest in the maze and get your spells, items, and formation in order.
+Press a menu key such as Tab or C in the dungeon to open camp. You can also open it from the Esc menu. Use camp to rest, heal, change equipment, and prepare for further exploration.
 
-### What you can do
+### Camp actions
 
-- Short Rest (1 hour): spend Hit Dice to recover HP. Warlocks also regain their spell slots. Each member who can act studies one unidentified item and learns what it is. Enemies may come while you rest, and then a battle begins.
-- Cast Spell: cast healing and other spells that work in the maze.
-- Prepare Spells: change your prepared spells.
-- Items: look at your companions' items and change their equipment.
-- View Status: check your companions' condition.
-- Change Formation: choose a new order from the front. The first three become the front row.
-- Read Notes: read the notes you jotted down.
-- Last battle log: read what happened in the most recent battle from the start.
-- Options: change volume and other settings.
+- Short Rest: Rest for one hour and spend Hit Dice to recover HP. Some class abilities and a warlock's spell uses also recover. Enemies may interrupt your rest.
+- Cast: Cast healing spells and other spells available outside combat.
+- Prepare Spells: Change the spells available to classes that prepare them. This does not restore spell uses.
+- Items: Check party members' belongings and change their equipment.
+- View Status: Check abilities, skills, spells, equipment, and inventory. Use Left and Right to change the right-hand page.
+- Formation: Select party members in their new order. The first three form the front row.
+- Read Notes: Review notes recorded during exploration.
+- Previous Battle Log: Read the most recent battle from the beginning.
+- Options: Adjust volume and other options.
 
-### Things to know about resting
+Anti-magic areas prevent spellcasting at camp too.
 
-In the maze you can only take a short rest. A long rest, which fully restores HP and spell slots, is possible only at the inn in town.
+### Short rests and Hit Dice
 
-Hit Dice are limited. Once they run out, a short rest no longer restores HP. After a battle, conditions such as poison and blindness remain (they fade a little with each step). While poisoned, you lose HP with every step. A long rest clears them all.
+Hit Dice are a limited resource used to recover HP during short rests. Your maximum number equals your total character level. Spending one reduces the number remaining.
 
-In anti-magic zones, you cannot cast spells even at camp.
+In this game, you do not select how many Hit Dice to spend. A short rest spends them automatically until HP is full or none remain. Each die restores HP based on its roll and the character's Constitution modifier.
+
+Once you run out, short rests cannot restore more HP this way. Spell uses and class abilities that recover on a short rest still recover even without Hit Dice.
+
+If the rest ends without an ambush, each party member able to act studies and identifies one unidentified item.
+
+### Long rests
+
+Only short rests are available in the dungeon. Long rests are available at the inn, or at a clan house with beds.
+
+A long rest restores spell uses and class abilities, and removes lingering conditions. HP recovery depends on where you sleep. See Town Facilities for details.
+
+A long rest also restores half your total level in Hit Dice, rounded down, with a minimum of one. A level 5 character regains two, for example. One night's rest may not restore every Hit Die you spent.
+
+### Lingering conditions
+
+Poison, blindness, and some other conditions may remain after combat. Some wear off over time, while others require treatment. Use a spell, visit the temple, or take a long rest.
+
+Lingering poison reduces HP as you walk. This walking damage alone cannot reduce HP below 1, but it leaves you vulnerable to the next battle or trap.
 
 ## Combat
 
 ### Formation and range
 
-The party is split into a front row of three and a back row of three. Enemies appear in up to four groups, and each group is either near or far.
+The party has three front-row and three back-row positions. Enemies appear in up to four groups, each marked as near or far.
 
-- Melee attacks reach only the near groups, and only from the front row.
-- Back-row members fight with ranged attacks (such as bows) and spells.
-- Ranged attacks and spells can reach far groups too.
+- Melee weapon attacks can reach only near enemies from the front row.
+- Back-row characters can attack with ranged weapons or spells.
+- Ranged weapons and ranged spells can reach far enemies. Some spells, including melee spells, have more restricted targets; check their descriptions.
 
-Fallen members move to the back after the log has been shown. You can change the formation at camp, or with "Swap" during a battle.
+After the battle log finishes displaying, fallen party members move to the back of the formation. Change formation at camp or with Swap during combat.
 
-### How a round works
+### Each round
 
-At the start of a round, you choose each member's action in turn. When everyone has chosen, the round plays out. "Auto" lets you decide the rest at once (with or without spells). "Back to previous member" lets you choose again.
+Choose an action for every party member at the start of a round. Once all actions are selected, both sides take their turns. Turn order is determined by a die roll and Dexterity at the start of combat, not by the order in which you enter commands.
 
-The actions are as follows.
+Auto chooses actions for the remaining party members. You can allow or forbid spell use. Return to the previous character to revise an earlier command.
 
-- Attack: choose a group and attack with a weapon.
-- Cast: choose the spell, the slot, and the target.
-- Spell (Empower: n): sorcerers only. Spend a point to cast a damage spell stronger.
-- Class Feature: use a class feature such as Rage or Second Wind (see "Class Features").
-- Item: use an item. You can also switch weapons or ammunition.
-- Dodge: take a defensive stance.
-- Help: assist an ally.
-- Hide: hide in the shadows.
-- Swap: trade places with another member.
-- Run (all): the whole party tries to escape. It can fail if the way out is blocked.
+- Attack: Choose an enemy group and attack with an equipped weapon. Weapons merely carried in a bag are not used.
+- Cast: Choose the cantrip tab or a spell-level tab, then the spell and target. Casting spends a slot of the selected tab's level.
+- Cast (Empowered:n): Spend one sorcery point to reroll low damage dice for a spell. The number is your remaining points.
+- Class Feature: Use Rage, Second Wind, or another class ability. See Class Features for details.
+- Item: Use an item, or switch weapons or ammunition. Switching also uses that round's action.
+- Dodge: Give attacks against you disadvantage until your next turn.
+- Help: Choose an ally and give their next attack roll advantage.
+- Hide: A successful Stealth check makes enemies less likely to target you and gives your next attack roll advantage.
+- Swap: Exchange formation positions with an ally.
+- Flee (All): Attempt to escape with the whole party. Escape can fail.
 
-The log is shown one line at a time. Press Confirm to go on, and hold it to fast-forward.
+For advantage, disadvantage, and attack rolls, see Dice and Checks under Characters.
 
-### Before the fight
+The battle log appears one line at a time. Press Confirm to advance, or hold it to speed through the log.
 
-If you are caught off guard, you cannot act in the first round. If the enemies have not noticed you, you get the first move instead. You learn what an enemy really is when someone in the party passes an Intelligence check. Until then it appears under a name like "small figure". Defeating one also reveals it.
+### Surprise and identification
 
-### When someone falls
+If surprised, you cannot act in the first round. If enemies fail to notice you, you can act before they do.
 
-At 0 HP a member falls unconscious. Each round they make a death saving throw. Enough successes stabilize them, and enough failures kill them. If a fallen member is hit again, their wounds get worse.
+Party members may identify enemies with an Intelligence check. Until identified, an enemy has a vague name such as Small Humanoid. Defeating one reveals that enemy type's identity.
 
-After a victory, fallen members get up with 1 HP, and conditions that last only during the battle disappear. Those who died do not get up.
+### Fallen allies
+
+Reaching 0 HP in combat usually causes unconsciousness. An unconscious character cannot act and makes death saves on their turn.
+
+- Three successes stabilize them, ending death saves. They remain unconscious and cannot act.
+- Three failures cause death. Attacks against an unconscious character add failures.
+- Restoring HP with healing ends unconsciousness.
+- Extremely large damage from a single hit can cause instant death.
+
+After a victory, unconscious survivors rise with 1 HP. Dead characters require resurrection, such as treatment at the temple.
 
 ### Ongoing damage
 
-Some effects, like poison, fire or infernal wounds, deal damage at the start of each turn. They stop after their rounds run out or on a successful save. The same effect does not stack, but different ones do. They stop when the battle ends.
+Some attacks leave ongoing damage, such as burning or poison damage at the start of each turn. Depending on the effect, it ends after a set number of rounds or a successful save. Copies of the same effect do not stack, but different effects can apply together. Ongoing damage ends when combat ends.
+
+These effects are separate from conditions such as Poisoned, which may linger after combat.
 
 ### Conditions
 
-There are conditions such as unconscious, paralyzed, petrified, poisoned, frightened, charmed, and blinded. A condition's name is shown before the HP in the party list. Poison, blindness, deafness, and fear linger for a while after a battle. The temple or spells can cure them.
+A condition's name appears before HP in the party list.
 
-### After a victory
+- Poisoned and Frightened give your attack rolls disadvantage.
+- Blinded gives your attacks disadvantage and makes attacks against you more likely to hit.
+- Paralyzed, Stunned, and Unconscious prevent you from acting.
 
-Experience is divided equally among the party. You also get gold, and sometimes a chest appears.
+Poisoned, Blinded, Deafened, Frightened, and Paralyzed may linger after combat. Treat them with spells, at the temple, or with a long rest.
 
-### Reading the log again
+### Rewards
 
-After a battle, "Last battle log" at camp lets you read the most recent battle again. During a battle you can also open it with Tab.
+Victory divides experience equally among party members and awards gold. A treasure chest may also appear. See Exploring the Dungeon for chest handling.
+
+### Reviewing the log
+
+Press Tab during combat to open the log. After combat, Previous Battle Log at camp lets you review the latest battle.
 
 ## Class Features
 
-### Multiclassing
+### Using class abilities
 
-With several classes, each class's features work at that class's level. A fighter 5 / barbarian 2, for example, can use both Action Surge and Rage. Extra Attack does not stack; the highest count applies.
+Class features are simplified from the SRD for dungeon play. Subclasses and some abilities or choices are not included.
 
-The features you have and the uses left appear under "Class Features" on the character status screen.
+Choose Class Feature in combat to use an ability you have learned. Other abilities work automatically.
 
-### Uses
+Check learned abilities and remaining uses on the Skills page of the status screen.
 
-Uses come back when you rest. Second Wind, Action Surge, ki, Channel Divinity and Wild Shape return on a short rest. The rest return on a long rest at the inn.
+### Multiclass abilities
 
-### Class feature command
+Each ability is learned and scales with levels in its own class. A fighter 5 / barbarian 2 can use both the fighter's Action Surge and the barbarian's Rage.
 
-Choose them with "Class Feature" in battle.
+Extra Attack from multiple classes does not stack. The highest attack count among your classes applies.
 
-- Fighter: Second Wind (regain HP), Action Surge (attack twice over).
-- Barbarian: Rage (for this battle, melee damage rises and you take half bludgeoning, piercing and slashing damage; no spells).
-- Paladin: Lay on Hands (restore an ally's HP from a pool; also cures poison), Divine Smite (spend a spell slot to add radiant damage to a melee hit).
-- Monk: Flurry of Blows, Patient Defense, Stunning Strike (all spend ki).
-- Cleric: Turn Undead (turns undead; weak undead are destroyed).
-- Bard: Bardic Inspiration (adds a die to an ally's attack or save).
-- Druid: Wild Shape (choose a wolf or a bear form: the wolf is hard to hit and knocks foes down, the bear has more HP and attacks twice; from L8, a dire wolf or a brown bear. You return when the beast's HP runs out).
+### Recovering uses
 
-### Empowered spell
+Second Wind, Action Surge, ki, Channel Divinity, and Wild Shape recover on a short rest.
 
-From level 3, a sorcerer gets "Spell (Empower: n)" under "Spell" in battle, where n is the sorcery points left. It casts a damage spell with its low dice rerolled. The normal "Spell" never spends points, and auto battle never empowers.
+Bardic Inspiration recovers on a short rest from bard level 5 onward. Before that, it requires a long rest, as do Rage, Lay on Hands, sorcery points, and similar resources.
 
-### Passive features
+### Fighter and barbarian abilities
 
-Some features work without choosing them.
+- Second Wind: Recover your own HP.
+- Action Surge: Make two normal attack actions in succession. Extra Attack applies, but bonus attacks such as an off-hand attack are not doubled.
+- Rage: Attack and enter a rage. For this battle, deal more melee damage and take half damage from bludgeoning, piercing, and slashing. You cannot cast spells, and any spell you were concentrating on ends.
 
-- Fighting Style (fighter, paladin, ranger): one style that fits your weapon works: Archery, Two-Weapon, Great Weapon, Dueling or Defense.
-- Paladin's Aura of Protection (L6): while the paladin stands, the whole party's saves rise. Aura of Courage (L10) keeps the party from being frightened.
-- Rogue's Uncanny Dodge (L5) and Evasion (L7), monk's Martial Arts and Evasion (L7), and more.
-- Wizard's Arcane Recovery: regain a few spell slots on a short rest (once per long rest).
-- Bard's Song of Rest: allies regain extra HP on a short rest.
-- Warlock invocations: Agonizing Blast (L2), Thirsting Blade (L5, two attacks) and Lifedrinker (L12, melee hits drain HP) come automatically with level.
+### Paladin and monk abilities
+
+- Lay on Hands: Heal an ally using a pool equal to five times your paladin level. If the target is poisoned and enough points remain, five points first cure poison. The remaining pool restores missing HP.
+- Divine Smite: When a melee attack hits, spend a spell slot to add radiant damage.
+- Flurry of Blows: Spend ki to make two unarmed strikes in addition to your normal attacks.
+- Patient Defense: Spend ki to attack and Dodge.
+- Stunning Strike: Spend ki on a hit. If the enemy fails its save, it becomes Stunned.
+
+### Cleric, bard, and druid abilities
+
+- Turn Undead: Prevent undead that fail their saves from acting. Taking damage ends this effect. Sufficiently weak undead are destroyed instead.
+- Bardic Inspiration: Help an ally's attacks or saves. A bonus die is used automatically when it might turn a failure into a success.
+- Wild Shape: Transform into a beast. Wolf is available at druid level 2, with black bear added at level 4. Dire wolf and brown bear become available at level 8. Wolves can knock enemies prone; bears have more HP and attack twice. When the beast's HP runs out, you return to your normal form.
+
+### Empowered spells
+
+From sorcerer level 3, Cast (Empowered:n) appears below Cast in combat. The number is your remaining sorcery points.
+
+This command spends one point to reroll low damage dice for a spell. Normal Cast does not spend sorcery points. Auto does not use empowered casting.
+
+This is the game's only Metamagic option. Other Metamagic choices and conversions between sorcery points and spell slots are not available.
+
+### Automatic abilities
+
+These abilities work without selecting a combat command. Levels below refer to levels in the relevant class.
+
+- Fighting Style: Fighters, paladins, and rangers learn this ability. Equipment determines whether Archery, Two-Weapon Fighting, Great Weapon Fighting, Dueling, or Defense applies.
+- Paladin auras: From level 6, a paladin able to act improves the whole party's saves with Aura of Protection. At level 10, Aura of Courage protects allies from fear.
+- Rogue's Uncanny Dodge: From level 5, reduce damage from an attack. At level 7, Evasion further reduces damage that allows a Dexterity save for reduced damage.
+- Monk's Martial Arts and Evasion: Martial Arts improves unarmed and related attacks. Evasion becomes available at level 7.
+- Wizard's Arcane Recovery: Recover some spell slots during a short rest, once between long rests.
+- Bard's Song of Rest: Restore additional HP to allies who spent Hit Dice healing during a short rest.
+- Warlock invocations: Automatically learn Agonizing Blast at level 2, Thirsting Blade at level 5, and Lifedrinker at level 12. Thirsting Blade grants two attacks, and Lifedrinker drains HP with melee attacks. This game does not offer invocation or Pact Boon selection.
 
 ## Items and Equipment
 
-### Carrying items
+### Bag capacity
 
-Weight is not counted. How much you can carry is set by the slots of your backpack. The first bag has 6 slots, and you can buy larger bags in town. Even larger bags may turn up in the maze. Consumables stack.
+In this game, items are limited by backpack slots rather than weight. The starting bag has six slots. Larger bags can be bought in town or found in the dungeon. Some identical consumables can share a stack.
 
-Important items such as keys go into a separate slot shared by the whole party.
+Keys and other important items are shared by the party and do not occupy individual bag slots.
 
-### Equipping
+A full bag can prevent you from collecting loot or removing equipment. Before exploring, sell unwanted items or store them in the clan house warehouse to free space.
 
-On the items screen, you put equipment into places such as hands, armor, bag, rings, neck, cloak, head, hands, feet, and waist. For weapons, the best one from the main hand and ranged slots is used automatically. If you hold light weapons in both hands, you also attack with the off hand.
+### Changing equipment
 
-- Armor and shields cannot be equipped without proficiency.
-- Weapons can be used without proficiency, but you do not get the proficiency bonus to hit.
-- An item's description shows who in the party can wear it and who is proficient.
+Use Left and Right on the items screen to switch between equipment and the bag. Choose an equipment slot and then an item, or select an item in the bag to equip it.
+
+Weapon slots include main hand, off hand, ranged weapon, and ammunition. Other slots hold armor, a bag, two rings, a necklace, a cloak, and equipment for the head, hands, feet, and waist.
+
+- Attacks automatically choose a weapon equipped in the main-hand or ranged slot based on range and damage. Weapons in the bag are not used.
+- Equip a light melee weapon in each hand to gain an off-hand attack.
+- Armor and shields require proficiency.
+- Weapons can be used without proficiency, but do not receive your proficiency bonus on attack rolls.
+- Item descriptions show which party members can equip an item and who is proficient with it.
+
+### Ammunition and thrown weapons
+
+Ordinary arrows and bolts do not need replenishing. Equipped special ammunition is consumed when you attack.
+
+Thrown weapons are recovered after a victory, but may be lost if you flee. Weapons that return automatically are an exception.
 
 ### Identification
 
-Magic items are unidentified when you find them. They appear as "Longsword?", "Ring?", or "Strange potion". There are three ways to learn what they are.
+Unidentified magic items appear with names such as Longsword?, Ring?, or Mysterious Potion. Identify them to learn their effects.
 
-- Have the shop identify them.
-- Use the Identify spell or a scroll.
-- Take a short rest at camp. Each member who can act studies one unidentified item. If enemies come during the rest, you learn nothing.
+- Pay the shop for identification.
+- Use Identify or a scroll of Identify.
+- Take a short rest at camp. Each party member able to act studies one unidentified item. An ambush prevents identification.
 
-### Curses
+### Cursed items
 
-A cursed item cannot be removed once you equip it. Identification does not reveal curses (the same as in 5th edition). A cursed item looks like an ordinary, genuine item. Its true nature shows when you equip it and when you lift the curse.
+A cursed item cannot be removed once equipped. Identification does not reveal the curse, and the item may appear to be something else. Its true nature is revealed when equipped or when the curse is removed.
 
-Lift a curse with "Remove Curse" at the shop, or with the Remove Curse spell.
+Use the shop's curse removal service or the Remove Curse spell to break the curse.
 
 ### Attunement
 
-Some magic items, such as rings, require attunement. An item that needs it attunes when you equip it, if you have a free attunement slot. You can be attuned to up to three items. The item's description says "Requires attunement (up to 3)".
+Some magic items only grant their effects when attuned. Each character can attune to up to three items at once.
 
-### Buying and selling
+In this game, attunement does not require a rest. Equipping an item automatically attunes it if required and space is available. Without space, the item can be equipped but does not grant its effects.
 
-You can buy and sell gear and items at the shop. Purchases are paid from party gold, and sale proceeds are shared among the party. Important items cannot be thrown away.
+To change attuned items, unequip one you are already attuned to, then re-equip the item you want to attune. An item's description states whether attunement is required and notes the three-item limit.
 
-### Rare equipment
+### Trading and transfers
 
-Deeper floors hold rare equipment with extra effects. The extra effects are shown in the description.
+Shop purchases use the party's combined gold. Sale proceeds are divided among party members.
 
-## Death and the Temple
+You can transfer items between allies and choose how many to transfer from a stack. Important items cannot be discarded.
 
-### Stages of death
+### Equipment with additional effects
 
-At 0 HP a member falls unconscious. If death saves fail, they die. Beyond death there are two more stages.
+Deeper floors may contain rare equipment with extra effects. Check the item's description to see what it does.
 
-- Ashes: a dead companion whose resurrection failed.
-- Lost: a companion whose resurrection from ashes failed. They do not return.
+## Death and Rescue
 
-### The temple
+### Unconsciousness and death
 
-At the temple, you pay gold for the following.
+Reaching 0 HP in combat usually causes unconsciousness. An unconscious character makes death saves and dies after three failures. Healing can still save them while they are unconscious.
 
-- Resurrection: bring a dead or ashen companion back to life. The gold needed and the chance of success are shown when you choose. A higher Constitution makes success more likely.
-- Cure: heal lingering conditions such as poison and paralysis.
+Extremely large damage can cause instant death. Reaching 0 HP from a treasure chest trap also causes death without death saves.
 
-If a resurrection fails, a dead companion turns to ashes. If a resurrection from ashes fails, that companion is lost.
+This game adds Wizardry-style ash and permanent loss rules. Failed resurrection can lead to these further states.
 
-In a world set to "5e-style (gentle)", resurrection always succeeds (it still costs gold).
+- Ash: Resurrection from death failed. Another resurrection attempt is still possible.
+- Lost: Resurrection from ash also failed. This character cannot be recovered.
 
-### When the party is wiped out
+### Temple treatment and resurrection
 
-What happens after a wipe depends on the difficulty.
+The temple offers paid treatment and resurrection.
 
-- Harsh setting: everyone's bodies stay where the party fell. They cannot be added to a party at the tavern. Take another party to that square in the maze and inspect with Confirm to carry the bodies home. Resurrect them at the temple.
-- Gentle setting: passing adventurers carry you to town. Those who were down get up with 1 HP, and everyone loses half of the gold they carried.
+- Resurrect: Restore a dead or ashen character to life. Check the cost and success chance before requesting it. Higher Constitution improves the chance.
+- Treat: Remove lingering conditions such as Poisoned or Paralyzed.
 
-### Saving
+A failed resurrection turns a dead character to ash. Failure when resurrecting ashes causes permanent loss.
 
-On the harsh setting, the game auto-saves often even inside the maze, and you cannot redo. On the gentle setting, the game saves when you return to town and when you suspend in the maze.
+On the 5e-style (gentle) difficulty setting, resurrection always succeeds, but still costs gold.
+
+### A party wipe
+
+Difficulty determines what happens after a wipe.
+
+- Harsh: Everyone's body remains where the party fell. Those characters cannot join a party at the tavern. Form a rescue party with other characters and return for them.
+- Gentle: The party is brought back to town. Unconscious characters recover with 1 HP, but those already dead remain dead. Each character loses half their gold.
+
+### Rescuing bodies
+
+Form a rescue party at the tavern, travel to the square where the party fell, and press Confirm to investigate. Recovered bodies join empty party positions.
+
+The party limit is six, including bodies. A full party has no room to carry anyone back. Leave enough positions empty for those you intend to rescue. A five-member rescue party can bring back one body.
+
+Recovery alone does not revive a character. Return to town and request resurrection at the temple.
+
+### Saving and suspending
+
+Harsh settings autosave frequently, including inside the dungeon. You cannot reload an earlier state to undo a mistake.
+
+Gentle settings save when returning to town or suspending in the dungeon. To stop playing, use Suspend and Quit or another menu option that saves before exiting.
 
 ## Options and More
 
-### The options screen
+### Changing settings
 
-Open it from the title screen, the Esc menu, or camp. Use Up and Down to choose an item, and Left, Right, or Confirm to change it. Pressing Cancel to go back saves your changes.
+Open Options from the title screen, the Esc menu, or camp. Select an option with Up and Down, then change it with Left, Right, or Confirm. Returning with Cancel saves the settings.
 
-- Language: switch the display language.
-- Music Volume and Sound Effects Volume.
-- Combat Log Speed.
-- Maze Line Art: color or monochrome.
-- Story font.
-- Maze Map: mini-map and map, map only, or none.
-- Back key: whether Down in the maze steps back or turns around.
-- AI settings: whether an AI writes the text for free dungeons (a Claude API key is required).
-- Scenario folder: opens the folder where scenarios are kept.
+- Language: Change the display language.
+- BGM and sound volume: Adjust music and sound effects separately.
+- Battle log speed: Change how quickly battle messages appear.
+- Dungeon wireframe: Switch between color and monochrome.
+- Story font: Change the font used for narrative text.
+- Dungeon map: Choose minimap and map, map only, or no map.
+- Back key: Choose whether Down steps backward or turns around. Hold Shift to use the opposite behavior.
+- AI settings: Choose whether AI generates text for a free dungeon.
+- Scenario folder: Open the folder where scenarios are stored.
+
+### Optional AI
+
+Normal play does not require AI or an API key. Text for free dungeons is generated automatically even without AI.
+
+To have AI generate text, configure a Claude API key. API usage is billed to the account associated with that key.
 
 ### Difficulty
 
-You choose the difficulty when you start a new game. It is stored with that save.
+Choose difficulty when starting a new game. These settings are saved with that world.
 
-- Wizardry-style (harsh): after a wipe the bodies stay in the maze. Resurrection can fail. Saving is automatic and you cannot redo.
-- 5e-style (gentle): after a wipe you are carried to town (you lose half your gold). Resurrection always succeeds. The game saves only in town and when you suspend.
-- Custom: choose the harshness of wipes, resurrection, and saving one by one.
+- Wizardry-style (harsh): A wipe leaves bodies in the dungeon. Resurrection can fail. Frequent autosaves prevent reloading to undo mistakes.
+- 5e-style (gentle): A wipe returns the party to town at the cost of half their gold. Resurrection always succeeds. Saves occur on returning to town and when suspending.
+- Custom: Choose wipe consequences, resurrection rules, and saving behavior individually.
+
+See Death and Rescue for details about rescue and resurrection.
 
 ### Clans and worlds
 
-Your roster of characters can be carried over as a clan. You can also export it to a file with "Export Clan" at the Training Grounds. You choose the clan when you start a new game.
+A clan is your group of developed characters. A world is the setting in which you play the chosen scenario. Members of the same clan can begin another adventure.
+
+Choose a clan when starting a new game. Export Clan at the training grounds saves the character roster to a file.
 
 ### Adding scenarios
 
-Drag a scenario folder or zip onto the title screen to install it. Installed scenarios can be chosen under "New Game". You can open the scenario folder from "Scenario folder" in Options.
+Drag a scenario folder or zip file onto the title screen to install it. Installed scenarios are available when starting a new game.
 
-A scenario editor for making your own scenarios is also provided as a separate tool.
+Open their storage location with Scenario Folder in Options. A separate scenario editor is also available for creating your own scenarios.
 
-### Suspending
+### Suspending and resuming
 
-In the maze, use "Suspend and Quit" in the Esc menu to save and stop. Resume later with "Continue" on the title screen.
+In the dungeon, choose Suspend and Quit from the Esc menu to save and return to the title screen. Choose Continue on the title screen to resume.

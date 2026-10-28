@@ -295,6 +295,7 @@ public sealed class CheckTab : IEditorTab
             Line(T($"・ 「門を開ける」の門 {o} が迷宮に無い", $"・ Gate {o} opened by an event is not in the maze"), Ui.Dim);
 
         // 置いた連動する組: 組の一部だけ置いてある
+        foreach (var error in EventAuthoring.Check(pack, data.Events.Values, _context.BaseContent.All("event_sets").Select(x => x.As<EventSetDef>()))) problem(error);
         var placed = marks.Where(m => m.Mark.StartsWith(EventPlacer.MarkPrefix)).Select(m => m.Mark[EventPlacer.MarkPrefix.Length..]).ToHashSet();
         foreach (var chain in data.Events.Values.Where(e => e.Scatter?.Chain != null).GroupBy(e => e.Scatter!.Chain!))
         {

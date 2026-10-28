@@ -662,7 +662,7 @@ public sealed class CampaignSim
     private static string? CastWanted(EventDef def)
     {
         static IEnumerable<EventCondition> All(IEnumerable<EventStep> steps) =>
-            steps.SelectMany(s => s.When.Concat(s.Options.SelectMany(o => o.When)).Concat(s.Children().SelectMany(All)));
+            steps.SelectMany(s => s.Conditions().Concat(s.Children().SelectMany(All)));
         return def.When.Concat(All(def.Steps)).FirstOrDefault(c => c.Type == "cast" && !c.Not && !string.IsNullOrEmpty(c.Id))?.Id;
     }
 

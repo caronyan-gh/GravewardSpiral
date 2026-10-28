@@ -60,9 +60,12 @@ public static class EventPlacer
             // 帯より上の階にも置く(数字は EventScale で引き上げる)。帯より下には置かない
             return d >= sc.MinDepth - 1e-9 && d <= sc.MaxDepth + 1e-9 && (levelAt == null || lv >= sc.MinLevel - 1e-9);
         }
+        var existingMarks = dungeon.Floors.SelectMany(f => f.AllCells().Select(p => f[p].Mark)).Where(m => m != null).ToHashSet();
         var groups = data.Events.Values.Where(e => e.Place == "maze" && e.Scatter?.Chain != null && (allow == null || allow(e)))
             .GroupBy(e => e.Scatter!.Chain!).OrderBy(g => g.Key, StringComparer.Ordinal)
             .Select(g => (Name: g.Key, Parts: g.OrderBy(e => e.Scatter!.Step).ThenBy(e => e.Id, StringComparer.Ordinal).ToList()))
+            // 専用フラグを持つ組は、手で一部を置いた後に自動で増やさない。不足はエディタの検査で知らせる。
+            .Where(g => !g.Parts.Any(e => e.OwnFlag != null) || !g.Parts.Any(e => existingMarks.Contains(MarkPrefix + e.Id)))
             .Where(g => Enumerable.Range(0, floors).Any(i => Allowed(g.Parts[0], i))).ToList();
         var placed = new List<string>();
         var quests = QuestChains(data);
@@ -165,7 +168,7 @@ public static class EventPlacer
     }
 
     /// <summary>1つの世界に置く数の上限(max。書いていなければ、一度きりのものは 1、何度でも起こるものは上限なし)。</summary>
-    public static int MaxPerWorld(EventDef e) => e.Scatter!.Max > 0 ? e.Scatter.Max : e.Once == "place" ? 1 : int.MaxValue;
+    public static int MaxPerWorld(EventDef e) => e.OwnFlag != null ? 1 : e.Scatter!.Max > 0 ? e.Scatter.Max : e.Once == "place" ? 1 : int.MaxValue;
 
     private static EventDef PickWeighted(List<EventDef> list, IRandom rng, Func<EventDef, double>? factor = null)
     {

@@ -10,7 +10,7 @@ using GravewardSpiral.Core.Save;
 
 namespace GravewardSpiral.Tests.Events;
 
-public class EventTests
+public partial class EventTests
 {
     private static readonly ContentLibrary Content = ContentLibrary.Load(TestPaths.Content);
     private static readonly GameData Data = GameData.Load(Content);

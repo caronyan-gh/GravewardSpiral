@@ -86,7 +86,7 @@ public static class EventDraftCheck
     public static IEnumerable<EventCondition> Conditions(EventDef e)
     {
         IEnumerable<EventCondition> Walk(List<EventStep> steps) =>
-            steps.SelectMany(st => st.When.Concat(st.Options.SelectMany(o => o.When.Concat(Walk(o.Steps)))).Concat(st.Children().SelectMany(Walk)));
+            steps.SelectMany(st => st.Conditions().Concat(st.Children().SelectMany(Walk)));
         return e.When.Concat(Walk(e.Steps));
     }
 

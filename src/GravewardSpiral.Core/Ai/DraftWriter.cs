@@ -91,6 +91,7 @@ public static class DraftWriter
             class- or race-gated options via an option's "when", random outcomes. No instant death.
             If a choice option pays gold (a "gold" step with a negative value), give that option "when": [{"type": "gold", "value": <amount>}].
             Flags and counters you add start with the event id (e.g. "<event id>_opened").
+            For editor-friendly "cases", use one condition per case and compare the same subject in all cases (e.g. the same counter at different thresholds). Use nested "if" for mixed subjects or multiple AND conditions. Do not use chance conditions in new cases. Preserve existing behavior when editing a legacy event.
             If you scatter it, keep "weight" between 0.5 and 2. Add a "rumor" only when the request asks for one.
             If the event needs an item the game does not have (a thing to bring back, a key, a reward unique to this event), write it in "items"
             (items.json format, see "Schema for new items"): its id starts with the event id, an event-only item has "no_random": true,

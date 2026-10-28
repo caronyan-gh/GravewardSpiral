@@ -27,6 +27,7 @@ public sealed class ChipPicker : Grid
         ColumnDefinitions.Add(new ColumnDefinition { Width = new GridLength(1, GridUnitType.Star) });
         _pick.SetValue(TextSearch.TextPathProperty, nameof(Choice.Display));
         _add = Ui.Button(T("＋ 足す", "+ Add"), Add);
+        _add.Style = (Style)Application.Current.FindResource("InlineButton");
         var left = new DockPanel { Margin = new Thickness(0, 0, 10, 0), VerticalAlignment = VerticalAlignment.Top };
         DockPanel.SetDock(_add, Dock.Right);
         left.Children.Add(_add);

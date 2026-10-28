@@ -2,55 +2,72 @@
 
 ## Formation and range
 
-The party is split into a front row of three and a back row of three. Enemies appear in up to four groups, and each group is either near or far.
+The party has three front-row and three back-row positions. Enemies appear in up to four groups, each marked as near or far.
 
-- Melee attacks reach only the near groups, and only from the front row.
-- Back-row members fight with ranged attacks (such as bows) and spells.
-- Ranged attacks and spells can reach far groups too.
+- Melee weapon attacks can reach only near enemies from the front row.
+- Back-row characters can attack with ranged weapons or spells.
+- Ranged weapons and ranged spells can reach far enemies. Some spells, including melee spells, have more restricted targets; check their descriptions.
 
-Fallen members move to the back after the log has been shown. You can change the formation at camp, or with "Swap" during a battle.
+After the battle log finishes displaying, fallen party members move to the back of the formation. Change formation at camp or with Swap during combat.
 
-## How a round works
+## Each round
 
-At the start of a round, you choose each member's action in turn. When everyone has chosen, the round plays out. "Auto" lets you decide the rest at once (with or without spells). "Back to previous member" lets you choose again.
+Choose an action for every party member at the start of a round. Once all actions are selected, both sides take their turns. Turn order is determined by a die roll and Dexterity at the start of combat, not by the order in which you enter commands.
 
-The actions are as follows.
+Auto chooses actions for the remaining party members. You can allow or forbid spell use. Return to the previous character to revise an earlier command.
 
-- Attack: choose a group and attack with a weapon.
-- Cast: choose the spell, the slot, and the target.
-- Spell (Empower: n): sorcerers only. Spend a point to cast a damage spell stronger.
-- Class Feature: use a class feature such as Rage or Second Wind (see "Class Features").
-- Item: use an item. You can also switch weapons or ammunition.
-- Dodge: take a defensive stance.
-- Help: assist an ally.
-- Hide: hide in the shadows.
-- Swap: trade places with another member.
-- Run (all): the whole party tries to escape. It can fail if the way out is blocked.
+- Attack: Choose an enemy group and attack with an equipped weapon. Weapons merely carried in a bag are not used.
+- Cast: Choose the cantrip tab or a spell-level tab, then the spell and target. Casting spends a slot of the selected tab's level.
+- Cast (Empowered:n): Spend one sorcery point to reroll low damage dice for a spell. The number is your remaining points.
+- Class Feature: Use Rage, Second Wind, or another class ability. See Class Features for details.
+- Item: Use an item, or switch weapons or ammunition. Switching also uses that round's action.
+- Dodge: Give attacks against you disadvantage until your next turn.
+- Help: Choose an ally and give their next attack roll advantage.
+- Hide: A successful Stealth check makes enemies less likely to target you and gives your next attack roll advantage.
+- Swap: Exchange formation positions with an ally.
+- Flee (All): Attempt to escape with the whole party. Escape can fail.
 
-The log is shown one line at a time. Press Confirm to go on, and hold it to fast-forward.
+For advantage, disadvantage, and attack rolls, see Dice and Checks under Characters.
 
-## Before the fight
+The battle log appears one line at a time. Press Confirm to advance, or hold it to speed through the log.
 
-If you are caught off guard, you cannot act in the first round. If the enemies have not noticed you, you get the first move instead. You learn what an enemy really is when someone in the party passes an Intelligence check. Until then it appears under a name like "small figure". Defeating one also reveals it.
+## Surprise and identification
 
-## When someone falls
+If surprised, you cannot act in the first round. If enemies fail to notice you, you can act before they do.
 
-At 0 HP a member falls unconscious. Each round they make a death saving throw. Enough successes stabilize them, and enough failures kill them. If a fallen member is hit again, their wounds get worse.
+Party members may identify enemies with an Intelligence check. Until identified, an enemy has a vague name such as Small Humanoid. Defeating one reveals that enemy type's identity.
 
-After a victory, fallen members get up with 1 HP, and conditions that last only during the battle disappear. Those who died do not get up.
+## Fallen allies
+
+Reaching 0 HP in combat usually causes unconsciousness. An unconscious character cannot act and makes death saves on their turn.
+
+- Three successes stabilize them, ending death saves. They remain unconscious and cannot act.
+- Three failures cause death. Attacks against an unconscious character add failures.
+- Restoring HP with healing ends unconsciousness.
+- Extremely large damage from a single hit can cause instant death.
+
+After a victory, unconscious survivors rise with 1 HP. Dead characters require resurrection, such as treatment at the temple.
 
 ## Ongoing damage
 
-Some effects, like poison, fire or infernal wounds, deal damage at the start of each turn. They stop after their rounds run out or on a successful save. The same effect does not stack, but different ones do. They stop when the battle ends.
+Some attacks leave ongoing damage, such as burning or poison damage at the start of each turn. Depending on the effect, it ends after a set number of rounds or a successful save. Copies of the same effect do not stack, but different effects can apply together. Ongoing damage ends when combat ends.
+
+These effects are separate from conditions such as Poisoned, which may linger after combat.
 
 ## Conditions
 
-There are conditions such as unconscious, paralyzed, petrified, poisoned, frightened, charmed, and blinded. A condition's name is shown before the HP in the party list. Poison, blindness, deafness, and fear linger for a while after a battle. The temple or spells can cure them.
+A condition's name appears before HP in the party list.
 
-## After a victory
+- Poisoned and Frightened give your attack rolls disadvantage.
+- Blinded gives your attacks disadvantage and makes attacks against you more likely to hit.
+- Paralyzed, Stunned, and Unconscious prevent you from acting.
 
-Experience is divided equally among the party. You also get gold, and sometimes a chest appears.
+Poisoned, Blinded, Deafened, Frightened, and Paralyzed may linger after combat. Treat them with spells, at the temple, or with a long rest.
 
-## Reading the log again
+## Rewards
 
-After a battle, "Last battle log" at camp lets you read the most recent battle again. During a battle you can also open it with Tab.
+Victory divides experience equally among party members and awards gold. A treasure chest may also appear. See Exploring the Dungeon for chest handling.
+
+## Reviewing the log
+
+Press Tab during combat to open the log. After combat, Previous Battle Log at camp lets you review the latest battle.

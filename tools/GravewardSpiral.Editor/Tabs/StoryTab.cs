@@ -66,19 +66,20 @@ public sealed class StoryTab : IEditorTab
             panel.Children.Add(Ui.Heading($"B{i + 1}"));
             panel.Children.Add(Ui.Row(T("名前", "Name"), Ui.Localized(f.Name, v => { f.Name = v; _context.MarkEdited(); })));
             panel.Children.Add(Ui.Row(T("入ったとき", "On entering"), Ui.Localized(f.Enter, v => { f.Enter = v; _context.MarkEdited(); }, multiline: true, height: 40)));
+            panel.Children.Add(Ui.Note(T("探索中に読む文章: 壁の文字や手紙など。イベントの「文章を表示」で「物語の文章」を選ぶと、この階に用意した文章が表示される。", "Exploration texts: writing on walls, letters, and similar discoveries. Choose Story text within an event's Show text item to display a text prepared for this floor.")));
             for (int d = 0; d < f.Documents.Count; d++)
             {
                 int index = d;
-                panel.Children.Add(Ui.Row(T($"書き付け {d + 1}", $"Note {d + 1}"), Ui.Localized(f.Documents[d], v =>
+                panel.Children.Add(Ui.Row(T($"探索中に読む文章 {d + 1}", $"Exploration text {d + 1}"), Ui.Localized(f.Documents[d], v =>
                 {
                     if (v != null) f.Documents[index] = v;
                     _context.MarkEdited();
                 }, multiline: true, height: 50)));
             }
             var docs = new WrapPanel();
-            docs.Children.Add(Ui.Button(T("書き付けを足す", "Add a note"), () => { f.Documents.Add(LocalizedText.Of("", "")); _context.MarkEdited(); Reload(); }));
+            docs.Children.Add(Ui.Button(T("探索中に読む文章を足す", "Add exploration text"), () => { f.Documents.Add(LocalizedText.Of("", "")); _context.MarkEdited(); Reload(); }));
             if (f.Documents.Count > 0)
-                docs.Children.Add(Ui.Button(T("最後の書き付けを消す", "Remove the last note"), () => { f.Documents.RemoveAt(f.Documents.Count - 1); _context.MarkEdited(); Reload(); }));
+                docs.Children.Add(Ui.Button(T("最後の文章を消す", "Remove the last text"), () => { f.Documents.RemoveAt(f.Documents.Count - 1); _context.MarkEdited(); Reload(); }));
             panel.Children.Add(Ui.Row("", docs));
         }
     }

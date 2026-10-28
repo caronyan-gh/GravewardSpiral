@@ -15,6 +15,8 @@
 //
 //   --check-events F [F ...]  下書きのイベントの JSON(配列)を検査する(部品、知らない項目名、id の重なり)。問題があれば 1 で終わる
 //   --allow-existing          --check-events で、パックに既にある id を重なりとしない(置き換える下書き)
+//   --hand-placed             --check-events で、scatter の無いマップ配置用のイベントも認める
+//   --convert-event-cases F [F ...]  if の連なりを cases に変換する(エディタと同じ処理。既に変換済みなら書かない)
 //
 //   --campaign         ボットのパーティにシナリオを最初から最後まで遊ばせる(迷宮はシードごとに作る)
 //                      --level L を付けると L のパーティで始め、世界のレベル帯もその強さに合わせる(周回)
@@ -44,7 +46,8 @@ int runs = 20;
 string? partiesArg = null;
 string? aiModel = null;
 var checkFiles = new List<string>();
-bool allowExisting = false, fillScenario = false, convertElevators = false;
+var convertEventFiles = new List<string>();
+bool allowExisting = false, handPlaced = false, fillScenario = false, convertElevators = false;
 string? bossId = null;
 string scenarioId = ScenarioCatalog.Gravekeeper;
 ulong seed = 1;
@@ -74,10 +77,14 @@ for (int i = 0; i < args.Length; i++)
         case "--model": aiModel = next; i++; break;
         case "--scenario": scenarioId = next; i++; break;
         case "--allow-existing": allowExisting = true; break;
+        case "--hand-placed": handPlaced = true; break;
         case "--fill-scenario": fillScenario = true; break;
         case "--convert-elevators": convertElevators = true; break;
         case "--check-events":
             while (i + 1 < args.Length && !args[i + 1].StartsWith("--")) checkFiles.Add(args[++i]);
+            break;
+        case "--convert-event-cases":
+            while (i + 1 < args.Length && !args[i + 1].StartsWith("--")) convertEventFiles.Add(args[++i]);
             break;
         case "--runs": runs = int.Parse(next); i++; break;
         case "--parties": partiesArg = next; i++; break;
@@ -94,6 +101,26 @@ for (int i = 0; i < args.Length; i++)
             Console.Error.WriteLine($"知らない引数: {args[i]}");
             return 2;
     }
+}
+
+if (convertEventFiles.Count > 0)
+{
+    foreach (string file in convertEventFiles)
+    {
+        var source = File.ReadAllText(file);
+        var events = System.Text.Json.Nodes.JsonNode.Parse(source)!.AsArray();
+        int converted = GravewardSpiral.Core.Events.EventBranches.ConvertChains(events);
+        if (converted > 0)
+        {
+            var json = events.ToJsonString(new System.Text.Json.JsonSerializerOptions
+            {
+                WriteIndented = true, Encoder = System.Text.Encodings.Web.JavaScriptEncoder.UnsafeRelaxedJsonEscaping,
+            }) + "\n";
+            File.WriteAllText(file, source.Contains("\r\n") ? json.Replace("\r\n", "\n").Replace("\n", "\r\n") : json);
+        }
+        Console.WriteLine($"{file}: {converted} か所を cases に変換");
+    }
+    return 0;
 }
 
 string contentRoot = FindContent();
@@ -169,7 +196,7 @@ if (checkFiles.Count > 0)
     // 下書きの検査(中身は Core の EventDraftCheck。シナリオエディタも同じものを使う)
     var problems = new List<string>();
     var drafts = checkFiles.SelectMany(f => GravewardSpiral.Core.Events.EventDraftCheck.ReadFile(f, problems)).ToList();
-    var result = GravewardSpiral.Core.Events.EventDraftCheck.Check(data, content, drafts, allowExisting);
+    var result = GravewardSpiral.Core.Events.EventDraftCheck.Check(data, content, drafts, allowExisting, handPlaced);
     problems.AddRange(result.Problems);
     foreach (var x in problems) Console.WriteLine(x);
     Console.WriteLine(problems.Count == 0 ? $"OK: {result.Count} 個のイベントに問題はありません" : $"問題 {problems.Count} 件({result.Count} 個のイベント)");

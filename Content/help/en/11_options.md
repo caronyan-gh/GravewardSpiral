@@ -1,37 +1,47 @@
 # Options and More
 
-## The options screen
+## Changing settings
 
-Open it from the title screen, the Esc menu, or camp. Use Up and Down to choose an item, and Left, Right, or Confirm to change it. Pressing Cancel to go back saves your changes.
+Open Options from the title screen, the Esc menu, or camp. Select an option with Up and Down, then change it with Left, Right, or Confirm. Returning with Cancel saves the settings.
 
-- Language: switch the display language.
-- Music Volume and Sound Effects Volume.
-- Combat Log Speed.
-- Maze Line Art: color or monochrome.
-- Story font.
-- Maze Map: mini-map and map, map only, or none.
-- Back key: whether Down in the maze steps back or turns around.
-- AI settings: whether an AI writes the text for free dungeons (a Claude API key is required).
-- Scenario folder: opens the folder where scenarios are kept.
+- Language: Change the display language.
+- BGM and sound volume: Adjust music and sound effects separately.
+- Battle log speed: Change how quickly battle messages appear.
+- Dungeon wireframe: Switch between color and monochrome.
+- Story font: Change the font used for narrative text.
+- Dungeon map: Choose minimap and map, map only, or no map.
+- Back key: Choose whether Down steps backward or turns around. Hold Shift to use the opposite behavior.
+- AI settings: Choose whether AI generates text for a free dungeon.
+- Scenario folder: Open the folder where scenarios are stored.
+
+## Optional AI
+
+Normal play does not require AI or an API key. Text for free dungeons is generated automatically even without AI.
+
+To have AI generate text, configure a Claude API key. API usage is billed to the account associated with that key.
 
 ## Difficulty
 
-You choose the difficulty when you start a new game. It is stored with that save.
+Choose difficulty when starting a new game. These settings are saved with that world.
 
-- Wizardry-style (harsh): after a wipe the bodies stay in the maze. Resurrection can fail. Saving is automatic and you cannot redo.
-- 5e-style (gentle): after a wipe you are carried to town (you lose half your gold). Resurrection always succeeds. The game saves only in town and when you suspend.
-- Custom: choose the harshness of wipes, resurrection, and saving one by one.
+- Wizardry-style (harsh): A wipe leaves bodies in the dungeon. Resurrection can fail. Frequent autosaves prevent reloading to undo mistakes.
+- 5e-style (gentle): A wipe returns the party to town at the cost of half their gold. Resurrection always succeeds. Saves occur on returning to town and when suspending.
+- Custom: Choose wipe consequences, resurrection rules, and saving behavior individually.
+
+See Death and Rescue for details about rescue and resurrection.
 
 ## Clans and worlds
 
-Your roster of characters can be carried over as a clan. You can also export it to a file with "Export Clan" at the Training Grounds. You choose the clan when you start a new game.
+A clan is your group of developed characters. A world is the setting in which you play the chosen scenario. Members of the same clan can begin another adventure.
+
+Choose a clan when starting a new game. Export Clan at the training grounds saves the character roster to a file.
 
 ## Adding scenarios
 
-Drag a scenario folder or zip onto the title screen to install it. Installed scenarios can be chosen under "New Game". You can open the scenario folder from "Scenario folder" in Options.
+Drag a scenario folder or zip file onto the title screen to install it. Installed scenarios are available when starting a new game.
 
-A scenario editor for making your own scenarios is also provided as a separate tool.
+Open their storage location with Scenario Folder in Options. A separate scenario editor is also available for creating your own scenarios.
 
-## Suspending
+## Suspending and resuming
 
-In the maze, use "Suspend and Quit" in the Esc menu to save and stop. Resume later with "Continue" on the title screen.
+In the dungeon, choose Suspend and Quit from the Esc menu to save and return to the title screen. Choose Continue on the title screen to resume.

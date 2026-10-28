@@ -750,7 +750,7 @@
         "type": "text",
         "text": {
           "en": "\"Guests. Haven't had guests in years. You've come from the inn? Does my sister still burn the bread?\"",
-          "ja": "「お客さんか。何年ぶりだろう。宿から来たのか？　姉さんは、まだパンを焦がしてるか」"
+          "ja": "「お客さんか。何年ぶりだろう。宿から来たのか？\u3000姉さんは、まだパンを焦がしてるか」"
         },
         "speaker": {
           "en": "Rudolf",
@@ -1897,24 +1897,14 @@
         ],
         "then": [
           {
-            "type": "if",
+            "type": "cases",
             "per_place": false,
-            "when": [
-              {
-                "type": "flag",
-                "id": "dv_rudolf_rest",
-                "value": 1,
-                "count": 1,
-                "op": ">=",
-                "not": false
-              }
-            ],
-            "then": [
+            "else": [
               {
                 "type": "text",
                 "text": {
-                  "en": "\"You found him. ...He asked me to write his name? Under the ones who went down. Not the ones who came back.\" Helga opens the ledger and writes, carefully, and does not cry until she has finished the last letter.",
-                  "ja": "「見つけたんだね。……名前を書けって？　下りた者の欄に。帰った者の欄じゃなく」。ヘルガは帳面を開いて、丁寧に書いた。最後の一文字を書き終えるまで、泣かなかった。"
+                  "en": "\"Eat something before you go down. Everyone who doesn't, regrets it. Everyone who does, also regrets it, but less.\"",
+                  "ja": "「下りる前に、何か食べていきな。食べなかった奴は、みんな後悔する。食べた奴も後悔するけど、少しはましだ」"
                 },
                 "speaker": {
                   "en": "Helga",
@@ -1926,10 +1916,40 @@
                 "count": 1
               }
             ],
-            "else": [
+            "dc": 10,
+            "value": 0,
+            "count": 1,
+            "cases": [
               {
-                "type": "if",
-                "per_place": false,
+                "when": [
+                  {
+                    "type": "flag",
+                    "id": "dv_rudolf_rest",
+                    "value": 1,
+                    "count": 1,
+                    "op": ">=",
+                    "not": false
+                  }
+                ],
+                "then": [
+                  {
+                    "type": "text",
+                    "text": {
+                      "en": "\"You found him. ...He asked me to write his name? Under the ones who went down. Not the ones who came back.\" Helga opens the ledger and writes, carefully, and does not cry until she has finished the last letter.",
+                      "ja": "「見つけたんだね。……名前を書けって？\u3000下りた者の欄に。帰った者の欄じゃなく」。ヘルガは帳面を開いて、丁寧に書いた。最後の一文字を書き終えるまで、泣かなかった。"
+                    },
+                    "speaker": {
+                      "en": "Helga",
+                      "ja": "ヘルガ"
+                    },
+                    "per_place": false,
+                    "dc": 10,
+                    "value": 0,
+                    "count": 1
+                  }
+                ]
+              },
+              {
                 "when": [
                   {
                     "type": "flag",
@@ -1956,32 +1976,9 @@
                     "value": 0,
                     "count": 1
                   }
-                ],
-                "else": [
-                  {
-                    "type": "text",
-                    "text": {
-                      "en": "\"Eat something before you go down. Everyone who doesn't, regrets it. Everyone who does, also regrets it, but less.\"",
-                      "ja": "「下りる前に、何か食べていきな。食べなかった奴は、みんな後悔する。食べた奴も後悔するけど、少しはましだ」"
-                    },
-                    "speaker": {
-                      "en": "Helga",
-                      "ja": "ヘルガ"
-                    },
-                    "per_place": false,
-                    "dc": 10,
-                    "value": 0,
-                    "count": 1
-                  }
-                ],
-                "dc": 10,
-                "value": 0,
-                "count": 1
+                ]
               }
-            ],
-            "dc": 10,
-            "value": 0,
-            "count": 1
+            ]
           }
         ],
         "else": [
@@ -2115,7 +2112,7 @@
                 "type": "text",
                 "text": {
                   "en": "\"A graveyard, down there? Made by adventurers?\" Riine is quiet for a long time. Then she unties the small bell from her belt.",
-                  "ja": "「下に、墓場が？　冒険者が作った？」。リーネは長いこと黙っていた。それから、腰の小さな鐘をほどいた。"
+                  "ja": "「下に、墓場が？\u3000冒険者が作った？」。リーネは長いこと黙っていた。それから、腰の小さな鐘をほどいた。"
                 },
                 "speaker": {
                   "en": "Riine",

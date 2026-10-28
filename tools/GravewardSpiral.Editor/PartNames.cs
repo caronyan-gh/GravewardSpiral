@@ -65,12 +65,12 @@ public static class PartNames
     /// (文章の表示・条件分岐・スイッチ〔ここではフラグ〕の操作・所持金の増減・戦闘の処理・場所移動 など)。ツクールに無いものは、同じ形の言い方にする。
     /// </summary>
     public static readonly IReadOnlyDictionary<string, string> Steps = new PartTable<string>(
-        ("text", "文章の表示", "Show text"), ("choice", "選択肢の表示", "Show choices"), ("world_doc", "書き付けの表示", "Show a note"),
-        ("if", "条件分岐", "Conditional branch"), ("check", "技能判定(成功・失敗で分岐)", "Skill check (success / failure)"), ("random", "ランダム分岐", "Random branch"),
+        ("text", "文章を表示", "Show text"), ("choice", "選択肢の表示", "Show choices"), ("world_doc", "文章を表示(物語の文章)", "Show text (story text)"),
+        ("if", "条件分岐", "Conditional branch"), ("cases", "値で分ける", "Branch by value"), ("check", "技能判定(成功・失敗で分岐)", "Skill check (success / failure)"), ("random", "ランダム分岐", "Random branch"),
         ("run", "別のイベントの呼び出し", "Call another event"), ("timer", "歩数タイマーの開始", "Start step timer"), ("timer_stop", "歩数タイマーの停止", "Stop step timer"),
         ("end", "イベント処理の中断", "Exit event"), ("again", "イベント処理の中断(また起こる)", "Exit event (happens again)"), ("town", "町へ戻る", "Return to town"),
         ("ending", "エンディング(クリア)", "Ending (clear)"),
-        ("flag", "フラグを立てる", "Set flag"), ("unflag", "フラグを消す", "Clear flag"),
+        ("flag", "フラグを設定", "Set flag state"), ("unflag", "フラグをOFFにする", "Turn flag off"),
         ("counter", "変数の増減", "Change variable"), ("counter_set", "変数の代入", "Set variable"),
         ("give_item", "アイテムを増やす", "Gain item"), ("take_item", "アイテムを減らす", "Lose item"), ("treasure", "宝の入手", "Get treasure"),
         ("gold", "所持金の増減", "Change gold"), ("xp", "経験値の増減", "Change XP"),
@@ -83,9 +83,12 @@ public static class PartNames
     /// <summary>手順の部品の組(足すとき、まず組を選んで絞る)。</summary>
     public static readonly (string Ja, string En, string[] Keys)[] StepGroups =
     [
-        ("文と選択", "Text & choices", ["text", "choice", "world_doc"]),
-        ("流れ", "Flow", ["if", "check", "random", "run", "timer", "timer_stop", "end", "again", "town", "ending"]),
-        ("フラグと数", "Flags & counters", ["flag", "unflag", "counter", "counter_set"]),
+        ("文と選択", "Text & choices", ["text", "choice"]),
+        ("分岐", "Branches", ["if", "cases", "check", "random"]),
+        ("イベントの呼び出し・終了", "Call / end event", ["run", "end", "again"]),
+        ("タイマー", "Timers", ["timer", "timer_stop"]),
+        ("帰還・クリア", "Return / clear", ["town", "ending"]),
+        ("フラグと数", "Flags & counters", ["flag", "counter", "counter_set"]),
         ("品とお金", "Items & gold", ["give_item", "take_item", "treasure", "gold", "xp"]),
         ("パーティ", "Party", ["pick", "heal", "damage", "condition", "cure", "spend_slot", "light"]),
         ("迷宮と戦闘", "Maze & combat", ["combat", "open", "close", "warp", "sound"]),

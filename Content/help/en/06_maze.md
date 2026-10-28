@@ -1,49 +1,53 @@
-# Exploring the Maze
+# Exploring the Dungeon
 
 ## Moving around
 
-The maze is a grid, shown in a first-person line-art view. You can see up to four squares ahead. Move forward, turn, and sidestep to explore. Each floor you enter is named B1, B2, and so on.
+Move one square at a time through a first-person wireframe dungeon. You can see up to four squares ahead. Move forward, step back, sidestep, and turn to explore. Floors are labeled B1, B2, and so on.
 
 ## Maps
 
-A small map (the automap) of your surroundings is shown at the top right. Press M to open the full map.
+The minimap in the upper-right corner shows your surroundings. Press M to open a larger map.
 
-- The map shows the squares you walked through and the walls and doors you saw.
-- The full map shows only the area around what you know. You cannot tell how large the unexplored parts are.
-- Secret doors are drawn as walls until you find them.
-- In Options, "Maze Map" lets you choose mini-map and map, map only, or none. With "none", you keep your own notes on graph paper.
+- Visited squares and discovered walls and doors are recorded automatically.
+- The larger map shows only the area revealed by exploration. It does not reveal the full size of an unexplored floor.
+- Secret doors appear as walls until discovered.
+- In Options, choose minimap and map, map only, or no map. You can also explore with your own graph-paper map.
 
 ## Darkness and fog
 
-- Darkness: you cannot see ahead. The map still records where you go. Light spells and the like let you see for a while.
-- Fog: you can see ahead, but the map does not record anything. In fog, your own position is not shown on the map either.
+- Darkness hides the view ahead, but exploration is still recorded on the map. A light spell or similar effect restores visibility while it lasts.
+- Fog leaves the view ahead visible, but stops mapping and hides your current position on the map.
 
 ## Doors and keys
 
-- Secret doors can sometimes be found by searching.
-- A one-way door looks like a door from the side you can pass through and like a wall from the other side.
-- A locked door can be opened with the floor's key, thieves' tools, the Knock spell, or by kicking it open. If kicking fails, enemies may hear the noise and come.
-- Keys are found in the maze. A key opens the locked doors on the floor where you found it.
+Press Confirm while facing a wall or door to investigate it.
 
-## Traps and the like
+- Searching a wall may reveal a secret door.
+- A one-way door looks like a door from the side that allows passage, and a wall from the other side.
+- A locked door can be opened with that floor's key, thieves' tools, Knock, or a kick. A failed kick may attract enemies.
+- Keys found in the dungeon work on locks on the floor where they were found.
 
-The maze has spinners, teleporters, pits, chutes, anti-magic zones, and other features. On some floors, leaving one edge brings you out on the opposite side. Everyone in the party takes damage from a pit.
+## Dungeon hazards
 
-## Chests
+Spinners change your facing, and teleporters move you elsewhere. Pits damage the whole party, while chutes drop you onto another floor. You cannot cast spells in an anti-magic area.
 
-A chest may appear after a victory. You can choose from these actions.
+Some floors wrap around: moving past one edge brings you to the opposite edge. If you lose your bearings, check the map and your surroundings.
 
-- Inspect: look for the type of trap. If it fails, you may be misled into thinking it is a different trap.
-- Disarm Trap: choose the trap's name and try to disarm it. If the name is wrong, the trap goes off.
-- Open It: if there is a trap, it usually goes off.
-- Leave.
+## Treasure chests
 
-There are nine kinds of traps: poison needle, gas, crossbow bolt, explosion, stun, teleporter, mage blaster, priest blaster, and alarm.
+A chest may appear after a victory. Choose a party member to inspect or disarm it.
+
+- Inspect: Use Intelligence and Investigation proficiency to identify the trap. The result can be wrong, and a very poor attempt can trigger the trap.
+- Disarm: Name the trap and try to remove it. Even the correct answer does not guarantee success. A character with high Dexterity, proficiency with thieves' tools, and those tools in their inventory is a good choice. Naming the wrong trap triggers it.
+- Open: Open the chest without disarming it. Any trap has a high chance of going off.
+- Leave: Walk away without opening it.
+
+There are nine trap types: poison needle, gas, crossbow, bomb, stun, teleporter, mage blaster, priest blaster, and alarm. A chest trap that reduces a character to 0 HP kills them without the death saves used in combat. Opening a chest with little HP left can be dangerous.
 
 ## Stairs and elevators
 
-Use Confirm to climb or descend stairs. Elevators take you to floors you have already visited. The up stairs on B1 lead back to town.
+Press Confirm on a staircase to use it. Elevators let you choose among floors you have already visited. The stairs up from B1 lead back to town.
 
 ## Notes
 
-At camp in the maze, you can read the notes you have jotted down.
+Notes recorded during exploration can be read again at camp.

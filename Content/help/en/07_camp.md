@@ -1,25 +1,43 @@
 # Camp
 
-## What camp is
+## Opening camp
 
-Press the menu key (Tab or C, for example) in the maze to open it. You can also open it from the Esc menu. Camp is where you rest in the maze and get your spells, items, and formation in order.
+Press a menu key such as Tab or C in the dungeon to open camp. You can also open it from the Esc menu. Use camp to rest, heal, change equipment, and prepare for further exploration.
 
-## What you can do
+## Camp actions
 
-- Short Rest (1 hour): spend Hit Dice to recover HP. Warlocks also regain their spell slots. Each member who can act studies one unidentified item and learns what it is. Enemies may come while you rest, and then a battle begins.
-- Cast Spell: cast healing and other spells that work in the maze.
-- Prepare Spells: change your prepared spells.
-- Items: look at your companions' items and change their equipment.
-- View Status: check your companions' condition.
-- Change Formation: choose a new order from the front. The first three become the front row.
-- Read Notes: read the notes you jotted down.
-- Last battle log: read what happened in the most recent battle from the start.
-- Options: change volume and other settings.
+- Short Rest: Rest for one hour and spend Hit Dice to recover HP. Some class abilities and a warlock's spell uses also recover. Enemies may interrupt your rest.
+- Cast: Cast healing spells and other spells available outside combat.
+- Prepare Spells: Change the spells available to classes that prepare them. This does not restore spell uses.
+- Items: Check party members' belongings and change their equipment.
+- View Status: Check abilities, skills, spells, equipment, and inventory. Use Left and Right to change the right-hand page.
+- Formation: Select party members in their new order. The first three form the front row.
+- Read Notes: Review notes recorded during exploration.
+- Previous Battle Log: Read the most recent battle from the beginning.
+- Options: Adjust volume and other options.
 
-## Things to know about resting
+Anti-magic areas prevent spellcasting at camp too.
 
-In the maze you can only take a short rest. A long rest, which fully restores HP and spell slots, is possible only at the inn in town.
+## Short rests and Hit Dice
 
-Hit Dice are limited. Once they run out, a short rest no longer restores HP. After a battle, conditions such as poison and blindness remain (they fade a little with each step). While poisoned, you lose HP with every step. A long rest clears them all.
+Hit Dice are a limited resource used to recover HP during short rests. Your maximum number equals your total character level. Spending one reduces the number remaining.
 
-In anti-magic zones, you cannot cast spells even at camp.
+In this game, you do not select how many Hit Dice to spend. A short rest spends them automatically until HP is full or none remain. Each die restores HP based on its roll and the character's Constitution modifier.
+
+Once you run out, short rests cannot restore more HP this way. Spell uses and class abilities that recover on a short rest still recover even without Hit Dice.
+
+If the rest ends without an ambush, each party member able to act studies and identifies one unidentified item.
+
+## Long rests
+
+Only short rests are available in the dungeon. Long rests are available at the inn, or at a clan house with beds.
+
+A long rest restores spell uses and class abilities, and removes lingering conditions. HP recovery depends on where you sleep. See Town Facilities for details.
+
+A long rest also restores half your total level in Hit Dice, rounded down, with a minimum of one. A level 5 character regains two, for example. One night's rest may not restore every Hit Die you spent.
+
+## Lingering conditions
+
+Poison, blindness, and some other conditions may remain after combat. Some wear off over time, while others require treatment. Use a spell, visit the temple, or take a long rest.
+
+Lingering poison reduces HP as you walk. This walking damage alone cannot reduce HP below 1, but it leaves you vulnerable to the next battle or trap.

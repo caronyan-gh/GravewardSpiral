@@ -1,30 +1,44 @@
-# Death and the Temple
+# Death and Rescue
 
-## Stages of death
+## Unconsciousness and death
 
-At 0 HP a member falls unconscious. If death saves fail, they die. Beyond death there are two more stages.
+Reaching 0 HP in combat usually causes unconsciousness. An unconscious character makes death saves and dies after three failures. Healing can still save them while they are unconscious.
 
-- Ashes: a dead companion whose resurrection failed.
-- Lost: a companion whose resurrection from ashes failed. They do not return.
+Extremely large damage can cause instant death. Reaching 0 HP from a treasure chest trap also causes death without death saves.
 
-## The temple
+This game adds Wizardry-style ash and permanent loss rules. Failed resurrection can lead to these further states.
 
-At the temple, you pay gold for the following.
+- Ash: Resurrection from death failed. Another resurrection attempt is still possible.
+- Lost: Resurrection from ash also failed. This character cannot be recovered.
 
-- Resurrection: bring a dead or ashen companion back to life. The gold needed and the chance of success are shown when you choose. A higher Constitution makes success more likely.
-- Cure: heal lingering conditions such as poison and paralysis.
+## Temple treatment and resurrection
 
-If a resurrection fails, a dead companion turns to ashes. If a resurrection from ashes fails, that companion is lost.
+The temple offers paid treatment and resurrection.
 
-In a world set to "5e-style (gentle)", resurrection always succeeds (it still costs gold).
+- Resurrect: Restore a dead or ashen character to life. Check the cost and success chance before requesting it. Higher Constitution improves the chance.
+- Treat: Remove lingering conditions such as Poisoned or Paralyzed.
 
-## When the party is wiped out
+A failed resurrection turns a dead character to ash. Failure when resurrecting ashes causes permanent loss.
 
-What happens after a wipe depends on the difficulty.
+On the 5e-style (gentle) difficulty setting, resurrection always succeeds, but still costs gold.
 
-- Harsh setting: everyone's bodies stay where the party fell. They cannot be added to a party at the tavern. Take another party to that square in the maze and inspect with Confirm to carry the bodies home. Resurrect them at the temple.
-- Gentle setting: passing adventurers carry you to town. Those who were down get up with 1 HP, and everyone loses half of the gold they carried.
+## A party wipe
 
-## Saving
+Difficulty determines what happens after a wipe.
 
-On the harsh setting, the game auto-saves often even inside the maze, and you cannot redo. On the gentle setting, the game saves when you return to town and when you suspend in the maze.
+- Harsh: Everyone's body remains where the party fell. Those characters cannot join a party at the tavern. Form a rescue party with other characters and return for them.
+- Gentle: The party is brought back to town. Unconscious characters recover with 1 HP, but those already dead remain dead. Each character loses half their gold.
+
+## Rescuing bodies
+
+Form a rescue party at the tavern, travel to the square where the party fell, and press Confirm to investigate. Recovered bodies join empty party positions.
+
+The party limit is six, including bodies. A full party has no room to carry anyone back. Leave enough positions empty for those you intend to rescue. A five-member rescue party can bring back one body.
+
+Recovery alone does not revive a character. Return to town and request resurrection at the temple.
+
+## Saving and suspending
+
+Harsh settings autosave frequently, including inside the dungeon. You cannot reload an earlier state to undo a mistake.
+
+Gentle settings save when returning to town or suspending in the dungeon. To stop playing, use Suspend and Quit or another menu option that saves before exiting.

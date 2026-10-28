@@ -110,16 +110,24 @@ public static class Help
             ■ 一覧
             このシナリオのイベント。言葉・場所・置き方・中身の種類・レア度で絞り込める。薄い札は、迷宮に置いてある標準のパックのイベント(選ぶと中身を見て、このシナリオに写して直せる。同じ id で写すので、迷宮の印はそのまま)。
             「標準のイベントから写す」で、標準のパックのイベントを名前と中身を見て写す。
+            ■ フラグと仕掛けのセット
+            ルートで「このイベント専用のフラグを持つ」を付けると、名前を入力せず専用の状態を持てる。流れの「フラグを設定」で「このイベントのフラグ」とON/OFFを選ぶ。条件ではイベント名とON/OFFを選ぶ。チェックだけではONにならない。専用フラグ付きのイベントは1か所だけに置ける(配置済みなら移動か複製)。
+            「フラグの管理」で共通フラグの表示名・説明・使用箇所を見る。専用のものは普段隠し、チェックで含められる。
+            「仕掛けのセット」で標準のセットを一式取り込み、名前を付ける。部品ごとに未配置・位置・配置不要が出る。迷宮の「仕掛けのセットを配置」で、選んだマスへ置くか、未配置の部品をその階へまとめて置く。開く扉は錠のある辺に接する空きマスが要る。複製では専用フラグと内部参照も分かれる。旧来の組の共通フラグまで分けたいときは、取り込み画面の「専用にする状態」で選ぶ。
             ■ 中身
-            真ん中の木が手順と条件。上で組と部品を選んで「手順を足す」「条件を足す」、選択肢は「選択肢を足す」。右で選んだ部品の項目を直す。JSON でも直せる(「JSON を当てる」)。
+            真ん中の木に、起こる条件とイベントの流れが並ぶ。「＋」の追加ボタンを押すと、新しい項目へ移動し、右側で内容を入力できる。新しい項目の分類と種類は右側で選ぶ。枝では先頭・最後、項目ではその後ろに追加できる。木の右クリックでは、前・後への種類を指定した追加と削除ができる。流れは上から順に進み、文章は1つずつ画面に出る。「もし〜ならば」は条件を含む複数行で1つの塊になっている。塊を選んで条件を編集する。条件はすべて満たしたときだけ成立する。「値で分ける」は親で共通の対象を選び、各場合では比べ方と値を入力する。JSON でも直せる(「JSON を当てる」)。
             ■ 置き方
             「迷宮に散らす」を付けると、合う深さの空いたマスに置く(基本のタブの「散らして置く」で)。付けないイベントは、迷宮のタブで「このマスにあるもの」をイベントにして置く。町のイベントは「起こる場所」を町にすると、町の「人を訪ねる」に題で出る。
             """, """
             ■ List
             This scenario's events, filterable by words, place, placing, content kind and rarity. Faint entries are standard pack events placed in the maze (select one to view it and copy it into this scenario to edit; it keeps the same id, so the maze marks stay).
             "Copy a standard event" copies one from the standard pack after viewing its name and content.
+            ■ Flags and sets
+            Check "Own a flag" on the event root to allocate private state without typing an ID. In its flow, choose "Set flag state", "This event's flag", and ON/OFF. Conditions select an event and ON/OFF. Ownership alone does not turn the flag on. Owned-flag events have one map location; move or duplicate an already placed event.
+            "Flags" manages shared flag names, descriptions and usage. Private state is hidden unless requested.
+            "Sets" imports all parts together and shows their locations, missing parts and internal helpers that need no placement. On the Maze tab, "Place set parts" places a part at the selected cell or all remaining parts on that floor. Gates require empty cells next to locked edges. Copies separate private state and internal references. For legacy chains, explicitly choose additional private state in the import dialog.
             ■ Contents
-            The tree in the middle holds steps and conditions. Pick a group and part above and press "Add step" / "Add condition"; "Add choice" for choices. Edit the selected part on the right, or edit the JSON ("Apply JSON").
+            The middle tree shows conditions and event flow. A + button creates and selects a new entry; edit it in the usual panel on the right. Choose the new item's category and type on the right. A branch offers insertion at its start or end; an item offers insertion after it. Right-click a tree node to insert a chosen type before or after it, or delete it. Actions run from top to bottom and each text entry appears on its own screen. If, its conditions and Then form one multiline block. Select that block to edit the conditions, all of which must match. Branch by value selects a shared subject on the parent; each case edits only its comparison and value. You can also edit the JSON ("Apply JSON").
             ■ Placing
             "Scatter in the maze" places it in free cells at a fitting depth (via "Scatter now" on the Basic tab). Otherwise place it on the Maze tab by setting a cell's "What is here" to the event. Town events (place: town) appear under "Visit" in town by their title.
             """),
@@ -168,7 +176,7 @@ public static class Help
             ■ 酒場の噂
             「噂を聞く」で、聞くたびに1つ出る(条件に合う噂と、名のある敵・伝説の噂から重みで選ぶ)。条件で、物語の進み具合に合わせて出し分ける。文はかぎ括弧なしで書く。
             ■ 階ごとの文
-            階の名前、入ったときの文、書き付け(イベントの手順「AI の書き付け」で出る)。
+            階の名前、入ったときの文、探索中に読む文章。壁の文字や手紙などの文章を、この階に用意しておける。イベントの「文章を表示」で「物語の文章」を選ぶと、用意した文章が出る。自分で書いても、AI に書かせてもよい。
             ■ AI に書かせる
             設定のモデルと API キーで、空の欄を AI に書かせる(「書いてある欄も書き直す」で全部)。お金がかかる。捨てた欄(長すぎるなど)は知らせに出る。
             """, """
@@ -179,7 +187,7 @@ public static class Help
             ■ Tavern rumors
             Each "Hear rumors" tells one (picked by weight from matching rumors, named monsters and legends). Use conditions to change them as the story goes on. Write them without quotation marks.
             ■ Per-floor text
-            Floor names, entry lines and notes (shown by the event step "AI-written note").
+            Floor names, entry lines, and exploration texts. Prepare texts for discoveries such as wall inscriptions and letters on each floor. Choose "Story text" within the event action "Show text" to display them. You can write them yourself or use AI.
             ■ Write with AI
             Uses the model and API key from Settings to fill empty fields ("Overwrite filled fields too" for all). It costs money. Dropped fields (too long, etc.) are reported.
             """),

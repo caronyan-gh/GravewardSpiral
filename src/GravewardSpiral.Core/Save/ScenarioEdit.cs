@@ -14,10 +14,11 @@ public static class ScenarioEdit
     public static void RenameEvent(ScenarioPack pack, string old, string id)
     {
         if (pack.Events.FirstOrDefault(e => e.Id == old) is { } ev) ev.Id = id;
+        foreach (var part in pack.EventSets.SelectMany(s => s.Parts).Where(p => p.Kind == "event" && p.Target == old)) part.Target = id;
         foreach (var f in pack.Floors)
             foreach (var c in f.AllCells())
                 if (f[c].Mark == EventPlacer.MarkPrefix + old) f[c].Mark = EventPlacer.MarkPrefix + id;
-        void Conditions(List<EventCondition> when)
+        void Conditions(IEnumerable<EventCondition> when)
         {
             foreach (var c in when) if (c.Type == "done" && c.Id == old) c.Id = id;
         }
@@ -26,8 +27,7 @@ public static class ScenarioEdit
             foreach (var s in steps)
             {
                 if (s.Type == "run" && s.Id == old) s.Id = id;
-                Conditions(s.When);
-                foreach (var o in s.Options) Conditions(o.When);
+                Conditions(s.Conditions());
                 foreach (var child in s.Children()) Steps(child);
             }
         }

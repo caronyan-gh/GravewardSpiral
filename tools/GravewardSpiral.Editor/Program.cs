@@ -18,6 +18,7 @@
 //   --picker 言葉     画面の保存で、標準のイベントから写す窓をこの言葉で探して撮る
 //   --scroll PX       画面の保存の前に、タブの中身をこれだけ下へ送る
 //   --event ID[/N]    イベントのタブで、そのイベントを選び、木の上から N 番目(0 が根)を選んでおく(確かめ用)
+//   --combo N        --screenshot と使い、表示中の N 番目(0から)のコンボを開く。一覧は別の .dropdown.png に保存
 //   --data 種類[/N]   データのタブで、品(items)かモンスター(monsters)の N 番目を選んでおく(確かめ用)
 //   --lang ja|en      画面の言語(省くと設定の言語。確かめの起動は日本語)
 using System.Windows;
@@ -90,6 +91,11 @@ public sealed record EditorOptions(string? Open, string? NewId, string? Tab, int
     /// <summary>データのタブで選んでおく種類と番号(--data items/0。確かめ用)。</summary>
     public static string? DataNode { get; private set; }
 
+    public static int? Combo { get; private set; }
+    /// <summary>--screenshot 専用。表示中のイベントタブのボタンをラベルで押す(追加後の選択を確認)。</summary>
+    public static List<string> Click { get; } = [];
+    public static double[]? Position { get; private set; }
+
     public static EditorOptions Parse(string[] args)
     {
         string? open = null, newId = null, tab = null, shot = null, scenarios = null, lang = null;
@@ -117,6 +123,9 @@ public sealed record EditorOptions(string? Open, string? NewId, string? Tab, int
                 case "--picker": Picker = next; i++; break;
                 case "--scroll": Scroll = double.Parse(next, System.Globalization.CultureInfo.InvariantCulture); i++; break;
                 case "--event": EventNode = next; i++; break;
+                case "--combo": Combo = int.Parse(next); i++; break;
+                case "--click": Click.Add(next); i++; break;
+                case "--position": Position = next.Split(',').Select(x => double.Parse(x, System.Globalization.CultureInfo.InvariantCulture)).ToArray(); i++; break;
                 case "--data": DataNode = next; i++; break;
                 case "--lang": lang = next == "en" ? "en" : "ja"; i++; break;
             }

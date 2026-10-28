@@ -2,7 +2,9 @@ using System.Globalization;
 using System.Text.Json;
 using System.Text.Json.Nodes;
 using System.Windows;
+using System.Windows.Threading;
 using System.Windows.Controls;
+using System.Windows.Media;
 using GravewardSpiral.Core.Content;
 using GravewardSpiral.Core.Events;
 using GravewardSpiral.Core.Monsters;
@@ -51,6 +53,9 @@ public sealed class EventsTab : IEditorTab
         addRow.Children.Add(Ui.Button(T("写す", "Copy"), CopyEvent));
         addRow.Children.Add(Ui.Button(T("消す", "Delete"), RemoveEvent));
         leftTop.Children.Add(addRow);
+        leftTop.Children.Add(new WrapPanel { Children = {
+            Ui.Button(T("フラグの管理…", "Flags…"), () => EventFlagsUi.Manager(_context).ShowDialog()),
+            Ui.Button(T("仕掛けのセット…", "Sets…"), () => { new EventSetsWindow(_context, Current).ShowDialog(); RefreshList(Current); }) } });
         leftTop.Children.Add(Ui.Button(T("標準のイベントから写す…", "Copy a standard event…"), CopyFromBase, T("標準のパックのイベントを、名前と中身を見て選んで写す", "Pick an event from the standard pack by name and content, and copy it")));
         leftTop.Children.Add(Ui.Button(T("AI で新しく作る…", "New with AI…"), () => AskAi(fresh: true), T("元にするイベントなしで、こうしたいことだけを書いて AI に下書きさせる", "Have the AI draft a brand-new event from your request alone")));
         leftTop.Children.Add(Ui.Button(T("AI で直す…", "Rework with AI…"), () => AskAi(), T("選んでいるイベントを元に(無ければ新しく)、こうしたいことを書いて AI に下書きさせる", "Have the AI draft an event from the selected one (or a new one) and your request")));
@@ -84,6 +89,21 @@ public sealed class EventsTab : IEditorTab
             if (_loading) return;
             _selected = (_tree.SelectedItem as TreeViewItem)?.Tag;
             ShowProps();
+        };
+        ScrollViewer.SetHorizontalScrollBarVisibility(_tree, ScrollBarVisibility.Disabled);
+        _tree.SizeChanged += (_, _) => WrapTree(_tree.Items);
+        _tree.PreviewMouseRightButtonDown += (_, args) =>
+        {
+            var source = args.OriginalSource as DependencyObject;
+            while (source != null && source is not TreeViewItem)
+                source = source is Visual ? VisualTreeHelper.GetParent(source) : LogicalTreeHelper.GetParent(source);
+            if (source is not TreeViewItem node || Current == null) return;
+            node.IsSelected = true;
+            var menu = NodeMenu(node.Tag);
+            if (menu.Items.Count == 0) return;
+            menu.PlacementTarget = node;
+            menu.IsOpen = true;
+            args.Handled = true;
         };
         center.Children.Add(_tree);
         Grid.SetColumn(center, 1);
@@ -184,6 +204,7 @@ public sealed class EventsTab : IEditorTab
 
     /// <summary>木の中の、条件のならび(名前と、入れ物)。</summary>
     private sealed record CondList(string Label, List<EventCondition> Conds);
+    private sealed record IfBranch(EventStep Owner);
 
     private void RebuildTree()
     {
@@ -191,7 +212,7 @@ public sealed class EventsTab : IEditorTab
         _tree.Items.Clear();
         if (Current is { } e)
         {
-            var root = Item(T($"イベント {e.Id}", $"Event {e.Id}") + (HowItHappens(e) is { Length: > 0 } how ? "  —  " + how : ""), e);
+            var root = Item((EventList.Name(e) ?? e.Id) + (HowItHappens(e) is { Length: > 0 } how ? "  —  " + how : ""), e);
             root.Items.Add(Conds(T("起こる条件", "Conditions"), e.When));
             root.Items.Add(Steps(T("イベントの流れ(上から順に)", "Event flow (in order)"), e.Steps));
             root.IsExpanded = true;
@@ -199,8 +220,9 @@ public sealed class EventsTab : IEditorTab
             _json.Text = ScenarioPack.CleanJson(e);
         }
         else _json.Text = "";
-        _loading = false;
+        WrapTree(_tree.Items);
         Reselect(_tree.Items);
+        _loading = false; // 入力中の木の更新では、右の入力欄を作り直してフォーカスを奪わない。
     }
 
     private bool Reselect(ItemCollection items)
@@ -208,7 +230,8 @@ public sealed class EventsTab : IEditorTab
         foreach (TreeViewItem i in items)
         {
             if (ReferenceEquals(i.Tag, _selected) || i.Tag is StepList sl && _selected is StepList s2 && ReferenceEquals(sl.Steps, s2.Steps)
-                || i.Tag is CondList cl && _selected is CondList c2 && ReferenceEquals(cl.Conds, c2.Conds))
+                || i.Tag is CondList cl && _selected is CondList c2 && ReferenceEquals(cl.Conds, c2.Conds)
+                || i.Tag is IfBranch ib && _selected is IfBranch ib2 && ReferenceEquals(ib.Owner, ib2.Owner))
             {
                 i.IsSelected = true;
                 i.BringIntoView();
@@ -219,25 +242,49 @@ public sealed class EventsTab : IEditorTab
         return false;
     }
 
-    private static TreeViewItem Item(string header, object tag) => new() { Header = header, Tag = tag, IsExpanded = true };
+    private static TreeViewItem Item(string header, object tag) => new()
+    {
+        Header = new TextBlock { Text = header, TextWrapping = TextWrapping.Wrap }, Tag = tag, IsExpanded = true,
+        HorizontalContentAlignment = HorizontalAlignment.Stretch,
+    };
+
+    private void WrapTree(ItemCollection items, int depth = 0)
+    {
+        foreach (TreeViewItem node in items)
+        {
+            if (node.Header is TextBlock text) text.MaxWidth = Math.Max(120, _tree.ActualWidth - 32 - 20 * (depth + 1));
+            WrapTree(node.Items, depth + 1);
+        }
+    }
 
     private TreeViewItem Steps(string label, List<EventStep> steps)
     {
         var item = Item(label, new StepList(label, steps));
+        AddFlowNodes(item, steps);
+        return item;
+    }
+
+    private void AddFlowNodes(TreeViewItem item, List<EventStep> steps)
+    {
         int n = 0;
         foreach (var s in steps)
         {
             var child = Step(s);
-            child.Header = $"{++n}. {child.Header}";
+            if (child.Header is TextBlock text) text.Text = $"{++n}. {text.Text}";
             item.Items.Add(child);
         }
-        return item;
     }
+
+    private string ConditionText(EventCondition c) => c.Type == "flag"
+        ? EventFlagsUi.Label(_context, c.Id) + (c.Not ? " = OFF" : " = ON") : _words.Condition(c);
+
+    private string CaseText(EventStep s, int i) => s.Cases[i].When.Any(c => c.Type == "flag")
+        ? string.Join(T(" かつ ", " and "), s.Cases[i].When.Select(ConditionText)) : _words.CaseLabel(s, i);
 
     private TreeViewItem Conds(string label, List<EventCondition> conds)
     {
         var item = Item(label + (conds.Count == 0 ? T(" なし", " (none)") : ""), new CondList(label, conds));
-        foreach (var c in conds) item.Items.Add(Item(_words.Condition(c), c));
+        foreach (var c in conds) item.Items.Add(Item(c.Type == "flag" ? EventFlagsUi.Label(_context, c.Id) + (c.Not ? " = OFF" : " = ON") : _words.Condition(c), c));
         return item;
     }
 
@@ -247,9 +294,23 @@ public sealed class EventsTab : IEditorTab
         switch (s.Type)
         {
             case "if":
-                item.Items.Add(Conds(T("条件", "Conditions"), s.When));
-                item.Items.Add(Steps(T("条件を満たすとき", "When met"), s.Then));
+                var matched = Item(T("もし\n", "If\n") + (s.When.Count == 0 ? T("  条件なし(いつでも)", "  No conditions (always)")
+                    : string.Join("\n", s.When.Select((c, i) => (i == 0 ? "  " : T("  かつ ", "  and ")) + ConditionText(c))))
+                    + T("\nならば", "\nThen"), new IfBranch(s));
+                AddFlowNodes(matched, s.Then);
+                item.Items.Add(matched);
                 item.Items.Add(Steps(T("それ以外の場合", "Otherwise"), s.Else));
+                break;
+            case "cases":
+                for (int i = 0; i < s.Cases.Count; i++)
+                {
+                    var branch = s.Cases[i];
+                    var node = Item($"{i + 1}. {CaseText(s, i)}", branch);
+                    node.ToolTip = CaseText(s, i);
+                    AddFlowNodes(node, branch.Then);
+                    item.Items.Add(node);
+                }
+                item.Items.Add(Steps(T("それ以外", "Otherwise"), s.Else));
                 break;
             case "check":
                 item.Items.Add(Steps(T("成功したら", "On success"), s.Success));
@@ -260,7 +321,7 @@ public sealed class EventsTab : IEditorTab
                 item.Items.Add(Steps(T("逃げたら", "If fled"), s.Lose));
                 break;
             case "world_doc":
-                item.Items.Add(Steps(T("書き付けが無い世界では", "In a world without notes"), s.Else));
+                item.Items.Add(Steps(T("この階に文章が用意されていないとき", "When this floor has no exploration text"), s.Else));
                 break;
             case "pick":
                 item.Items.Add(Conds(T("選べる人の条件", "Who can be chosen"), s.When));
@@ -286,16 +347,21 @@ public sealed class EventsTab : IEditorTab
 
     private string Describe(EventStep s) => s.Type switch
     {
+        "flag" or "unflag" => T("フラグ: ", "Flag: ") + EventFlagsUi.Label(_context, s.Id) + (s.Type == "flag" ? " → ON" : " → OFF"),
+        "run" => T("続くイベント: ", "Continue with: ") + (EventFlagsUi.Events(_context).FirstOrDefault(e => e.Id == s.Id) is { } next ? EventList.Name(next) ?? next.Id : s.Id),
         "text" => (Loc.Name(s.Speaker) is { Length: > 0 } who ? T($"文章({who}): ", $"Text ({who}): ") : T("文章: ", "Text: ")) + Short(Loc.Name(s.Text) ?? s.Key),
         "choice" => T($"選択肢: {Short(Loc.Name(s.Text))}", $"Choice: {Short(Loc.Name(s.Text))}"),
+        "" => T("未設定の項目(右で種類を選ぶ)", "Unconfigured item (choose a type on the right)"),
         "if" => T("条件分岐", "Conditional branch"),
+        "cases" => EventBranches.CommonSubject(s) is { } subject ? T("値で分ける: ", "Branch by: ") + SubjectText(subject)
+            : s.Cases.Count == 0 ? T("値で分ける", "Branch by value") : T("条件を順に調べる(従来形式)", "First matching condition (legacy)"),
         "check" => T($"判定: {SkillOrAbility(s)} DC{s.Dc}", $"Check: {SkillOrAbility(s)} DC{s.Dc}"),
         "random" => T("ランダム分岐", "Random branch"),
         "combat" => T("戦闘: ", "Combat: ") + (s.Boss != null ? T($"ボス {s.Boss}", $"boss {s.Boss}") : s.Groups.Count == 0 ? T("この階の敵", "this floor's enemies")
             : string.Join("・", s.Groups.Select(g => $"{MonsterName(g.Monster)}×{g.Count}"))),
         "pick" => T($"一人を選ぶ{(s.Value == 1 ? "(くじ)" : "")}: {Short(Loc.Name(s.Text))}", $"Choose one{(s.Value == 1 ? " (by lot)" : "")}: {Short(Loc.Name(s.Text))}"),
         "spend_slot" => T($"呪文スロットを1つ捧げる(レベル {Math.Max(1, s.Value)} 以上)", $"Give up a spell slot (level {Math.Max(1, s.Value)}+)"),
-        "world_doc" => T("書き付けを読む", "Read a note"),
+        "world_doc" => s.Value > 0 ? T($"文章を表示: 物語の文章 {s.Value}", $"Show text: story text {s.Value}") : T("文章を表示: 物語の文章(場所ごとに選ぶ)", "Show text: story text (picked per location)"),
         "if" or "random" or "end" or "again" or "town" or "ending" => PartNames.Name(PartNames.Steps, s.Type),
         _ => _words.Step(s),   // 入れ子の無い手順は、文で(「全員に 1d4 のダメージ」など)
     };
@@ -340,26 +406,32 @@ public sealed class EventsTab : IEditorTab
     {
         if (Current is not { } e) return (null, 0);
         if (_selected is StepList sl) return (sl.Steps, sl.Steps.Count);
+        if (_selected is IfBranch ib) return (ib.Owner.Then, ib.Owner.Then.Count);
         if (_selected is EventStep s && FindParent(e, s) is { } parent) return (parent, parent.IndexOf(s) + 1);
         if (_selected is EventOption o) return (o.Steps, o.Steps.Count);
+        if (_selected is EventCase branch) return (branch.Then, branch.Then.Count);
         return (e.Steps, e.Steps.Count);
     }
 
-    private void AddStep(string type)
+    private void AddStep(string type, bool first = false, bool before = false)
     {
         var (list, at) = StepTarget();
         if (list == null) return;
+        if (first) at = 0;
+        else if (before && _selected is EventStep) at--;
         var s = new EventStep { Type = type };
         if (s.Type is "text" or "choice") s.Text = LocalizedText.Of("", "");
         if (s.Type == "choice") s.Options.Add(new EventOption { Label = LocalizedText.Of("Yes", "はい") });
         if (s.Type == "random") s.Options.AddRange([new EventOption(), new EventOption()]);
         if (s.Type == "pick") s.Text = LocalizedText.Of("Who?", "誰が?");
+        if (s.Type == "cases") s.Cases.Add(new() { When = [new() { Type = "counter", Op = "<=", Value = 10 }] });
         list.Insert(at, s);
         _selected = s;
         Changed();
+        ShowProps();
     }
 
-    private void AddCondition(string type)
+    private void AddCondition(string type, bool before = false)
     {
         if (Current is not { } e) return;
         var list = _selected switch
@@ -367,26 +439,34 @@ public sealed class EventsTab : IEditorTab
             CondList cl => cl.Conds,
             EventCondition c => FindParent(e, c),
             EventOption o => o.When,
+            EventCase branch => branch.When,
             EventStep { Type: "if" } s => s.When,
+            IfBranch ib => ib.Owner.When,
             _ => e.When,
         } ?? e.When;
         var cond = new EventCondition { Type = type };
-        list.Add(cond);
-        _selected = cond;
+        int at = _selected is EventCondition selected && list.Contains(selected) ? list.IndexOf(selected) + (before ? 0 : 1) : list.Count;
+        list.Insert(at, cond);
+        // if の条件は親の編集欄にまとめる。追加した欄も同じパネルで編集する。
+        if (_selected is not EventStep { Type: "if" } && _selected is not EventCase && _selected is not IfBranch) _selected = cond;
         Changed();
+        ShowProps();
+        if (_props.Children.OfType<StackPanel>().FirstOrDefault(p => ReferenceEquals(p.Tag, cond)) is { } added)
+            Dispatcher.CurrentDispatcher.BeginInvoke(new Action(() => added.BringIntoView()), DispatcherPriority.Loaded);
     }
 
-    private void AddOption()
+    private void AddOption(bool before = false)
     {
         if (Current is not { } e) return;
         var step = _selected as EventStep ?? (_selected is EventOption o ? FindOwner(e, o) : null);
         if (step is not { Type: "choice" or "random" }) return;
         var opt = new EventOption { Label = step.Type == "choice" ? LocalizedText.Of("", "") : null };
         // 選択肢を選んでいれば、その後ろに足す
-        int at = _selected is EventOption sel && step.Options.IndexOf(sel) is >= 0 and var i ? i + 1 : step.Options.Count;
+        int at = _selected is EventOption sel && step.Options.IndexOf(sel) is >= 0 and var i ? i + (before ? 0 : 1) : step.Options.Count;
         step.Options.Insert(at, opt);
         _selected = opt;
         Changed();
+        ShowProps();
     }
 
     private void Move(int by)
@@ -397,9 +477,10 @@ public sealed class EventsTab : IEditorTab
             EventStep s => MoveIn(FindParent(e, s), s, by),
             EventCondition c => MoveIn(FindParent(e, c), c, by),
             EventOption o => MoveIn(FindOwner(e, o)?.Options, o, by),
+            EventCase c => MoveIn(FindOwner(e, c)?.Cases, c, by),
             _ => false,
         };
-        if (moved) Changed();
+        if (moved) { Changed(); ShowProps(); }
     }
 
     private static bool MoveIn<T>(List<T>? list, T item, int by)
@@ -420,11 +501,13 @@ public sealed class EventsTab : IEditorTab
             EventStep s => FindParent(e, s)?.Remove(s) == true,
             EventCondition c => FindParent(e, c)?.Remove(c) == true,
             EventOption o => FindOwner(e, o)?.Options.Remove(o) == true,
+            EventCase c => FindOwner(e, c)?.Cases.Remove(c) == true,
             _ => false,
         };
         if (!removed) return;
         _selected = e;
         Changed();
+        ShowProps();
     }
 
     /// <summary>手順が入っているならび。</summary>
@@ -451,6 +534,7 @@ public sealed class EventsTab : IEditorTab
             {
                 if (s.When.Contains(target)) return s.When;
                 foreach (var o in s.Options) if (o.When.Contains(target)) return o.When;
+                foreach (var c in s.Cases) if (c.When.Contains(target)) return c.When;
                 foreach (var child in s.Children())
                     if (Walk(child) is { } found) return found;
             }
@@ -473,6 +557,37 @@ public sealed class EventsTab : IEditorTab
             return null;
         }
         return Walk(e.Steps);
+    }
+
+    private static EventStep? FindOwner(EventDef e, EventCase target)
+    {
+        EventStep? Walk(List<EventStep> list)
+        {
+            foreach (var s in list)
+            {
+                if (s.Cases.Contains(target)) return s;
+                foreach (var child in s.Children()) if (Walk(child) is { } found) return found;
+            }
+            return null;
+        }
+        return Walk(e.Steps);
+    }
+
+    private void ConvertBranch(EventStep step, bool toCases)
+    {
+        if (Current is not { } e || FindParent(e, step) is not { } parent) return;
+        var json = JsonNode.Parse(ScenarioPack.CleanJson(step))!.AsObject();
+        var converted = (toCases ? EventBranches.ToCases(json) : EventBranches.ToIf(json)).Deserialize<EventStep>(ContentLibrary.JsonOptions)!;
+        if (toCases && EventBranches.CommonSubject(converted) == null)
+        {
+            MessageBox.Show(T("同じ値を比べる、条件が1つずつの分岐だけを変換できます。", "Only branches with one condition each, comparing the same subject, can be converted."));
+            ShowProps();
+            return;
+        }
+        parent[parent.IndexOf(step)] = converted;
+        _selected = converted;
+        Changed();
+        ShowProps();
     }
 
     // ---------------- 項目 ----------------
@@ -506,25 +621,33 @@ public sealed class EventsTab : IEditorTab
             case EventStep s:
                 StepProps(s);
                 if (s.Type is "choice" or "random") _props.Children.Add(OptionButton(s.Type == "choice"));
-                _props.Children.Add(Palette(T("この後ろに足す", "Add after this"), StepButtons(), open: false));
+                _props.Children.Add(AddFlowButton(T("＋ この後ろに項目を追加", "+ Add item after this")));
+                break;
+            case IfBranch branch:
+                _props.Children.Add(Ui.Heading(T("もし〜ならば", "If / then")));
+                EditConditions(branch.Owner.When);
+                AddListButtons(branch.Owner.Then);
                 break;
             case EventCondition c:
                 CondProps(c);
-                _props.Children.Add(Palette(T("条件をもう1つ足す(すべて合うときだけ)", "Add another condition (all must match)"), CondButtons(), open: false));
+                _props.Children.Add(Ui.Button(T("＋ 条件を追加", "+ Add condition"), () => AddCondition("flag")));
                 break;
             case EventOption o:
                 OptionProps(o);
                 _props.Children.Add(OptionButton(o.Label != null));
-                _props.Children.Add(Ui.Note(T("この選択肢の中身は、木で下の「出す条件」「手順」を選んで足す", "To fill this choice, select its \"Show if\" or \"Steps\" below it in the tree")));
+                _props.Children.Add(Ui.Note(T("木の「この選択肢を出す条件」や「選んだら」を選ぶと、中の項目を追加できます。", "Select this choice's condition or If picked branch in the tree to add entries.")));
+                break;
+            case EventCase c:
+                CaseProps(c);
                 break;
             case StepList sl:
                 _props.Children.Add(Ui.Heading(sl.Label));
-                _props.Children.Add(Palette(T("ここに足す", "Add here"), StepButtons(), open: true));
+                AddListButtons(sl.Steps);
                 break;
             case CondList cl:
                 _props.Children.Add(Ui.Heading(cl.Label));
                 _props.Children.Add(Ui.Note(T("条件がすべて合うときだけ起こる(条件なしなら、いつでも)", "Happens only when all conditions match (always, if there are none)")));
-                _props.Children.Add(Palette(T("ここに条件を足す", "Add a condition here"), CondButtons(), open: true));
+                _props.Children.Add(Ui.Button(T("＋ 条件を追加", "+ Add condition"), () => AddCondition("flag")));
                 break;
             default:
                 if (SelectedStandard is { } std) StandardProps(std);
@@ -533,60 +656,149 @@ public sealed class EventsTab : IEditorTab
         }
     }
 
-    /// <summary>足せる部品のボタンの束(open なら最初から開く。部品を選んでいるときは、たたんで出す)。</summary>
-    private static UIElement Palette(string title, UIElement buttons, bool open)
+    private void AddListButtons(List<EventStep> steps)
     {
-        var box = new Expander { Header = title, IsExpanded = open, Content = buttons, Margin = new Thickness(0, 12, 0, 0), FontWeight = FontWeights.SemiBold };
-        if (buttons is FrameworkElement fe) fe.SetValue(Control.FontWeightProperty, FontWeights.Normal);
-        return box;
+        _props.Children.Add(AddFlowButton(T("＋ 先頭に項目を追加", "+ Add item at start"), steps, first: true));
+        if (steps.Count > 0) _props.Children.Add(AddFlowButton(T("＋ 最後に項目を追加", "+ Add item at end"), steps));
     }
 
-    /// <summary>手順を足す: まず組を選び、その組の部品を選ぶと説明が出て、「足す」で選んでいるところ(枝なら最後、部品ならその後ろ)に足す。</summary>
-    private UIElement StepButtons()
+    // 通常のボタンは空の項目を足して選択。種類を先に決めるメニューは木の右クリック用。
+    private UIElement AddFlowButton(string title, List<EventStep>? into = null, bool first = false)
     {
-        var panel = new StackPanel { Margin = new Thickness(0, 4, 0, 0) };
-        var parts = new ComboBox();
-        var help = new TextBlock { TextWrapping = TextWrapping.Wrap, Foreground = Ui.Dim, Margin = new Thickness(0, 4, 0, 4) };
-        var groups = new ComboBox { ItemsSource = PartNames.StepGroups.Select(g => T(g.Ja, g.En)).ToList(), SelectedIndex = _stepGroup };
-        groups.SelectionChanged += (_, _) =>
+        return Ui.Button(title, () =>
         {
-            if (groups.SelectedIndex < 0) return;
-            _stepGroup = groups.SelectedIndex;
-            parts.ItemsSource = PartNames.Choices(PartNames.StepGroups[_stepGroup].Keys, PartNames.Steps);
-            parts.SelectedIndex = 0;
-        };
-        parts.ItemsSource = PartNames.Choices(PartNames.StepGroups[_stepGroup].Keys, PartNames.Steps);
-        parts.SelectionChanged += (_, _) => help.Text = parts.SelectedItem is Choice c ? StepHelp().GetValueOrDefault(c.Key, "") : "";
-        parts.SelectedIndex = 0;
-        panel.Children.Add(Ui.Row(T("組", "Group"), groups, 80));
-        panel.Children.Add(Ui.Row(T("部品", "Part"), parts, 80));
-        panel.Children.Add(Ui.Row("", help, 80));
-        panel.Children.Add(Ui.Row("", Ui.Button(T("足す", "Add"), () => { if (parts.SelectedItem is Choice c) AddStep(c.Key); }), 80));
-        return panel;
+            if (into != null) _selected = new StepList(title, into);
+            AddStep("", first);
+        });
     }
 
-    /// <summary>手順を足すときに選んでいる組(足したあとも覚えておく)。</summary>
-    private int _stepGroup;
-
-    /// <summary>条件を足す: 種類を選んで「足す」。足した条件を選ぶと、その種類に合った入力が出る。</summary>
-    private UIElement CondButtons()
+    private ContextMenu NodeMenu(object target)
     {
-        var panel = new StackPanel { Margin = new Thickness(0, 4, 0, 0) };
-        string type = "flag";
-        panel.Children.Add(Ui.Row(T("種類", "Type"), Combo(PartNames.Conditions.Keys, type, v => type = v, PartNames.Conditions), 80));
-        panel.Children.Add(Ui.Row("", Ui.Button(T("足す", "Add"), () => AddCondition(type)), 80));
-        return panel;
+        var menu = new ContextMenu();
+        MenuItem ActionItem(string title, Action action)
+        {
+            var item = new MenuItem { Header = title };
+            item.Click += (_, args) => { _selected = target; action(); args.Handled = true; };
+            return item;
+        }
+        void StepsMenu(string title, bool before = false, bool first = false)
+        {
+            var parent = new MenuItem { Header = title };
+            foreach (var group in PartNames.StepGroups)
+            {
+                var category = new MenuItem { Header = T(group.Ja, group.En) };
+                foreach (string key in group.Keys)
+                    category.Items.Add(ActionItem(PartNames.Name(PartNames.Steps, key), () => AddStep(key, first, before)));
+                parent.Items.Add(category);
+            }
+            menu.Items.Add(parent);
+        }
+        void ConditionsMenu(string title, bool before = false)
+        {
+            var parent = new MenuItem { Header = title };
+            foreach (string key in EventCondition.KnownTypes)
+                parent.Items.Add(ActionItem(PartNames.Name(PartNames.Conditions, key), () => AddCondition(key, before)));
+            menu.Items.Add(parent);
+        }
+        switch (target)
+        {
+            case EventStep:
+                StepsMenu(T("前に追加", "Insert before"), before: true);
+                StepsMenu(T("後に追加", "Insert after"));
+                break;
+            case EventCondition:
+                ConditionsMenu(T("前に追加", "Insert before"), before: true);
+                ConditionsMenu(T("後に追加", "Insert after"));
+                break;
+            case EventOption:
+                menu.Items.Add(ActionItem(T("前に追加", "Insert before"), () => AddOption(before: true)));
+                menu.Items.Add(ActionItem(T("後に追加", "Insert after"), () => AddOption()));
+                break;
+            case EventCase c when Current is { } e && FindOwner(e, c) is { } owner && EventBranches.CommonSubject(owner) != null:
+                menu.Items.Add(ActionItem(T("前に追加", "Insert before"), () => AddCase(owner, before: true)));
+                menu.Items.Add(ActionItem(T("後に追加", "Insert after"), () => AddCase(owner)));
+                break;
+            case StepList or IfBranch:
+                StepsMenu(T("先頭に追加", "Insert at start"), first: true);
+                StepsMenu(T("最後に追加", "Insert at end"));
+                break;
+            case CondList:
+                ConditionsMenu(T("条件を追加", "Add condition"));
+                break;
+        }
+        if (target is EventStep or EventCondition or EventOption or EventCase)
+        {
+            if (menu.Items.Count > 0) menu.Items.Add(new Separator());
+            menu.Items.Add(ActionItem(T("削除", "Delete"), RemoveNode));
+        }
+        return menu;
+    }
+
+    // --screenshot 用。実際の右クリックと同じメニュー・ハンドラーを使い、OS のマウスは動かさない。
+    public void MenuForCheck(string path)
+    {
+        if (_selected == null) throw new InvalidOperationException("Select a tree node first.");
+        ItemCollection items = NodeMenu(_selected).Items;
+        MenuItem? chosen = null;
+        foreach (string label in path.Split('/'))
+        {
+            chosen = items.OfType<MenuItem>().Single(i => i.Header as string == label);
+            items = chosen.Items;
+        }
+        chosen!.RaiseEvent(new RoutedEventArgs(MenuItem.ClickEvent));
+    }
+
+    public object StateForCheck()
+    {
+        object[] Tree(ItemCollection items) => items.OfType<TreeViewItem>().Select(i => (object)new
+        {
+            text = (i.Header as TextBlock)?.Text, selected = i.IsSelected, tag = i.Tag.GetType().Name, children = Tree(i.Items),
+        }).ToArray();
+        object[] Menu(ItemCollection items) => items.OfType<MenuItem>().Select(i => (object)new { text = i.Header, children = Menu(i.Items) }).ToArray();
+        return new { tree = Tree(_tree.Items), menu = _selected == null ? [] : Menu(NodeMenu(_selected).Items) };
     }
 
     private UIElement OptionButton(bool choice) =>
-        new StackPanel { Margin = new Thickness(0, 12, 0, 0), Children = { Ui.Button(choice ? T("選択肢をもう1つ足す", "Add another choice") : T("候補をもう1つ足す", "Add another option"), AddOption) } };
+        new StackPanel { Margin = new Thickness(0, 12, 0, 0), Children = { Ui.Button(choice ? T("選択肢をもう1つ足す", "Add another choice") : T("候補をもう1つ足す", "Add another option"), () => AddOption()) } };
 
     private void EventProps(EventDef e)
     {
         _props.Children.Add(Ui.Heading(T("イベント", "Event")));
+        var own = new CheckBox { Content = T("このイベント専用のフラグを持つ(配置は1か所)", "Own a flag (one map location)"), IsChecked = e.OwnFlag != null };
+        own.Click += (_, _) =>
+        {
+            if (own.IsChecked == true)
+            {
+                if (EventAuthoring.Locations(_context.Pack!, "event:" + e.Id).Count > 1)
+                {
+                    MessageBox.Show(T("複数箇所に置いてあります。配置を1か所にするか、イベントを複製して分けてください。", "This event is placed more than once. Keep one placement or duplicate the event first."));
+                    own.IsChecked = false; return;
+                }
+                e.OwnFlag = EventAuthoring.NewId(_context.Pack!, "flag", _context.BaseData.Events.Values);
+            }
+            else e.OwnFlag = null; // 流れの既存の参照は残し、共通フラグとして扱う
+            Changed(); ShowProps();
+        };
+        _props.Children.Add(own);
+        if (e.OwnFlag != null)
+        {
+            _props.Children.Add(Ui.Note(T("流れで「このイベントのフラグ」をON/OFFにします。チェックだけではONになりません。", "Set this event's flag ON/OFF in its flow. Checking this box does not turn it on.")));
+            var existing = EventAuthoring.FlagNames(e).Where(f => f != e.OwnFlag && !EventFlagsUi.Events(_context).Any(x => x != e && x.OwnFlag == f)).ToList();
+            if (existing.Count > 0)
+            {
+                var reuse = new ComboBox { ItemsSource = existing };
+                _props.Children.Add(new Expander { Header = T("既存のフラグを専用として使う", "Use an existing flag"), Content = new StackPanel { Children = { reuse,
+                    Ui.Button(T("この名前を引き継ぐ", "Keep this flag ID"), () => { if (reuse.SelectedItem is string flag) { e.OwnFlag = flag; Changed(); ShowProps(); } }) } } });
+            }
+        }
+        foreach (var set in _context.Pack!.EventSets.Where(s => s.Parts.Any(p => p.Kind == "event" && p.Target == e.Id)))
+        {
+            int total = set.Parts.Count(p => p.Place), placed = set.Parts.Count(p => p.Place && EventAuthoring.Locations(_context.Pack, p.Mark).Count == 1);
+            _props.Children.Add(Ui.Note(T($"セット: {Name(set.Name) ?? set.Id} / 仕掛け: {Name(set.Kind) ?? "—"} / 配置 {placed}/{total}", $"Set: {Name(set.Name) ?? set.Id} / Kind: {Name(set.Kind) ?? "—"} / Placed {placed}/{total}")));
+        }
         var id = Ui.Text(e.Id, _ => { });
         id.LostFocus += (_, _) => RenameEvent(e, id.Text.Trim());
-        _props.Children.Add(Ui.Row("id", id, 90));
+        _props.Children.Add(new Expander { Header = T("詳細(内部ID)", "Details (internal ID)"), Content = Ui.Row("id", id, 90) });
         // 名前(一覧に出す。町のイベントでは、町で選ぶときの題にもなる)。空なら、メモか最初の文を名前の代わりに出す
         _props.Children.Add(Ui.Row(T("名前", "Name"), Ui.Localized(e.Title, v => { e.Title = v; Changed(false); RefreshNames(); }), 90));
         _props.Children.Add(Ui.Row("", Ui.Note(T("一覧に出す名前。町のイベントでは、町で選ぶときの題にもなる。空ならメモか最初の文を出す",
@@ -628,12 +840,135 @@ public sealed class EventsTab : IEditorTab
         else _props.Children.Add(Ui.Note(T("散らさないイベントは、迷宮のタブの「イベントの印」でマスに置く", "Events that are not scattered are placed on cells with the \"event mark\" in the Maze tab")));
     }
 
+    private EventStep? _typePickerStep;
+    private int _typePickerGroup = -1;
+
     private void StepProps(EventStep s)
     {
-        _props.Children.Add(Ui.Heading(T("流れ: ", "Flow: ") + PartNames.Name(PartNames.Steps, s.Type)));
-        _props.Children.Add(Ui.Row(T("種類", "Type"), Combo(EventStep.KnownTypes, s.Type, v => { s.Type = v; Changed(); ShowProps(); }, PartNames.Steps), 110));
-        if (StepHelp().GetValueOrDefault(s.Type) is { Length: > 0 } help) _props.Children.Add(Ui.Note(help));
+        string visibleType = s.Type switch { "world_doc" => "text", "unflag" => "flag", _ => s.Type };
+        _props.Children.Add(Ui.Heading(T("項目: ", "Item: ") + (s.Type == "cases" && s.Cases.Count > 0 && EventBranches.CommonSubject(s) == null
+            ? T("条件を順に調べる(従来形式)", "First matching condition (legacy)") : s.Type.Length == 0 ? T("未設定", "Unconfigured") : PartNames.Name(PartNames.Steps, visibleType))));
+        if (!ReferenceEquals(_typePickerStep, s))
+        {
+            _typePickerStep = s;
+            _typePickerGroup = Array.FindIndex(PartNames.StepGroups, g => g.Keys.Contains(visibleType));
+        }
+        var groups = PartNames.StepGroups.Select((g, i) => new Choice(i.ToString(), T(g.Ja, g.En))).ToList();
+        var groupBox = new ComboBox { ItemsSource = groups, DisplayMemberPath = nameof(Choice.Label), SelectedIndex = _typePickerGroup };
+        System.Windows.Automation.AutomationProperties.SetAutomationId(groupBox, "item-category");
+        groupBox.SelectionChanged += (_, _) => { _typePickerGroup = groupBox.SelectedIndex; ShowProps(); };
+        _props.Children.Add(Ui.Row(T("分類", "Category"), groupBox, 110));
+        if (_typePickerGroup < 0)
+        {
+            _props.Children.Add(Ui.Note(T("分類と種類を選んで、この項目の内容を設定してください。未設定の項目は検査でエラーになります。", "Choose a category and type to configure this item. Unconfigured items fail validation.")));
+            return;
+        }
+        var typeBox = Combo(PartNames.StepGroups[_typePickerGroup].Keys, visibleType, v =>
+        {
+            if (v == visibleType) return;
+            if (s.Type == "if" && v == "cases") { ConvertBranch(s, true); return; }
+            if (s.Type == "cases" && v == "if") { ConvertBranch(s, false); return; }
+            if (v is "text" or "choice") s.Text ??= LocalizedText.Of("", "");
+            if (v == "choice" && s.Options.Count == 0) s.Options.Add(new() { Label = LocalizedText.Of("", "") });
+            if (v == "random" && s.Options.Count == 0) s.Options.AddRange([new(), new()]);
+            if (v == "cases" && s.Cases.Count == 0) s.Cases.Add(new() { When = [new() { Type = "counter", Op = "<=", Value = 10 }] });
+            s.Type = v; Changed(); ShowProps();
+        }, PartNames.Steps);
+        System.Windows.Automation.AutomationProperties.SetAutomationId(typeBox, "item-type");
+        _props.Children.Add(Ui.Row(T("種類", "Type"), typeBox, 110));
+        // 別分類を眺めている間は、元の項目の入力欄を混ぜない。種類を選ぶまではデータを変えない。
+        if (!PartNames.StepGroups[_typePickerGroup].Keys.Contains(visibleType)) return;
+        if (s.Type is "text" or "world_doc")
+            _props.Children.Add(Ui.Row(T("表示する文章", "Text source"), Radio(
+                [("text", T("直接入力", "Enter text")), ("world_doc", T("物語の文章", "Story text"))], s.Type,
+                v => { s.Type = v; if (v == "text") s.Text ??= LocalizedText.Of("", ""); }, rebuild: true), 110));
+        if (!(s.Type == "cases" && s.Cases.Count > 0 && EventBranches.CommonSubject(s) == null)
+            && StepHelp().GetValueOrDefault(s.Type) is { Length: > 0 } help) _props.Children.Add(Ui.Note(help));
+        if (s.Type == "if")
+        {
+            EditConditions(s.When);
+            AddListButtons(s.Then);
+            _props.Children.Add(Ui.Button(T("値で分ける(cases)に変換", "Convert to cases"), () => ConvertBranch(s, true)));
+        }
+        if (s.Type == "cases")
+        {
+            CasesProps(s);
+            _props.Children.Add(Ui.Button(T("条件分岐(if)に変換", "Convert to conditional branches (if)"), () => ConvertBranch(s, false)));
+        }
         foreach (var (label, editor) in StepFieldsFor(s)) _props.Children.Add(Ui.Row(label, editor, 110));
+    }
+
+    private static readonly string[] CaseTypes = EventCondition.KnownTypes.Where(t => t != "chance").ToArray();
+    private string SubjectText(EventCondition c) => c.Type switch
+    {
+        "flag" => EventFlagsUi.Label(_context, c.Id),
+        "counter" => c.Id ?? T("変数(未選択)", "Variable (not selected)"),
+        "timer" or "done" => EventFlagsUi.Events(_context).FirstOrDefault(e => e.Id == c.Id)?.Title?.Get(Loc.Lang) ?? c.Id ?? T("イベント(未選択)", "Event (not selected)"),
+        "item" or "equipped" => ItemChoices().FirstOrDefault(x => x.Key == c.Id)?.Label ?? c.Id ?? T("品(未選択)", "Item (not selected)"),
+        _ => PartNames.Name(PartNames.Conditions, c.Type),
+    };
+
+    private void AddCase(EventStep s, bool before = false)
+    {
+        var subject = EventBranches.CommonSubject(s);
+        if (s.Cases.Count > 0 && subject == null) return;
+        var branch = new EventCase { When = [subject == null ? new() { Type = "counter", Op = "<=", Value = 10 } : EventAuthoring.Copy(subject)] };
+        int at = _selected is EventCase selected && s.Cases.Contains(selected) ? s.Cases.IndexOf(selected) + (before ? 0 : 1) : s.Cases.Count;
+        s.Cases.Insert(at, branch);
+        _selected = branch;
+        Changed();
+        ShowProps();
+    }
+
+    private void CasesProps(EventStep s)
+    {
+        var subject = EventBranches.CommonSubject(s);
+        if (s.Cases.Count == 0)
+        {
+            _props.Children.Add(Ui.Button(T("＋ 最初の場合を追加", "+ Add first case"), () => AddCase(s)));
+            return;
+        }
+        if (subject == null || !CaseTypes.Contains(subject.Type))
+        {
+            _props.Children.Add(Ui.Note(T("異なる対象や複数の条件を含む従来形式です。中身は保持しています。「条件分岐(if)に変換」で編集できます。", "This legacy branch contains mixed subjects or conditions. Its data is preserved. Convert to if branches to edit it.")));
+            return;
+        }
+        _props.Children.Add(Ui.Row(T("何を調べる?", "Check what?"), Combo(CaseTypes, subject.Type, type =>
+        {
+            foreach (var branch in s.Cases) branch.When = [new() { Type = type }];
+            Changed(); ShowProps();
+        }, PartNames.Conditions), 110));
+        if (EventBranches.HasTargetId(subject.Type))
+        {
+            UIElement field = subject.Type == "flag"
+                ? EventFlagsUi.Picker(_context, Current, subject.Id, id => { foreach (var b in s.Cases) b.When[0].Id = id; }, () => Changed())
+                : IdCombo(subject.Type == "counter" ? Known("counter") : subject.Type is "item" or "equipped" ? ItemChoices() : EventChoices(maze: false),
+                    subject.Id, id => { foreach (var b in s.Cases) b.When[0].Id = id; });
+            _props.Children.Add(Ui.Row(T("対象", "Subject"), field, 110));
+        }
+        _props.Children.Add(Ui.Note(T("対象はすべての場合で共通です。種類を変えると各場合の比較条件を初期化します。比べ方と値は木で場合を選んで編集します。", "All cases share this subject. Changing its type resets their comparisons. Select a case to edit its comparison and value.")));
+        _props.Children.Add(Ui.Button(T("＋ 場合を追加", "+ Add case"), () => AddCase(s)));
+    }
+
+    private void CaseProps(EventCase branch)
+    {
+        if (Current is not { } e || FindOwner(e, branch) is not { } owner) return;
+        _props.Children.Add(Ui.Heading(T($"場合 {owner.Cases.IndexOf(branch) + 1}", $"Case {owner.Cases.IndexOf(branch) + 1}")));
+        if (EventBranches.CommonSubject(owner) is { } subject && CaseTypes.Contains(subject.Type))
+        {
+            var c = branch.When[0];
+            _props.Children.Add(Ui.Note(T("調べる対象: ", "Subject: ") + SubjectText(subject)));
+            foreach (var (label, editor) in CondFields(c, comparisonOnly: true)) _props.Children.Add(Ui.Row(label, editor, 110));
+            if (c.Type != "flag") _props.Children.Add(Check(T("合わないとき(〜でない)", "When it does not match"), c.Not, v => c.Not = v));
+            _props.Children.Add(Ui.Button(T("＋ 場合をもう1つ追加", "+ Add another case"), () => AddCase(owner)));
+        }
+        else
+        {
+            _props.Children.Add(Ui.Note(string.Join(T(" かつ ", " and "), branch.When.Select(ConditionText))));
+            _props.Children.Add(Ui.Button(T("条件分岐(if)に変換して編集", "Convert to if branches to edit"), () => ConvertBranch(owner, false)));
+        }
+        AddListButtons(branch.Then);
+        _props.Children.Add(Ui.Button(T("比較対象の設定へ", "Edit shared subject"), () => { _selected = owner; RebuildTree(); ShowProps(); }));
     }
 
     /// <summary>
@@ -680,7 +1015,8 @@ public sealed class EventsTab : IEditorTab
                 break;
             }
             case "flag" or "unflag":
-                yield return (T("フラグ", "Flag"), Id(Known("flag")));
+                yield return (T("フラグ", "Flag"), EventFlagsUi.Picker(_context, Current, s.Id, v => s.Id = v, () => Changed()));
+                yield return (T("状態", "State"), Combo(["ON", "OFF"], s.Type == "flag" ? "ON" : "OFF", v => { s.Type = v == "ON" ? "flag" : "unflag"; Changed(); }));
                 break;
             case "counter" or "counter_set":
                 yield return (T("変数", "Variable"), Id(Known("counter")));
@@ -760,9 +1096,9 @@ public sealed class EventsTab : IEditorTab
                 yield return (T("タイマー", "Timer"), Id(EventChoices(maze: true)));
                 break;
             case "world_doc":
-                yield return (T("どれを見せる", "Which"), Radio([("0", T("場所ごとに抽選", "Drawn per place")), ("n", T("番号で", "By number"))], s.Value > 0 ? "n" : "0",
+                yield return (T("選び方", "Choose by"), Radio([("0", T("場所ごとに選ぶ(毎回同じ)", "Pick per location (always the same)")), ("n", T("文章の番号を指定", "Specify the text number"))], s.Value > 0 ? "n" : "0",
                     v => s.Value = v == "n" ? Math.Max(1, s.Value) : 0, rebuild: true));
-                if (s.Value > 0) yield return (T("何番目", "Number"), Num(s.Value, v => s.Value = v));
+                if (s.Value > 0) yield return (T("文章の番号", "Text number"), Num(s.Value, v => s.Value = v));
                 break;
         }
     }
@@ -872,8 +1208,9 @@ public sealed class EventsTab : IEditorTab
     {
         ["text"] = T("プレイヤーの画面に文章を1つ出す(1画面)。決定を押すと、流れの次へ進む。続けて2つ置けば、2画面に分けて出る。話す人を入れると「話す人: 文」の形になる(空なら地の文)。絵はモンスターを選ぶ。文言のキーは、文の代わりに文言のタブの文を使うとき", "Shows text. With a speaker it reads \"Speaker: line\" (empty: narration). Picture is a monster. A text key uses a line from the Text tab instead"),
         ["choice"] = T("プレイヤーの画面に問いと選択肢を出し、選んだものの「選んだら」の流れへ進む。選択肢を選ぶと「選択肢をもう1つ足す」。出す条件の合わない選択肢は出さない", "A question and choices. Select a choice to add another. Choices whose show-condition fails are hidden"),
-        ["world_doc"] = T("この階の書き付け(AI か世界の文)を1つ見せる。番号でなら、同じ階の2か所に別々のものを出せる。書き付けの無い世界では「でなければ」の手順", "Shows one of this floor's notes. By number, two places on a floor can show different ones. In a world without notes, the else steps run"),
-        ["if"] = T("条件に当てはまれば「条件を満たすとき」、満たさなければ「それ以外の場合」の流れへ。条件は木の「条件」を選んで足す", "Runs then if the conditions match, else otherwise. Add conditions by selecting \"If\" in the tree"),
+        ["world_doc"] = T("「物語」タブ → B1などの階 →「探索中に読む文章 1/2/…」に書いた文章を表示します。使うのはイベントが起きた階の文章です。番号を指定するか、場所ごとに選びます(同じ場所では毎回同じ)。文章がなければ「この階に文章が用意されていないとき」の内容に進みます。", "Displays one of this floor's Exploration texts from the Story tab, such as writing on a wall or a letter found on the floor. Specify its number or pick one per location (always the same at that location). If none are prepared, runs the corresponding fallback branch."),
+        ["if"] = T("条件をすべて満たすと、すぐ下の流れへ。満たさなければ「それ以外の場合」へ。", "When all conditions match, the actions directly below run. Otherwise the alternative branch runs."),
+        ["cases"] = T("同じ対象を上から比べ、最初に合う場合だけに進む。どれにも合わなければ「それ以外」へ。", "Compares the same subject from top to bottom, running only the first match, or Otherwise."),
         ["check"] = T("パーティで一番得意な人が判定する(一人を選んだあとは、その人)。成功と失敗の手順は木で足す", "The member best at it rolls (or the chosen one). Add success and failure steps in the tree"),
         ["random"] = T("候補のどれか1つ(重みで)。候補を選ぶと重みを変えられる", "Picks one of the options by weight. Select an option to change its weight"),
         ["run"] = T("ほかのイベントの流れを、続けて起こす", "Then runs another event's flow"),
@@ -883,7 +1220,7 @@ public sealed class EventsTab : IEditorTab
         ["again"] = T("ここで終わり、一度きりのイベントでも済んだことにしない(立ち去る、など。また来れば起こる)", "Ends here without marking a once-only event as done (walking away, etc.)"),
         ["town"] = T("町へ戻る", "Returns to town"),
         ["ending"] = T("この世界をクリアにして町へ戻り、エンディングを流す(クランにクリアの印が付く)", "Clears this world: returns to town and plays the ending (the clan gets the clear mark)"),
-        ["flag"] = T("フラグを立てる。ほかのイベントの条件「フラグが立っている」で見る", "Sets a flag, checked by the \"Flag is set\" condition"),
+        ["flag"] = T("選んだフラグをONかOFFにする。ほかのイベントからも、このフラグの状態で流れを分けられる", "Turns the selected flag ON or OFF. Other events can branch on its state"),
         ["unflag"] = T("フラグを消す", "Clears a flag"),
         ["counter"] = T("変数に足す(負なら引く)。条件「変数を比べる」で見る", "Adds to a counter (negative subtracts), checked by \"Compare counter\""),
         ["counter_set"] = T("変数に値を代入する", "Sets a counter to a value"),
@@ -914,7 +1251,7 @@ public sealed class EventsTab : IEditorTab
         _props.Children.Add(Ui.Heading(T("条件: ", "Condition: ") + PartNames.Name(PartNames.Conditions, c.Type)));
         _props.Children.Add(Ui.Row(T("種類", "Type"), Combo(PartNames.Conditions.Keys, c.Type, v => { c.Type = v; Changed(); ShowProps(); }, PartNames.Conditions), 110));
         foreach (var (label, editor) in CondFields(c)) _props.Children.Add(Ui.Row(label, editor, 110));
-        _props.Children.Add(Ui.Row("", Check(c.Type switch
+        if (c.Type != "flag") _props.Children.Add(Ui.Row("", Check(c.Type switch
         {
             "flag" => T("立っていないとき", "When it is not set"),
             _ => T("合わないとき(〜でない)", "When it does not match (not)"),
@@ -922,36 +1259,56 @@ public sealed class EventsTab : IEditorTab
         if (CondHelp(c.Type) is { Length: > 0 } help) _props.Children.Add(Ui.Note(help));
     }
 
-    /// <summary>条件の種類ごとの入力(名前と欄)。種類を選ぶと、それに合ったものだけが出る。</summary>
-    private IEnumerable<(string Label, UIElement Editor)> CondFields(EventCondition c)
+    private void EditConditions(List<EventCondition> conditions)
     {
-        UIElement Id(IEnumerable<Choice> choices) => IdCombo(choices, c.Id, v => c.Id = v);
-        UIElement Num(int value, Action<int> set) => Number(value, v => set((int)v));
-        UIElement Op() => Combo([">=", "<=", "==", "!=", ">", "<"], c.Op, v => { c.Op = v; Changed(); }, PartNames.Compare);
+        _props.Children.Add(Ui.Note(T("次の条件をすべて満たすとき。条件なしなら、いつでも。", "All of these conditions must match. No conditions means always.")));
+        foreach (var c in conditions)
+        {
+            var row = new StackPanel { Tag = c, Margin = new Thickness(0, 8, 0, 8) };
+            row.Children.Add(Ui.Row(T($"条件 {conditions.IndexOf(c) + 1}", $"Condition {conditions.IndexOf(c) + 1}"),
+                Combo(PartNames.Conditions.Keys, c.Type, v => { c.Type = v; Changed(); ShowProps(); }, PartNames.Conditions), 85));
+            foreach (var (label, editor) in CondFields(c)) row.Children.Add(Ui.Row(label, editor, 85));
+            if (c.Type != "flag") row.Children.Add(Check(T("合わないとき(〜でない)", "When it does not match"), c.Not, v => c.Not = v));
+            row.Children.Add(Ui.Button(T("この条件を削除", "Remove this condition"), () => { conditions.Remove(c); Changed(); ShowProps(); }));
+            _props.Children.Add(row);
+        }
+        _props.Children.Add(Ui.Button(T("＋ 条件を追加(かつ)", "+ Add condition (and)"), () => AddCondition("flag")));
+    }
+
+    /// <summary>条件の種類ごとの入力(名前と欄)。種類を選ぶと、それに合ったものだけが出る。</summary>
+    private IEnumerable<(string Label, UIElement Editor)> CondFields(EventCondition c, Action? edited = null, bool comparisonOnly = false)
+    {
+        Action update = edited ?? (() => Changed());
+        UIElement Id(IEnumerable<Choice> choices) => IdCombo(choices, c.Id, v => c.Id = v, update);
+        UIElement Num(int value, Action<int> set) => Ui.Text(value.ToString(CultureInfo.InvariantCulture), v => { if (int.TryParse(v, out int n)) { set(n); update(); } });
+        UIElement Op() => Combo([">=", "<=", "==", "!=", ">", "<"], c.Op, v => { c.Op = v; update(); }, PartNames.Compare);
         switch (c.Type)
         {
-            case "flag": yield return (T("フラグ", "Flag"), Id(Known("flag"))); break;
-            case "done": yield return (T("イベント", "Event"), Id(EventChoices(maze: false))); break;
+            case "flag":
+                if (!comparisonOnly) yield return (T("フラグ", "Flag"), EventFlagsUi.Picker(_context, Current, c.Id, v => c.Id = v, update));
+                yield return (T("状態", "State"), Combo(["ON", "OFF"], c.Not ? "OFF" : "ON", v => { c.Not = v == "OFF"; update(); }));
+                break;
+            case "done": if (!comparisonOnly) yield return (T("イベント", "Event"), Id(EventChoices(maze: false))); break;
             case "item":
-                yield return (T("品", "Item"), Id(ItemChoices()));
+                if (!comparisonOnly) yield return (T("品", "Item"), Id(ItemChoices()));
                 yield return (T("いくつ以上", "At least"), Num(c.Count, v => c.Count = v));
                 break;
-            case "equipped": yield return (T("品", "Item"), Id(ItemChoices())); break;
+            case "equipped": if (!comparisonOnly) yield return (T("品", "Item"), Id(ItemChoices())); break;
             case "gold": yield return (T("金貨 以上", "Gold at least"), Num(c.Value, v => c.Value = v)); break;
             case "level": yield return (T("誰かがレベル", "Someone at level"), Num(c.Value, v => c.Value = v)); break;
             case "class": yield return (T("クラス", "Class"), Id(_context.BaseData.Classes.Values.Select(x => new Choice(x.Id, Loc.Name(x.Name) ?? x.Id)))); break;
             case "race": yield return (T("種族", "Race"), Id(_context.BaseData.Races.Values.Select(x => new Choice(x.Id, Loc.Name(x.Name) ?? x.Id)))); break;
             case "counter":
-                yield return (T("変数", "Variable"), Id(Known("counter")));
+                if (!comparisonOnly) yield return (T("変数", "Variable"), Id(Known("counter")));
                 yield return (T("比べ方", "Compare"), Op());
                 yield return (T("値", "Value"), Num(c.Value, v => c.Value = v));
                 break;
             case "chance": yield return (T("確率(%)", "Chance (%)"), Num(c.Value, v => c.Value = v)); break;
             case "alive": yield return (T("動ける人数", "Able members"), Num(c.Value, v => c.Value = v)); break;
             case "depth": yield return (T("深さ(%)", "Depth (%)"), Num(c.Value, v => c.Value = v)); break;
-            case "facing": yield return (T("方角", "Direction"), Combo(EventCheck.Facings, c.Id ?? "", v => { c.Id = v; Changed(); }, PartNames.Facings)); break;
-            case "entered": yield return (T("入り方", "Entered by"), Combo(EventCheck.Entries, c.Id ?? "", v => { c.Id = v; Changed(); }, PartNames.Entries)); break;
-            case "zone": yield return (T("区域", "Zone"), Combo(EventCheck.Zones, c.Id ?? "", v => { c.Id = v; Changed(); }, PartNames.Zones)); break;
+            case "facing": yield return (T("方角", "Direction"), Combo(EventCheck.Facings, c.Id ?? "", v => { c.Id = v; update(); }, PartNames.Facings)); break;
+            case "entered": yield return (T("入り方", "Entered by"), Combo(EventCheck.Entries, c.Id ?? "", v => { c.Id = v; update(); }, PartNames.Entries)); break;
+            case "zone": yield return (T("区域", "Zone"), Combo(EventCheck.Zones, c.Id ?? "", v => { c.Id = v; update(); }, PartNames.Zones)); break;
             case "slots": yield return (T("レベル以上", "Level at least"), Num(c.Value, v => c.Value = v)); break;
             case "status":
                 yield return (T("状態", "Condition"), Id(Enum.GetValues<GravewardSpiral.Core.Effects.Condition>()
@@ -963,7 +1320,7 @@ public sealed class EventsTab : IEditorTab
                 break;
             case "cast": yield return (T("呪文", "Spell"), Id(_context.BaseData.Spells.Values.Select(x => new Choice(x.Id, Loc.Name(x.Name) ?? x.Id)))); break;
             case "timer":
-                yield return (T("タイマー", "Timer"), Id(EventChoices(maze: true)));
+                if (!comparisonOnly) yield return (T("タイマー", "Timer"), Id(EventChoices(maze: true)));
                 yield return (T("比べ方", "Compare"), Op());
                 yield return (T("残りの歩数", "Steps left"), Num(c.Value, v => c.Value = v));
                 break;
@@ -989,7 +1346,7 @@ public sealed class EventsTab : IEditorTab
     private string ConditionWord(string id) => new DraftSummary(_context).ConditionName(id);
 
     /// <summary>名前を見せて選べ、新しい id も打てる欄。</summary>
-    private ComboBox IdCombo(IEnumerable<Choice> choices, string? value, Action<string?> set)
+    private ComboBox IdCombo(IEnumerable<Choice> choices, string? value, Action<string?> set, Action? edited = null)
     {
         // 名前のあるものは名前の順に、「名前 (id)」で見せる。打った文字は、一覧のどれか(名前か id)に合えばその id、合わなければ新しい id
         var list = choices.OrderBy(c => c.Label.Length == 0 ? c.Key : c.Label, StringComparer.CurrentCulture).ToList();
@@ -998,8 +1355,9 @@ public sealed class EventsTab : IEditorTab
         box.Text = list.FirstOrDefault(c => c.Key == value)?.Display ?? value ?? "";
         string? KeyOf(string text) =>
             list.FirstOrDefault(c => c.Display == text || c.Key == text || c.Label.Length > 0 && c.Label == text)?.Key ?? Null(text);
-        box.SelectionChanged += (_, _) => { if (box.SelectedItem is Choice c && c.Key != value) { value = c.Key; set(c.Key); Changed(); } };
-        box.LostFocus += (_, _) => { var v = KeyOf(box.Text); if (v != value) { value = v; set(v); Changed(); } };
+        Action update = edited ?? (() => Changed());
+        box.SelectionChanged += (_, _) => { if (box.SelectedItem is Choice c && c.Key != value) { value = c.Key; set(c.Key); update(); } };
+        box.LostFocus += (_, _) => { var v = KeyOf(box.Text); if (v != value) { value = v; set(v); update(); } };
         return box;
     }
 
@@ -1021,8 +1379,7 @@ public sealed class EventsTab : IEditorTab
             foreach (var st in steps)
             {
                 if (st.Id != null && (kind == "flag" ? st.Type is "flag" or "unflag" : st.Type is "counter" or "counter_set")) names.Add(st.Id);
-                Conds(st.When);
-                foreach (var o in st.Options) Conds(o.When);
+                Conds(st.Conditions());
                 foreach (var child in st.Children()) Walk(child);
             }
         }
@@ -1145,9 +1502,14 @@ public sealed class EventsTab : IEditorTab
     private void CopyEvent()
     {
         if (_context.Pack is not { } p || Current is not { } e) return;
-        var copy = Clone(e);
-        copy.Id = e.Id + "_copy";
-        p.Events.Add(copy);
+        if (p.EventSets.FirstOrDefault(s => s.Parts.Any(part => part.Kind == "event" && part.Target == e.Id)) is { } set)
+        {
+            var copied = EventAuthoring.ImportSet(p, set, EventFlagsUi.Events(_context).ToDictionary(x => x.Id),
+                LocalizedText.Of((Name(set.Name) ?? set.Id) + " (copy)", (Name(set.Name) ?? set.Id) + "(コピー)"));
+            _context.MarkEdited(); RefreshList(p.Events.First(x => x.Id == copied.Parts.First(part => part.Kind == "event").Target));
+            return;
+        }
+        var copy = EventAuthoring.DuplicateEvent(p, e, _context.BaseData.Events.Values);
         _context.MarkEdited();
         RefreshList(p.Events[^1]);
     }
@@ -1157,9 +1519,8 @@ public sealed class EventsTab : IEditorTab
         if (_context.Pack is not { } p) return;
         var dialog = new EventPickerWindow(_context.BaseData.Events.Values) { Owner = Application.Current.MainWindow };
         if (dialog.ShowDialog() != true || dialog.Picked is not { } e) return;
-        var copy = Clone(e);
-        copy.Id = p.Events.Any(x => x.Id == e.Id) ? e.Id + "_copy" : e.Id;
-        p.Events.Add(copy);
+        if (p.Events.Any(x => x.Id == e.Id)) EventAuthoring.DuplicateEvent(p, e, _context.BaseData.Events.Values);
+        else p.Events.Add(Clone(e));
         _context.MarkEdited();
         RefreshList(p.Events[^1]);
     }

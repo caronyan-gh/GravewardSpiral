@@ -914,24 +914,40 @@
     "place": "town",
     "steps": [
       {
-        "type": "if",
+        "type": "cases",
         "per_place": false,
-        "when": [
-          {
-            "type": "flag",
-            "id": "has_spiral_heart",
-            "value": 1,
-            "count": 1,
-            "op": ">=",
-            "not": false
-          }
-        ],
-        "then": [
+        "else": [
           {
             "type": "text",
             "text": {
-              "en": "\"...Thank you. Now the spiral can rest.\"",
-              "ja": "「……ありがとう。これで、螺旋は静かになります」"
+              "en": "A girl waits by the cemetery gate. Her warden's coat is far too big for her.",
+              "ja": "町外れの墓地の門の前で、少女が待っていた。墓守の外套は、体に合わないほど大きい。"
+            },
+            "per_place": false,
+            "dc": 10,
+            "value": 0,
+            "count": 1
+          },
+          {
+            "type": "text",
+            "text": {
+              "en": "\"I'm Riine, an apprentice warden. My master went down into the spiral with his lantern, and he hasn't come back.\"",
+              "ja": "「墓守見習いのリーネです。師匠が、角灯を持って螺旋へ下りたまま、戻ってきません」"
+            },
+            "speaker": {
+              "en": "Riine",
+              "ja": "リーネ"
+            },
+            "per_place": false,
+            "dc": 10,
+            "value": 0,
+            "count": 1
+          },
+          {
+            "type": "text",
+            "text": {
+              "en": "\"The dead began spilling out the night he went down. ...Please. Find him.\"",
+              "ja": "「螺旋の死者があふれ始めたのは、師匠が下りた夜からです。……お願いします。師匠を、見つけてください」"
             },
             "speaker": {
               "en": "Riine",
@@ -943,10 +959,40 @@
             "count": 1
           }
         ],
-        "else": [
+        "dc": 10,
+        "value": 0,
+        "count": 1,
+        "cases": [
           {
-            "type": "if",
-            "per_place": false,
+            "when": [
+              {
+                "type": "flag",
+                "id": "has_spiral_heart",
+                "value": 1,
+                "count": 1,
+                "op": ">=",
+                "not": false
+              }
+            ],
+            "then": [
+              {
+                "type": "text",
+                "text": {
+                  "en": "\"...Thank you. Now the spiral can rest.\"",
+                  "ja": "「……ありがとう。これで、螺旋は静かになります」"
+                },
+                "speaker": {
+                  "en": "Riine",
+                  "ja": "リーネ"
+                },
+                "per_place": false,
+                "dc": 10,
+                "value": 0,
+                "count": 1
+              }
+            ]
+          },
+          {
             "when": [
               {
                 "type": "flag",
@@ -1003,109 +1049,53 @@
                 "value": 0,
                 "count": 1
               }
-            ],
-            "else": [
+            ]
+          },
+          {
+            "when": [
               {
-                "type": "if",
+                "type": "flag",
+                "id": "a_found_remains",
+                "value": 1,
+                "count": 1,
+                "op": ">=",
+                "not": false
+              }
+            ],
+            "then": [
+              {
+                "type": "text",
+                "text": {
+                  "en": "\"That lantern... it's my master's.\"",
+                  "ja": "「その角灯……師匠のです」"
+                },
+                "speaker": {
+                  "en": "Riine",
+                  "ja": "リーネ"
+                },
                 "per_place": false,
-                "when": [
-                  {
-                    "type": "flag",
-                    "id": "a_found_remains",
-                    "value": 1,
-                    "count": 1,
-                    "op": ">=",
-                    "not": false
-                  }
-                ],
-                "then": [
-                  {
-                    "type": "text",
-                    "text": {
-                      "en": "\"That lantern... it's my master's.\"",
-                      "ja": "「その角灯……師匠のです」"
-                    },
-                    "speaker": {
-                      "en": "Riine",
-                      "ja": "リーネ"
-                    },
-                    "per_place": false,
-                    "dc": 10,
-                    "value": 0,
-                    "count": 1
-                  },
-                  {
-                    "type": "text",
-                    "text": {
-                      "en": "\"It was beside his body? ...But I don't think it's over. He was heading for the Sealing Chambers.\"",
-                      "ja": "「亡骸のそばにあったんですか。……でも、きっとまだ終わっていない。師匠は、封じの間を目指していたはずです」"
-                    },
-                    "speaker": {
-                      "en": "Riine",
-                      "ja": "リーネ"
-                    },
-                    "per_place": false,
-                    "dc": 10,
-                    "value": 0,
-                    "count": 1
-                  }
-                ],
-                "else": [
-                  {
-                    "type": "text",
-                    "text": {
-                      "en": "A girl waits by the cemetery gate. Her warden's coat is far too big for her.",
-                      "ja": "町外れの墓地の門の前で、少女が待っていた。墓守の外套は、体に合わないほど大きい。"
-                    },
-                    "per_place": false,
-                    "dc": 10,
-                    "value": 0,
-                    "count": 1
-                  },
-                  {
-                    "type": "text",
-                    "text": {
-                      "en": "\"I'm Riine, an apprentice warden. My master went down into the spiral with his lantern, and he hasn't come back.\"",
-                      "ja": "「墓守見習いのリーネです。師匠が、角灯を持って螺旋へ下りたまま、戻ってきません」"
-                    },
-                    "speaker": {
-                      "en": "Riine",
-                      "ja": "リーネ"
-                    },
-                    "per_place": false,
-                    "dc": 10,
-                    "value": 0,
-                    "count": 1
-                  },
-                  {
-                    "type": "text",
-                    "text": {
-                      "en": "\"The dead began spilling out the night he went down. ...Please. Find him.\"",
-                      "ja": "「螺旋の死者があふれ始めたのは、師匠が下りた夜からです。……お願いします。師匠を、見つけてください」"
-                    },
-                    "speaker": {
-                      "en": "Riine",
-                      "ja": "リーネ"
-                    },
-                    "per_place": false,
-                    "dc": 10,
-                    "value": 0,
-                    "count": 1
-                  }
-                ],
+                "dc": 10,
+                "value": 0,
+                "count": 1
+              },
+              {
+                "type": "text",
+                "text": {
+                  "en": "\"It was beside his body? ...But I don't think it's over. He was heading for the Sealing Chambers.\"",
+                  "ja": "「亡骸のそばにあったんですか。……でも、きっとまだ終わっていない。師匠は、封じの間を目指していたはずです」"
+                },
+                "speaker": {
+                  "en": "Riine",
+                  "ja": "リーネ"
+                },
+                "per_place": false,
                 "dc": 10,
                 "value": 0,
                 "count": 1
               }
-            ],
-            "dc": 10,
-            "value": 0,
-            "count": 1
+            ]
           }
-        ],
-        "dc": 10,
-        "value": 0,
-        "count": 1
+        ]
       }
     ],
     "bgm": "audio/bgm/story.mp3",
@@ -1440,7 +1430,7 @@
         "type": "text",
         "text": {
           "en": "\"The old warden's body? Went past it. Didn't touch the lantern. That blue fire's cold when you go near it.\"",
-          "ja": "「墓守の爺さんの亡骸？　通ったさ。角灯には触ってねえ。あの青い火は、近づくと冷てえんだ」"
+          "ja": "「墓守の爺さんの亡骸？\u3000通ったさ。角灯には触ってねえ。あの青い火は、近づくと冷てえんだ」"
         },
         "speaker": {
           "en": "Dagga",

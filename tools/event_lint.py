@@ -27,6 +27,8 @@ def texts(steps):
             yield s
         for k in ("then", "else", "success", "fail", "win", "lose"):
             yield from texts(s.get(k, []))
+        for case in s.get("cases", []):
+            yield from texts(case.get("then", []))
         for o in s.get("options", []):
             if o.get("label"):
                 yield {"type": "label", "text": o["label"], "_owner": o}

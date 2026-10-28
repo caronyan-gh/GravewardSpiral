@@ -4,6 +4,7 @@ using System.Windows.Input;
 using GravewardSpiral.Core.Events;
 using GravewardSpiral.Core.Maze;
 using GravewardSpiral.Core.MazeGen;
+using GravewardSpiral.Core.Save;
 using static GravewardSpiral.Editor.Loc;
 
 namespace GravewardSpiral.Editor.Tabs;
@@ -53,6 +54,7 @@ public sealed class MazeTab : IEditorTab
         left.Children.Add(_floors);
         left.Children.Add(Stack(Ui.Button(T("自動で足す", "Add (generated)"), () => AddFloor(blank: false)), Ui.Button(T("空で足す", "Add (blank)"), () => AddFloor(blank: true))));
         left.Children.Add(Stack(Ui.Button(T("上へ", "Up"), () => MoveFloor(-1)), Ui.Button(T("下へ", "Down"), () => MoveFloor(1)), Ui.Button(T("消す", "Delete"), RemoveFloor)));
+        left.Children.Add(Ui.Button(T("仕掛けのセットを配置…", "Place set parts…"), () => CreateSetsWindow().Show()));
         left.Children.Add(Ui.Heading(T("作り直す", "Regenerate")));
         left.Children.Add(Ui.Row(T("シード", "Seed"), _seed, 60));
         left.Children.Add(Ui.Button(T("この階を自動で作り直す", "Regenerate this floor"), Regenerate, T("同じ大きさで作り直す。ほかの階とつなぐ仕掛けは、検査で確かめる", "Regenerates at the same size. Check links to other floors in the Check tab.")));
@@ -270,7 +272,7 @@ public sealed class MazeTab : IEditorTab
                 break;
             }
             case "solid": MazeEdit.SetFeature(f, p, CellFeature.Solid); break;
-            case "event": c.Mark = EventChoices().FirstOrDefault() is { } ev ? EventPlacer.MarkPrefix + ev.Key : null; break;
+            case "event": c.Mark = EventPlacer.MarkPrefix; break; // 選ぶ前に先頭のイベントを勝手に置かない
             case "boss": c.Mark = "boss:"; break;   // どのボスかは、下の欄で選ぶ(はじめは空)
             case "key": c.Mark = "key"; break;
             case "message": c.Mark = "message:" + (_context.Pack?.Id ?? "scenario") + ".text1"; break;
@@ -440,6 +442,11 @@ public sealed class MazeTab : IEditorTab
         var c = f[p];
         void Marks(Func<string, string> mark, string value)
         {
+            if (kind == "event")
+            {
+                PlaceEvent(value, cells);
+                return;
+            }
             foreach (var x in cells) f[x].Mark = mark(value);
             Edited();
         }
@@ -617,6 +624,38 @@ public sealed class MazeTab : IEditorTab
                 _cellPanel.Children.Add(Ui.Row(T("印", "Mark"), Ui.Text(c.Mark, v => { c.Mark = v.Trim().Length == 0 ? null : v.Trim(); Edited(); }), LabelWidth));
                 break;
         }
+    }
+
+    public EventSetsWindow CreateSetsWindow() => new(_context, location: () =>
+    {
+        var selected = _map.SelectedCells();
+        return selected.Count == 1 ? (Floor, selected[0]) : null;
+    }, placed: () => { Edited(); ShowCell(); });
+
+    private void PlaceEvent(string id, List<GridPos> cells)
+    {
+        if (_context.Pack is not { } pack) return;
+        var e = EventAuthoring.Events(pack, _context.BaseData.Events.Values).FirstOrDefault(e => e.Id == id);
+        bool unique = e?.OwnFlag != null || pack.EventSets.SelectMany(s => s.Parts).Any(p => p.Place && p.Kind == "event" && p.Target == id);
+        if (unique && cells.Count != 1) { MessageBox.Show(T("専用フラグかセットを持つイベントは、マスを1つ選んで置いてください。", "Select one cell for an owned-flag or set event.")); ShowCell(); return; }
+        var other = EventAuthoring.Locations(pack, "event:" + id).Where(at => at.Floor != Floor || !cells.Contains(at.Cell)).ToList();
+        if (unique && other.Count > 0)
+        {
+            var answer = MessageBox.Show(T("配置済みです。\nはい: ここへ移動\nいいえ: 複製して配置(セットの部品はセット管理で一式を複製)\nキャンセル: 変更しない", "Already placed.\nYes: move here\nNo: duplicate (duplicate set parts together in Sets)\nCancel: leave unchanged"), T("イベントの配置", "Place event"), MessageBoxButton.YesNoCancel);
+            if (answer == MessageBoxResult.Cancel) { ShowCell(); return; }
+            if (answer == MessageBoxResult.No)
+            {
+                if (pack.EventSets.SelectMany(s => s.Parts).Any(p => p.Kind == "event" && p.Target == id))
+                {
+                    MessageBox.Show(T("セット管理で一式を複製してから配置してください。", "Duplicate the entire set in Sets, then place its parts.")); ShowCell(); return;
+                }
+                if (e == null) return;
+                id = EventAuthoring.DuplicateEvent(pack, e, _context.BaseData.Events.Values).Id;
+            }
+            else foreach (var at in other) pack.Floors[at.Floor][at.Cell].Mark = null;
+        }
+        foreach (var cell in cells) pack.Floors[Floor][cell].Mark = "event:" + id;
+        Edited(); ShowCell();
     }
 
     /// <summary>階の項目(名前・端のつながり)。</summary>
