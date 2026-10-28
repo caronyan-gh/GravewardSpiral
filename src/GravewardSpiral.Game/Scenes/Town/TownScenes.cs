@@ -402,6 +402,7 @@ public sealed class TrainingScene : MenuScene
             yield return new MenuItem(s["training.status"], Tag: "status");
             yield return new MenuItem(s["camp.items"], Tag: "items");
             yield return new MenuItem(s["training.level_up"], c.CanLevelUp ? s["training.can"] : null, Enabled: c.CanLevelUp && c.IsAlive, Tag: "level");
+            if (c.AbilityPoints > 0) yield return new MenuItem(s.Format("training.asi", c.AbilityPoints), Enabled: c.IsAlive, Tag: "asi");
             if (c.EpicPoints > 0) yield return new MenuItem(s.Format("training.boon", c.EpicPoints), Tag: "boon");
             // 呪文は術者のクラスごと(マルチクラスでは、選ぶ画面で左右にクラスを切り替える)
             var casters = Spellcasting.CasterClasses(Services.Data, c).ToList();
@@ -424,7 +425,7 @@ public sealed class TrainingScene : MenuScene
             if (Roster.Away.TryGetValue(ch.Id, out var where))
                 yield return new MenuItem(ch.Name, s.Format("roster.away", Services.ScenarioDisplayName(where.StartsWith("free-") ? null : where)), Enabled: false, Tag: ch);
             else
-                yield return new MenuItem(ch.Name, $"{Services.Name(Services.Data.Classes[ch.ClassId].Name)} Lv{ch.Level}{(ch.CanLevelUp ? " ↑" : "")}", Tag: ch);
+                yield return new MenuItem(ch.Name, $"{Services.Name(Services.Data.Classes[ch.ClassId].Name)} Lv{ch.Level}{(ch.CanLevelUp || ch.AbilityPoints > 0 ? " ↑" : "")}", Tag: ch);
         }
         yield return new MenuItem(s["training.export_clan"], Enabled: Roster.Characters.Count > 0, Tag: "export");
         yield return new MenuItem(s["common.back"], Tag: "back");
@@ -486,7 +487,10 @@ public sealed class TrainingScene : MenuScene
                 Stack.Push(new InventoryScene(_selected!));
                 break;
             case "boon":
-                Stack.Push(new BoonScene(_selected!));
+                Stack.Push(new BoonScene(_selected!, Refresh));
+                break;
+            case "asi":
+                Stack.Push(new AbilityIncreaseScene(_selected!, Refresh));
                 break;
             case "cantrips":
                 Stack.Push(new SpellPickScene(_selected!, SpellPickScene.Kind.Cantrips));
@@ -513,6 +517,7 @@ public sealed class TrainingScene : MenuScene
                     int before = who.MaxHp;
                     who.LevelUp(Services.Data, cls.Id, maxLevels: 1);
                     Message = s.Format("training.leveled_class", who.Name, Services.Name(cls.Name), who.LevelIn(cls.Id), who.MaxHp - before);
+                    if (who.AbilityPoints > 0) Message += "\n" + s.Format("training.asi_ready", who.AbilityPoints);
                     Services.Audio.PlaySe(Audio.Sounds.LevelUp);
                     if (!who.CanLevelUp) _pickingClass = false;
                     List.SetItems(Items(), 0);

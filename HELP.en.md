@@ -148,6 +148,8 @@ Checks use an ability modifier calculated as (score - 10) divided by 2, rounded 
 
 At creation, assign the standard values (15, 14, 13, 12, 10, 8) or use point buy. Ability scores are not rolled randomly. Starting gold depends on the class.
 
+At class levels 4, 8, 12, 16 and 19 (fighters also at 6 and 14, rogues at 10), gain 2 ability points. At the training grounds, choose "Raise Ability Scores" to add 1 to a score per point (up to 20). Points can be saved, so you can use them to meet multiclass requirements. Raising your Constitution modifier also raises your max HP by your level.
+
 ### Races and classes
 
 The nine races are Human, Elf, Dwarf, Halfling, Gnome, Half-Elf, Half-Orc, Tiefling, and Dragonborn. There are twelve classes.
@@ -685,7 +687,15 @@ This game adapts the D&D 5th edition SRD 5.1 for dungeon exploration. These are 
 - Sorcerer: The only Metamagic option spends one sorcery point to reroll low spell damage dice. Sorcery points and spell slots cannot be converted into each other.
 - Warlock: Invocations are learned automatically at fixed levels. There is no invocation or Pact Boon selection.
 - Multiclassing: Gain all weapon and armor proficiencies of each new class you take.
+- Ability Score Improvements and feats: Gain 2 points at class levels 4, 8, 12, 16 and 19 (fighters also at 6 and 14, rogues at 10) and spend them one at a time at the training grounds. There are no feats (the only SRD 5.1 feat is for grappling, which this game does not have).
 - Level cap: Total character level has no cap. From level 21 onward, gain an epic boon with each level.
+
+### Combat
+
+- Reactions: Reactions such as Counterspell, Deflect Missiles and Uncanny Dodge are used automatically when they apply. You do not choose whether to use them.
+- Dodge: Attacks against you have disadvantage. It does not give advantage on Dexterity saves.
+- Action Surge: Make one more set of weapon attacks. It cannot be used to cast another spell.
+- Bardic Inspiration: The die is used automatically, and spent, only when it would turn a failed attack or save into a success.
 
 ### Exploration and equipment
 

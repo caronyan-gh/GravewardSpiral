@@ -126,6 +126,43 @@ public sealed class Character
         return true;
     }
 
+    /// <summary>
+    /// 能力値上昇で上げた能力値(1点ごとに1つ。str〜cha)。5版どおり、クラスのレベル 4・8・12・16・19(ファイターは 6・14、
+    /// ローグは 10 も)で2点ずつ得て、訓練場で振る。能力値は 20 まで。
+    /// </summary>
+    public List<string> AbilityIncreases { get; set; } = [];
+
+    public const int MaxIncreasedScore = 20;
+
+    /// <summary>まだ振っていない能力値上昇の点。</summary>
+    public int AbilityPoints => 2 * Classes.Sum(x => ClassFeatures.AbilityIncreaseCount(x.ClassId, x.Level)) - AbilityIncreases.Count;
+
+    /// <summary>能力値上昇の点を1つ振る(その能力値 +1)。振れなければ false。耐久力の修正値が上がれば、最大 HP もレベルの分上がる。</summary>
+    public bool IncreaseAbility(Ability a)
+    {
+        if (AbilityPoints <= 0 || Scores[a] >= MaxIncreasedScore) return false;
+        int conBefore = Scores.Mod(Ability.Con);
+        AbilityIncreases.Add(a.Code());
+        Scores[a]++;
+        if (a == Ability.Con && Scores.Mod(Ability.Con) > conBefore)
+        {
+            MaxHp += Level;
+            if (IsAlive) Hp += Level;
+        }
+        return true;
+    }
+
+    /// <summary>能力値上昇の点を、おまかせで全部振る(ボット・確認用の起動)。クラスの主な能力値、耐久力、敏捷力の順に 20 まで。</summary>
+    public void AutoIncreaseAbilities(GameData data)
+    {
+        var order = data.Classes[ClassId].PrimaryAbilities.Concat([Ability.Con, Ability.Dex]).Concat(Abilities.All).Distinct().ToList();
+        while (AbilityPoints > 0)
+        {
+            var a = order.FirstOrDefault(x => Scores[x] < MaxIncreasedScore, (Ability)(-1));
+            if ((int)a < 0 || !IncreaseAbility(a)) break;
+        }
+    }
+
     /// <summary>武器のダメージに足す値(装備の damage の修正値と、エピックの恩恵)。</summary>
     public int DamageBonus(GameData data) => PassiveBonus(data, "damage") + EpicBoons.Count(b => b == "damage");
 
@@ -466,6 +503,7 @@ public static class CharacterFactory
         {
             c.Xp = Progression.XpForLevel(level);
             c.LevelUp(data);
+            c.AutoIncreaseAbilities(data);
         }
         return c;
     }

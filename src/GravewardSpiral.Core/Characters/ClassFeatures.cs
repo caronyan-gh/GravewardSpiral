@@ -51,6 +51,18 @@ public static class ClassFeatures
     /// <summary>そのクラスのレベル(持っていなければ 0)。</summary>
     public static int Level(Character c, string classId) => c.LevelIn(classId);
 
+    /// <summary>そのクラスのレベルまでに得た能力値上昇の回数(5版どおり。ファイターは 6・14、ローグは 10 にもある)。</summary>
+    public static int AbilityIncreaseCount(string classId, int level)
+    {
+        int[] at = classId switch
+        {
+            "fighter" => [4, 6, 8, 12, 14, 16, 19],
+            "rogue" => [4, 8, 10, 12, 16, 19],
+            _ => [4, 8, 12, 16, 19],
+        };
+        return at.Count(x => level >= x);
+    }
+
     /// <summary>そのクラスを持っていて、レベルが足りているか。</summary>
     public static bool Has(Character c, string classId, int level) => level > 0 && Level(c, classId) >= level;
 

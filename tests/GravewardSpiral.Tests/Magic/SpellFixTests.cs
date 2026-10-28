@@ -98,6 +98,22 @@ public class SpellFixTests
     }
 
     [Fact]
+    public void TheFollowUpAttackUsesNoSecondBonusAction()
+    {
+        // セカンド・ウィンド(ボーナスアクション)のあとの攻撃では、武術の素手の一撃(もう1つのボーナスアクション)をしない
+        var c = CharacterFactory.QuickCreate(Data, "T", "human", "monk", 4);
+        c.Classes.Add(new ClassLevel { ClassId = "fighter", Level = 1 });
+        c.Level = 5;
+        c.Hp = 5;
+        var engine = new CombatEngine(Data, new Pcg32(4, 4));
+        var s = engine.Start([c], [(Data.Monsters["ogre"], 1)]);
+        s.Surprised = null;
+        s.Groups[0].Units[0].Conditions.Add(new ActiveCondition { Condition = Condition.Incapacitated });
+        engine.RunRound(s, new Dictionary<string, PlayerCommand> { [c.Id] = new(CommandKind.Feature, 0, FeatureId: "second_wind") });
+        Assert.Equal(1, s.Log.Count(l => l.Key is "combat.hit" or "combat.crit" or "combat.miss"));
+    }
+
+    [Fact]
     public void ChainLightningHitsAtMostFour()
     {
         var c = CharacterFactory.QuickCreate(Data, "T", "human", "wizard", 11);

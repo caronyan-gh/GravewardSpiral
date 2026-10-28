@@ -210,6 +210,7 @@ public sealed class CampaignSim
             if (c.CanLevelUp)
             {
                 c.LevelUp(_data);
+                c.AutoIncreaseAbilities(_data);
                 Spellcasting.AutoPick(_data, c);
             }
             c.LongRest();

@@ -200,6 +200,14 @@ public static class DebugStart
             c.Xp = Core.Rules.Progression.XpForLevel(c.Level + 1);   // 訓練場のレベルアップ(上げるクラスを選ぶ)を試せるように
             foreach (var it in Core.Items.Treasure.RollMany(services.Data, s, 0.5, 2, rng)) c.Inventory.TryAdd(it, services.Data.Items);
         }
+        // 先頭の人は L3 にして、L4 に上げられる経験値を持たせる(能力値上昇を試せるように)
+        var lead = session.Roster.PartyMembers.First();
+        if (lead.Level < 3)
+        {
+            lead.Xp = Core.Rules.Progression.XpForLevel(3);
+            lead.LevelUp(services.Data);
+            lead.Xp = Core.Rules.Progression.XpForLevel(4);
+        }
         // 重ねた品(売る個数や渡す個数を試せるように)
         session.Roster.PartyMembers.First().Inventory.TryAdd(new Core.Items.ItemInstance { ItemId = "potion_of_healing", Count = 10, Identified = true }, services.Data.Items);
         services.Scenes.Replace(new Town.TownScene());

@@ -15,6 +15,8 @@ Checks use an ability modifier calculated as (score - 10) divided by 2, rounded 
 
 At creation, assign the standard values (15, 14, 13, 12, 10, 8) or use point buy. Ability scores are not rolled randomly. Starting gold depends on the class.
 
+At class levels 4, 8, 12, 16 and 19 (fighters also at 6 and 14, rogues at 10), gain 2 ability points. At the training grounds, choose "Raise Ability Scores" to add 1 to a score per point (up to 20). Points can be saved, so you can use them to meet multiclass requirements. Raising your Constitution modifier also raises your max HP by your level.
+
 ## Races and classes
 
 The nine races are Human, Elf, Dwarf, Halfling, Gnome, Half-Elf, Half-Orc, Tiefling, and Dragonborn. There are twelve classes.

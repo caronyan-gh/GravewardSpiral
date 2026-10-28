@@ -1260,7 +1260,7 @@ public sealed class CombatEngine(GameData data, IRandom rng)
         }
         if (reach.Count > 0)
         {
-            PlayerAttack(s, p, Target(reach));
+            PlayerAttack(s, p, Target(reach), bonusAction: false);   // ボーナスアクションはもう使った(二刀流・武術の打撃はしない)
             return;
         }
         p.Dodging = true;
