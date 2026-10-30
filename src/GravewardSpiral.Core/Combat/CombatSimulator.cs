@@ -132,7 +132,7 @@ public static class CombatSimulator
         {
             if (x.IsCantrip) return 0;
             if (x.Scale != "slot") return Spellcasting.LowestSlot(data, c, x);
-            for (int lv = 9; lv >= x.Level; lv--)
+            for (int lv = 9; lv >= Spellcasting.AssignedLevel(data, c, x); lv--)   // クラスで割り当てたレベルのスロットまで(並べ方の強さは、もとのレベルのまま)
             {
                 if (Spellcasting.SlotsLeft(data, c, lv) > 0) return lv;
             }
@@ -182,7 +182,7 @@ public static class CombatSimulator
         // ダメージ: 当たる数 × 平均のダメージが一番大きいもの(初級呪文の 1.5 倍に届かなければ、スロットは使わない)
         double Value(SpellDef x, int slot, int g)
         {
-            int level = x.Scale == "character" ? c.Level : slot;
+            int level = x.Scale == "character" ? c.Level : Spellcasting.EffectLevel(data, c, x, slot);   // クラスで割り当てたレベルから上の分だけ強い
             double each = 0;
             foreach (var e in x.Effects)
             {
@@ -219,7 +219,7 @@ public static class CombatSimulator
                 var atk = beast.Actions.Where(a => a.IsAttack).OrderByDescending(a => a.ToHit).FirstOrDefault();
                 if (atk == null) continue;
                 double hit = atk.Effects.Where(e => e.Type == EffectPart.Damage && e.Dice != null).Sum(e => Rules.DiceExpression.Parse(e.Dice!.Replace("MOD", "0")).Average);
-                options.Add((x, reach[0].i, slot, x.Summon.CountAt(x.Level, slot) * hit * 0.6 * 3));
+                options.Add((x, reach[0].i, slot, x.Summon.CountAt(x.Level, Spellcasting.EffectLevel(data, c, x, slot)) * hit * 0.6 * 3));
             }
         }
         var cantrip = options.Where(o => o.x.IsCantrip).OrderByDescending(o => o.v).FirstOrDefault();

@@ -108,6 +108,7 @@ public class ProgressionTests
         using var dir = new TestPaths.TempDir();
         dir.Write("p/manifest.json", """{"id": "p", "depends": ["srd"]}""");
         dir.Write("p/features.json", """[{"id": "shout", "kind": "action", "target": "none", "pool": "no_such_pool"}]""");
+        dir.Write("p/classes.json", """[{"id": "t_shouter", "extends": "fighter", "features": [{"id": "shout", "level": 1}]}]""");   // 回数の持ち主は、誰かが持つ技だけ確かめる
         var bad = ContentLibrary.Load(TestPaths.Content, Path.Combine(dir.Path, "p"));
         GameData.Load(bad);
         Assert.Contains(bad.Problems, p => p.Contains("'no_such_pool'"));

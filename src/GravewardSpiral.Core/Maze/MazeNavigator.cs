@@ -106,7 +106,11 @@ public sealed class MazeNavigator
                 State.AutoMap.Record(State);
                 return MoveResult.Moved;
             case CellFeature.Teleporter when cell.Target is { } t:
-                if (!fog) map.Marks[pos.Cell] = CellFeature.Teleporter;
+                if (!fog)
+                {
+                    map.Marks[pos.Cell] = CellFeature.Teleporter;
+                    map.Teleports[pos.Cell] = new WarpTarget(t.Floor is int tf && tf != pos.Floor ? tf : null, t.Cell);   // 飛ばされて分かった行き先(地図に描く)
+                }
                 State.Position = new PartyPosition(t.Floor ?? pos.Floor, t.Cell, pos.Facing);
                 State.AutoMap.Record(State);
                 return MoveResult.Teleported;

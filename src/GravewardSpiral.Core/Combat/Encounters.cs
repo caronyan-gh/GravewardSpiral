@@ -91,8 +91,11 @@ public sealed record MonsterScale(double HpMult, double DamageMult, int AcBonus,
     public static readonly MonsterScale None = new(1, 1, 0, 0);
     public bool IsNone => this == None;
 
-    /// <summary>2つの強化を重ねる(倍率は掛け、上乗せは足す)。</summary>
-    public MonsterScale Times(MonsterScale o) => new(HpMult * o.HpMult, DamageMult * o.DamageMult, AcBonus + o.AcBonus, HitBonus + o.HitBonus);
+    /// <summary>ボスの戦い(bosses.json のボスと、名のある敵)。instant_kill の no_boss が効かない相手。</summary>
+    public bool Boss { get; init; }
+
+    /// <summary>2つの強化を重ねる(倍率は掛け、上乗せは足す。どちらかがボスならボス)。</summary>
+    public MonsterScale Times(MonsterScale o) => new(HpMult * o.HpMult, DamageMult * o.DamageMult, AcBonus + o.AcBonus, HitBonus + o.HitBonus) { Boss = Boss || o.Boss };
 }
 
 /// <summary>決まった遭遇(グループごとのモンスターと数)。</summary>

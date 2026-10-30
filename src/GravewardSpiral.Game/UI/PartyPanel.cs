@@ -8,8 +8,10 @@ namespace GravewardSpiral.Game.UI;
 public static class PartyPanel
 {
     /// <param name="shown">見せる HP と状態(戦闘のログの途中の値)。null ならキャラクターの今の値。</param>
+    /// <param name="fKeys">番号を F1〜F6 にする(そのキーで仲間を切り替えられる画面)。</param>
+    /// <param name="usable">その画面を使える人か(使えない人は名前をグレーにする。呪文の準備で術者でない人など)。</param>
     public static void Draw(Draw2D d, GameServices services, RectangleF area, int? highlight = null,
-        IReadOnlyList<(string Id, int Hp, LifeState State, string? Shape, int Ac)>? shown = null)
+        IReadOnlyList<(string Id, int Hp, LifeState State, string? Shape, int Ac)>? shown = null, bool fKeys = false, Func<Character, bool>? usable = null)
     {
         Theme.Panel(d, area);
         var session = services.Session;
@@ -49,7 +51,7 @@ public static class PartyPanel
             var color = state == LifeState.Alive ? (hpNow <= hpMax / 4 ? Theme.Warn : Theme.Text) : Theme.Disabled;
             // 欄の幅に収まらない文字は縮める(戦闘の画面は幅が狭い)
             float w = colW - 24;
-            Fit(d, $"{i + 1} {c.Name}", new Vector2(x, y + 2), w * 0.33f, size, color);
+            Fit(d, $"{(fKeys ? "F" : "")}{i + 1} {c.Name}", new Vector2(x, y + 2), w * 0.33f, size, usable == null || usable(c) ? color : Theme.Disabled);
             Fit(d, $"{cls} {level}".TrimEnd(), new Vector2(x + w * 0.34f, y + 2), w * 0.33f, size, level.Length == 0 ? Theme.Good : Theme.Dim);
             Fit(d, $"AC {ac}", new Vector2(x + w * 0.69f, y + 2), w * 0.14f, size, Theme.Dim);
             string hp = state == LifeState.Alive ? $"{hpNow}/{hpMax}" : s[$"state.{state.ToString().ToLowerInvariant()}"];

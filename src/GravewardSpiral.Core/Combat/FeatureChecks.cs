@@ -122,6 +122,24 @@ public static class FeatureChecks
     /// <summary>近接の武器の攻撃で当てたダメージのうち、HP に戻す割合(drain の melee_weapon。百分率。命を吸う刃は 30。無ければ 0)。</summary>
     public static int MeleeWeaponDrain(GameData data, PartyMember p) => PassiveRules.Sum(data, p.Character, "drain", "melee_weapon", p.Now);
 
+    /// <summary>
+    /// 攻撃で敵を一撃で倒す見込み(instant_kill。Wizardry の忍者の首はね)。当てた攻撃の種類(素手・近接・どれでも)に合うもののうち、
+    /// 確率(value の百分率。0〜100 に丸める)の一番大きいもの。無ければ null。
+    /// </summary>
+    public static (int Chance, PassiveEffectDef Effect)? InstantKill(GameData data, PartyMember p, bool unarmed, bool melee) =>
+        Effects(data, p, "instant_kill")
+            .Where(e => e.Effect.On switch { "unarmed" => unarmed, "melee" => melee, _ => true })
+            .Select(e => (Chance: Math.Clamp(e.Effect.Value!.Eval(p.Character, e.Level), 0, 100), e.Effect))
+            .Where(x => x.Chance > 0).OrderByDescending(x => x.Chance).Cast<(int, PassiveEffectDef)?>().FirstOrDefault();
+
+    /// <summary>
+    /// 一撃で倒されるのをこらえる確率(resist_instant_kill。百分率)。効果ごとに別々に振り、どれか1つに当たればこらえる
+    /// (Wizardry: クラスの分と、レベル × 2% の分を別に振る)。
+    /// </summary>
+    public static IEnumerable<int> InstantKillResists(GameData data, PartyMember p) =>
+        PassiveRules.PickByGroup(Effects(data, p, "resist_instant_kill"), e => e.Effect.Value!.Eval(p.Character, e.Level))   // 同じ組(stacks: max)は一番大きいものだけ
+            .Select(e => Math.Clamp(e.Effect.Value!.Eval(p.Character, e.Level), 0, 100)).Where(v => v > 0);
+
     /// <summary>近接の攻撃のクリティカルで足す武器のダイスの数(crit_extra_dice の melee。残忍な一撃と、種族の獰猛な攻撃)。</summary>
     public static int MeleeCritExtraDice(GameData data, PartyMember p) => PassiveRules.Sum(data, p.Character, "crit_extra_dice", "melee", p.Now);
 

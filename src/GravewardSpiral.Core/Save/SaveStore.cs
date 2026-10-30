@@ -455,7 +455,8 @@ public sealed class SaveData
     }
 
     public sealed record SeenEdge(int X, int Y, Direction Dir, EdgeType Type);
-    public sealed record MarkData(int X, int Y, CellFeature Feature);
+    /// <summary>地図の印。テレポーターは、飛ばされて分かった行き先(ToX・ToY、別の階なら ToFloor)も持つ。</summary>
+    public sealed record MarkData(int X, int Y, CellFeature Feature, int? ToFloor = null, int? ToX = null, int? ToY = null);
 
     public sealed class RngData
     {
@@ -529,7 +530,8 @@ public sealed class SaveData
                     Floor = kv.Key,
                     Visited = kv.Value.Visited.Select(p => new[] { p.X, p.Y }).ToList(),
                     Edges = kv.Value.Edges.Select(x => new SeenEdge(x.Key.Cell.X, x.Key.Cell.Y, x.Key.Dir, x.Value)).ToList(),
-                    Marks = kv.Value.Marks.Select(m => new MarkData(m.Key.X, m.Key.Y, m.Value)).ToList(),
+                    Marks = kv.Value.Marks.Select(m => kv.Value.Teleports.TryGetValue(m.Key, out var to)
+                        ? new MarkData(m.Key.X, m.Key.Y, m.Value, to.Floor, to.Cell.X, to.Cell.Y) : new MarkData(m.Key.X, m.Key.Y, m.Value)).ToList(),
                 }).ToList(),
             };
         }
@@ -592,7 +594,11 @@ public sealed class SaveData
                 var map = state.AutoMap.For(m.Floor);
                 foreach (var v in m.Visited) map.Visited.Add(new GridPos(v[0], v[1]));
                 foreach (var x in m.Edges) map.See(new GridPos(x.X, x.Y), x.Dir, x.Type);
-                foreach (var k in m.Marks) map.Marks[new GridPos(k.X, k.Y)] = k.Feature;
+                foreach (var k in m.Marks)
+                {
+                    map.Marks[new GridPos(k.X, k.Y)] = k.Feature;
+                    if (k.ToX is int tx && k.ToY is int ty) map.Teleports[new GridPos(k.X, k.Y)] = new WarpTarget(k.ToFloor, new GridPos(tx, ty));
+                }
             }
             session.Exploration = state;
         }

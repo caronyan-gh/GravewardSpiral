@@ -37,6 +37,9 @@ public sealed class InputBindings
         [GameAction.StrafeRight] = ["Key:E", "Pad:RightShoulder"],
         // 押しながら後ろのキーで、設定と逆の動き(R2 は空けておく)
         [GameAction.Reverse] = ["Key:LeftShift", "Key:RightShift", "Pad:LeftTrigger"],
+        // 1人を見る画面で仲間を切り替える(< > のキーと L2/R2。L2 の「押しながら」は迷宮だけなので重ならない)
+        [GameAction.PrevMember] = ["Key:OemComma", "Pad:LeftTrigger"],
+        [GameAction.NextMember] = ["Key:OemPeriod", "Pad:RightTrigger"],
     };
 
     public static InputBindings LoadOrCreate(string path)

@@ -8,7 +8,8 @@ namespace GravewardSpiral.Game.UI;
 /// <summary>呪文の説明の文(データから作る。SRD の説明文は写さない)。</summary>
 public static class SpellText
 {
-    public static string Level(Strings s, SpellDef sp) => sp.IsCantrip ? s["spell.cantrip"] : s.Format("spell.level", sp.Level);
+    /// <param name="level">クラスで割り当てたレベル(spelllv。Spellcasting.AssignedLevel)。省くと呪文のもとのレベル。</param>
+    public static string Level(Strings s, SpellDef sp, int? level = null) => sp.IsCantrip ? s["spell.cantrip"] : s.Format("spell.level", level ?? sp.Level);
 
     /// <summary>
     /// 唱える一覧の1行。呪文の種類のアイコンを付け、術者のクラスが2つ以上なら、どのクラスの呪文かの印も付ける
@@ -23,9 +24,9 @@ public static class SpellText
     }
 
     /// <summary>「Lv1 力術 / 敵1グループ / 集中」のような1行。</summary>
-    public static string Header(Strings s, SpellDef sp)
+    public static string Header(Strings s, SpellDef sp, int? level = null)
     {
-        var parts = new List<string> { Level(s, sp), s["school." + sp.School] };
+        var parts = new List<string> { Level(s, sp, level), s["school." + sp.School] };
         if (sp.Target is { } t) parts.Add(s["spell.target." + t.ToString().ToLowerInvariant()]);
         if (sp.Concentration) parts.Add(s["spell.concentration"]);
         if (sp.Time == "bonus") parts.Add(s["spell.bonus"]);
@@ -98,7 +99,7 @@ public static class SpellText
                     yield return s["spell.fx.stabilize"];
                     break;
                 case EffectPart.Kill:
-                    yield return s.Format("spell.fx.kill", p.MaxHp ?? 0);
+                    yield return p.Chance is int chance ? s.Format("spell.fx.kill_chance", chance) : s.Format("spell.fx.kill", p.MaxHp ?? 0);
                     break;
                 // 迷宮とキャンプの呪文(value は続く歩数。1歩 = 1分)
                 case EffectPart.Light:

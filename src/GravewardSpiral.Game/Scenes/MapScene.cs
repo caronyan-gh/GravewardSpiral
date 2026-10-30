@@ -41,7 +41,7 @@ public sealed class MapScene : Scene
         d.FillRect(new RectangleF(0, 0, 1280, 720), new Color(0, 0, 0, 150));
         AutoMapRenderer.Draw(d, _state.Dungeon.Floors[floor], _state.AutoMap.For(floor), Area, _center,
             _party is { } p ? (p.Cell, p.Facing) : null, radius: null, notes: _state.Notes.Where(n => n.Floor == floor).Select(n => n.Cell).ToHashSet(),
-            fitKnown: true);   // 分かっているところだけ(まだ行っていない広さは見せない)
+            fitKnown: true, arrivals: _state.AutoMap.ArrivalsOn(floor).ToHashSet());   // 分かっているところだけ(まだ行っていない広さは見せない)
         bool hasNotes = _state.Notes.Any(n => n.Floor == floor);
         d.Text(Services.Strings[hasNotes ? "map.close_memo" : "map.close"], new Vector2(640, 672), 16, new Color(150, 160, 170), TextAlign.Center);
     }

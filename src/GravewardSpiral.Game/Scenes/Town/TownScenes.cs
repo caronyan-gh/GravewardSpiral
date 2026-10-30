@@ -323,7 +323,7 @@ public sealed class InnScene : MenuScene
     {
         if (item.Tag is "prepare")
         {
-            Stack.Push(new MemberPickScene(Services.Strings["camp.prepare"], Prepares, c => Stack.Push(new SpellPickScene(c, SpellPickScene.Kind.Prepared))));
+            Stack.Push(new MemberPickScene(Services.Strings["camp.prepare"], Prepares, c => Stack.Push(new SpellPickScene(c, SpellPickScene.Kind.Prepared, Services.Session!.Roster.PartyMembers.ToList()))));
             return;
         }
         if (item.Tag is not Room room)
@@ -372,6 +372,9 @@ public sealed class TrainingScene : MenuScene
     private readonly Action _onLeave;
     private bool _pickingClass;   // レベルアップで、上げるクラスを選んでいる
     private Character? _selected;
+
+    /// <summary>選んだ人がパーティにいればパーティ(持ち物などの画面で、仲間を切り替えられる)。いなければ null(その人だけ)。</summary>
+    private List<Character>? SelectedParty => Roster.PartyMembers.ToList() is var party && _selected != null && party.Contains(_selected) ? party : null;
 
     public TrainingScene(Action onLeave) => _onLeave = onLeave;
 
@@ -481,10 +484,10 @@ public sealed class TrainingScene : MenuScene
                 Select(c);
                 break;
             case "status":
-                Stack.Push(new StatusScene(_selected!));
+                Stack.Push(new StatusScene(_selected!, SelectedParty));
                 break;
             case "items":
-                Stack.Push(new InventoryScene(_selected!));
+                Stack.Push(new InventoryScene(_selected!, SelectedParty));
                 break;
             case "boon":
                 Stack.Push(new BoonScene(_selected!, Refresh));
@@ -493,13 +496,13 @@ public sealed class TrainingScene : MenuScene
                 Stack.Push(new AbilityIncreaseScene(_selected!, Refresh));
                 break;
             case "cantrips":
-                Stack.Push(new SpellPickScene(_selected!, SpellPickScene.Kind.Cantrips));
+                Stack.Push(new SpellPickScene(_selected!, SpellPickScene.Kind.Cantrips, SelectedParty));
                 break;
             case "known":
-                Stack.Push(new SpellPickScene(_selected!, SpellPickScene.Kind.Known));
+                Stack.Push(new SpellPickScene(_selected!, SpellPickScene.Kind.Known, SelectedParty));
                 break;
             case "prepared":
-                Stack.Push(new SpellPickScene(_selected!, SpellPickScene.Kind.Prepared));
+                Stack.Push(new SpellPickScene(_selected!, SpellPickScene.Kind.Prepared, SelectedParty));
                 break;
             case "level":
                 _pickingClass = true;
@@ -625,16 +628,25 @@ public sealed class TrainingScene : MenuScene
 /// </summary>
 public sealed class StatusScene : Scene
 {
-    private readonly Character _c;
+    private readonly MemberSwitch _switch;
     private int _page;
 
-    public StatusScene(Character c) => _c = c;
+    /// <param name="members">切り替えられる仲間の並び(L2/R2・&lt; &gt;・F1〜F6・◀ ▶)。省くとその人だけ。</param>
+    public StatusScene(Character c, IReadOnlyList<Character>? members = null) => _switch = new MemberSwitch(members ?? [c], c);
+
+    private Character Member => _switch.Current;
 
     /// <summary>右側のページ(呪文のページは術者だけ)。</summary>
-    private string[] Pages => Spellcasting.Castable(Services.Data, _c).Any() ? ["skills", "spells", "equipment", "bag"] : ["skills", "equipment", "bag"];
+    private string[] Pages => Spellcasting.Castable(Services.Data, Member).Any() ? ["skills", "spells", "equipment", "bag"] : ["skills", "equipment", "bag"];
 
     public override void Update(GameTime time, Input.InputState input)
     {
+        string shown = Pages[Math.Clamp(_page, 0, Pages.Length - 1)];
+        if (_switch.Update(input, Services.Audio))
+        {
+            _page = Math.Max(0, Array.IndexOf(Pages, shown));   // 同じページのまま次の人へ(術者でない人に呪文のページは無いので、そのときは最初のページ)
+            return;
+        }
         int step = input.Pressed(Input.GameAction.Right) ? 1 : input.Pressed(Input.GameAction.Left) ? -1 : 0;
         if (step != 0)
         {
@@ -711,7 +723,9 @@ public sealed class StatusScene : Scene
         var data = Services.Data;
         var area = new RectangleF(80, 60, 1120, 600);
         Theme.Panel(d, area);
-        float y = DrawSummary(d, Services, _c, new Vector2(area.X + 30, area.Y + 24), detail: true, width: 525f);
+        float y = DrawSummary(d, Services, Member, new Vector2(area.X + 30, area.Y + 24), detail: true, width: 525f);
+        // 左の欄の右寄りに、いつも同じ場所に(名前の長さで動かない)。名前が長くて届くときだけ、名前のすぐ右に
+        _switch.Draw(d, new Vector2(Math.Max(area.X + 440, area.X + 30 + d.Fonts.Measure(Member.Name, 26).X + 24), area.Y + 28));
 
         // 右側: 技能・セーヴ・クラスの能力か、呪文(術者は左右で切り替える)
         float x2 = area.X + 600;
@@ -721,7 +735,7 @@ public sealed class StatusScene : Scene
             d.Text(t, new Vector2(x2, y2), size, color);
             y2 += size + 8;
         }
-        var castable = Spellcasting.Castable(data, _c).ToList();
+        var castable = Spellcasting.Castable(data, Member).ToList();
         var pages = Pages;
         _page = Math.Clamp(_page, 0, pages.Length - 1);
         string page = pages[_page];
@@ -748,7 +762,7 @@ public sealed class StatusScene : Scene
             Text2(s["status.equipment"], Theme.Title, 22);
             foreach (var slot in Enum.GetValues<EquipSlot>())
             {
-                if (_c.Inventory[slot] is not { } it) continue;
+                if (Member.Inventory[slot] is not { } it) continue;
                 y2 = d.TextWrapped($"{s[$"slot.{slot.ToString().ToLowerInvariant()}"]}: {UI.ItemText.Name(Services, it)}", new Vector2(x2, y2),
                     area.X + area.Width - x2 - 24, 17, Theme.Text, 7);
             }
@@ -756,8 +770,8 @@ public sealed class StatusScene : Scene
         else if (page == "bag")
         {
             // 1つずつの行で2列に(一番大きな袋の 30 個まで収まる)。長い名前は欄に収まるまで字を小さくする
-            Text2(s.Format("status.bag", _c.Inventory.Items.Count, _c.Inventory.Capacity(data.Items)), Theme.Title, 22);
-            var items = _c.Inventory.Items;
+            Text2(s.Format("status.bag", Member.Inventory.Items.Count, Member.Inventory.Capacity(data.Items)), Theme.Title, 22);
+            var items = Member.Inventory.Items;
             int rows = Math.Max(1, (items.Count + 1) / 2);
             float colW = (area.X + area.Width - x2 - 24) / 2;
             for (int i = 0; i < items.Count; i++)
@@ -770,31 +784,31 @@ public sealed class StatusScene : Scene
         else if (page == "spells")
         {
             // 呪文の難易度と攻撃の修正は、術者のクラスごと
-            foreach (var cls in Spellcasting.CasterClasses(data, _c))
-                Text2((Spellcasting.CasterClasses(data, _c).Count() > 1 ? Services.Name(cls.Name) + " " : "")
-                    + s.Format("status.spells", Spellcasting.SaveDc(cls, _c), Signed(Spellcasting.AttackBonus(cls, _c))), Theme.Title, 22);
-            foreach (var group in castable.GroupBy(x => x.Level))
+            foreach (var cls in Spellcasting.CasterClasses(data, Member))
+                Text2((Spellcasting.CasterClasses(data, Member).Count() > 1 ? Services.Name(cls.Name) + " " : "")
+                    + s.Format("status.spells", Spellcasting.SaveDc(cls, Member), Signed(Spellcasting.AttackBonus(cls, Member))), Theme.Title, 22);
+            foreach (var group in castable.GroupBy(x => Spellcasting.AssignedLevel(data, Member, x)))   // クラスで割り当てたレベルごと
             {
                 // 呪文の名前は長いので、欄の幅で折り返す
-                string line = $"{UI.SpellText.Level(s, group.First())}: {Services.Strings.List(group.Select(x => Services.Name(x.Name)))}";
+                string line = $"{UI.SpellText.Level(s, group.First(), group.Key)}: {Services.Strings.List(group.Select(x => Services.Name(x.Name)))}";
                 y2 = d.TextWrapped(line, new Vector2(x2, y2), area.X + area.Width - x2 - 24, 16, Theme.Text, 6);
             }
         }
         else
         {
         Text2(s["status.skills"], Theme.Title, 22);
-        foreach (var id in _c.Skills)
-            Text2($"{Services.Name(data.Skills[id].Name)}  {Signed(_c.SkillBonus(data, id))}", Theme.Text);
+        foreach (var id in Member.Skills)
+            Text2($"{Services.Name(data.Skills[id].Name)}  {Signed(Member.SkillBonus(data, id))}", Theme.Text);
         y2 += 8;
         Text2(s["status.saves"], Theme.Title, 22);
         // 6つ並ぶと欄の幅を越えるので、3つずつ2行に(体の能力値と、心の能力値)
         foreach (var three in Abilities.All.Chunk(3))
-            Text2(string.Join("  ", three.Select(a => $"{s[$"ability.{a.Code()}"]} {Signed(_c.SaveBonus(data, a))}")), Theme.Text);
+            Text2(string.Join("  ", three.Select(a => $"{s[$"ability.{a.Code()}"]} {Signed(Member.SaveBonus(data, a))}")), Theme.Text);
         // クラスの能力(マルチクラスでは全部のクラスのもの): 回数の残りと、勝手に効く能力の名前
-        var pools = ClassFeatures.PoolsOf(Services.Data, _c).ToList();
-        var passives = ClassFeatures.Passives(data, _c).Select(id => s["passive." + id]).ToList();
-        var styles = ClassFeatures.ActiveStyles(data, _c);
-        bool hasStyle = ClassFeatures.HasFightingStyle(data, _c);
+        var pools = ClassFeatures.PoolsOf(Services.Data, Member).ToList();
+        var passives = ClassFeatures.Passives(data, Member).Select(id => s["passive." + id]).ToList();
+        var styles = ClassFeatures.ActiveStyles(data, Member);
+        bool hasStyle = ClassFeatures.HasFightingStyle(data, Member);
         if (pools.Count > 0 || passives.Count > 0 || hasStyle)
         {
             y2 += 8;
@@ -808,13 +822,13 @@ public sealed class StatusScene : Scene
                 y2 = d.TextWrapped(s["status.style_auto"], new Vector2(x2, y2 + 2), area.X + area.Width - x2 - 24, 15, Theme.Dim, 4) + 4;
             }
             // 回数は1つずつ行を分ける(折り返しで「5/5」が切れないように)
-            foreach (var p in pools) Text2($"{s["pool." + p]}  {ClassFeatures.UsesLeft(Services.Data, _c, p)}/{ClassFeatures.MaxUses(Services.Data, _c, p)}", Theme.Text, 17);
+            foreach (var p in pools) Text2($"{s["pool." + p]}  {ClassFeatures.UsesLeft(Services.Data, Member, p)}/{ClassFeatures.MaxUses(Services.Data, Member, p)}", Theme.Text, 17);
             if (passives.Count > 0)
                 y2 = d.TextWrapped(s.List(passives), new Vector2(x2, y2), area.X + area.Width - x2 - 24, 16, Theme.Dim, 6);
         }
         }
 
-        d.Text(s["status.close_pages"], new Vector2(640, 690), 15, Theme.Dim, TextAlign.Center);
+        d.Text(s[_switch.CanSwitch ? "status.close_pages_members" : "status.close_pages"], new Vector2(640, 690), 15, Theme.Dim, TextAlign.Center);
     }
 
     /// <summary>鎧と武器の習熟の一覧(クラスを合わせて。分類は名前で、決まった武器は品の名前で)。</summary>

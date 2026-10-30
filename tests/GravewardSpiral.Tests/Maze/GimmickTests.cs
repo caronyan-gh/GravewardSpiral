@@ -44,6 +44,43 @@ public class GimmickTests
         Assert.Equal(MoveResult.Moved, nav.Forward());
     }
 
+    /// <summary>テレポーターで飛ばされると、地図にその行き先を覚える(同じ階は Floor なし、別の階は階の番号)。霧の中では覚えない。</summary>
+    [Fact]
+    public void TeleportsRememberWhereTheyLed()
+    {
+        var b1 = MazeTextFormat.Parse("""
+            floor tp_b1
+            size 4 1
+            wrap none
+            start 0 0 E
+            walls
+            +-+-+-+-+
+            |  t t  |
+            +-+-+-+-+
+            teleport 1 0 3 0
+            teleport 2 0 0 0 B2
+            """);
+        var b2 = MazeTextFormat.Parse("""
+            floor tp_b2
+            size 2 1
+            wrap none
+            start 0 0 E
+            walls
+            +-+-+
+            |   |
+            +-+-+
+            """);
+        var state = new ExplorationState(new Dungeon("t", [b1, b2]), new PartyPosition(0, new GridPos(0, 0), Direction.East));
+        var nav = new MazeNavigator(state);
+        Assert.Equal(MoveResult.Teleported, nav.Forward());
+        Assert.Equal(new WarpTarget(null, new GridPos(3, 0)), state.AutoMap.For(0).Teleports[new GridPos(1, 0)]);
+        Assert.Contains(new GridPos(3, 0), state.AutoMap.ArrivalsOn(0));
+        state.Position = new PartyPosition(0, new GridPos(1, 0), Direction.East);
+        Assert.Equal(MoveResult.Teleported, nav.Forward());
+        Assert.Equal(new WarpTarget(1, new GridPos(0, 0)), state.AutoMap.For(0).Teleports[new GridPos(2, 0)]);
+        Assert.Equal([new GridPos(0, 0)], state.AutoMap.ArrivalsOn(1));
+    }
+
     [Fact]
     public void GeneratedKeysAreBeforeTheirLocks()
     {

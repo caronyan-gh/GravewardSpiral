@@ -238,6 +238,8 @@ public class SaveTests
         nav.Forward();
         state.Discover(0, new GridPos(1, 1), Direction.East);
         state.Notes.Add(new MazeNote { Floor = 2, Cell = new GridPos(3, 4), EventId = "wall_writing", Lines = [new LocalizedText(new Dictionary<string, string> { ["ja"] = "壁に文字", ["en"] = "Words" })] });
+        state.AutoMap.For(0).Marks[new GridPos(2, 2)] = CellFeature.Teleporter;   // 飛ばされて分かったテレポーターの行き先(別の階)
+        state.AutoMap.For(0).Teleports[new GridPos(2, 2)] = new WarpTarget(3, new GridPos(4, 5));
         s.Rng[RngStreams.Names.Combat].NextUInt();
         uint nextCombat = RngStreams.Restore(s.Rng.MasterSeed, s.Rng.Save())[RngStreams.Names.Combat].NextUInt();
         store.Save(s, Content);
@@ -263,6 +265,8 @@ public class SaveTests
         Assert.Equal("Words", loaded.Exploration.Notes.Single().Lines.Single().Get("en"));
         Assert.Equal(state.AutoMap.For(0).Visited.Count, loaded.Exploration.AutoMap.For(0).Visited.Count);
         Assert.Equal(state.AutoMap.For(0).Edges.Count, loaded.Exploration.AutoMap.For(0).Edges.Count);
+        Assert.Equal(new WarpTarget(3, new GridPos(4, 5)), loaded.Exploration.AutoMap.For(0).Teleports[new GridPos(2, 2)]);
+        Assert.Equal([new GridPos(4, 5)], loaded.Exploration.AutoMap.ArrivalsOn(3));
         Assert.Equal(nextCombat, loaded.Rng[RngStreams.Names.Combat].NextUInt());   // 乱数の続きも同じ
     }
 

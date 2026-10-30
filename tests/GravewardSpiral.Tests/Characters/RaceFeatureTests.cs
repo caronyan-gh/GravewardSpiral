@@ -20,11 +20,12 @@ public class RaceFeatureTests
         Hp = 10,
     };
 
-    private static (GameData Data, ContentLibrary Content) WithPack(string file, string json)
+    private static (GameData Data, ContentLibrary Content) WithPack(string file, string json, params (string File, string Json)[] more)
     {
         using var dir = new TestPaths.TempDir();
         dir.Write("p/manifest.json", """{"id": "p", "depends": ["srd"]}""");
         dir.Write("p/" + file, json);
+        foreach (var (f, j) in more) dir.Write("p/" + f, j);
         var content = ContentLibrary.Load(TestPaths.Content, Path.Combine(dir.Path, "p"));
         return (GameData.Load(content), content);
     }
@@ -109,7 +110,7 @@ public class RaceFeatureTests
              {"id": "t_scale", "kind": "passive", "values": {"n": {"class_level": 1}}},
              {"id": "t_adv", "kind": "passive", "effects": [{"type": "advantage", "roll": "initiative", "condition": "charmed"}]},
              {"id": "t_magic", "kind": "passive", "effects": [{"type": "immune_magic_condition"}]}]
-            """);
+            """, ("races.json", """[{"id": "t_stayer", "extends": "human", "features": [{"id": "t_stay", "level": 1}]}]"""));   // 回数の持ち主は、誰かが持つ能力だけ確かめる
         Assert.Contains(content.Problems, p => p.Contains("resist_damage には damage_type"));
         Assert.Contains(content.Problems, p => p.Contains("'no_such_pool'"));
         Assert.Contains(content.Problems, p => p.Contains("roll が save のときだけ"));

@@ -144,7 +144,7 @@ public class SpellAccessTests
         dir.Write("p/manifest.json", """{"id": "p", "depends": ["srd"]}""");
         dir.Write("p/classes.json", """
             [{"id": "test_mage", "extends": "wizard", "spellcasting": {"ability": "int", "style": "known", "progression": "pact",
-              "spell_access": [{"lv": 1, "spelllv": 2, "set": "wizard_1"}, {"lv": 1, "spelllv": 1, "set": "no_such_set"}]}}]
+              "spell_access": [{"lv": 1, "spelllv": 1, "set": "wizard_cantrips"}, {"lv": 1, "spelllv": 1, "set": "no_such_set"}]}}]
             """);
         var content = ContentLibrary.Load(TestPaths.Content, Path.Combine(dir.Path, "p"));
         GameData.Load(content);
@@ -152,7 +152,46 @@ public class SpellAccessTests
         Assert.Contains("progression を協約魔術", all);
         Assert.Contains("known が要ります", all);
         Assert.Contains("'no_such_set'", all);
-        Assert.Contains("もとのレベルと違う割り当て", all);
+        Assert.Contains("初級呪文なので spelllv 0", all);
+    }
+
+    /// <summary>
+    /// spelllv で、もとのレベルと違うレベルに割り当てられる(Wizardry 風の呪文の段など)。要るスロットと並びは割り当てたレベル、
+    /// 効果はもとのレベルを基準に、割り当てたレベルから上のスロットの分だけ強くなる。巻物などクラスの束に無いときは、もとのレベル。
+    /// </summary>
+    [Fact]
+    public void ReassignedSpellLevelsDecideSlotsAndUpcasting()
+    {
+        using var dir = new TestPaths.TempDir();
+        dir.Write("p/manifest.json", """{"id": "p", "depends": ["srd"]}""");
+        dir.Write("p/classes.json", """
+            [{"id": "t_mage", "extends": "wizard", "spellcasting": {"ability": "int", "style": "known", "progression": "full", "known": {"class_level": 4},
+              "spell_access": [{"lv": 1, "spelllv": 1, "set": "wizard_1"}, {"lv": 3, "spelllv": 2, "set": "wizard_3"}]}}]
+            """);
+        var content = ContentLibrary.Load(TestPaths.Content, Path.Combine(dir.Path, "p"));
+        var data = GameData.Load(content);
+        Assert.Empty(content.Problems);
+        var cls = data.Classes["t_mage"];
+        var c = Multi(("t_mage", 3));   // 2 レベルの呪文まで: もとは 3 レベルのヘイストやファイアーボールが使える
+        var haste = data.Spells["haste"];
+        Assert.Contains(Spellcasting.ClassSpells(data, cls, c, cantrips: false), x => x.Id == "fireball");
+        c.Book("t_mage").Known.Add("haste");
+        c.Book("t_mage").Known.Add("fireball");
+        Assert.Equal(2, Spellcasting.AssignedLevel(data, c, haste));
+        Assert.Equal(2, Spellcasting.LowestSlot(data, c, haste));
+        Assert.True(Spellcasting.ListedAt(data, c, haste, 2));
+        var fireball = data.Spells["fireball"];
+        Assert.Equal(3, Spellcasting.EffectLevel(data, c, fireball, 2));   // 2 レベルのスロットで、もとの 3 レベルの強さ
+        Assert.Equal(4, Spellcasting.EffectLevel(data, c, fireball, 3));   // 1 段上
+        Assert.Equal(3, Spellcasting.AssignedLevel(data, Multi(("wizard", 5)), fireball));   // 束に無い人はもとのレベル
+
+        // 唱えると、割り当てたレベルのスロットを使う
+        c.MaxHp = c.Hp = 20;
+        var state = new GravewardSpiral.Core.Combat.CombatState { Party = [new GravewardSpiral.Core.Combat.PartyMember(c, data)], Groups = [] };
+        var engine = new GravewardSpiral.Core.Combat.CombatEngine(data, new GravewardSpiral.Core.Rng.Pcg32(1, 1));
+        engine.CastSpell(state, state.Party[0], new GravewardSpiral.Core.Combat.PlayerCommand(GravewardSpiral.Core.Combat.CommandKind.Cast, -1, 0, "haste", 0));
+        Assert.Equal(1, c.SlotsUsed.GetValueOrDefault(2));
+        Assert.Equal(0, c.SlotsUsed.GetValueOrDefault(3));
     }
 
     /// <summary>スロットの伸び方はデータ(spell_progressions.json)。パックで足した伸び方でスロットと覚えられる呪文のレベルが決まり、3 分の 1 の術者も表どおり。</summary>

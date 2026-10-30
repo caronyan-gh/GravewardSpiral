@@ -368,7 +368,12 @@ public sealed class CheckTab : IEditorTab
         Line(T($"ボット({party.Ja}): {runs} 回中 {cleared} 回クリア({100 * cleared / runs}%)、平均 Lv {results.Average(x => x.AverageLevel):0.0}、全滅 {results.Average(x => x.Wipes):0.0} 回、" +
             $"一番深い階 B{results.Max(x => x.DeepestFloor)}", $"Bots ({party.En}): cleared {cleared} of {runs} runs ({100 * cleared / runs}%), average Lv {results.Average(x => x.AverageLevel):0.0}, wipes {results.Average(x => x.Wipes):0.0} per run, " +
             $"deepest floor B{results.Max(x => x.DeepestFloor)}"), cleared * 2 >= runs ? Ui.Good : Ui.Warn);
-        foreach (var why in results.Where(x => !x.Cleared).GroupBy(x => x.FailReason ?? "?"))
+        // 理由は括弧の前でまとめ、括弧の中(どの階か、誰が動けないかなど)は1回ずつ出す
+        foreach (var why in results.Where(x => !x.Cleared).GroupBy(x => (x.FailReason ?? "?").Split('(')[0]))
+        {
             Line(T($"  クリアできなかった理由: {why.Key} ×{why.Count()}", $"  Reason for not clearing: {why.Key} ×{why.Count()}"), Ui.Dim);
+            foreach (var f in why.Where(x => x.FailReason?.Contains('(') == true))
+                Line("    " + f.FailReason![f.FailReason.IndexOf('(')..], Ui.Dim);
+        }
     }
 }

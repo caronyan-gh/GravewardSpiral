@@ -170,6 +170,29 @@ public static class Spellcasting
     }
 
     /// <summary>
+    /// そのクラスで、その呪文を何レベルの呪文として扱うか(spell_access の spelllv。そのクラスのレベルで開いた束のうち一番低いもの)。
+    /// どの束にも無ければ(巻物など)、呪文のもとのレベル。初級呪文は 0。
+    /// </summary>
+    public static int AssignedLevel(GameData data, ClassDef? cls, Character c, SpellDef sp)
+    {
+        if (sp.IsCantrip || cls?.Spellcasting is not { } sc) return sp.Level;
+        int lv = c.LevelIn(cls.Id);
+        var levels = sc.SpellAccess.Where(a => a.Lv <= lv && a.Spelllv > 0 && data.SpellSets.TryGetValue(a.Set, out var set) && set.Spells.Contains(sp.Id))
+            .Select(a => a.Spelllv).ToList();
+        return levels.Count > 0 ? levels.Min() : sp.Level;
+    }
+
+    /// <summary>その人が唱えるときの、その呪文のレベル(唱えるクラス ClassFor の割り当て)。要るスロットと、呪文の並びはこれで数える。</summary>
+    public static int AssignedLevel(GameData data, Character c, SpellDef sp) => AssignedLevel(data, ClassFor(data, c, sp.Id), c, sp);
+
+    /// <summary>
+    /// slot のスロットで唱えたときの、効果の強さのレベル(ダイスの表・召喚の数などは、もとのレベルを基準に書いてある)。
+    /// 割り当てたレベルのスロットなら、もとのレベルの強さ。そこから上のスロットの分だけ強くなる(もとは 3 の呪文を 2 に割り当てて 3 で唱えたら 4 の強さ)。
+    /// </summary>
+    public static int EffectLevel(GameData data, Character c, SpellDef sp, int slot) =>
+        sp.IsCantrip ? slot : sp.Level + Math.Max(0, slot - AssignedLevel(data, c, sp));
+
+    /// <summary>
     /// そのクラスで覚えられる(準備できる)呪文。クラスの spell_access の束のうち、そのクラスのレベルが lv に届いたもので、
     /// 割り当てたレベル(spelllv)がそのクラスで覚えられるところまでの、使える呪文。
     /// </summary>
@@ -183,7 +206,7 @@ public static class Spellcasting
             .Distinct()
             .Select(id => data.Spells.GetValueOrDefault(id)).OfType<SpellDef>()
             .Where(s => s.Usable && s.IsCantrip == cantrips)
-            .OrderBy(s => s.Level).ThenBy(s => s.Id, StringComparer.Ordinal);
+            .OrderBy(s => AssignedLevel(data, cls, c, s)).ThenBy(s => s.Id, StringComparer.Ordinal);
     }
 
     /// <summary>今唱えられる呪文(術者のクラス全部の、初級呪文と、準備した・覚えた呪文)。</summary>
@@ -197,7 +220,7 @@ public static class Spellcasting
             ids.AddRange(Kind(cls) is CasterKind.Prepared or CasterKind.Book ? b.Prepared : b.Known);
         }
         return ids.Distinct().Select(id => data.Spells.GetValueOrDefault(id)).OfType<SpellDef>().Where(s => s.Usable)
-            .OrderBy(s => s.Level).ThenBy(s => s.Id, StringComparer.Ordinal);
+            .OrderBy(s => AssignedLevel(data, c, s)).ThenBy(s => s.Id, StringComparer.Ordinal);
     }
 
     /// <summary>
@@ -208,10 +231,11 @@ public static class Spellcasting
     public static bool ListedAt(GameData data, Character c, SpellDef sp, int slotLevel)
     {
         if (slotLevel == 0 || sp.IsCantrip) return slotLevel == 0 && sp.IsCantrip;
-        if (sp.Level == slotLevel) return true;
-        if (sp.Level > slotLevel) return false;
+        int level = AssignedLevel(data, c, sp);
+        if (level == slotLevel) return true;
+        if (level > slotLevel) return false;
         if (sp.Scale == "slot") return true;
-        if (CasterClass(data, c) == null || SlotsLeft(data, c, sp.Level) > 0) return false;
+        if (CasterClass(data, c) == null || SlotsLeft(data, c, level) > 0) return false;
         return LowestSlot(data, c, sp) == slotLevel;
     }
 
@@ -219,7 +243,7 @@ public static class Spellcasting
     public static int? LowestSlot(GameData data, Character c, SpellDef s)
     {
         if (s.IsCantrip) return 0;
-        for (int lv = s.Level; lv <= 9; lv++)
+        for (int lv = AssignedLevel(data, c, s); lv <= 9; lv++)
         {
             if (SlotsLeft(data, c, lv) > 0) return lv;
         }

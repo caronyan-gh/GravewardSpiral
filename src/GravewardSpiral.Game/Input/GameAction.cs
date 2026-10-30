@@ -21,4 +21,8 @@ public enum GameAction
     StrafeRight,
     /// <summary>押しながら後ろのキーを押すと、設定と逆の動きにする(下がる ⇔ 振り向く)。</summary>
     Reverse,
+    /// <summary>1人を見る画面(持ち物・状態・呪文の準備)で、前の仲間へ。</summary>
+    PrevMember,
+    /// <summary>1人を見る画面で、次の仲間へ。</summary>
+    NextMember,
 }

@@ -1,6 +1,6 @@
 """配布用のビルドをして、Inno Setup でインストーラーを作る。
 
-使い方: python tools/make_installer.py [--version 0.3.0] [--skip-publish]
+使い方: python tools/make_installer.py [--version 0.3.1] [--skip-publish]
   1. dotnet publish で、.NET を入れていない PC でも動く形(win-x64、self-contained)を out/publish に作る。
      ゲームとシナリオエディタを同じフォルダに入れる(エディタは横の Content とゲームを使う。.NET の部品は同じ版なので共用する)。
   2. Inno Setup 6 の ISCC で tools/installer/GravewardSpiral.iss を通し、out/installer/GravewardSpiral-Setup-<版>.exe を作る。
@@ -31,7 +31,7 @@ def find_iscc():
 
 def main():
     ap = argparse.ArgumentParser()
-    ap.add_argument("--version", default="0.3.0", help="インストーラーに付ける版")
+    ap.add_argument("--version", default="0.3.1", help="インストーラーに付ける版")
     ap.add_argument("--skip-publish", action="store_true", help="out/publish をそのまま使う")
     args = ap.parse_args()
 

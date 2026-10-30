@@ -250,8 +250,17 @@ public sealed class PassiveEffectDef
     /// <summary>no_cast と no_concentration を外す能力の id(その能力を持っていれば効かない。獣の姿の no_cast を外す獣の呪文)。</summary>
     public string? Unless { get; set; }
 
-    /// <summary>効果が働いたときに出す文言のキー(反応や踏みとどまったとき。無ければ出さない)。</summary>
+    /// <summary>効果が働いたときに出す文言のキー(反応や踏みとどまったとき。無ければ出さない。instant_kill は省くと combat.instant_kill)。</summary>
     public string? Message { get; set; }
+
+    /// <summary>instant_kill の敵の抵抗: 0〜resist_die−1 の乱数が resist_base + 敵のレベル(CR の切り捨て)を超えたときだけ倒せる。resist_die が 0 なら抵抗しない。</summary>
+    public int ResistBase { get; set; }
+
+    /// <summary>instant_kill の敵の抵抗の乱数の幅(Wizardry の #1〜3 は resist_base 10・resist_die 35。CR 24 以上には効かない)。</summary>
+    public int ResistDie { get; set; }
+
+    /// <summary>instant_kill がボス(bosses.json のボスと、名のある敵)に効かない。</summary>
+    public bool NoBoss { get; set; }
 }
 
 /// <summary>
@@ -427,8 +436,21 @@ public sealed class GameData
         Read(DropTable.Collection, d.Drops, null, t => t.Id);
         Read(NameListDef.Collection, d.NameLists, null, n => n.Id);
         Read(Ai.WorldPart.Collection, d.WorldParts, null, p => p.Id);
+        int before = content.Problems.Count;
         d.Check(content);
+        AddSources(content, before);
         return d;
+    }
+
+    /// <summary>検査の文("events 'id': …" の形)に、その物を書いたファイルを添える(どのパックの、どのファイルを直せばよいか分かるように)。</summary>
+    private static void AddSources(ContentLibrary content, int from)
+    {
+        for (int i = from; i < content.Problems.Count; i++)
+        {
+            var m = System.Text.RegularExpressions.Regex.Match(content.Problems[i], @"^([a-z_]+) '([^']+)'");
+            if (m.Success && content.SourceOf(m.Groups[1].Value, m.Groups[2].Value) is { } file)
+                content.Problems[i] += $"(ファイル: {file})";
+        }
     }
 
 
@@ -546,9 +568,10 @@ public sealed class GameData
                 content.Problems.Add($"{where} の spell_access: spellsets に '{a.Set}' がありません");
                 continue;
             }
-            // 呪文のもとのレベルと違うレベルに割り当てる形は、唱える処理がまだ割り当てたレベルを使わないので、今は受け付けない
-            foreach (var id in set.Spells.Where(id => Spells.TryGetValue(id, out var s) && s.Level != a.Spelllv))
-                content.Problems.Add($"{where} の spell_access: '{id}' は {Spells[id].Level} レベルの呪文です(set '{a.Set}' の spelllv {a.Spelllv}。もとのレベルと違う割り当ては、まだ使えません)");
+            // もとのレベルと違うレベルにも割り当てられる(要るスロットは割り当てたレベル、効果はもとのレベルを基準に上のスロットの分だけ強く)。
+            // ただし初級呪文は spelllv 0 だけ、ほかの呪文は 1〜9 だけ(初級呪文はスロットを使わず、キャラクターのレベルで強くなるため)
+            foreach (var id in set.Spells.Where(id => Spells.TryGetValue(id, out var s) && s.IsCantrip != (a.Spelllv == 0)))
+                content.Problems.Add($"{where} の spell_access: '{id}' は{(Spells[id].IsCantrip ? "初級呪文なので spelllv 0" : "初級呪文ではないので spelllv 1〜9")}の束に入れます(set '{a.Set}' の spelllv {a.Spelllv})");
         }
     }
 
@@ -617,11 +640,13 @@ public sealed class GameData
         }
         foreach (var m in Shapes.Values) CheckMonster(content, m);
         var poolIds = Classes.Values.SelectMany(c => c.Pools).Concat(Races.Values.SelectMany(r => r.Pools)).Select(p => p.Id).ToHashSet();
-        foreach (var f in Features.Values.Where(f => f.Kind == "action" && f.Pool != null && !poolIds.Contains(f.Pool)))
+        // 回数の持ち主を確かめるのは、どれかのクラスか種族が持つ能力だけ(標準のクラスを外すと、その能力は誰も持たず、使われないだけ)
+        var owned = Classes.Values.SelectMany(c => c.Features).Concat(Races.Values.SelectMany(r => r.Features)).Select(r => r.Id).ToHashSet();
+        foreach (var f in Features.Values.Where(f => owned.Contains(f.Id) && f.Kind == "action" && f.Pool != null && !poolIds.Contains(f.Pool)))
             content.Problems.Add($"features '{f.Id}': pool '{f.Pool}' を持つクラスか種族がありません");
         foreach (var (f, e) in Features.Values.SelectMany(f => f.Effects.Select(e => (f, e))).Where(x => x.e.Unless != null && !Features.ContainsKey(x.e.Unless)))
             content.Problems.Add($"features '{f.Id}' の {e.Type}: unless の '{e.Unless}' が features にありません");
-        foreach (var (f, e) in Features.Values.SelectMany(f => f.Effects.Select(e => (f, e))).Where(x => x.e.Pool != null && !poolIds.Contains(x.e.Pool)))
+        foreach (var (f, e) in Features.Values.Where(f => owned.Contains(f.Id)).SelectMany(f => f.Effects.Select(e => (f, e))).Where(x => x.e.Pool != null && !poolIds.Contains(x.e.Pool)))
             content.Problems.Add($"features '{f.Id}' の {e.Type}: pool '{e.Pool}' を持つクラスか種族がありません");
         foreach (var b in Backgrounds.Values)
             Need($"backgrounds '{b.Id}' の skills", "skills", b.Skills, Skills.ContainsKey);
@@ -749,6 +774,8 @@ public sealed class GameData
             if (p.Type is EffectPart.Resist or EffectPart.Vulnerable && !DamageTypes.All.Contains(p.DamageType ?? ""))
                 content.Problems.Add($"{where}: ダメージの種類 '{p.DamageType}' がありません");
             if (p.Type == EffectPart.ImmuneCondition && p.Condition == null) content.Problems.Add($"{where}: condition がありません");
+            if (p.Chance is int chance && (p.Type != EffectPart.Kill || chance is < 1 or > 100))
+                content.Problems.Add($"{where}: chance は kill だけに書けて、1〜100(百分率)です");
         }
     }
 
@@ -773,6 +800,8 @@ public sealed class GameData
                     catch (FormatException ex) { content.Problems.Add($"{where} の {a.Id}: {ex.Message}"); }
                 }
                 if (p.Type == EffectPart.ConditionType && p.Condition == null) content.Problems.Add($"{where} の {a.Id}: condition がありません");
+                if (p.Chance is int chance && (p.Type != EffectPart.Kill || chance is < 1 or > 100))
+                    content.Problems.Add($"{where} の {a.Id}: chance は kill だけに書けて、1〜100(百分率)です");
             }
         }
         foreach (var opt in m.Multiattack)

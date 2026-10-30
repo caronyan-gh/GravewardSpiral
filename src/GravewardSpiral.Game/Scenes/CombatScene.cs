@@ -331,7 +331,9 @@ public sealed class CombatScene : Scene
         {
             var item = SpellText.CastItem(Services, Current.Character, x.Spell, null, castable);
             // 光線が2本以上なら、集中と分散の2行にする(1つの呪文の撃ち方の違い)
-            int beams = x.Spell.BeamsAt(x.Spell.Scale == "character" ? Current.Character.Level : Math.Max(_spellTab, x.Spell.Level));
+            var ch = Current.Character;   // 本数は、タブのスロットで唱えたときの効果のレベルで(クラスで割り当てたレベルから上の分だけ増える)
+            int beams = x.Spell.BeamsAt(x.Spell.Scale == "character" ? ch.Level
+                : Spellcasting.EffectLevel(Services.Data, ch, x.Spell, Math.Max(_spellTab, Spellcasting.AssignedLevel(Services.Data, ch, x.Spell))));
             if (x.Spell.Beams != null && beams >= 2)
             {
                 items.Add(item with { Label = S.Format("combat.beams_focus", item.Label, beams) });
@@ -833,12 +835,13 @@ public sealed class CombatScene : Scene
         if (_phase == Phase.Spell && (_menu.Current?.Tag as SpellDef ?? (_menu.Current?.Tag as SpreadPick)?.Spell) is { } cur)
         {
             sp = cur;
-            level = cur.IsCantrip ? 0 : Math.Max(cur.Level, _spellTab);   // タブのレベルで唱えたときの効果
+            var ch = Current.Character;
+            level = cur.IsCantrip ? 0 : Spellcasting.EffectLevel(Services.Data, ch, cur, Math.Max(Spellcasting.AssignedLevel(Services.Data, ch, cur), _spellTab));   // タブのレベルで唱えたときの効果
         }
         else if (_phase == Phase.Slot && _spell != null)
         {
             sp = _spell;
-            level = _menu.Current?.Tag is int l ? l : _spell.Level;
+            level = _menu.Current?.Tag is int l ? Spellcasting.EffectLevel(Services.Data, Current.Character, _spell, l) : _spell.Level;
         }
         if (_phase == Phase.Beast && _menu.Current?.Tag is MonsterDef b)
         {
@@ -877,7 +880,7 @@ public sealed class CombatScene : Scene
         float x = SpellInfoArea.X + 20, w = SpellInfoArea.Width - 40;
         float y = SpellInfoArea.Y + 16;
         y = d.TextWrapped(Services.Name(sp.Name), new Vector2(x, y), w, 26, Theme.Title) + 2;
-        y = d.TextWrapped(SpellText.Header(S, sp), new Vector2(x, y), w, 17, Theme.Dim) + 6;
+        y = d.TextWrapped(SpellText.Header(S, sp, Spellcasting.AssignedLevel(Services.Data, Current.Character, sp)), new Vector2(x, y), w, 17, Theme.Dim) + 6;
         foreach (var line in SpellText.Effects(S, sp, Math.Max(1, level)))
             y = d.TextWrapped(line, new Vector2(x, y), w, 19, Theme.Text, 6);
         if (CombatEngine.IsBonusAction(sp)) y = d.TextWrapped(S["spell.bonus_followup"], new Vector2(x, y + 6), w, 16, Theme.Gold, 4);

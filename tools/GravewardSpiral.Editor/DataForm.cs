@@ -399,6 +399,8 @@ public sealed class DataForm(EditorContext context, JsonObject o, JsonObject? ba
                 break;
             case EffectPart.Kill:
                 yield return Row(T("この HP 以下", "HP at most"), I("max_hp"));
+                yield return Row(T("確率(%)", "Chance (%)"), I("chance"));   // 首はね: 書けば HP に関わらず、この確率で倒す
+                yield return Row(T("文言のキー", "Text key"), S("message", T("確率のとき。例 combat.decapitated(首をはねられた)", "with a chance, e.g. combat.decapitated")));
                 break;
             case EffectPart.Resist or EffectPart.Vulnerable:
                 yield return Row(T("種類", "Type"), P("damage_type", DamageNamesWithPhysical(), allowEmpty: false));

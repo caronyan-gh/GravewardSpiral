@@ -17,6 +17,7 @@ public static class AutoMapRenderer
     private static readonly Color Locked = new(235, 90, 80);
     private static readonly Color Party = new(255, 120, 100);
     private static readonly Color Grid = new(22, 28, 36);
+    private static readonly Color Warp = new(240, 140, 200);   // テレポーターの印と、分かった行き先
 
     /// <param name="center">真ん中に置くマス(霧の中では、最後に分かっていた場所)。</param>
     /// <param name="party">パーティの印を出す場所と向き。霧の中では null。</param>
@@ -27,8 +28,9 @@ public static class AutoMapRenderer
 
     private static string Label(string key) => Strings?["automap." + key] ?? key[..1];
 
+    /// <param name="arrivals">この階の、飛ばされて分かったテレポーターの行き先(AutoMap.ArrivalsOn。小さな枠の印を出す)。</param>
     public static void Draw(Draw2D d, MazeFloor floor, FloorMap map, RectangleF area, GridPos center,
-        (GridPos Cell, Direction Facing)? party, int? radius, IReadOnlySet<GridPos>? notes = null, bool fitKnown = false)
+        (GridPos Cell, Direction Facing)? party, int? radius, IReadOnlySet<GridPos>? notes = null, bool fitKnown = false, IReadOnlySet<GridPos>? arrivals = null)
     {
         d.FillRect(area, Panel);
         d.Rect(area, Frame, 1f);
@@ -99,12 +101,30 @@ public static class AutoMapRenderer
             {
                 // 踏んで気づいた仕掛けの印(回転床には付けない)
                 string label = mark switch { CellFeature.Teleporter => Label("teleporter"), CellFeature.Pit => Label("pit"), _ => Label("chute") };
-                d.Text(label, new Vector2(x + cell * 0.08f, y + cell * 0.48f), cell * 0.42f, new Color(240, 140, 200));
+                d.Text(label, new Vector2(x + cell * 0.08f, y + cell * 0.48f), cell * 0.42f, Warp);
+                // 別の階へ飛ぶテレポーターは、分かった行き先の階を横に書く
+                if (map.Teleports.TryGetValue(p, out var to) && to.Floor is int tf)
+                    d.Text($"B{tf + 1}", new Vector2(x + cell * 0.5f, y + cell * 0.52f), cell * 0.32f, Warp);
             }
+            // 飛ばされて着いたマス: 小さな枠
+            if (arrivals != null && arrivals.Contains(p))
+                d.Rect(new RectangleF(x + cell * 0.3f, y + cell * 0.3f, cell * 0.4f, cell * 0.4f), Warp, Math.Max(1f, thick * 0.6f));
 
             if (party is { } pt && pt.Cell == p) DrawArrow(d, x, y, cell, pt.Facing);
         }
+        // 階の全体の地図では、同じ階のテレポーターから分かった行き先へ、薄い線を引く
+        if (radius == null)
+        {
+            foreach (var (from, to) in map.Teleports.Where(t => t.Value.Floor == null))
+            {
+                if (!Inside(from, left, top, cols, rows) || !Inside(to.Cell, left, top, cols, rows)) continue;
+                Vector2 Center(GridPos g) => new(ox + (g.X - left + 0.5f) * cell, oy + (g.Y - top + 0.5f) * cell);
+                d.Line(Center(from), Center(to.Cell), Warp * 0.55f, Math.Max(1f, thick * 0.6f));
+            }
+        }
     }
+
+    private static bool Inside(GridPos g, int left, int top, int cols, int rows) => g.X >= left && g.X < left + cols && g.Y >= top && g.Y < top + rows;
 
     /// <summary>分かっているところを囲む範囲(周りに1マスの余白。端がつながっている向きは、階の幅いっぱい)。</summary>
     private static (int Left, int Top, int Cols, int Rows) KnownBounds(MazeFloor floor, FloorMap map, GridPos here)

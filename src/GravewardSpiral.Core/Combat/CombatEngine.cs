@@ -19,6 +19,9 @@ public sealed class CombatEngine(GameData data, IRandom rng)
     private readonly GameData _data = data;
     private readonly IRandom _rng = rng;
 
+    /// <summary>Damage で与えたダメージの合計(一時的な HP で受けた分も含む)。その攻撃でダメージがあったかを、HP の差でなくこれで見る。</summary>
+    private long _damageDealt;
+
     /// <summary>戦闘を始める。groups は (モンスター, 数) の並び(最大4グループ)。scale は深い階の強化。</summary>
     public CombatState Start(IEnumerable<Character> party, IEnumerable<(MonsterDef Def, int Count)> groups, MonsterScale? scale = null)
     {
@@ -357,6 +360,7 @@ public sealed class CombatEngine(GameData data, IRandom rng)
         }
 
         // 1回の攻撃。届く敵がいなければ false。unarmed は武術の素手の打撃(ボーナスアクション)
+        bool killTried = false;   // 一撃で倒す判定(instant_kill)は、1回の攻撃の行動で1度だけ(Wizardry: 何回殴っても振るのは1度。効果の当てはまる攻撃だけを数える)
         bool Strike(bool first, bool offHand, bool unarmed = false)
         {
             var targets = s.AttackableGroups(p).ToList();
@@ -428,7 +432,11 @@ public sealed class CombatEngine(GameData data, IRandom rng)
             }
             if (melee && weapon != null && FeatureChecks.MeleeWeaponDrain(_data, p) is int drain and > 0)
                 parts.Add(new EffectPart { Type = EffectPart.Drain, Value = drain });   // 命を吸う刃(このゲームでは吸う)
+            long dealtBefore = _damageDealt;
             ResolveAttack(s, p, target, weapon?.Name ?? LocalizedText.Of("unarmed strike", "素手"), roll, parts, plan.Magical);
+            // 一撃で倒す(instant_kill): ダメージを1以上与えた(一時的な HP で受けた分も、アンデッドの不屈でこらえた分も数える)最初の攻撃で、1度だけ振る。
+            // 不屈でこらえた敵も、首はねは別に振る(不屈はダメージだけをこらえる)
+            if (!killTried && roll.Hit && _damageDealt > dealtBefore) killTried = TryInstantKill(s, p, target, unarmed: weapon == null, melee);
             // 残忍な一撃(バーバリアン L9)と獰猛な攻撃(ハーフオーク): 近接のクリティカルで武器のダイスを足す
             if (roll.Crit && melee && FeatureChecks.MeleeCritExtraDice(_data, p) is int brutal and > 0 && target.Standing
                 && DiceExpression.Parse(plan.Dice).Terms.FirstOrDefault(t => !t.IsFlat) is { Sides: > 0 } die)
@@ -1043,7 +1051,7 @@ public sealed class CombatEngine(GameData data, IRandom rng)
                     break;
                 }
                 case EffectPart.ConditionType:
-                    if (part.MaxHp is int cap && target.Hp > cap) break;
+                    if (part.MaxHp is int killCap && target.Hp > killCap) break;
                     AddCondition(s, target, part, fromSave, ctx);
                     break;
                 case EffectPart.Resist or EffectPart.Vulnerable or EffectPart.SetAbility or EffectPart.ImmuneCondition:
@@ -1094,6 +1102,18 @@ public sealed class CombatEngine(GameData data, IRandom rng)
                         dying.Stable = true;
                         s.Add("combat.stable", target.Name);
                     }
+                    break;
+                case EffectPart.Kill when part.Chance is int chance:
+                    // 確率で一撃で倒す(首はね): HP に関わらず。くらう人は resist_instant_kill の能力ごとに振って、どれかに当たればこらえる
+                    // 同じ攻撃のダメージで気絶した人にも振る(死んだ人と、倒れた敵には振らない)
+                    bool gone = target is PartyMember { Character.State: LifeState.Dead or LifeState.Ashes or LifeState.Lost } || target is not PartyMember && !target.Standing;
+                    if (gone || target.Hp > (part.MaxHp ?? int.MaxValue) || _rng.Next(0, 100) >= chance) break;
+                    if (target is PartyMember guarded && FeatureChecks.InstantKillResists(_data, guarded).Any(r => _rng.Next(0, 100) < r))
+                    {
+                        s.Add("combat.instant_kill_resisted", target.Name);
+                        break;
+                    }
+                    KillOutright(s, target, part.Message ?? "combat.instant_killed");
                     break;
                 case EffectPart.Kill:
                     if (target.Hp <= (part.MaxHp ?? 0)) Damage(s, target, target.Hp + target.TempHp + target.MaxHp, "force", false, true);
@@ -1238,7 +1258,7 @@ public sealed class CombatEngine(GameData data, IRandom rng)
             s.Add(p.Raging ? "combat.rage_no_cast" : "combat.shape_no_cast", p.Name);
             return;
         }
-        int slot = spell.IsCantrip ? 0 : Math.Max(spell.Level, cmd.SlotLevel);
+        int slot = spell.IsCantrip ? 0 : Math.Max(Spellcasting.AssignedLevel(_data, c, spell), cmd.SlotLevel);   // クラスで割り当てたレベル(spelllv)のスロットから
         if (!spell.IsCantrip && Spellcasting.SlotsLeft(_data, c, slot) <= 0)
         {
             if (Spellcasting.LowestSlot(_data, c, spell) is int lower) slot = lower;
@@ -1256,7 +1276,8 @@ public sealed class CombatEngine(GameData data, IRandom rng)
             return;
         }
 
-        var ctx = new CastContext(p, spell, spell.Scale == "character" ? c.Level : slot, Spellcasting.Mod(cls, c), Spellcasting.SaveDc(cls, c));   // 初級呪文はキャラクターの合計のレベルで強くなる(5版)
+        // 初級呪文はキャラクターの合計のレベルで強くなる(5版)。ほかは、割り当てたレベルから上のスロットの分だけ、もとのレベルより強くなる
+        var ctx = new CastContext(p, spell, spell.Scale == "character" ? c.Level : Spellcasting.EffectLevel(_data, c, spell, slot), Spellcasting.Mod(cls, c), Spellcasting.SaveDc(cls, c));
         if (cmd.Empower && CanEmpower(_data, c, spell) && ClassFeatures.Spend(_data, c, "sorcery_points"))
         {
             ctx.Empower = Math.Max(1, c.Scores.Mod(Ability.Cha));
@@ -1726,7 +1747,8 @@ public sealed class CombatEngine(GameData data, IRandom rng)
             {
                 if (s.NoMagic || !Spellcasting.Castable(_data, p.Character).Any(x => x.Id == counter.Id)
                     || Spellcasting.ClassFor(_data, p.Character, counter.Id) is not { } cls) continue;
-                var levels = Enumerable.Range(3, 7).Where(l => Spellcasting.SlotsLeft(_data, p.Character, l) > 0).ToList();
+                int lowest = Math.Max(1, Spellcasting.AssignedLevel(_data, cls, p.Character, counter));   // クラスで割り当てたレベル(5版は 3)から
+                var levels = Enumerable.Range(lowest, 10 - lowest).Where(l => Spellcasting.SlotsLeft(_data, p.Character, l) > 0).ToList();
                 if (levels.Count == 0) continue;
                 use = levels.FirstOrDefault(l => l >= slot, levels.Max());
                 Spellcasting.UseSlot(_data, p.Character, use);
@@ -1821,8 +1843,71 @@ public sealed class CombatEngine(GameData data, IRandom rng)
             EndConcentration(s, target);
     }
 
+    /// <summary>HP に関わらず倒す(kill の chance)。パーティの人は死ぬ(気絶でなく)、敵は倒れ、呼んだ獣は消える。</summary>
+    private void KillOutright(CombatState s, Combatant target, string message)
+    {
+        s.Add(message, target is MonsterUnit mu ? s.GroupOf(mu).DisplayName : target.Name);
+        target.TempHp = 0;
+        switch (target)
+        {
+            case MonsterUnit m:
+                m.Hp = 0;
+                Slain(s, m);
+                break;
+            case SummonUnit summon:
+                summon.Hp = 0;
+                s.Add("combat.summon_gone", summon.Name);
+                s.Lingerings.RemoveAll(l => l.Unit == summon);
+                break;
+            case PartyMember p:
+                p.Shape = null;
+                p.ShapeHp = 0;
+                p.Raging = false;
+                EndConcentration(s, p);
+                p.Conditions.Clear();
+                p.Dots.Clear();
+                p.Modifiers.Clear();
+                Die(s, p);
+                break;
+        }
+    }
+
+    /// <summary>敵が倒れる(HP が 0 になった、一撃で倒された)。</summary>
+    private void Slain(CombatState s, MonsterUnit m)
+    {
+        var g = s.GroupOf(m);
+        g.Identified = true;
+        EndConcentration(s, m);
+        s.Defeated.Add(m);
+        s.Add("combat.slain", g.DisplayName);
+    }
+
+    /// <summary>
+    /// 一撃で倒す(instant_kill。Wizardry の忍者の首はね)。確率に当たり、ボスでなく(no_boss のとき)、敵の抵抗(resist_base・resist_die と CR)を
+    /// 越えたら、HP に関わらず倒れる。この攻撃に当てはまる効果があって振ったら true(敵がダメージで倒れていても、振る機会は使ったことにする)。
+    /// </summary>
+    private bool TryInstantKill(CombatState s, PartyMember p, Combatant target, bool unarmed, bool melee)
+    {
+        if (target is not MonsterUnit m || FeatureChecks.InstantKill(_data, p, unarmed, melee) is not var (chance, e)) return false;
+        if (!m.Standing || _rng.Next(0, 100) >= chance) return true;
+        if (e.NoBoss && m.Scale.Boss) return true;
+        if (e.ResistDie > 0 && _rng.Next(0, e.ResistDie) <= e.ResistBase + (int)Math.Floor(m.Def.Cr)) return true;
+        m.TempHp = 0;
+        m.Hp = 0;
+        s.Add(e.Message ?? "combat.instant_kill", p.Name, s.GroupOf(m).DisplayName);
+        Slain(s, m);
+        return true;
+    }
+
     /// <summary>ダメージを与える。抵抗などの倍率をかけ、HP が 0 になったら倒れる。与えたダメージ(一時的な HP で受けた分も含む)を返す。</summary>
     public int Damage(CombatState s, Combatant target, int amount, string type, bool crit, bool magical)
+    {
+        int taken = DealDamage(s, target, amount, type, crit, magical);
+        _damageDealt += Math.Max(0, taken);
+        return taken;
+    }
+
+    private int DealDamage(CombatState s, Combatant target, int amount, string type, bool crit, bool magical)
     {
         if (target is PartyMember { Character.State: LifeState.Dead }) return 0;
         if (target.Halving) amount /= 2;   // アンキャニー・ドッジ、回避
@@ -1901,11 +1986,7 @@ public sealed class CombatEngine(GameData data, IRandom rng)
                 s.Add("combat.endure", s.GroupOf(m).DisplayName);
                 return taken;
             }
-            var g = s.GroupOf(m);
-            g.Identified = true;
-            EndConcentration(s, m);
-            s.Defeated.Add(m);
-            s.Add("combat.slain", g.DisplayName);
+            Slain(s, m);
             return taken;
         }
         var p = (PartyMember)target;

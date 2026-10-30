@@ -16,6 +16,10 @@ public sealed class AutoMap
 
     public IReadOnlyDictionary<int, FloorMap> Floors => _floors;
 
+    /// <summary>その階に着く、飛ばされて分かったテレポーターの行き先(どの階のテレポーターからでも)。</summary>
+    public IEnumerable<GridPos> ArrivalsOn(int floor) =>
+        _floors.SelectMany(kv => kv.Value.Teleports.Values.Where(t => (t.Floor ?? kv.Key) == floor).Select(t => t.Cell));
+
     /// <summary>
     /// 今の場所から見えるものを記録する。霧の中では何も記録しない。
     /// 暗闇の中では、今のマスの周りの辺(手で触れたもの)だけを記録する。
@@ -50,6 +54,9 @@ public sealed class FloorMap
 
     /// <summary>踏んで気づいた仕掛けの印(テレポーター・落とし穴・シュート)。回転床には付けない。</summary>
     public Dictionary<GridPos, CellFeature> Marks { get; } = [];
+
+    /// <summary>一度飛ばされて分かったテレポーターの行き先(Floor は別の階のときだけ。同じ階なら null)。</summary>
+    public Dictionary<GridPos, WarpTarget> Teleports { get; } = [];
 
     public void See(GridPos cell, Direction d, EdgeType apparent) => Edges[new EdgeKey(cell, d)] = apparent;
 

@@ -31,6 +31,7 @@ public sealed class NewGameScene : Scene
     private int _scenario = -1;   // -1 は本編(標準のパックだけ)
     private List<(string Path, ClanFile Clan)> _clans = [];
     private int _clan = -1;       // -1 は連れていかない
+    private int _wantedClan = -1; // 選んでいたが、今のシナリオには連れて入れないクラン(連れて入れるシナリオに戻したら戻す)
     private string _clanName = "";
 
     private MazeGenSettings _settings = null!;
@@ -87,6 +88,35 @@ public sealed class NewGameScene : Scene
         LoadSettings();
     }
 
+    /// <summary>
+    /// シナリオを選び直したときのクランの名前。クランを連れて入れないシナリオでは、引き継いだ名前(今あるクランの名前)を外す
+    /// (行が隠れたまま、同じ名前の新しいクランを作るように見えないように)。連れて入れるシナリオに戻したら、選んでいたクランの名前に戻す。自分で打った名前は残す。
+    /// </summary>
+    private void SyncClanName()
+    {
+        // シナリオに連れて入れないクラン(シリーズが違うなど)は外しておき、入れるシナリオに戻したら戻す
+        if (_clan >= 0 && !Eligible(_clan))
+        {
+            _wantedClan = _clan;
+            _clan = -1;
+        }
+        else if (_clan < 0 && _wantedClan >= 0 && Eligible(_wantedClan))
+        {
+            _clan = _wantedClan;
+            _wantedClan = -1;
+            _clanName = "";
+        }
+        if (!Rows().Contains(Row.Clan) || _clan < 0)
+        {
+            if (_clans.Any(c => c.Clan.Name == _clanName)) _clanName = "";
+        }
+        else if (_clanName.Length == 0) _clanName = _clans[_clan].Clan.Name;
+    }
+
+    /// <summary>i 番目のクランを、今のシナリオへ連れて入れるか(allow_import か、同じシリーズのシナリオだけで遊んだクラン)。</summary>
+    private bool Eligible(int i) => Rows().Contains(Row.Clan)
+        && ClanImport.Allows(Services.Content.Scenario, _clans[i].Clan.Played, id => _scenarios.FirstOrDefault(x => x.Id == id)?.Manifest.Series);
+
     /// <summary>今のパックの生成の設定と、その既定(階層の数・大きさ)。</summary>
     private void LoadSettings()
     {
@@ -95,6 +125,7 @@ public sealed class NewGameScene : Scene
         _floors = _settings.DefaultFloors;
         _width = _maxWidth = _settings.DefaultWidth;
         _height = _maxHeight = _settings.DefaultHeight;
+        SyncClanName();   // シナリオが変わると、クランを連れて入れるかも変わる
     }
 
     private static string RandomSeed() => (Random.Shared.NextInt64(1, 100_000_000)).ToString();
@@ -102,7 +133,7 @@ public sealed class NewGameScene : Scene
     private List<Row> Rows()
     {
         var rows = new List<Row> { Row.Scenario };
-        if (Services.Content.Scenario?.AllowImport ?? true) rows.Add(Row.Clan);
+        if (ClanImport.Any(Services.Content.Scenario)) rows.Add(Row.Clan);
         rows.Add(Row.ClanName);
         // シナリオは迷宮もシナリオの中身なので、シード・階層・大きさは選ばない(選ぶのは、シナリオなしの自由な迷宮だけ)
         if (Services.Content.Scenario == null)
@@ -230,7 +261,10 @@ public sealed class NewGameScene : Scene
             }
             case Row.Clan:
                 if (_clans.Count == 0) return;
-                _clan = (_clan + 1 + Math.Sign(delta) + _clans.Count + 1) % (_clans.Count + 1) - 1;
+                // 連れて入れないクランは飛ばす(連れていかない、は必ず選べる)
+                do _clan = (_clan + 1 + Math.Sign(delta) + _clans.Count + 1) % (_clans.Count + 1) - 1;
+                while (_clan >= 0 && !Eligible(_clan));
+                _wantedClan = -1;
                 // 連れていくクランの名前を引き継ぐ。連れていかないに戻したら、引き継いだ名前は消す(自分で打った名前は残す)
                 if (_clan >= 0) _clanName = _clans[_clan].Clan.Name;
                 else if (_clans.Any(c => c.Clan.Name == _clanName)) _clanName = "";
@@ -266,6 +300,13 @@ public sealed class NewGameScene : Scene
         {
             Services.Audio.PlaySe(Sounds.Cancel);
             _message = NeedClearText(missing);
+            return;
+        }
+        // 連れていく人のクラス・種族・覚えた呪文が、このシナリオに無ければ始めない(シナリオで足したクラスの人を、ほかのシナリオへ連れていくなど)
+        if (_clan >= 0 && Rows().Contains(Row.Clan) && ClanImport.Missing(Services.Data, _clans[_clan].Clan.Characters) is { Count: > 0 } absent)
+        {
+            Services.Audio.PlaySe(Sounds.Cancel);
+            _message = Services.Strings.Format("newgame.clan_missing", string.Join(Services.Strings["common.list_sep"], absent.Take(4)) + (absent.Count > 4 ? "…" : ""));
             return;
         }
         ulong seed = RngStreams.ParseSeed(_seed) ?? (ulong)Random.Shared.NextInt64(1, long.MaxValue);

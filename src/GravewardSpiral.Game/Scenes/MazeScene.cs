@@ -647,7 +647,7 @@ public sealed class MazeScene : Scene
         double depth = Depth;
         State.StepsSinceCombat = 0;
         var groups = new List<(Core.Monsters.MonsterDef, int)> { (named, 1) };
-        var scale = new MonsterScale(def.HpMult, def.DamageMult, def.AcBonus, def.HitBonus);
+        var scale = new MonsterScale(def.HpMult, def.DamageMult, def.AcBonus, def.HitBonus) { Boss = true };   // 名のある敵はボスの扱い
         Stack.Push(new CombatScene(groups, noMagic: State.Cell.Zone.HasFlag(Zone.AntiMagic), scale: scale, bgm: CombatScene.BossBgm, onEnd: outcome =>
         {
             if (outcome != CombatOutcome.Victory) return;
@@ -819,7 +819,7 @@ public sealed class MazeScene : Scene
         }
         else AutoMapRenderer.Draw(d, mapFloor, State.AutoMap.For(_lastKnownFloor), MiniMapArea, _lastKnown,
             InFog ? null : (State.Position.Cell, State.Position.Facing), MiniMapRadius,
-            State.Notes.Where(n => n.Floor == _lastKnownFloor).Select(n => n.Cell).ToHashSet());
+            State.Notes.Where(n => n.Floor == _lastKnownFloor).Select(n => n.Cell).ToHashSet(), arrivals: State.AutoMap.ArrivalsOn(_lastKnownFloor).ToHashSet());
         if (InFog && Services.Options.ShowMiniMap)
             d.Text(s["maze.fog_map"], new Vector2(MiniMapArea.X + MiniMapArea.Width / 2, MiniMapArea.Y + MiniMapArea.Height - 34), 18, new Color(200, 200, 210), TextAlign.Center);
 

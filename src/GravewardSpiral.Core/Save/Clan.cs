@@ -39,6 +39,10 @@ public sealed class ClanFile
 
     public List<Character> Characters { get; set; } = [];
 
+    /// <summary>このクランで遊んだ世界のシナリオ(null は自由な迷宮。セーブのクランは世界の一覧から、書き出したクランファイルは Scenario から)。連れて入れるかを決める(ClanImport)。</summary>
+    [System.Text.Json.Serialization.JsonIgnore]
+    public List<string?> Played { get; set; } = [];
+
     /// <summary>パーティの並び(キャラの Id)。</summary>
     public List<string> Party { get; set; } = [];
 
@@ -86,6 +90,7 @@ public sealed class ClanFile
         clan.ClearedScenarios ??= clan.Cleared && clan.Scenario is { } sc
             ? new(StringComparer.Ordinal) { [ScenarioClears.IdPrefix + sc] = 1 }
             : new(StringComparer.Ordinal);
+        clan.Played = [clan.Scenario];
         return clan;
     }
 
@@ -108,6 +113,7 @@ public sealed class ClanFile
                     Id = data.Id,
                     SavedAt = summary.SavedAt,
                     Scenario = summary.Latest?.Scenario,
+                    Played = summary.Worlds.Select(w => w.Scenario).ToList(),
                     Clears = data.Clears,
                     ClearedScenarios = data.ClearedScenarios,
                     EventsSeen = data.EventsSeen,

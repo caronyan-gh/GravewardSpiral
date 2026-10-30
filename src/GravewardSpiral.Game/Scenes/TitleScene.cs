@@ -9,6 +9,7 @@ namespace GravewardSpiral.Game.Scenes;
 /// <summary>
 /// タイトル画面(仮)。後ろに、迷宮の線画の雰囲気だけを出す。
 /// シナリオ(フォルダか zip)を窓に落とすと、コピーか移動かを聞いて、シナリオの置き場所へ置く。
+/// 前回遊んだ世界のシナリオに、タイトル用の絵(art/title/logo.png・background.png)や曲(audio/bgm/title.mp3、manifest の music の title)があれば、それに入れ替える。
 /// </summary>
 public sealed class TitleScene : Scene
 {
@@ -24,13 +25,18 @@ public sealed class TitleScene : Scene
 
     private int _cursor;
     private string? _message;
+    private string? _logo;         // ロゴの絵(前回のシナリオのものか、標準)
+    private string? _background;   // 後ろの絵(前回のシナリオにあれば。無ければ通路の線画)
     private double _messageTime;
     private double _time;
 
     public override void Enter()
     {
         Services.UseScenario(null);   // シナリオを遊んだあとは、標準のパックに戻す
-        Services.Audio.PlayBgm(Bgm);
+        var look = LastScenarioLook();
+        _logo = look.Logo ?? LogoPath;
+        _background = look.Background;
+        Services.Audio.PlayBgm(look.Bgm ?? Bgm);
         if (Services.Saves.HasAny()) _cursor = Array.IndexOf(MenuKeys, "title.continue");   // セーブがあれば「続きから」に合わせておく
     }
 
@@ -63,6 +69,31 @@ public sealed class TitleScene : Scene
             _cursor = MenuKeys.Length - 1;
         }
         if (_cursor != before) Services.Audio.PlaySe(Sounds.Cursor);
+    }
+
+    /// <summary>
+    /// 前回遊んだ世界(一番新しくセーブした世界)のシナリオの、タイトル用の絵と曲(絶対パス。無いものは null)。
+    /// 絵はシナリオのフォルダの art/title/logo.png と background.png、曲は audio/bgm/title.mp3 か、manifest の music の title(棚の曲)。
+    /// </summary>
+    private (string? Logo, string? Background, string? Bgm) LastScenarioLook()
+    {
+        try
+        {
+            string? id = Services.Saves.ListClans().Select(c => c.Latest).OfType<Core.Save.SaveStore.WorldSummary>()
+                .OrderByDescending(w => w.SavedAt).FirstOrDefault()?.Scenario;
+            if (id == null || Services.FindScenarios().FirstOrDefault(x => x.Id == id) is not { } info) return default;
+            string? Own(string relative) => Path.Combine(info.Directory, relative) is var full && File.Exists(full) ? full : null;
+            string? bgm = Own(Bgm);
+            // 曲の割り当て(music の title)は棚の曲を引くので、そのときだけシナリオを重ねて読む
+            if (bgm == null && info.Manifest.Music.ContainsKey("title"))
+                bgm = ContentLibrary.Load(AppPaths.Content, info.Directory).FindFile(Bgm);
+            return (Own(LogoPath["srd/".Length..]), Own("art/title/background.png"), bgm);
+        }
+        catch (Exception ex) when (ex is IOException or UnauthorizedAccessException or System.Text.Json.JsonException)
+        {
+            Console.Error.WriteLine($"前回のシナリオのタイトルが読めません: {ex.Message}");
+            return default;
+        }
     }
 
     private static int? HitTest(Vector2? mouse)
@@ -167,10 +198,19 @@ public sealed class TitleScene : Scene
 
     public override void Draw(Draw2D d)
     {
-        DrawCorridor(d);
+        // 前回のシナリオの後ろの絵があれば、それを画面いっぱいに(メニューが読めるように暗くする)。無ければ通路の線画
+        if (_background != null && Services.Textures.Get(_background) is { } back)
+        {
+            float k = Math.Max(1280f / back.Width, 720f / back.Height);   // 縦横の比を保って画面を覆う(はみ出た所は画面の外)
+            d.Image(back, new RectangleF((1280 - back.Width * k) / 2, (720 - back.Height * k) / 2, back.Width * k, back.Height * k), Color.White);
+            // メニューの所を暗くする。上の縁は 60px かけて少しずつ濃くする(横の線に見えないように。1枚のグラデーションで、帯を重ねない)
+            d.FadeDown(new RectangleF(0, 320, 1280, 60), new Color(0, 0, 0, 150));
+            d.FillRect(new RectangleF(0, 380, 1280, 340), new Color(0, 0, 0, 150));
+        }
+        else DrawCorridor(d);
         var s = Services.Strings;
 
-        var logo = Services.Textures.Get(LogoPath);
+        var logo = Services.Textures.Get(_logo ?? LogoPath);
         if (logo != null)
         {
             d.Image(logo, LogoArea, Color.White);

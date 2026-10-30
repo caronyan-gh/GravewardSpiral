@@ -34,7 +34,7 @@ public sealed class BossDef
     public int AcBonus { get; set; }
     public int HitBonus { get; set; }
 
-    public Combat.MonsterScale Scale => new(HpMult, DamageMult, AcBonus, HitBonus);
+    public Combat.MonsterScale Scale => new(HpMult, DamageMult, AcBonus, HitBonus) { Boss = true };
 
     public sealed class BossGroup
     {

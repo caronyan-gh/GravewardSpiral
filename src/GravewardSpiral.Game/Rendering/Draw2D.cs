@@ -10,6 +10,7 @@ namespace GravewardSpiral.Game.Rendering;
 public sealed class Draw2D
 {
     private readonly Texture2D _pixel;
+    private readonly Texture2D _fade;   // 上が透明、下が白の縦のグラデーション(乗算済みのアルファ)
 
     public SpriteBatch Batch { get; }
     public TextRenderer Fonts { get; }
@@ -24,6 +25,8 @@ public sealed class Draw2D
         _primitives = new PrimitiveBatch(device);
         _pixel = new Texture2D(device, 1, 1);
         _pixel.SetData([Color.White]);
+        _fade = new Texture2D(device, 1, 64);
+        _fade.SetData(Enumerable.Range(0, 64).Select(i => new Color(i * 4 + 3, i * 4 + 3, i * 4 + 3, i * 4 + 3)).ToArray());
     }
 
     public void Begin(float scale)
@@ -53,6 +56,15 @@ public sealed class Draw2D
         var a = ToScreen(new Vector2(r.X, r.Y));
         var b = ToScreen(new Vector2(r.X + r.Width, r.Y + r.Height));
         Batch.Draw(_pixel, new Rectangle((int)MathF.Round(a.X), (int)MathF.Round(a.Y),
+            (int)MathF.Round(b.X - a.X), (int)MathF.Round(b.Y - a.Y)), color);
+    }
+
+    /// <summary>四角を、上は透明から下は color へ、なめらかに塗る(帯の縁をぼかす)。</summary>
+    public void FadeDown(RectangleF r, Color color)
+    {
+        var a = ToScreen(new Vector2(r.X, r.Y));
+        var b = ToScreen(new Vector2(r.X + r.Width, r.Y + r.Height));
+        Batch.Draw(_fade, new Rectangle((int)MathF.Round(a.X), (int)MathF.Round(a.Y),
             (int)MathF.Round(b.X - a.X), (int)MathF.Round(b.Y - a.Y)), color);
     }
 

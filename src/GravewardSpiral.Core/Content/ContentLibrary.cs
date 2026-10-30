@@ -27,6 +27,8 @@ public sealed class ContentLibrary
 
     private readonly Dictionary<string, Dictionary<string, ContentItem>> _collections = new(StringComparer.Ordinal);
     private readonly Dictionary<string, Dictionary<string, string>> _texts = new(StringComparer.OrdinalIgnoreCase);
+    /// <summary>"disabled": true で外した物(外す前の中身。extends の元には使える)。</summary>
+    private readonly Dictionary<string, Dictionary<string, ContentItem>> _disabled = new(StringComparer.Ordinal);
 
     public List<PackManifest> Packs { get; } = [];
 
@@ -133,7 +135,9 @@ public sealed class ContentLibrary
                 if (done.TryGetValue(item.Id, out var r)) return r;
                 if (!item.Data.TryGetProperty("extends", out var ext) || ext.ValueKind != JsonValueKind.String) return done[item.Id] = item;
                 string baseId = ext.GetString()!;
-                if (!path.Add(item.Id) || baseId == item.Id || !items.TryGetValue(baseId, out var baseItem))
+                // 外した物も元にできる(標準のクラスを写してから、元を外すなど)
+                if (!path.Add(item.Id) || baseId == item.Id
+                    || !items.TryGetValue(baseId, out var baseItem) && !(_disabled.TryGetValue(collection, out var gone) && gone.TryGetValue(baseId, out baseItem)))
                 {
                     Problems.Add($"{item.Pack.Id}/{collection}.json の '{item.Id}': extends の元 '{baseId}' が無いか、輪になっています");
                     return done[item.Id] = item;
@@ -289,14 +293,21 @@ public sealed class ContentLibrary
                 continue;
             }
             bool disabled = element.TryGetProperty("disabled", out var dis) && dis.ValueKind == JsonValueKind.True;
-            if (disabled) items.Remove(id);
+            if (disabled)
+            {
+                if (items.Remove(id, out var removed))
+                {
+                    if (!_disabled.TryGetValue(collection, out var gone)) _disabled[collection] = gone = new(StringComparer.Ordinal);
+                    gone[id] = removed;
+                }
+            }
             else if (pack.Format < ContentFormat.Current && System.Text.Json.Nodes.JsonNode.Parse(element.GetRawText()) is System.Text.Json.Nodes.JsonObject old)
             {
                 // 古い形のパックは、今の形に直してから持つ
                 var upgraded = ContentFormat.Upgrade(collection, old, pack.Format);
-                items[id] = new ContentItem(collection, id, JsonDocument.Parse(upgraded.ToJsonString()).RootElement.Clone(), pack);
+                items[id] = new ContentItem(collection, id, JsonDocument.Parse(upgraded.ToJsonString()).RootElement.Clone(), pack, Rel(contentRoot, file));
             }
-            else items[id] = new ContentItem(collection, id, element.Clone(), pack);
+            else items[id] = new ContentItem(collection, id, element.Clone(), pack, Rel(contentRoot, file));
         }
     }
 
@@ -309,6 +320,13 @@ public sealed class ContentLibrary
         _collections.TryGetValue(collection, out var items) && items.TryGetValue(id, out var item) ? item : null;
 
     public bool Has(string collection, string id) => Find(collection, id) != null;
+
+    /// <summary>どれかのパックが "disabled": true で外した id か(外した物を指す条件は、誤りではなく「当てはまらない」)。</summary>
+    public bool WasDisabled(string collection, string id) =>
+        !Has(collection, id) && _disabled.TryGetValue(collection, out var gone) && gone.ContainsKey(id);
+
+    /// <summary>その物を書いたファイル(content のフォルダからの相対パス。検査の文に添える)。</summary>
+    public string? SourceOf(string collection, string id) => Find(collection, id) is { } item ? item.File ?? item.Pack.Id + "/" + collection + ".json" : null;
 
     /// <summary>参照切れを問題として記録する(読み込みのあとの検査で使う)。</summary>
     public void RequireReference(ContentItem from, string field, string targetCollection, string? targetId)
@@ -361,8 +379,14 @@ public sealed class PackManifest
     /// </summary>
     public string? Dungeon { get; set; }
 
-    /// <summary>クランを連れて入れるか(シナリオ)。</summary>
+    /// <summary>クランを連れて入れるか(シナリオ)。外していても、series が同じシナリオだけで遊んだクランは連れて入れる。</summary>
     public bool AllowImport { get; set; } = true;
+
+    /// <summary>
+    /// シリーズの名前(シナリオ。例 wiz_classic)。同じシリーズのシナリオは、足したクラスなどを共にするので、allow_import を外していても、
+    /// そのシリーズのシナリオだけで遊んだクランを連れて入れる(Save.ClanImport)。
+    /// </summary>
+    public string? Series { get; set; }
 
     /// <summary>始める条件(シナリオ)。ここにあるシナリオを全部クリアしたクランを連れていくときだけ始められる。</summary>
     public List<Save.RequiredClear> RequiresClear { get; set; } = [];
@@ -383,7 +407,7 @@ public sealed class PackManifest
 }
 
 /// <summary>パックの中の物1つ。中身は JSON のまま持ち、使う側が型に読み直す。</summary>
-public sealed record ContentItem(string Collection, string Id, JsonElement Data, PackManifest Pack)
+public sealed record ContentItem(string Collection, string Id, JsonElement Data, PackManifest Pack, string? File = null)
 {
     public T As<T>() => Data.Deserialize<T>(ContentLibrary.JsonOptions)
                         ?? throw new JsonException($"{Collection} の '{Id}' が読めません");

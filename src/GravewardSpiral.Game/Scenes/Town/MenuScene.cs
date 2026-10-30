@@ -34,6 +34,9 @@ public abstract class MenuScene : Scene
 
     protected virtual int? PartyHighlight => null;
 
+    /// <summary>仲間を切り替えられる画面(持ち物・呪文の準備)。下の一覧の番号を F1〜F6 にし、見出しの右に ◀ ▶ を出す。</summary>
+    protected virtual MemberSwitch? Switch => null;
+
     public override void Enter() => Refresh();
 
     /// <summary>一覧を作り直す(カーソルの位置は保つ)。</summary>
@@ -69,6 +72,8 @@ public abstract class MenuScene : Scene
     public override void Draw(Draw2D d)
     {
         d.Text(Title, new Vector2(80, 50), 36, Theme.Title);
+        // 説明の欄の左端にそろえて、いつも同じ場所に(名前の長さで動かない)。題が長くて届くときだけ、題のすぐ右に
+        Switch?.Draw(d, new Vector2(Math.Max(InfoArea.X, 80 + d.Fonts.Measure(Title, 36).X + 24), 60));
         if (Services.Session != null)
         {
             var party = Services.Session.Roster.PartyMembers.ToList();
@@ -88,7 +93,7 @@ public abstract class MenuScene : Scene
             float y = InfoArea.Y + InfoArea.Height - 40 - (rows - 1) * (size + gap);
             foreach (var line in lines) y = d.TextWrapped(line, new Vector2(InfoArea.X + 20, y), width, size, Theme.Gold, gap);
         }
-        if (Services.Session != null) PartyPanel.Draw(d, Services, PartyArea, PartyHighlight);
+        if (Services.Session != null) PartyPanel.Draw(d, Services, PartyArea, PartyHighlight, fKeys: Switch is { CanSwitch: true, PartyArea: not null }, usable: Switch is { } sw ? sw.Allows : null);
     }
 
     /// <summary>説明の欄に、行を順に描く道具(欄の幅で折り返す)。次の行の y を返す。</summary>

@@ -16,10 +16,16 @@ namespace GravewardSpiral.Game.Scenes;
 /// 1人の持ち物。上の切り替え(クリックか左右)で「装備」と「袋」を分けて見る。
 /// 装備: 部位を選ぶと、右の欄に「外す」と、袋の中のその部位に付けられる品を並べ、選んだものに替える。
 /// 袋: 品を選ぶと「装備する・使う・渡す・捨てる」を選べる。
-/// 町とキャンプから開く(戦闘の中のアイテムは、戦闘のコマンドで使う)。
+/// 町とキャンプから開く(戦闘の中のアイテムは、戦闘のコマンドで使う)。members を渡すと、その並びの仲間に切り替えられる(MemberSwitch)。
 /// </summary>
-public sealed class InventoryScene(Character owner) : MenuScene
+public sealed class InventoryScene(Character first, IReadOnlyList<Character>? members = null) : MenuScene
 {
+    private readonly MemberSwitch _switch = new(members ?? [first], first) { PartyArea = PartyArea };
+
+    protected override MemberSwitch? Switch => _switch;
+
+    private Character Owner => _switch.Current;
+
     private enum Mode { List, Actions, GiveTo, UseOn, SlotPick }
 
     /// <summary>部位を選んだときの、右の欄の候補(外す・付けられる品)。</summary>
@@ -33,13 +39,13 @@ public sealed class InventoryScene(Character owner) : MenuScene
     private static RectangleF TabRect(Tab t) => new(ListArea.X - 12 + (int)t * 130, 90, 120, 32);   // 右に AC と同調の数を置くので、短めに
     private object? _picked;   // 選んだもの(EquipSlot か、袋の中の ItemInstance)
 
-    private Inventory Inv => owner.Inventory;
+    private Inventory Inv => Owner.Inventory;
     private GameData Data => Services.Data;
     private List<Character> Party => Services.Session!.Roster.PartyMembers.ToList();
 
-    protected override string Title => Services.Strings.Format("inv.title", owner.Name);
+    protected override string Title => Services.Strings.Format("inv.title", Owner.Name);
 
-    protected override int? PartyHighlight => _mode is Mode.GiveTo or Mode.UseOn ? List.Cursor : null;
+    protected override int? PartyHighlight => _mode is Mode.GiveTo or Mode.UseOn ? List.Cursor : Party.IndexOf(Owner) is >= 0 and var i ? i : null;
 
     public override void Enter()
     {
@@ -74,8 +80,8 @@ public sealed class InventoryScene(Character owner) : MenuScene
                 string now = Inv[ps] is { } cur ? ItemText.Name(Services, cur) : "-";
                 yield return new MenuItem($"{s["slot." + ps.ToString().ToLowerInvariant()]}: {now}", Enabled: false);
                 if (Inv[ps] != null) yield return new MenuItem(s["inv.unequip"], Tag: "unequip");
-                foreach (var i in Candidates(ps).OrderBy(i => owner.Proficient(Data, Data.Items[i.ItemId]) ? 0 : 1))
-                    yield return owner.CanWear(Data, Data.Items[i.ItemId])
+                foreach (var i in Candidates(ps).OrderBy(i => Owner.Proficient(Data, Data.Items[i.ItemId]) ? 0 : 1))
+                    yield return Owner.CanWear(Data, Data.Items[i.ItemId])
                         ? new MenuItem(ItemText.Name(Services, i), ItemText.Hands(Services, i), Tag: i)
                         : new MenuItem(ItemText.Name(Services, i), s["inv.no_proficiency"], false, i);
                 yield return new MenuItem(s["common.back"], Tag: "back");
@@ -90,7 +96,7 @@ public sealed class InventoryScene(Character owner) : MenuScene
                 {
                     if (def.IsEquippable)
                     {
-                        bool wear = owner.CanWear(Data, def);   // 習熟の無い鎧と盾は付けられない
+                        bool wear = Owner.CanWear(Data, def);   // 習熟の無い鎧と盾は付けられない
                         yield return new MenuItem(s["inv.equip"], wear ? null : s["inv.no_proficiency"], wear, "equip");   // 習熟の無い武器は、品の名前の色で知らせる
                     }
                     if (def.IsUsable) yield return new MenuItem(s["inv.use"], Tag: "use");
@@ -104,7 +110,7 @@ public sealed class InventoryScene(Character owner) : MenuScene
             case Mode.UseOn:
                 foreach (var c in Party)
                     yield return new MenuItem(c.Name, c.IsAlive ? $"{c.Hp}/{c.MaxHp}" : s[$"state.{c.State.ToString().ToLowerInvariant()}"],
-                        _mode == Mode.UseOn || c != owner, c);
+                        _mode == Mode.UseOn || c != Owner, c);
                 break;
         }
     }
@@ -220,7 +226,7 @@ public sealed class InventoryScene(Character owner) : MenuScene
         var party = Party;
         var state = new CombatState { Party = party.Select(c => new PartyMember(c, Data)).ToList(), Groups = [] };
         foreach (var p in state.Party) Lasting.Load(p);
-        var me = state.Party.FirstOrDefault(p => p.Character == owner) ?? new PartyMember(owner, Data);
+        var me = state.Party.FirstOrDefault(p => p.Character == Owner) ?? new PartyMember(Owner, Data);
         var engine = new CombatEngine(Data, Services.Session!.Rng[RngStreams.Names.Combat]);
         engine.UseItem(state, me, new PlayerCommand(CommandKind.Item, -1, target == null ? -1 : party.IndexOf(target), ItemIndex: Inv.Items.IndexOf(it)));
         foreach (var p in state.Party) Lasting.Save(p);
@@ -277,6 +283,15 @@ public sealed class InventoryScene(Character owner) : MenuScene
 
     public override void Update(GameTime time, InputState input)
     {
+        if (_mode == Mode.List && _switch.Update(input, Services.Audio))
+        {
+            // 仲間を切り替えた: 同じタブの一覧の頭から
+            Message = null;
+            Inv.MergeStacks(Data.Items);
+            var items = Items().ToList();
+            List.SetItems(items, Math.Max(0, items.FindIndex(i => i.Enabled)));
+            return;
+        }
         if (_mode == Mode.List)
         {
             // 装備と袋の切り替え(左右キーか、上のボタンをクリック)
@@ -321,7 +336,7 @@ public sealed class InventoryScene(Character owner) : MenuScene
             d.Text(label, new Vector2(r.X + r.Width / 2, r.Y + 6), 20, on ? Color.White : Theme.Dim, TextAlign.Center);
         }
         // タブの右、左の欄の右端にそろえて AC と同調の数(袋の数はタブに出ている)
-        d.Text(s.Format("inv.summary_top", owner.ArmorClass(Data), Inv.AttunedCount, Inventory.MaxAttuned),
+        d.Text(s.Format("inv.summary_top", Owner.ArmorClass(Data), Inv.AttunedCount, Inventory.MaxAttuned),
             new Vector2(ListArea.X + ListArea.Width + 4, TabRect(Tab.Equip).Y + 7), 18, Theme.Dim, TextAlign.Right);
     }
 
@@ -341,7 +356,7 @@ public sealed class InventoryScene(Character owner) : MenuScene
         {
             y = Line(d, area, y, ItemText.Name(Services, it), Theme.Title, 24);
             foreach (var line in ItemText.Lines(Services, it)) y = Line(d, area, y, line, Theme.Text, 18);
-            if (ItemText.ProficiencyNote(Services, it, owner) is { } pn) y = Line(d, area, y + 4, pn, Theme.Caution, 18);   // この人に習熟が無ければ
+            if (ItemText.ProficiencyNote(Services, it, Owner) is { } pn) y = Line(d, area, y + 4, pn, Theme.Caution, 18);   // この人に習熟が無ければ
         }
     }
 }

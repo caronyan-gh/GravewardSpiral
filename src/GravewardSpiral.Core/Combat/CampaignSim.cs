@@ -162,7 +162,7 @@ public sealed class CampaignSim
     {
         for (int exp = 1; exp <= _o.MaxExpeditions; exp++)
         {
-            if (!Town()) return Result(false, "町で立て直せない", exp);
+            if (!Town()) return Result(false, "町で立て直せない(" + Stuck() + ")", exp);
             long before = PartyGold.Total(Party);
             var outcome = Expedition();
             MazeGold += Math.Max(0, PartyGold.Total(Party) - before);   // 迷宮で稼いだ金(戦闘と宝箱。売った分は入らない)
@@ -223,6 +223,22 @@ public sealed class CampaignSim
             if (EventRunner.Available(e, ctx)) Drive(new EventRunner(e, ctx), -1);
         }
         return Party.Count(c => c.CanAct) >= Math.Min(2, Party.Count);   // 少人数の編成は、全員が動ければよい
+    }
+
+    /// <summary>町で立て直せなかった訳: 動ける人の数と、動けない人(名前・クラス・レベル・状態。灰は寺院で生き返りに失敗したまま)、持ち金。</summary>
+    private string Stuck()
+    {
+        var party = Party;
+        var down = party.Where(c => !c.CanAct).Select(c => $"{c.Name} {c.ClassId} Lv{c.Level} {StateName(c)}");
+        return $"動ける人 {party.Count(c => c.CanAct)}/{party.Count}。動けない人: {string.Join("、", down)}。持ち金 {PartyGold.Total(party)}";
+
+        static string StateName(Character c) => c.State switch
+        {
+            LifeState.Ashes => "灰・生き返りに失敗",
+            LifeState.Dead => "死",
+            LifeState.Lost => "消失",
+            _ => c.Hp <= 0 ? "HP 0" : c.State.ToString(),
+        };
     }
 
     /// <summary>
@@ -738,7 +754,7 @@ public sealed class CampaignSim
         var named = baseDef.WithName(def.Name);
         named.Xp = baseDef.Xp * 3;
         List<(MonsterDef, int)> groups = [(named, 1)];
-        var outcome = Fight(groups, new MonsterScale(def.HpMult, def.DamageMult, def.AcBonus, def.HitBonus));
+        var outcome = Fight(groups, new MonsterScale(def.HpMult, def.DamageMult, def.AcBonus, def.HitBonus) { Boss = true });
         if (outcome == CombatOutcome.Defeat) return Outcome.Wiped;
         if (outcome != CombatOutcome.Victory) return null;
         spawn.Defeated = true;

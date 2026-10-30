@@ -102,11 +102,11 @@ public sealed class ClanHouseScene : MenuScene
             case (Mode.Main, "back"): Stack.Pop(); return;
             case (Mode.Main, "items"):
                 // 持ち物の整理(装備の付け替え、仲間に渡す)
-                Stack.Push(new MemberPickScene(Services.Strings["town.items"], _ => true, c => Stack.Push(new InventoryScene(c))));
+                Stack.Push(new MemberPickScene(Services.Strings["town.items"], _ => true, c => Stack.Push(new InventoryScene(c, Services.Session!.Roster.PartyMembers.ToList()))));
                 return;
             case (Mode.Main, "status"):
                 // 仲間の詳しい状態(訓練場やキャンプと同じ画面)
-                Stack.Push(new MemberPickScene(s["camp.status"], _ => true, c => Stack.Push(new StatusScene(c))));
+                Stack.Push(new MemberPickScene(s["camp.status"], _ => true, c => Stack.Push(new StatusScene(c, Services.Session!.Roster.PartyMembers.ToList()))));
                 return;
             case (Mode.Main, Mode m): Go(m); return;
             case (Mode.Main, "sleep"):

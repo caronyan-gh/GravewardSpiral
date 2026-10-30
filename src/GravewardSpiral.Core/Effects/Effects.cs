@@ -61,6 +61,12 @@ public sealed class EffectPart
     /// <summary>kill と condition で、これより HP が多い相手には効かない。</summary>
     public int? MaxHp { get; set; }
 
+    /// <summary>kill で、一撃で倒す確率(百分率。Wizardry の首はね)。HP に関わらず倒し、くらう側は resist_instant_kill の能力でこらえられる。</summary>
+    public int? Chance { get; set; }
+
+    /// <summary>kill の chance で倒したときの文言のキー(省くと combat.instant_killed。首をはねるなら combat.decapitated)。</summary>
+    public string? Message { get; set; }
+
     /// <summary>この種類の相手にだけ効く(当たったときの追加のダメージなど)。</summary>
     public string? Only { get; set; }
 

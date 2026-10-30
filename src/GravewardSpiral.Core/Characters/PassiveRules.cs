@@ -21,7 +21,7 @@ public static class PassiveRules
         ["ac_ability", "save_proficiency", "save_bonus", "immune_condition", "immune_magic_condition", "immune_damage", "resist_damage",
          "advantage", "no_advantage_against", "evasion", "reroll_natural_one",
          "attack_bonus", "damage_bonus", "reroll_damage", "offhand_mod", "ac_bonus",
-         "extra_damage", "drain", "crit_extra_dice", "magical", "spell_damage_bonus", "reaction_reduce", "reaction_halve", "stay_up", "no_cast", "no_concentration"];
+         "extra_damage", "drain", "crit_extra_dice", "magical", "spell_damage_bonus", "reaction_reduce", "reaction_halve", "stay_up", "no_cast", "no_concentration", "instant_kill", "resist_instant_kill"];
 
     /// <summary>
     /// 効果の種類ごとの、on に書ける攻撃。ranged_shot は飛び道具で撃つ攻撃、main_melee は利き手の近接武器の攻撃、
@@ -38,6 +38,7 @@ public static class PassiveRules
         ["magical"] = ["unarmed"],
         ["reaction_reduce"] = ["ranged_attacked", "attacked"],
         ["reaction_halve"] = ["ranged_attacked", "attacked"],
+        ["instant_kill"] = ["unarmed", "melee", "attack"],
     };
 
     /// <summary>
@@ -218,6 +219,10 @@ public static class PassiveRules
                 "stay_up" when e.Pool == null && (!ValidAbility(e.Ability) || e.Value == null) => "stay_up には ability(セーヴの能力値)と value(最初の難易度)か、pool(使う回数)が要ります",
                 "stay_up" when e.Pool != null && e.Ability != null => "stay_up の pool と ability は、どちらか1つです",
                 "advantage" when e.Ability != null && (e.Roll != "save" || !ValidAbility(e.Ability)) => "advantage の ability は、roll が save のときの能力値です",
+                "instant_kill" when e.Value == null => "instant_kill には value(倒す確率の百分率)が要ります",
+                "resist_instant_kill" when e.Value == null => "resist_instant_kill には value(こらえる確率の百分率)が要ります",
+                "instant_kill" when e.ResistBase < 0 || e.ResistDie < 0 || e.ResistBase > 0 && e.ResistDie == 0 => "instant_kill の resist_base は 0 以上、resist_die は 1 以上(抵抗させないなら両方とも書かない)です",
+                _ when e.Type != "instant_kill" && (e.ResistBase != 0 || e.ResistDie != 0 || e.NoBoss) => "resist_base・resist_die・no_boss は instant_kill だけに書けます",
                 _ => null,
             };
             if (bad != null) yield return $"{where} の effects: {bad}";

@@ -22,7 +22,8 @@ public static class EventCheck
     {
         var problems = new List<string>();
         string where = $"events '{e.Id}'";
-        void Add(string text) => problems.Add($"{where}: {text}");
+        string? here = null;   // 入れ子のどこか(JSON の道筋。when / steps[2].options[0].steps[1] など)
+        void Add(string text) => problems.Add(here == null ? $"{where}: {text}" : $"{where}: {text}(場所: {here})");
         if (e.OwnFlag != null && string.IsNullOrWhiteSpace(e.OwnFlag)) Add("own_flag に空の名前は使えません");
         if (e.OwnFlag != null && data.Events.Values.Any(other => other.Id != e.Id && other.OwnFlag == e.OwnFlag)) Add("専用フラグの名前が、ほかのイベントと重複しています");
         if (!Places.Contains(e.Place)) Add($"place '{e.Place}' は {string.Join(" / ", Places)} のどれかです");
@@ -40,15 +41,17 @@ public static class EventCheck
             Add($"bgm '{e.Bgm}' がどのパックにもありません");
         var texts = content?.Texts("ja");
 
-        void Conditions(IEnumerable<EventCondition> list)
+        void Conditions(IEnumerable<EventCondition> list, string at)
         {
-            foreach (var c in list)
+            foreach (var (c, i) in list.Select((c, i) => (c, i)))
             {
+                here = $"{at}[{i}]";
                 if (!EventCondition.KnownTypes.Contains(c.Type)) Add($"条件の種類 '{c.Type}' がありません");
                 if (c.Type is "flag" or "done" or "item" or "class" or "race" or "counter" && string.IsNullOrEmpty(c.Id)) Add($"条件 {c.Type} に id がありません");
                 if (c.Type == "item" && c.Id != null && !data.Items.ContainsKey(c.Id)) Add($"条件 item: items に '{c.Id}' がありません");
-                if (c.Type == "class" && c.Id != null && !data.Classes.ContainsKey(c.Id)) Add($"条件 class: classes に '{c.Id}' がありません");
-                if (c.Type == "race" && c.Id != null && !data.Races.ContainsKey(c.Id)) Add($"条件 race: races に '{c.Id}' がありません");
+                // 外したクラスや種族(disabled)を指す条件は、誤りではなく、いつも当てはまらないだけ(標準のクラスを削ったシナリオでも、標準のイベントがそのまま読める)
+                if (c.Type == "class" && c.Id != null && !data.Classes.ContainsKey(c.Id) && content?.WasDisabled("classes", c.Id) != true) Add($"条件 class: classes に '{c.Id}' がありません");
+                if (c.Type == "race" && c.Id != null && !data.Races.ContainsKey(c.Id) && content?.WasDisabled("races", c.Id) != true) Add($"条件 race: races に '{c.Id}' がありません");
                 if (c.Type == "done" && c.Id != null && !data.Events.ContainsKey(c.Id)) Add($"条件 done: events に '{c.Id}' がありません");
                 if (c.Type == "facing" && !Facings.Contains(c.Id ?? "")) Add($"条件 facing の id '{c.Id}' は {string.Join(" / ", Facings)} のどれかです");
                 if (c.Type == "equipped" && (c.Id == null || !data.Items.ContainsKey(c.Id))) Add($"条件 equipped: items に '{c.Id}' がありません");
@@ -59,11 +62,13 @@ public static class EventCheck
             }
         }
 
-        void Steps(IEnumerable<EventStep> list, int depth)
+        void Steps(IEnumerable<EventStep> list, int depth, string at)
         {
             if (depth > 30) { Add("手順の入れ子が深すぎます"); return; }
-            foreach (var s in list)
+            foreach (var (s, i) in list.Select((s, i) => (s, i)))
             {
+                string me = $"{at}[{i}]";
+                here = me;
                 if (!EventStep.KnownTypes.Contains(s.Type)) Add($"手順の種類 '{s.Type}' がありません");
                 bool needId = s.Type is "flag" or "unflag" or "counter" or "counter_set" or "give_item" or "take_item" or "open" or "close" or "warp" or "sound" or "run" or "timer" or "timer_stop";
                 if (needId && string.IsNullOrEmpty(s.Id)) Add($"手順 {s.Type} に id がありません");
@@ -109,13 +114,19 @@ public static class EventCheck
                     foreach (var g in s.Groups.Where(g => !data.Monsters.ContainsKey(g.Monster))) Add($"手順 combat: monsters に '{g.Monster}' がありません");
                     if (s.Boss != null && !data.Bosses.ContainsKey(s.Boss)) Add($"手順 combat: bosses に '{s.Boss}' がありません");
                 }
-                Conditions(s.Conditions());
-                foreach (var child in s.Children()) Steps(child, depth + 1);
+                Conditions(s.When, me + ".when");
+                for (int o = 0; o < s.Options.Count; o++) Conditions(s.Options[o].When, $"{me}.options[{o}].when");
+                for (int k = 0; k < s.Cases.Count; k++) Conditions(s.Cases[k].When, $"{me}.cases[{k}].when");
+                foreach (var (name, child) in new[] { ("then", s.Then), ("else", s.Else), ("success", s.Success), ("fail", s.Fail), ("win", s.Win), ("lose", s.Lose) })
+                    Steps(child, depth + 1, $"{me}.{name}");
+                for (int o = 0; o < s.Options.Count; o++) Steps(s.Options[o].Steps, depth + 1, $"{me}.options[{o}].steps");
+                for (int k = 0; k < s.Cases.Count; k++) Steps(s.Cases[k].Then, depth + 1, $"{me}.cases[{k}].then");
             }
         }
 
-        Conditions(e.When);
-        Steps(e.Steps, 0);
+        Conditions(e.When, "when");
+        Steps(e.Steps, 0, "steps");
+        here = null;
         if (RunCycle(data, e) is { } cycle) Add($"run が輪になっています({string.Join(" → ", cycle)})。選択や戦闘を挟まずに戻ると、止まらなくなります");
         return problems;
     }

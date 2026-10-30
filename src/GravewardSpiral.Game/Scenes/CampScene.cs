@@ -121,7 +121,7 @@ public sealed class CampScene : MenuScene
             case Mode.CastSlot:
             {
                 var cls = Spellcasting.CasterClass(data, _caster!)!;
-                for (int l = _spell!.Level; l <= 9; l++)
+                for (int l = Spellcasting.AssignedLevel(data, _caster!, _spell!); l <= 9; l++)   // クラスで割り当てたレベルから
                 {
                     int left = Spellcasting.SlotsLeft(Services.Data, _caster!, l);
                     if (left > 0) yield return new MenuItem(s.Format("spell.level", l), $"({left})", Tag: l);
@@ -190,10 +190,10 @@ public sealed class CampScene : MenuScene
             case (Mode.Main, "backlog"): Stack.Push(new BacklogScene(Services.LastCombatLog)); break;
             case (Mode.Main, "options"): Stack.Push(new OptionsScene(overlay: true)); break;
             case (Mode.Main, "items"): Go(Mode.ItemsWho); break;
-            case (Mode.ItemsWho, Character c): Stack.Push(new InventoryScene(c)); break;
+            case (Mode.ItemsWho, Character c): Stack.Push(new InventoryScene(c, Services.Session!.Roster.PartyMembers.ToList())); break;
             case (Mode.Main, "back"): Stack.Pop(); break;
-            case (Mode.StatusWho, Character c): Stack.Push(new StatusScene(c)); break;
-            case (Mode.PrepareWho, Character c): Stack.Push(new SpellPickScene(c, SpellPickScene.Kind.Prepared)); break;
+            case (Mode.StatusWho, Character c): Stack.Push(new StatusScene(c, Services.Session!.Roster.PartyMembers.ToList())); break;
+            case (Mode.PrepareWho, Character c): Stack.Push(new SpellPickScene(c, SpellPickScene.Kind.Prepared, Services.Session!.Roster.PartyMembers.ToList())); break;
             case (Mode.CastWho, Character c):
                 _caster = c;
                 // はじめのタブは、唱えられる一番低いタブ
@@ -389,8 +389,11 @@ public sealed class CampScene : MenuScene
         if (List.Current?.Tag is SpellDef sp)
         {
             y = Line(d, area, y, Services.Name(sp.Name), Theme.Title, 26);
-            y = Line(d, area, y, SpellText.Header(s, sp), Theme.Dim, 18);
-            int level = sp.Scale == "character" ? _caster!.Level : Math.Max(1, _mode == Mode.CastSpell ? Math.Max(sp.Level, _spellTab) : sp.Level);
+            int assigned = Spellcasting.AssignedLevel(Services.Data, _caster!, sp);
+            y = Line(d, area, y, SpellText.Header(s, sp, assigned), Theme.Dim, 18);
+            // タブのスロットで唱えたときの強さ(割り当てたレベルから上の分だけ、もとのレベルより強い)
+            int level = sp.Scale == "character" ? _caster!.Level
+                : Math.Max(1, _mode == Mode.CastSpell ? Spellcasting.EffectLevel(Services.Data, _caster!, sp, Math.Max(assigned, _spellTab)) : sp.Level);
             foreach (var line in SpellText.Effects(s, sp, level)) y = Line(d, area, y, line, Theme.Text, 19);
             return;
         }

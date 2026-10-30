@@ -46,6 +46,9 @@ public sealed class InputState
         if (!char.IsControl(c)) _typed.Append(c);
     }
 
+    /// <summary>このフレームで押された F1〜F6(0〜5)。1人を見る画面で、その番の仲間へ移る。割り当ては変えられない。</summary>
+    public int? MemberKey { get; private set; }
+
     /// <summary>このフレームで Backspace が押された(数を入力する欄で、取消より先に使う)。</summary>
     public bool BackspacePressed { get; private set; }
 
@@ -117,6 +120,11 @@ public sealed class InputState
             {
                 if (Pressed(keys, Keys.D0 + i) || Pressed(keys, Keys.NumPad0 + i)) _typedDigits.Add((char)('0' + i));
             }
+        }
+        MemberKey = null;
+        for (int i = 0; i < 6 && windowActive; i++)
+        {
+            if (Pressed(keys, Keys.F1 + i)) MemberKey = i;
         }
         BackspacePressed = windowActive && Pressed(keys, Keys.Back);
         EnterPressed = windowActive && Pressed(keys, Keys.Enter);
