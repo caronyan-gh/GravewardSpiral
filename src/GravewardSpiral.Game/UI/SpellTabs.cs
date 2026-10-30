@@ -28,7 +28,7 @@ public static class SpellTabs
 
     /// <summary>そのレベルのスロットを持っているか(初級呪文のタブはいつも持っている)。</summary>
     public static bool Has(GameData data, Character c, int tab) =>
-        tab == 0 || Spellcasting.CasterClass(data, c) is { } cls && Spellcasting.MaxSlots(cls, c, tab) > 0;
+        tab == 0 || Spellcasting.CasterClass(data, c) is { } cls && Spellcasting.MaxSlots(data, c, tab) > 0;
 
     /// <summary>選べるタブ(スロットを持っていて、出す呪文のあるタブ)。左右で回る先。</summary>
     public static List<int> Tabs(GameData data, Character c, IEnumerable<SpellDef> spells)
@@ -39,11 +39,11 @@ public static class SpellTabs
 
     /// <summary>そのタブで唱えられるか(初級呪文はいつも。ほかはそのレベルのスロットが残っているか)。</summary>
     public static bool CanCast(GameData data, Character c, int tab) =>
-        tab == 0 || Spellcasting.CasterClass(data, c) is { } cls && Spellcasting.SlotsLeft(cls, c, tab) > 0;
+        tab == 0 || Spellcasting.CasterClass(data, c) is { } cls && Spellcasting.SlotsLeft(data, c, tab) > 0;
 
     /// <summary>選んでいるタブに出す、そのレベルのスロットの残り(「(3)」。初級呪文のタブは無し)。</summary>
     public static string? Left(GameData data, Character c, int tab) =>
-        tab > 0 && Spellcasting.CasterClass(data, c) is { } cls ? $"({Spellcasting.SlotsLeft(cls, c, tab)})" : null;
+        tab > 0 && Spellcasting.CasterClass(data, c) is { } cls ? $"({Spellcasting.SlotsLeft(data, c, tab)})" : null;
 
     /// <summary>はじめに開くタブ: 唱えられる一番低いタブ(無ければ、選べる一番低いタブ)。</summary>
     public static int First(GameData data, Character c, IEnumerable<SpellDef> spells)
@@ -67,7 +67,7 @@ public static class SpellTabs
         if (!Has(data, c, tab)) return NotYet;
         if (!tabs.Contains(tab)) return Theme.Disabled;
         if (tab == 0 || Spellcasting.CasterClass(data, c) is not { } cls) return Theme.Text;
-        return Spellcasting.SlotsLeft(cls, c, tab) switch
+        return Spellcasting.SlotsLeft(data, c, tab) switch
         {
             0 => Empty,
             1 => Theme.Gold,

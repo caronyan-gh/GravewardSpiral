@@ -45,7 +45,7 @@ public sealed class DataPickerWindow : Window
             "monsters" => data.Monsters.Values.Where(m => m.Usable).Select(m => new Entry(m.Id, Loc.Name(m.Name) ?? m.Id, PartNames.Name(PartNames.CreatureTypes, m.CreatureType), CrBand(m.Cr),
                 T($"{PartNames.Name(PartNames.CreatureTypes, m.CreatureType)}・脅威度 {m.Cr:0.##}・経験値 {m.Xp}\nHP {m.HpAverage}({m.Hp})・AC {m.Ac}", $"{PartNames.Name(PartNames.CreatureTypes, m.CreatureType)}, CR {m.Cr:0.##}, XP {m.Xp}\nHP {m.HpAverage} ({m.Hp}), AC {m.Ac}"), m.Cr)).ToList(),
             _ => data.Spells.Values.Select(s => new Entry(s.Id, Loc.Name(s.Name) ?? s.Id, s.Level == 0 ? T("初級呪文", "Cantrip") : T($"{s.Level} レベル", $"Level {s.Level}"), Text("school." + s.School, s.School),
-                T($"{(s.Level == 0 ? "初級呪文" : $"{s.Level} レベル")}・{Text("school." + s.School, s.School)}\n使える: {string.Join("・", s.Classes)}", $"{(s.Level == 0 ? "Cantrip" : $"Level {s.Level}")}, {Text("school." + s.School, s.School)}\nClasses: {string.Join(", ", s.Classes)}"))).ToList(),
+                T($"{(s.Level == 0 ? "初級呪文" : $"{s.Level} レベル")}・{Text("school." + s.School, s.School)}\n使える: {string.Join("・", data.ClassesWithSpell(s.Id).Select(c => c.Id))}", $"{(s.Level == 0 ? "Cantrip" : $"Level {s.Level}")}, {Text("school." + s.School, s.School)}\nClasses: {string.Join(", ", data.ClassesWithSpell(s.Id).Select(c => c.Id))}"))).ToList(),
         };
         _all = [.. _all.OrderBy(e => e.A, StringComparer.Ordinal).ThenBy(e => e.Name, StringComparer.CurrentCulture)];
 

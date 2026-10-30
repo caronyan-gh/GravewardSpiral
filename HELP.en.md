@@ -527,7 +527,7 @@ This is the game's only Metamagic option. Other Metamagic choices and conversion
 
 These abilities work without selecting a combat command. Levels below refer to levels in the relevant class.
 
-- Fighting Style: Fighters, paladins, and rangers learn this ability. Equipment determines whether Archery, Two-Weapon Fighting, Great Weapon Fighting, Dueling, or Defense applies.
+- Fighting Style: Fighters, paladins, and rangers learn this ability. Archery always applies when you shoot a ranged weapon; in melee, your equipment determines whether Two-Weapon Fighting, Great Weapon Fighting, Dueling, or Defense applies.
 - Paladin auras: From level 6, a paladin able to act improves the whole party's saves with Aura of Protection. At level 10, Aura of Courage protects allies from fear.
 - Rogue's Uncanny Dodge: From level 5, reduce damage from an attack. At level 7, Evasion further reduces damage that allows a Dexterity save for reduced damage.
 - Monk's Martial Arts and Evasion: Without armor or a shield, you can use Dexterity with unarmed strikes and monk weapons (shortswords and simple melee weapons that aren't heavy or two-handed), and make an extra unarmed strike after attacking. With armor or a shield, Martial Arts stops working and Flurry of Blows can't be chosen. Evasion becomes available at level 7.
@@ -702,7 +702,7 @@ This game adapts the D&D 5th edition SRD 5.1 for dungeon exploration. These are 
 - Warlock: Invocations are learned automatically at fixed levels. There is no invocation or Pact Boon selection.
 - Multiclassing: Gain all weapon and armor proficiencies of each new class you take.
 - Ability Score Improvements and feats: Gain 2 points at class levels 4, 8, 12, 16 and 19 (fighters also at 6 and 14, rogues at 10) and spend them one at a time at the training grounds. There are no feats (the only SRD 5.1 feat is for grappling, which this game does not have).
-- Fighting Style: You don't choose one. It follows what you wield (ranged weapon: Archery, two light weapons: Two-Weapon Fighting, two-handed: Great Weapon Fighting, one-handed melee: Dueling, no weapon: Defense). The status screen shows your current style.
+- Fighting Style: You don't choose one. It follows what you wield. Shots with a ranged weapon always get Archery, whatever is in your main hand. In melee: two weapons, Two-Weapon Fighting; two-handed, Great Weapon Fighting; one-handed, Dueling. With no weapon but armor, Defense. The status screen shows the styles in effect (or None).
 - Wild Shape: While transformed, your AC is the beast's fixed value. Unarmored Defense and gear don't add to it.
 - Level cap: Total character level has no cap. From level 21 onward, gain an epic boon with each level.
 

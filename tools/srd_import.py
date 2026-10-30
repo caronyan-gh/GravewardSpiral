@@ -6,7 +6,7 @@
         tools/srd-source/spells_overrides.json(自動で変換できない呪文を手で書いたもの。変換の結果に上書きする)
         tools/srd-source/5e-SRD-Equipment.json、items_ja.json(武器・鎧・盾と日本語名)
         tools/srd-source/items_extra.json、magic_items.json、uniques.json、event_items.json(袋・道具・水薬・魔法のアイテム・固有のレア品・イベントでしか手に入らない品。手で書いたもの。同じ id は後ろが勝つ)
-  出力: Content/srd/monsters.json、Content/srd/spells.json、Content/srd/items.json
+  出力: Content/srd/monsters.json、Content/srd/spells.json、Content/srd/spellsets.json、Content/srd/items.json
 
 説明文 (desc) は写さない。命中したときの追加のセーヴや状態は、説明文の決まった言い回しから読み取る。
 読み取れなかった行動は unsupported に名前だけ残し、戦闘では使わない。
@@ -20,6 +20,7 @@ ROOT = Path(__file__).resolve().parent.parent
 SRC = ROOT / "tools" / "srd-source"
 OUT = ROOT / "Content" / "srd" / "monsters.json"
 SPELLS_OUT = ROOT / "Content" / "srd" / "spells.json"
+SPELLSETS_OUT = ROOT / "Content" / "srd" / "spellsets.json"
 ITEMS_OUT = ROOT / "Content" / "srd" / "items.json"
 DAMAGE_TYPES = ["acid", "bludgeoning", "cold", "fire", "force", "lightning", "necrotic", "piercing", "poison", "psychic", "radiant", "slashing", "thunder"]
 
@@ -609,6 +610,24 @@ def spell_icon(sp):
     return "buff"
 
 
+SPELLSET_CLASSES = ["bard", "cleric", "druid", "paladin", "ranger", "sorcerer", "warlock", "wizard"]
+
+
+def write_spellsets(spells):
+    """呪文のクラスから、束 <クラス>_cantrips と <クラス>_<レベル> を作って spellsets.json に書く(呪文は spells.json の順)。"""
+    sets = {}
+    for x in spells:
+        for cls in x["classes"]:
+            sets.setdefault(f"{cls}_cantrips" if x["level"] == 0 else f"{cls}_{x['level']}", []).append(x["id"])
+
+    def key(k):
+        cls, lv = k.rsplit("_", 1)
+        return (SPELLSET_CLASSES.index(cls), -1 if lv == "cantrips" else int(lv))
+
+    lines = ",\n".join(" " + json.dumps({"id": k, "spells": sets[k]}, ensure_ascii=False) for k in sorted(sets, key=key))
+    SPELLSETS_OUT.write_text("[\n" + lines + "\n]\n", encoding="utf-8")
+
+
 def convert_spells():
     src = json.loads((SRC / "5e-SRD-Spells.json").read_text(encoding="utf-8"))
     ja = json.loads((SRC / "spells_ja.json").read_text(encoding="utf-8"))
@@ -621,6 +640,9 @@ def convert_spells():
     if unknown:
         print("上書きの対象が SRD にありません:", ", ".join(unknown))
     spells = sorted((convert_spell(x, ja, overrides) for x in src), key=lambda x: (x["level"], x["id"]))
+    write_spellsets(spells)
+    for x in spells:
+        x.pop("classes")   # どのクラスが使うかは spellsets.json の束と、classes.json の spell_access で決める
     SPELLS_OUT.write_text(json.dumps(spells, ensure_ascii=False, indent=1) + "\n", encoding="utf-8")
     from collections import Counter
     c = Counter(x["status"] for x in spells)

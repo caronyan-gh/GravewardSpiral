@@ -120,18 +120,9 @@ public sealed class SaveStore
         var node = System.Text.Json.Nodes.JsonNode.Parse(File.ReadAllText(file)) ?? throw new InvalidDataException("クランが読めません");
         var clan = node.Deserialize<ClanData>(Json) ?? throw new InvalidDataException("クランが読めません");
         foreach (var c in clan.Characters) c.NormalizeClasses();
-        MovePactSlots(node["characters"], clan.Characters);
         // クリアの印を持つ前のクランは、クリアした世界から拾う
         clan.ClearedScenarios ??= ScenarioClears.FromWorlds(ReadWorlds(clanId).Select(w => w.Data));
         return clan;
-    }
-
-    /// <summary>協約魔術のスロットを分けて数える前のキャラ(pact_slots_used が無い)は、SlotsUsed から協約の分を移す。</summary>
-    internal static void MovePactSlots(System.Text.Json.Nodes.JsonNode? raw, List<Character> characters)
-    {
-        if (raw is not System.Text.Json.Nodes.JsonArray list) return;
-        for (int i = 0; i < Math.Min(list.Count, characters.Count); i++)
-            if (list[i] is System.Text.Json.Nodes.JsonObject o && !o.ContainsKey("pact_slots_used")) characters[i].MovePactSlotsFromOldSave();
     }
 
     /// <summary>
@@ -309,7 +300,6 @@ public sealed class SaveStore
                 Migrate(node, node["version"]?.GetValue<int>() ?? 0);
                 var data = node.Deserialize<SaveData>(Json);
                 if (data == null) continue;
-                MovePactSlots(node["roster"]?["characters"], data.Roster.Characters);
                 var clan = new ClanData
                 {
                     Id = data.ClanId ?? LegacyClanId(slot),

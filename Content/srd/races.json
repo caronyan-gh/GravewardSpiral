@@ -7,6 +7,7 @@
     "darkvision": true,
     "hp_per_level": 1,
     "traits": ["dwarven_resilience", "stonecunning", "dwarven_toughness"],
+    "features": [{"id": "dwarven_resilience", "level": 1}],
     "description": { "en": "Stout and enduring. Takes half poison damage and has advantage on saves against being poisoned. +1 HP per level.", "ja": "頑丈でねばり強い。毒のダメージを半分にし、毒にするものへのセーヴに有利。レベルごとに HP が 1 多い。" }
   },
   {
@@ -17,6 +18,7 @@
     "darkvision": true,
     "skills": ["perception"],
     "traits": ["keen_senses", "fey_ancestry", "trance"],
+    "features": [{"id": "fey_ancestry", "level": 1}],
     "description": { "en": "Graceful and keen-eyed. Advantage on saves against being charmed, and magic can't put you to sleep.", "ja": "身軽で目がよい。魅了するものへのセーヴに有利で、魔法では眠らない。" }
   },
   {
@@ -25,6 +27,7 @@
     "subrace": { "en": "Lightfoot", "ja": "ライトフット" },
     "ability_bonus": { "dex": 2, "cha": 1 },
     "traits": ["lucky", "brave", "halfling_nimbleness", "naturally_stealthy"],
+    "features": [{"id": "lucky", "level": 1}, {"id": "brave", "level": 1}],
     "description": { "en": "Small and lucky. Rerolls a natural 1 on attacks, saves and death saves. Advantage on saves against being frightened.", "ja": "小柄で運がよい。攻撃・セーヴ・死亡のセーヴの d20 で 1 を出したら振り直す。恐怖にするものへのセーヴに有利。" }
   },
   {
@@ -39,6 +42,8 @@
     "name": { "en": "Dragonborn", "ja": "ドラゴンボーン" },
     "ability_bonus": { "str": 2, "cha": 1 },
     "traits": ["breath_weapon", "damage_resistance"],
+    "features": [{"id": "breath_weapon", "level": 1}, {"id": "draconic_resistance", "level": 1}],
+    "pools": [{"id": "breath_weapon", "max": 1, "recharge": "short"}],
     "description": { "en": "Draconic heritage. Can breathe fire on a nearby enemy group in battle (recharges on a short rest). Takes half fire damage.", "ja": "竜の血を引く。戦闘で近くの敵のグループに火を吐ける(小休憩で戻る)。火のダメージを半分にする。" }
   },
   {
@@ -48,6 +53,7 @@
     "ability_bonus": { "int": 2, "con": 1 },
     "darkvision": true,
     "traits": ["gnome_cunning", "tinker"],
+    "features": [{"id": "gnome_cunning", "level": 1}],
     "description": { "en": "Clever. Advantage on Intelligence, Wisdom and Charisma saves against magic.", "ja": "賢い。魔法への知力・判断力・魅力のセーヴに有利。" }
   },
   {
@@ -58,6 +64,7 @@
     "darkvision": true,
     "free_skills": 2,
     "traits": ["fey_ancestry", "skill_versatility"],
+    "features": [{"id": "fey_ancestry", "level": 1}],
     "description": { "en": "Charismatic. +1 to two other abilities and two extra skills. Advantage on saves against being charmed, and magic can't put you to sleep.", "ja": "人をひきつける。ほかの能力値 2 つが 1 上がり、技能を 2 つ多く覚える。魅了するものへのセーヴに有利で、魔法では眠らない。" }
   },
   {
@@ -67,6 +74,8 @@
     "darkvision": true,
     "skills": ["intimidation"],
     "traits": ["menacing", "relentless_endurance", "savage_attacks"],
+    "features": [{"id": "relentless_endurance", "level": 1}, {"id": "savage_attacks", "level": 1}],
+    "pools": [{"id": "relentless_endurance", "max": 1, "recharge": "long"}],
     "description": { "en": "Fierce. Once per long rest, drops to 1 HP instead of 0 (unless killed outright). Rolls one extra weapon die on melee critical hits.", "ja": "猛々しい。大休憩までに1回、HP が 0 になっても 1 で踏みとどまる(即死のときは除く)。近接のクリティカルで武器のダイスを1つ多く振る。" }
   },
   {
@@ -75,6 +84,7 @@
     "ability_bonus": { "cha": 2, "int": 1 },
     "darkvision": true,
     "traits": ["hellish_resistance", "infernal_legacy"],
+    "features": [{"id": "hellish_resistance", "level": 1}],
     "description": { "en": "Infernal heritage. Takes half fire damage.", "ja": "地獄の血を引く。火のダメージを半分にする。" }
   }
 ]

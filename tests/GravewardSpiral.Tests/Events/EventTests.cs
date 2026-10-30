@@ -861,4 +861,76 @@ public partial class EventTests
         Drive(new EventRunner(ev, Ctx(s, state)));
         Assert.Equal(19, c.Inventory.Equipped[Core.Items.EquipSlot.Ammo].Count);
     }
+
+    /// <summary>Step 6c: damage と condition の who。tag:arcane は魔法使いだけ、trigger は選んでいなければ隊列の先頭、party は選んだあとでも全員。</summary>
+    [Fact]
+    public void WhoChoosesWhoIsHurt()
+    {
+        var (s, state) = Room("lever_room.txt", 1, 1);
+        var party = s.Roster.PartyMembers.ToList();
+        void Reset() { foreach (var c in party) c.Hp = c.MaxHp; }
+        List<string> Hurt(string json)
+        {
+            Reset();
+            Drive(new EventRunner(Ev(json), Ctx(s, state)));
+            return party.Where(c => c.Hp < c.MaxHp).Select(c => c.ClassId).ToList();
+        }
+        Assert.Equal(["wizard"], Hurt("""{ "id": "a", "steps": [{ "type": "damage", "dice": "1d4+1", "who": "tag:arcane" }] }"""));
+        Assert.Equal(["cleric", "paladin", "ranger"], Hurt("""{ "id": "d", "steps": [{ "type": "damage", "dice": "1d4+1", "who": "tag:divine" }] }"""));
+        Assert.Equal(["fighter"], Hurt("""{ "id": "t", "steps": [{ "type": "damage", "dice": "1d4+1", "who": "trigger" }] }"""));
+        Assert.Equal(6, Hurt("""{ "id": "p", "steps": [{ "type": "pick", "value": 1, "then": [{ "type": "damage", "dice": "1d4+1", "who": "party" }] }] }""").Count);
+    }
+
+    /// <summary>Step 6c: イベントから罠を使う。死ぬかどうかは手順の lethal、罠の lethal、束の lethal の順で、どれにも無ければ HP 1 で止まる。</summary>
+    [Fact]
+    public void EventTrapsFollowTheLethalOrder()
+    {
+        var (s, state) = Room("lever_room.txt", 1, 1);
+        var first = s.Roster.PartyMembers.First();
+        LifeState After(string step)
+        {
+            first.Hp = 2;
+            first.State = LifeState.Alive;
+            Drive(new EventRunner(Ev($$"""{ "id": "x", "steps": [{{step}}] }"""), Ctx(s, state)));
+            return first.State;
+        }
+        Assert.Equal(LifeState.Alive, After("""{ "type": "trap", "id": "crossbow_bolt" }"""));   // 束を通さず、罠にも無い: HP 1 で止まる
+        Assert.Equal(1, first.Hp);
+        Assert.Equal(LifeState.Dead, After("""{ "type": "trap", "id": "crossbow_bolt", "lethal": true }"""));
+        var lines = new List<string>();
+        first.Hp = 2;
+        first.State = LifeState.Alive;
+        foreach (var o in Drive(new EventRunner(Ev("""{ "id": "y", "steps": [{ "type": "trap", "id": "crossbow_bolt" }] }"""), Ctx(s, state))))
+            if (o is EventMessage m) lines.Add(m.Key);
+        Assert.Equal("event.sprung", lines[0]);
+    }
+
+    /// <summary>Step 6c: teleport はこの階のどこかへ飛ばし、alarm は敵を呼ぶ。どちらもイベントはそこで終わる。</summary>
+    [Fact]
+    public void TeleportAndAlarmEndTheEvent()
+    {
+        var (s, state) = Room("lever_room.txt", 1, 1);
+        long gold = s.Roster.PartyMembers.Sum(c => c.Gold);
+        var outs = Drive(new EventRunner(Ev("""{ "id": "t", "steps": [{ "type": "teleport" }, { "type": "gold", "value": 500 }] }"""), Ctx(s, state, 7)));
+        Assert.Contains(outs, o => o is EventWarp { ChangedFloor: false });
+        Assert.False(state.Floor[state.Position.Cell.X, state.Position.Cell.Y].IsSolid);
+        Assert.Equal(gold, s.Roster.PartyMembers.Sum(c => c.Gold));   // 飛ばしたあとの手順は行わない
+        outs = Drive(new EventRunner(Ev("""{ "id": "a", "steps": [{ "type": "alarm" }, { "type": "gold", "value": 500 }] }"""), Ctx(s, state)));
+        Assert.Contains(outs, o => o is EventAlarm);
+        Assert.Equal(gold, s.Roster.PartyMembers.Sum(c => c.Gold));
+    }
+
+    [Fact]
+    public void BadTrapStepsAreReported()
+    {
+        string all = string.Join("\n", Core.Events.EventCheck.Check(Data, Ev("""
+            { "id": "b", "steps": [{ "type": "trap" }, { "type": "trap", "id": "no_such" }, { "type": "trap", "set": "no_set" },
+              { "type": "damage", "who": "everyone" }, { "type": "condition", "id": "poisoned", "save": { "ability": "luck" } }] }
+            """)));
+        Assert.Contains("id(罠)か set(罠の束)のどちらか", all);
+        Assert.Contains("traps に 'no_such'", all);
+        Assert.Contains("trapsets に 'no_set'", all);
+        Assert.Contains("who 'everyone'", all);
+        Assert.Contains("save:", all);
+    }
 }

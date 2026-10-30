@@ -1,0 +1,35 @@
+[
+ {
+  "id": "chest",
+  "lethal": true,
+  "traps": [
+   {
+    "id": "poison_needle"
+   },
+   {
+    "id": "gas_bomb"
+   },
+   {
+    "id": "crossbow_bolt"
+   },
+   {
+    "id": "exploding_box"
+   },
+   {
+    "id": "stunner"
+   },
+   {
+    "id": "teleporter"
+   },
+   {
+    "id": "mage_blaster"
+   },
+   {
+    "id": "priest_blaster"
+   },
+   {
+    "id": "alarm"
+   }
+  ]
+ }
+]

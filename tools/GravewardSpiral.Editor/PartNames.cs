@@ -78,7 +78,8 @@ public static class PartNames
         ("condition", "状態異常にする", "Add condition"), ("cure", "状態異常を治す", "Remove condition"), ("spend_slot", "呪文スロットの消費", "Use a spell slot"),
         ("light", "明かりの操作", "Control light"),
         ("combat", "戦闘の処理", "Battle processing"), ("open", "門を開ける", "Open gate"), ("close", "門を閉める", "Close gate"),
-        ("warp", "場所移動", "Transfer party"), ("sound", "SE の演奏", "Play SE"));
+        ("warp", "場所移動", "Transfer party"), ("sound", "SE の演奏", "Play SE"),
+        ("trap", "罠を動かす", "Spring a trap"), ("teleport", "どこかへ飛ばす", "Teleport somewhere"), ("alarm", "警報(敵を呼ぶ)", "Alarm (call enemies)"));
 
     /// <summary>手順の部品の組(足すとき、まず組を選んで絞る)。</summary>
     public static readonly (string Ja, string En, string[] Keys)[] StepGroups =
@@ -91,7 +92,7 @@ public static class PartNames
         ("フラグと数", "Flags & counters", ["flag", "counter", "counter_set"]),
         ("品とお金", "Items & gold", ["give_item", "take_item", "treasure", "gold", "xp"]),
         ("パーティ", "Party", ["pick", "heal", "damage", "condition", "cure", "spend_slot", "light"]),
-        ("迷宮と戦闘", "Maze & combat", ["combat", "open", "close", "warp", "sound"]),
+        ("迷宮と戦闘", "Maze & combat", ["combat", "open", "close", "warp", "teleport", "trap", "alarm", "sound"]),
     ];
 
     public static readonly IReadOnlyDictionary<string, string> Conditions = new PartTable<string>(

@@ -3,6 +3,11 @@
     "id": "barbarian",
     "name": { "en": "Barbarian", "ja": "バーバリアン" },
     "hit_die": 12,
+    "progression": {"attacks": {"by_level": {"1": 1, "5": 2}}, "ability_increases": [4, 8, 12, 16, 19]},
+    "pools": [
+      {"id": "rage", "max": {"by_level": {"1": 2, "3": 3, "6": 4, "12": 5, "17": 6, "20": 99}}, "recharge": "long"}
+    ],
+    "features": [{"id": "rage_limits", "level": 1}, {"id": "rage_damage", "level": 1}, {"id": "rage", "level": 1}, {"id": "unarmored_defense_con", "level": 1}, {"id": "reckless_attack", "level": 2}, {"id": "danger_sense", "level": 2}, {"id": "feral_instinct", "level": 7}, {"id": "brutal_critical", "level": 9}, {"id": "relentless_rage", "level": 11}],
     "multiclass": [{ "str": 13 }],
     "primary": ["str", "con", "dex"],
     "saves": ["str", "con"],
@@ -10,7 +15,6 @@
     "weapons": ["simple", "martial"],
     "skill_choices": 2,
     "skills": ["animal_handling", "athletics", "intimidation", "nature", "perception", "survival"],
-    "unarmored_defense": "con",
     "start_gold": "2d4",
     "start_items": ["greataxe", "handaxe", "sack"],
     "description": { "en": "Rage (level 1, recharges on a long rest): more damage on Strength melee attacks and half damage from physical attacks.\nWhile raging you can't cast spells, and concentration ends.\nFrom level 2 your melee attacks have advantage, but so do attacks against you.\nWithout armor, add your Constitution modifier to AC (a shield is fine).", "ja": "激怒(L1、大休憩で戻る): 筋力の近接攻撃のダメージが上がり、物理のダメージを半分にする。\n激怒中は呪文を使えず、集中も切れる。\nL2 からは自分の近接攻撃が有利になるが、敵からの攻撃も有利になる。\n鎧を着ていないとき、AC に耐久力の修正値も足す(盾は持ってよい)。" }
@@ -18,7 +22,13 @@
   {
     "id": "bard",
     "name": { "en": "Bard", "ja": "バード" },
+    "tags": ["arcane"],
     "hit_die": 8,
+    "progression": {"ability_increases": [4, 8, 12, 16, 19]},
+    "pools": [
+      {"id": "bardic_inspiration", "max": {"ability": "cha", "min": 1}, "recharge": "long", "short_with": "font_of_inspiration"}
+    ],
+    "features": [{"id": "bardic_inspiration", "level": 1}, {"id": "song_of_rest", "level": 2}, {"id": "font_of_inspiration", "level": 5}],
     "multiclass": [{ "cha": 13 }],
     "primary": ["cha", "dex", "con"],
     "saves": ["dex", "cha"],
@@ -26,7 +36,21 @@
     "weapons": ["simple", "hand_crossbow", "longsword", "rapier", "shortsword"],
     "skill_choices": 3,
     "skills": ["*"],
-    "spellcasting": "cha",
+    "spellcasting": {
+      "ability": "cha", "style": "known", "progression": "full", "cantrips": {"by_level": {"1": 2, "4": 3, "10": 4}}, "known": {"by_level": {"1": 4, "2": 5, "3": 6, "4": 7, "5": 8, "6": 9, "7": 10, "8": 11, "9": 12, "10": 14, "11": 15, "13": 16, "14": 18, "15": 19, "17": 20, "18": 22}},
+      "spell_access": [
+        {"lv": 1, "spelllv": 0, "set": "bard_cantrips"},
+        {"lv": 1, "spelllv": 1, "set": "bard_1"},
+        {"lv": 3, "spelllv": 2, "set": "bard_2"},
+        {"lv": 5, "spelllv": 3, "set": "bard_3"},
+        {"lv": 7, "spelllv": 4, "set": "bard_4"},
+        {"lv": 9, "spelllv": 5, "set": "bard_5"},
+        {"lv": 11, "spelllv": 6, "set": "bard_6"},
+        {"lv": 13, "spelllv": 7, "set": "bard_7"},
+        {"lv": 15, "spelllv": 8, "set": "bard_8"},
+        {"lv": 17, "spelllv": 9, "set": "bard_9"}
+      ]
+    },
     "start_gold": "5d4",
     "start_items": ["rapier", "leather_armor", "dagger", "sack"],
     "description": { "en": "A Charisma caster who casts the spells they know.\nChoose any three skills.\nFrom level 1, Bardic Inspiration helps another ally's attacks and saves (recharges on a short rest from level 5).", "ja": "魅力で呪文を使う術者(覚えた呪文を使う)。\n技能をどれからでも3つ選べる。\nL1 から鼓舞で、自分以外の仲間の攻撃とセーヴを助ける(L5 から小休憩で戻る)。" }
@@ -34,7 +58,13 @@
   {
     "id": "cleric",
     "name": { "en": "Cleric", "ja": "クレリック" },
+    "tags": ["divine"],
     "hit_die": 8,
+    "progression": {"ability_increases": [4, 8, 12, 16, 19]},
+    "pools": [
+      {"id": "channel_divinity", "max": {"by_level": {"2": 1, "6": 2, "18": 3}}, "recharge": "short"}
+    ],
+    "features": [{"id": "turn_undead", "level": 2}, {"id": "destroy_undead", "level": 5}],
     "multiclass": [{ "wis": 13 }],
     "primary": ["wis", "con", "str"],
     "saves": ["wis", "cha"],
@@ -42,7 +72,21 @@
     "weapons": ["simple"],
     "skill_choices": 2,
     "skills": ["history", "insight", "medicine", "persuasion", "religion"],
-    "spellcasting": "wis",
+    "spellcasting": {
+      "ability": "wis", "style": "prepared", "progression": "full", "cantrips": {"by_level": {"1": 3, "4": 4, "10": 5}}, "prepared": {"ability": "wis", "class_level": 1, "min": 1},
+      "spell_access": [
+        {"lv": 1, "spelllv": 0, "set": "cleric_cantrips"},
+        {"lv": 1, "spelllv": 1, "set": "cleric_1"},
+        {"lv": 3, "spelllv": 2, "set": "cleric_2"},
+        {"lv": 5, "spelllv": 3, "set": "cleric_3"},
+        {"lv": 7, "spelllv": 4, "set": "cleric_4"},
+        {"lv": 9, "spelllv": 5, "set": "cleric_5"},
+        {"lv": 11, "spelllv": 6, "set": "cleric_6"},
+        {"lv": 13, "spelllv": 7, "set": "cleric_7"},
+        {"lv": 15, "spelllv": 8, "set": "cleric_8"},
+        {"lv": 17, "spelllv": 9, "set": "cleric_9"}
+      ]
+    },
     "start_gold": "5d4",
     "start_items": ["mace", "scale_mail", "shield", "sack"],
     "description": { "en": "A Wisdom caster who prepares spells from the class list.\nStrong at healing and support.\nTurns undead from level 2.", "ja": "判断力で呪文を使う術者(クラスの呪文から準備する)。\n回復と補助が得意。\nL2 からアンデッドを退散させる。" }
@@ -50,7 +94,13 @@
   {
     "id": "druid",
     "name": { "en": "Druid", "ja": "ドルイド" },
+    "tags": ["divine"],
     "hit_die": 8,
+    "progression": {"ability_increases": [4, 8, 12, 16, 19]},
+    "pools": [
+      {"id": "wild_shape", "max": {"by_level": {"2": 2, "20": 99}}, "recharge": "short"}
+    ],
+    "features": [{"id": "wild_shape", "level": 2}, {"id": "wild_shape_limits", "level": 2}, {"id": "beast_spells", "level": 18}, {"id": "archdruid", "level": 20}],
     "multiclass": [{ "wis": 13 }],
     "primary": ["wis", "con", "dex"],
     "saves": ["int", "wis"],
@@ -58,7 +108,21 @@
     "weapons": ["club", "dagger", "dart", "javelin", "mace", "quarterstaff", "scimitar", "sickle", "sling", "spear"],
     "skill_choices": 2,
     "skills": ["arcana", "animal_handling", "insight", "medicine", "nature", "perception", "religion", "survival"],
-    "spellcasting": "wis",
+    "spellcasting": {
+      "ability": "wis", "style": "prepared", "progression": "full", "cantrips": {"by_level": {"1": 2, "4": 3, "10": 4}}, "prepared": {"ability": "wis", "class_level": 1, "min": 1},
+      "spell_access": [
+        {"lv": 1, "spelllv": 0, "set": "druid_cantrips"},
+        {"lv": 1, "spelllv": 1, "set": "druid_1"},
+        {"lv": 3, "spelllv": 2, "set": "druid_2"},
+        {"lv": 5, "spelllv": 3, "set": "druid_3"},
+        {"lv": 7, "spelllv": 4, "set": "druid_4"},
+        {"lv": 9, "spelllv": 5, "set": "druid_5"},
+        {"lv": 11, "spelllv": 6, "set": "druid_6"},
+        {"lv": 13, "spelllv": 7, "set": "druid_7"},
+        {"lv": 15, "spelllv": 8, "set": "druid_8"},
+        {"lv": 17, "spelllv": 9, "set": "druid_9"}
+      ]
+    },
     "start_gold": "2d4",
     "start_items": ["scimitar", "leather_armor", "shield", "sack"],
     "description": { "en": "A Wisdom caster who prepares spells.\nFrom level 2, can turn into a beast in battle, fighting with the beast's HP and AC. Uses come back on a short rest.\nBelow level 18, no spells while transformed.", "ja": "判断力で呪文を使う術者(準備する)。\nL2 から戦闘中に獣に変身できる。獣の HP と AC で戦い、変身の回数は小休憩で戻る。\nL18 未満では、変身中は呪文を使えない。" }
@@ -67,6 +131,13 @@
     "id": "fighter",
     "name": { "en": "Fighter", "ja": "ファイター" },
     "hit_die": 10,
+    "progression": {"attacks": {"by_level": {"1": 1, "5": 2, "11": 3, "20": 4}}, "ability_increases": [4, 6, 8, 12, 14, 16, 19]},
+    "pools": [
+      {"id": "second_wind", "max": 1, "recharge": "short"},
+      {"id": "action_surge", "max": {"by_level": {"2": 1, "17": 2}}, "recharge": "short"},
+      {"id": "indomitable", "max": {"by_level": {"9": 1, "13": 2, "17": 3}}, "recharge": "long"}
+    ],
+    "features": [{"id": "second_wind", "level": 1}, {"id": "action_surge", "level": 2}, {"id": "style_archery", "level": 1}, {"id": "style_defense", "level": 1}, {"id": "style_dueling", "level": 1}, {"id": "style_great_weapon", "level": 1}, {"id": "style_two_weapon", "level": 1}],
     "multiclass": [{ "str": 13 }, { "dex": 13 }],
     "primary": ["str", "con", "dex"],
     "saves": ["str", "con"],
@@ -82,6 +153,11 @@
     "id": "monk",
     "name": { "en": "Monk", "ja": "モンク" },
     "hit_die": 8,
+    "progression": {"attacks": {"by_level": {"1": 1, "5": 2}}, "ability_increases": [4, 8, 12, 16, 19]},
+    "pools": [
+      {"id": "ki", "max": {"class_level": 1}, "recharge": "short", "from_level": 2}
+    ],
+    "features": [{"id": "flurry_of_blows", "level": 2}, {"id": "patient_defense", "level": 2}, {"id": "stunning_strike", "level": 5}, {"id": "unarmored_defense_wis", "level": 1}, {"id": "martial_arts", "level": 1}, {"id": "deflect_missiles", "level": 3}, {"id": "ki_empowered_strikes", "level": 6}, {"id": "evasion", "level": 7}, {"id": "purity_of_body", "level": 10}, {"id": "diamond_soul", "level": 14}],
     "multiclass": [{ "dex": 13, "wis": 13 }],
     "primary": ["dex", "wis", "con"],
     "saves": ["str", "dex"],
@@ -89,7 +165,6 @@
     "weapons": ["simple", "shortsword"],
     "skill_choices": 2,
     "skills": ["acrobatics", "athletics", "history", "insight", "religion", "stealth"],
-    "unarmored_defense": "wis",
     "start_gold": "5d4",
     "start_items": ["shortsword", "sack"],
     "description": { "en": "Only without armor or a shield, two things work:\n- Martial Arts: use Dexterity with unarmed strikes and monk weapons, plus an extra unarmed strike after attacking.\n- Add your Wisdom modifier to AC.\nKi powers Flurry of Blows and Patient Defense from level 2 and Stunning Strike from level 5 (ki recharges on a short rest).", "ja": "鎧も盾も着けないときだけ、次の2つが働く。\n・武術: 素手とモンクの武器で敏捷力を使い、攻撃のあとに素手でもう1回。\n・AC に判断力の修正値も足す。\nL2 から気で連打や忍耐の守り、L5 から朦朧打撃(気は小休憩で戻る)。" }
@@ -97,7 +172,13 @@
   {
     "id": "paladin",
     "name": { "en": "Paladin", "ja": "パラディン" },
+    "tags": ["divine"],
     "hit_die": 10,
+    "progression": {"attacks": {"by_level": {"1": 1, "5": 2}}, "ability_increases": [4, 8, 12, 16, 19]},
+    "pools": [
+      {"id": "lay_on_hands", "max": {"class_level": 5}, "recharge": "long"}
+    ],
+    "features": [{"id": "lay_on_hands", "level": 1}, {"id": "divine_smite", "level": 2}, {"id": "style_archery", "level": 2}, {"id": "style_defense", "level": 2}, {"id": "style_dueling", "level": 2}, {"id": "style_great_weapon", "level": 2}, {"id": "style_two_weapon", "level": 2}, {"id": "aura_of_protection", "level": 6}, {"id": "aura_of_courage", "level": 10}, {"id": "improved_divine_smite", "level": 11}],
     "multiclass": [{ "str": 13, "cha": 13 }],
     "primary": ["str", "cha", "con"],
     "saves": ["wis", "cha"],
@@ -105,7 +186,16 @@
     "weapons": ["simple", "martial"],
     "skill_choices": 2,
     "skills": ["athletics", "insight", "intimidation", "medicine", "persuasion", "religion"],
-    "spellcasting": "cha",
+    "spellcasting": {
+      "ability": "cha", "style": "prepared", "progression": "half", "from_level": 2, "prepared": {"ability": "cha", "class_level": 0.5, "round": "floor", "min": 1},
+      "spell_access": [
+        {"lv": 2, "spelllv": 1, "set": "paladin_1"},
+        {"lv": 5, "spelllv": 2, "set": "paladin_2"},
+        {"lv": 9, "spelllv": 3, "set": "paladin_3"},
+        {"lv": 13, "spelllv": 4, "set": "paladin_4"},
+        {"lv": 17, "spelllv": 5, "set": "paladin_5"}
+      ]
+    },
     "start_gold": "5d4",
     "start_items": ["longsword", "chain_mail", "shield", "sack"],
     "description": { "en": "A holy warrior who casts Charisma spells from level 2.\nLay on Hands heals from level 1.\nFrom level 2, Divine Smite spends a spell slot to add damage to a hit.\nFrom level 6, every ally gets a bonus to saves while you stand.", "ja": "魅力で呪文を使う聖なる戦士(呪文は L2 から)。\nL1 からレイ・オン・ハンズで回復する。\nL2 から、当てた攻撃に呪文の回数を使って神の一撃を足す。\nL6 から、立っているあいだ仲間全員のセーヴが上がる。" }
@@ -113,7 +203,10 @@
   {
     "id": "ranger",
     "name": { "en": "Ranger", "ja": "レンジャー" },
+    "tags": ["divine"],
     "hit_die": 10,
+    "progression": {"attacks": {"by_level": {"1": 1, "5": 2}}, "ability_increases": [4, 8, 12, 16, 19]},
+    "features": [{"id": "style_archery", "level": 2}, {"id": "style_defense", "level": 2}, {"id": "style_dueling", "level": 2}, {"id": "style_great_weapon", "level": 2}, {"id": "style_two_weapon", "level": 2}],
     "multiclass": [{ "dex": 13, "wis": 13 }],
     "primary": ["dex", "wis", "con"],
     "saves": ["str", "dex"],
@@ -121,7 +214,16 @@
     "weapons": ["simple", "martial"],
     "skill_choices": 3,
     "skills": ["animal_handling", "athletics", "insight", "investigation", "nature", "perception", "stealth", "survival"],
-    "spellcasting": "wis",
+    "spellcasting": {
+      "ability": "wis", "style": "known", "progression": "half", "from_level": 2, "known": {"by_level": {"2": 2, "3": 3, "5": 4, "7": 5, "9": 6, "11": 7, "13": 8, "15": 9, "17": 10, "19": 11}},
+      "spell_access": [
+        {"lv": 2, "spelllv": 1, "set": "ranger_1"},
+        {"lv": 5, "spelllv": 2, "set": "ranger_2"},
+        {"lv": 9, "spelllv": 3, "set": "ranger_3"},
+        {"lv": 13, "spelllv": 4, "set": "ranger_4"},
+        {"lv": 17, "spelllv": 5, "set": "ranger_5"}
+      ]
+    },
     "start_gold": "5d4",
     "start_items": ["shortsword", "longbow", "scale_mail", "sack"],
     "description": { "en": "A warrior with medium armor.\nCasts Wisdom spells they know from level 2.\nAttacks twice from level 5.", "ja": "中装鎧まで扱える戦士。\nL2 から判断力で呪文を使う(覚えた呪文)。\nL5 から攻撃が2回になる。" }
@@ -130,6 +232,8 @@
     "id": "rogue",
     "name": { "en": "Rogue", "ja": "ローグ" },
     "hit_die": 8,
+    "progression": {"ability_increases": [4, 8, 10, 12, 16, 19]},
+    "features": [{"id": "sneak_attack", "level": 1}, {"id": "uncanny_dodge", "level": 5}, {"id": "evasion", "level": 7}, {"id": "slippery_mind", "level": 15}, {"id": "elusive", "level": 18}],
     "multiclass": [{ "dex": 13 }],
     "primary": ["dex", "int", "con"],
     "saves": ["dex", "int"],
@@ -145,7 +249,13 @@
   {
     "id": "sorcerer",
     "name": { "en": "Sorcerer", "ja": "ソーサラー" },
+    "tags": ["arcane"],
     "hit_die": 6,
+    "progression": {"ability_increases": [4, 8, 12, 16, 19]},
+    "pools": [
+      {"id": "sorcery_points", "max": {"class_level": 1}, "recharge": "long", "from_level": 2}
+    ],
+    "features": [{"id": "empowered_spell", "level": 3}],
     "multiclass": [{ "cha": 13 }],
     "primary": ["cha", "con", "dex"],
     "saves": ["con", "cha"],
@@ -153,7 +263,21 @@
     "weapons": ["dagger", "dart", "sling", "quarterstaff", "light_crossbow"],
     "skill_choices": 2,
     "skills": ["arcana", "deception", "insight", "intimidation", "persuasion", "religion"],
-    "spellcasting": "cha",
+    "spellcasting": {
+      "ability": "cha", "style": "known", "progression": "full", "cantrips": {"by_level": {"1": 4, "4": 5, "10": 6}}, "known": {"by_level": {"1": 2, "2": 3, "3": 4, "4": 5, "5": 6, "6": 7, "7": 8, "8": 9, "9": 10, "10": 11, "11": 12, "13": 13, "15": 14, "17": 15}},
+      "spell_access": [
+        {"lv": 1, "spelllv": 0, "set": "sorcerer_cantrips"},
+        {"lv": 1, "spelllv": 1, "set": "sorcerer_1"},
+        {"lv": 3, "spelllv": 2, "set": "sorcerer_2"},
+        {"lv": 5, "spelllv": 3, "set": "sorcerer_3"},
+        {"lv": 7, "spelllv": 4, "set": "sorcerer_4"},
+        {"lv": 9, "spelllv": 5, "set": "sorcerer_5"},
+        {"lv": 11, "spelllv": 6, "set": "sorcerer_6"},
+        {"lv": 13, "spelllv": 7, "set": "sorcerer_7"},
+        {"lv": 15, "spelllv": 8, "set": "sorcerer_8"},
+        {"lv": 17, "spelllv": 9, "set": "sorcerer_9"}
+      ]
+    },
     "start_gold": "3d4",
     "start_items": ["light_crossbow", "dagger", "sack"],
     "description": { "en": "A Charisma caster who casts the spells they know.\nFrom level 3, spend sorcery points to reroll low damage dice on a damage spell.", "ja": "魅力で呪文を使う術者(覚えた呪文)。\nL3 から、ソーサリー・ポイントを使ってダメージの呪文の低い出目を振り直せる。" }
@@ -161,7 +285,10 @@
   {
     "id": "warlock",
     "name": { "en": "Warlock", "ja": "ウォーロック" },
+    "tags": ["arcane"],
     "hit_die": 8,
+    "progression": {"attacks": {"by_level": {"1": 1, "5": 2}}, "ability_increases": [4, 8, 12, 16, 19]},
+    "features": [{"id": "agonizing_blast", "level": 2}, {"id": "thirsting_blade", "level": 5}, {"id": "lifedrinker", "level": 12}],
     "multiclass": [{ "cha": 13 }],
     "primary": ["cha", "con", "dex"],
     "saves": ["wis", "cha"],
@@ -169,7 +296,21 @@
     "weapons": ["simple"],
     "skill_choices": 2,
     "skills": ["arcana", "deception", "history", "intimidation", "investigation", "nature", "religion"],
-    "spellcasting": "cha",
+    "spellcasting": {
+      "ability": "cha", "style": "pact", "progression": "pact", "cantrips": {"by_level": {"1": 2, "4": 3, "10": 4}}, "known": {"by_level": {"1": 2, "2": 3, "3": 4, "4": 5, "5": 6, "6": 7, "7": 8, "8": 9, "9": 10, "11": 11, "13": 12, "15": 13, "17": 14, "19": 15}},
+      "spell_access": [
+        {"lv": 1, "spelllv": 0, "set": "warlock_cantrips"},
+        {"lv": 1, "spelllv": 1, "set": "warlock_1"},
+        {"lv": 3, "spelllv": 2, "set": "warlock_2"},
+        {"lv": 5, "spelllv": 3, "set": "warlock_3"},
+        {"lv": 7, "spelllv": 4, "set": "warlock_4"},
+        {"lv": 9, "spelllv": 5, "set": "warlock_5"},
+        {"lv": 11, "spelllv": 6, "set": "warlock_6"},
+        {"lv": 13, "spelllv": 7, "set": "warlock_7"},
+        {"lv": 15, "spelllv": 8, "set": "warlock_8"},
+        {"lv": 17, "spelllv": 9, "set": "warlock_9"}
+      ]
+    },
     "start_gold": "4d4",
     "start_items": ["light_crossbow", "leather_armor", "dagger", "sack"],
     "description": { "en": "A Charisma caster.\nFew spell slots, but they all come back on a short rest (spell level up to 5).\nInvocations such as Agonizing Blast are added automatically at levels 2, 5 and 12.", "ja": "魅力で呪文を使う術者。\n呪文の回数は少ないが、小休憩で全部戻る(呪文のレベルは5まで)。\nL2・5・12 で苦痛の魔撃などの祈りが自動で付く。" }
@@ -177,7 +318,13 @@
   {
     "id": "wizard",
     "name": { "en": "Wizard", "ja": "ウィザード" },
+    "tags": ["arcane"],
     "hit_die": 6,
+    "progression": {"ability_increases": [4, 8, 12, 16, 19]},
+    "pools": [
+      {"id": "arcane_recovery", "max": 1, "recharge": "long"}
+    ],
+    "features": [{"id": "arcane_recovery", "level": 1}],
     "multiclass": [{ "int": 13 }],
     "primary": ["int", "con", "dex"],
     "saves": ["int", "wis"],
@@ -185,7 +332,21 @@
     "weapons": ["dagger", "dart", "sling", "quarterstaff", "light_crossbow"],
     "skill_choices": 2,
     "skills": ["arcana", "history", "insight", "investigation", "medicine", "religion"],
-    "spellcasting": "int",
+    "spellcasting": {
+      "ability": "int", "style": "book", "progression": "full", "cantrips": {"by_level": {"1": 3, "4": 4, "10": 5}}, "known": {"base": 4, "class_level": 2}, "prepared": {"ability": "int", "class_level": 1, "min": 1},
+      "spell_access": [
+        {"lv": 1, "spelllv": 0, "set": "wizard_cantrips"},
+        {"lv": 1, "spelllv": 1, "set": "wizard_1"},
+        {"lv": 3, "spelllv": 2, "set": "wizard_2"},
+        {"lv": 5, "spelllv": 3, "set": "wizard_3"},
+        {"lv": 7, "spelllv": 4, "set": "wizard_4"},
+        {"lv": 9, "spelllv": 5, "set": "wizard_5"},
+        {"lv": 11, "spelllv": 6, "set": "wizard_6"},
+        {"lv": 13, "spelllv": 7, "set": "wizard_7"},
+        {"lv": 15, "spelllv": 8, "set": "wizard_8"},
+        {"lv": 17, "spelllv": 9, "set": "wizard_9"}
+      ]
+    },
     "start_gold": "4d4",
     "start_items": ["quarterstaff", "dagger", "sack"],
     "description": { "en": "An Intelligence caster.\nWrites spells in a spellbook and prepares which to use (you can change them at the Training Grounds).\nOnce per long rest, a short rest recovers some spell slots.", "ja": "知力で呪文を使う術者。\n呪文書に呪文を書き、その中から使うものを準備する(訓練場で選び直せる)。\n小休憩で、大休憩までに1回、呪文の回数を少し取り戻せる。" }

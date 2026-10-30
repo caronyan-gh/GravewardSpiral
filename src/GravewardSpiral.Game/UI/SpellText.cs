@@ -144,8 +144,8 @@ public static class SpellText
     public static List<string>? SlotLines(Strings s, GameData data, Character c, int perLine = 5)
     {
         if (Spellcasting.CasterClass(data, c) is not { } cls) return null;
-        var parts = Enumerable.Range(1, 9).Where(l => Spellcasting.MaxSlots(cls, c, l) > 0)
-            .Select(l => $"{l}: {Spellcasting.SlotsLeft(cls, c, l)}/{Spellcasting.MaxSlots(cls, c, l)}").ToList();
+        var parts = Enumerable.Range(1, 9).Where(l => Spellcasting.MaxSlots(data, c, l) > 0)
+            .Select(l => $"{l}: {Spellcasting.SlotsLeft(data, c, l)}/{Spellcasting.MaxSlots(data, c, l)}").ToList();
         if (parts.Count == 0) return [s["spell.no_slots"]];
         var lines = parts.Chunk(perLine).Select(chunk => string.Join("  ", chunk)).ToList();
         string head = s.Format("spell.slots", lines[0]);

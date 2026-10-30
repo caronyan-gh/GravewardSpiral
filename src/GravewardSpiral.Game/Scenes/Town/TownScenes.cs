@@ -402,7 +402,7 @@ public sealed class TrainingScene : MenuScene
             yield return new MenuItem(s["training.status"], Tag: "status");
             yield return new MenuItem(s["camp.items"], Tag: "items");
             yield return new MenuItem(s["training.level_up"], c.CanLevelUp ? s["training.can"] : null, Enabled: c.CanLevelUp && c.IsAlive, Tag: "level");
-            if (c.AbilityPoints > 0) yield return new MenuItem(s.Format("training.asi", c.AbilityPoints), Enabled: c.IsAlive, Tag: "asi");
+            if (c.AbilityPoints(Services.Data) > 0) yield return new MenuItem(s.Format("training.asi", c.AbilityPoints(Services.Data)), Enabled: c.IsAlive, Tag: "asi");
             if (c.EpicPoints > 0) yield return new MenuItem(s.Format("training.boon", c.EpicPoints), Tag: "boon");
             // 呪文は術者のクラスごと(マルチクラスでは、選ぶ画面で左右にクラスを切り替える)
             var casters = Spellcasting.CasterClasses(Services.Data, c).ToList();
@@ -425,7 +425,7 @@ public sealed class TrainingScene : MenuScene
             if (Roster.Away.TryGetValue(ch.Id, out var where))
                 yield return new MenuItem(ch.Name, s.Format("roster.away", Services.ScenarioDisplayName(where.StartsWith("free-") ? null : where)), Enabled: false, Tag: ch);
             else
-                yield return new MenuItem(ch.Name, $"{Services.Name(Services.Data.Classes[ch.ClassId].Name)} Lv{ch.Level}{(ch.CanLevelUp || ch.AbilityPoints > 0 ? " ↑" : "")}", Tag: ch);
+                yield return new MenuItem(ch.Name, $"{Services.Name(Services.Data.Classes[ch.ClassId].Name)} Lv{ch.Level}{(ch.CanLevelUp || ch.AbilityPoints(Services.Data) > 0 ? " ↑" : "")}", Tag: ch);
         }
         yield return new MenuItem(s["training.export_clan"], Enabled: Roster.Characters.Count > 0, Tag: "export");
         yield return new MenuItem(s["common.back"], Tag: "back");
@@ -517,7 +517,7 @@ public sealed class TrainingScene : MenuScene
                     int before = who.MaxHp;
                     who.LevelUp(Services.Data, cls.Id, maxLevels: 1);
                     Message = s.Format("training.leveled_class", who.Name, Services.Name(cls.Name), who.LevelIn(cls.Id), who.MaxHp - before);
-                    if (who.AbilityPoints > 0) Message += "\n" + s.Format("training.asi_ready", who.AbilityPoints);
+                    if (who.AbilityPoints(Services.Data) > 0) Message += "\n" + s.Format("training.asi_ready", who.AbilityPoints(Services.Data));
                     Services.Audio.PlaySe(Audio.Sounds.LevelUp);
                     if (!who.CanLevelUp) _pickingClass = false;
                     List.SetItems(Items(), 0);
@@ -579,14 +579,14 @@ public sealed class TrainingScene : MenuScene
         else next.Classes.Add(new ClassLevel { ClassId = cls.Id, Level = 1 });
         next.Level++;
         var gains = new List<string>();
-        var had = ClassFeatures.ActiveFor(who).Select(f => f.Id).ToHashSet();
-        gains.AddRange(ClassFeatures.ActiveFor(next).Where(f => !had.Contains(f.Id)).Select(f => s["feature." + f.Id]));
-        var hadPassive = ClassFeatures.Passives(who).ToHashSet();
-        gains.AddRange(ClassFeatures.Passives(next).Distinct().Where(p => !hadPassive.Contains(p)).Select(p => s["passive." + p]));
-        if (next.AbilityPoints > who.AbilityPoints) gains.Add(s.Format("training.gain_asi", next.AbilityPoints - who.AbilityPoints));
-        if (Core.Combat.CombatEngine.AttacksPerAction(next) > Core.Combat.CombatEngine.AttacksPerAction(who)) gains.Add(s.Format("training.gain_attacks", Core.Combat.CombatEngine.AttacksPerAction(next)));
+        var had = ClassFeatures.ActiveFor(Services.Data, who).Select(f => f.Id).ToHashSet();
+        gains.AddRange(ClassFeatures.ActiveFor(Services.Data, next).Where(f => !had.Contains(f.Id)).Select(f => s["feature." + f.Id]));
+        var hadPassive = ClassFeatures.Passives(Services.Data, who).ToHashSet();
+        gains.AddRange(ClassFeatures.Passives(Services.Data, next).Where(p => !hadPassive.Contains(p)).Select(p => s["passive." + p]));
+        if (next.AbilityPoints(Services.Data) > who.AbilityPoints(Services.Data)) gains.Add(s.Format("training.gain_asi", next.AbilityPoints(Services.Data) - who.AbilityPoints(Services.Data)));
+        if (Core.Combat.CombatEngine.AttacksPerAction(Services.Data, next) > Core.Combat.CombatEngine.AttacksPerAction(Services.Data, who)) gains.Add(s.Format("training.gain_attacks", Core.Combat.CombatEngine.AttacksPerAction(Services.Data, next)));
         // そのクラスで覚えられる呪文のレベル(マルチクラスの合算のスロットのレベルではない)
-        if (cls.Spellcasting != null && Spellcasting.ClassMaxSpellLevel(cls, next) is var lv and > 0 && lv > Spellcasting.ClassMaxSpellLevel(cls, who))
+        if (cls.Spellcasting != null && Spellcasting.ClassMaxSpellLevel(Services.Data, cls, next) is var lv and > 0 && lv > Spellcasting.ClassMaxSpellLevel(Services.Data, cls, who))
             gains.Add(s.Format("training.gain_spell_level", lv));
         return gains;
     }
@@ -662,7 +662,9 @@ public sealed class StatusScene : Scene
         void Text(string t, Color color, float size = 20f) => y = d.TextWrapped(t, new Vector2(at.X, y), width, size, color, 9);
         var race = data.Races[c.RaceId];
         Text(c.Name, Theme.Title, 26);
-        Text($"{sv.Name(race.Subrace ?? race.Name)}  {sv.Name(data.Classes[c.ClassId].Name)}  Lv{c.Level}  {s[$"alignment.{c.Alignment.ToString().ToLowerInvariant()}"]}", Theme.Text);
+        // マルチクラスは最初のクラスの名前に (M) を付ける(Lv は合計。クラスごとのレベルは下に出す)
+        string multi = c.ClassIds.Distinct().Count() > 1 ? "(M)" : "";
+        Text($"{sv.Name(race.Subrace ?? race.Name)}  {sv.Name(data.Classes[c.ClassId].Name)}{multi}  Lv{c.Level}  {s[$"alignment.{c.Alignment.ToString().ToLowerInvariant()}"]}", Theme.Text);
         Text(s.Format("status.hp_ac", c.Hp, c.MaxHp, c.ArmorClass(data), c.ProficiencyBonus), Theme.Text);
         Text(s.Format("status.hit_dice", c.HitDice, c.Level, data.Classes[c.ClassId].HitDie), c.HitDice == 0 ? Theme.Warn : Theme.Dim, 18);
         var now = c.Stats(data);
@@ -695,6 +697,11 @@ public sealed class StatusScene : Scene
         y = d.TextWrapped(s.Format("status.weapon_prof", weapons), new Vector2(at.X, y), width, 18, Theme.Text, 9);
         if (UI.SpellText.SlotLines(s, data, c) is { } slots)
             foreach (var line in slots) Text(line, Theme.Text, 18);
+        // マルチクラスなら、クラスごとのレベル(上の行の Lv は合計。取った順に1行ずつ)
+        var levels = c.ClassIds.Distinct().ToList();
+        if (levels.Count > 1)
+            foreach (var id in levels)
+                Text($"{sv.Name(data.Classes[id].Name)}  Lv{c.LevelIn(id)}", Theme.Text, 18);
         return y;
     }
 
@@ -784,22 +791,24 @@ public sealed class StatusScene : Scene
         foreach (var three in Abilities.All.Chunk(3))
             Text2(string.Join("  ", three.Select(a => $"{s[$"ability.{a.Code()}"]} {Signed(_c.SaveBonus(data, a))}")), Theme.Text);
         // クラスの能力(マルチクラスでは全部のクラスのもの): 回数の残りと、勝手に効く能力の名前
-        var pools = ClassFeatures.Pools.Where(p => ClassFeatures.MaxUses(_c, p) > 0).ToList();
-        var passives = ClassFeatures.Passives(_c).Distinct().Select(id => s["passive." + id]).ToList();
-        var style = ClassFeatures.StyleOf(data, _c);
-        if (pools.Count > 0 || passives.Count > 0 || style != FightingStyle.None)
+        var pools = ClassFeatures.PoolsOf(Services.Data, _c).ToList();
+        var passives = ClassFeatures.Passives(data, _c).Select(id => s["passive." + id]).ToList();
+        var styles = ClassFeatures.ActiveStyles(data, _c);
+        bool hasStyle = ClassFeatures.HasFightingStyle(data, _c);
+        if (pools.Count > 0 || passives.Count > 0 || hasStyle)
         {
             y2 += 8;
             Text2(s["status.features"], Theme.Title, 22);
-            // ファイティングスタイル: 今のスタイルとその効果、持つ武器で変わること
-            if (style != FightingStyle.None)
+            // ファイティングスタイル: 今働くスタイルとその効果(無ければ「なし」)、持つ武器で変わること
+            if (hasStyle)
             {
-                string sid = style.ToString().ToLowerInvariant();
-                y2 = d.TextWrapped(s.Format("status.fighting_style", s["style." + sid], s["style.about." + sid]), new Vector2(x2, y2), area.X + area.Width - x2 - 24, 17, Theme.Text, 4);
+                string now = styles.Count == 0 ? s["style.none"]
+                    : string.Join(" / ", styles.Select(id => s.Format("status.style_item", s["passive." + id], s["passive.about." + id])));
+                y2 = d.TextWrapped(s.Format("status.fighting_style", now), new Vector2(x2, y2), area.X + area.Width - x2 - 24, 17, Theme.Text, 4);
                 y2 = d.TextWrapped(s["status.style_auto"], new Vector2(x2, y2 + 2), area.X + area.Width - x2 - 24, 15, Theme.Dim, 4) + 4;
             }
             // 回数は1つずつ行を分ける(折り返しで「5/5」が切れないように)
-            foreach (var p in pools) Text2($"{s["pool." + p]}  {ClassFeatures.UsesLeft(_c, p)}/{ClassFeatures.MaxUses(_c, p)}", Theme.Text, 17);
+            foreach (var p in pools) Text2($"{s["pool." + p]}  {ClassFeatures.UsesLeft(Services.Data, _c, p)}/{ClassFeatures.MaxUses(Services.Data, _c, p)}", Theme.Text, 17);
             if (passives.Count > 0)
                 y2 = d.TextWrapped(s.List(passives), new Vector2(x2, y2), area.X + area.Width - x2 - 24, 16, Theme.Dim, 6);
         }

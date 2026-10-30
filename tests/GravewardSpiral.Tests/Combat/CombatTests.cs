@@ -129,11 +129,11 @@ public class CombatTests
     [Fact]
     public void ExtraAttackByClassAndLevel()
     {
-        Assert.Equal(1, CombatEngine.AttacksPerAction(CharacterFactory.QuickCreate(Data, "x", "human", "fighter", 4)));
-        Assert.Equal(2, CombatEngine.AttacksPerAction(CharacterFactory.QuickCreate(Data, "x", "human", "fighter", 5)));
-        Assert.Equal(3, CombatEngine.AttacksPerAction(CharacterFactory.QuickCreate(Data, "x", "human", "fighter", 11)));
-        Assert.Equal(2, CombatEngine.AttacksPerAction(CharacterFactory.QuickCreate(Data, "x", "human", "ranger", 5)));
-        Assert.Equal(1, CombatEngine.AttacksPerAction(CharacterFactory.QuickCreate(Data, "x", "human", "rogue", 9)));
+        Assert.Equal(1, CombatEngine.AttacksPerAction(Data, CharacterFactory.QuickCreate(Data, "x", "human", "fighter", 4)));
+        Assert.Equal(2, CombatEngine.AttacksPerAction(Data, CharacterFactory.QuickCreate(Data, "x", "human", "fighter", 5)));
+        Assert.Equal(3, CombatEngine.AttacksPerAction(Data, CharacterFactory.QuickCreate(Data, "x", "human", "fighter", 11)));
+        Assert.Equal(2, CombatEngine.AttacksPerAction(Data, CharacterFactory.QuickCreate(Data, "x", "human", "ranger", 5)));
+        Assert.Equal(1, CombatEngine.AttacksPerAction(Data, CharacterFactory.QuickCreate(Data, "x", "human", "rogue", 9)));
     }
 
     [Fact]

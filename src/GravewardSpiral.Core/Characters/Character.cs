@@ -137,13 +137,13 @@ public sealed class Character
     /// <summary>種族の特性を持っているか(races.json の traits)。</summary>
     public bool HasTrait(GameData data, string trait) => data.Races.TryGetValue(RaceId, out var r) && r.Traits.Contains(trait);
 
-    /// <summary>まだ振っていない能力値上昇の点。</summary>
-    public int AbilityPoints => 2 * Classes.Sum(x => ClassFeatures.AbilityIncreaseCount(x.ClassId, x.Level)) - AbilityIncreases.Count;
+    /// <summary>まだ振っていない能力値上昇の点(クラスごとのレベルで数えて足す)。</summary>
+    public int AbilityPoints(GameData data) => 2 * Classes.Sum(x => ClassFeatures.AbilityIncreaseCount(data, x.ClassId, x.Level)) - AbilityIncreases.Count;
 
     /// <summary>能力値上昇の点を1つ振る(その能力値 +1)。振れなければ false。耐久力の修正値が上がれば、最大 HP もレベルの分上がる。</summary>
-    public bool IncreaseAbility(Ability a)
+    public bool IncreaseAbility(GameData data, Ability a)
     {
-        if (AbilityPoints <= 0 || Scores[a] >= MaxIncreasedScore) return false;
+        if (AbilityPoints(data) <= 0 || Scores[a] >= MaxIncreasedScore) return false;
         int conBefore = Scores.Mod(Ability.Con);
         AbilityIncreases.Add(a.Code());
         Scores[a]++;
@@ -159,10 +159,10 @@ public sealed class Character
     public void AutoIncreaseAbilities(GameData data)
     {
         var order = data.Classes[ClassId].PrimaryAbilities.Concat([Ability.Con, Ability.Dex]).Concat(Abilities.All).Distinct().ToList();
-        while (AbilityPoints > 0)
+        while (AbilityPoints(data) > 0)
         {
             var a = order.FirstOrDefault(x => Scores[x] < MaxIncreasedScore, (Ability)(-1));
-            if ((int)a < 0 || !IncreaseAbility(a)) break;
+            if ((int)a < 0 || !IncreaseAbility(data, a)) break;
         }
     }
 
@@ -226,9 +226,10 @@ public sealed class Character
     public int SaveBonus(GameData data, Ability a) =>
         Stats(data).Mod(a) + (SaveProficient(data, a) ? ProficiencyBonus : 0) + PassiveBonus(data, "save") + EpicBoons.Count(b => b == "save");
 
-    /// <summary>セーヴの習熟(最初のクラス。ローグ L15 のつかみどころのない心で判断力、モンク L14 の金剛の魂で全部)。</summary>
+    /// <summary>セーヴの習熟(最初のクラスと、能力の save_proficiency。つかみどころのない心で判断力、金剛の魂で全部)。</summary>
     public bool SaveProficient(GameData data, Ability a) =>
-        data.Classes[ClassId].SavesWith(a) || (a == Ability.Wis && ClassFeatures.Has(this, "rogue", 15)) || ClassFeatures.Has(this, "monk", 14);
+        data.Classes[ClassId].SavesWith(a)
+        || PassiveRules.Effects(data, this, "save_proficiency").Any(e => e.Effect.Ability == null || Abilities.Parse(e.Effect.Ability) == a);
 
     /// <summary>着ている鎧の習熟があるか(無いと攻撃が不利になり、呪文を唱えられない。5版)。鎧と盾の両方を見る。</summary>
     public bool ArmorProficient(GameData data)
@@ -261,7 +262,8 @@ public sealed class Character
     /// (バーバリアンとモンクは、それに耐久力か判断力の修正値も足す)。盾を持っていれば +2。
     /// </summary>
     /// <param name="unarmoredBase">鎧を着ていないときの基本の AC の別の計算(メイジ・アーマーの 13。敏捷力の修正を足す)。鎧なしの防御と比べて高い方を使う(5版)。</param>
-    public int ArmorClass(GameData data, int? unarmoredBase = null)
+    /// <param name="now">能力の効く場面を決める今の様子(戦闘の激怒など。省けば戦闘の外)。</param>
+    public int ArmorClass(GameData data, int? unarmoredBase = null, PassiveRules.Situation? now = null)
     {
         var stats = Stats(data);
         int dex = stats.Mod(Ability.Dex);
@@ -274,18 +276,14 @@ public sealed class Character
         else
         {
             ac = 10 + dex;
-            // 鎧なしの防御: 最初に得たクラスのもの(マルチクラスであとから取っても付く。2つ目は付かない。5版)
-            var unarmored = (Classes.Count > 0 ? Classes.Select(x => x.ClassId) : [ClassId])   // 古いセーブはクラスの並びを持たない
-                .Select(id => data.Classes.GetValueOrDefault(id)).FirstOrDefault(x => x?.UnarmoredDefense != null);
-            bool holdingShield = Inventory[EquipSlot.OffHand] is { } held && data.Items.TryGetValue(held.ItemId, out var hd) && hd.Kind == ItemKind.Shield;
-            bool shieldOk = unarmored?.UnarmoredDefense != "wis";   // モンクは盾を持つと使えない(もう片方の手の武器はよい)
-            if (unarmored?.UnarmoredDefense is { } extra && (shieldOk || !holdingShield))
-                ac += stats.Mod(Abilities.Parse(extra));
+            // 鎧なしの防御(能力の ac_ability): まとまり unarmored_defense の、先に取ったクラスのもの(効く場面に当たらなければ付かない。5版)
+            foreach (var e in PassiveRules.Effects(data, this, "ac_ability", now ?? new PassiveRules.Situation()))
+                ac += stats.Mod(Abilities.Parse(e.Effect.Ability!));
             if (unarmoredBase is int ub) ac = Math.Max(ac, ub + dex);
         }
         if (Inventory[EquipSlot.OffHand] is { } off && data.Items.TryGetValue(off.ItemId, out var s) && s.Kind == ItemKind.Shield)
             ac += s.ArmorClass + off.HitAcBonus(s);
-        if (Inventory[EquipSlot.Armor] != null && ClassFeatures.StyleOf(data, this) == FightingStyle.Defense) ac++;   // ファイティングスタイルの防御
+        ac += PassiveRules.Sum(data, this, "ac_bonus", now: now);   // 能力の ac_bonus(ファイティングスタイルの防御は、武器を持たず鎧を着ているとき)
         return ac + PassiveBonus(data, "ac");
     }
 
@@ -366,20 +364,6 @@ public sealed class Character
         PactSlotsUsed = 0;   // 協約魔術のスロットが戻る(ふつうのスロットは戻らない)
         LastSlotsRecovered = ClassFeatures.ShortRest(data, this);   // 小休憩で戻る技の回数と、ウィザードの秘術の回復
         return used;
-    }
-
-    /// <summary>
-    /// 前の形のセーブ(協約魔術のスロットも SlotsUsed に数えていた)を移す。読むときに1回だけ呼ぶ。
-    /// どちらから払ったかは残っていないので、UseSlot と同じく協約のスロットを先に使った扱いにする。
-    /// </summary>
-    public void MovePactSlotsFromOldSave()
-    {
-        if (LevelIn("warlock") == 0) return;
-        int level = Spellcasting.PactSlotLevel(this);
-        if (!SlotsUsed.TryGetValue(level, out int used)) return;
-        PactSlotsUsed = Math.Min(used, Spellcasting.PactSlots(this));
-        if (used > PactSlotsUsed) SlotsUsed[level] = used - PactSlotsUsed;
-        else SlotsUsed.Remove(level);
     }
 }
 

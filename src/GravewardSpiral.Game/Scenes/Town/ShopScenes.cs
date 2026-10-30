@@ -156,6 +156,7 @@ public sealed class ShopScene : MenuScene
                 if (PartyGold.Pay(Party, House(ClanHouseLevel.Library, Shown(Shop.IdentifyPrice, it))))
                 {
                     it.Identified = true;
+                    _who!.Inventory.MergeStacks(Data.Items);   // 同じ品と分かったものを重ねる
                     Services.Audio.PlaySe(Sounds.Coins);
                     Message = s.Format("shop.identified", ItemText.Name(Services, it));
                 }

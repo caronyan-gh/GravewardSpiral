@@ -1043,11 +1043,13 @@ public sealed class EventsTab : IEditorTab
                 if (s.Dice != null) yield return (T("ダイス", "Dice"), Ui.Text(s.Dice, v => { s.Dice = Null(v); Changed(); }));
                 break;
             case "damage":
+                yield return (T("当たる相手", "Who"), WhoCombo(s));
                 yield return (T("ダイス", "Dice"), Ui.Text(s.Dice ?? "1d6", v => { s.Dice = Null(v); Changed(); }));
                 yield return (T("ダメージの種類", "Damage type"), Combo(["", .. Core.Effects.DamageTypes.All], s.DamageType ?? "", v => { s.DamageType = Null(v); Changed(); }, DamageNames()));
                 foreach (var row in SaveRows(s, T("セーヴで半分", "Save for half"))) yield return row;
                 break;
             case "condition":
+                yield return (T("当たる相手", "Who"), WhoCombo(s));
                 yield return (T("状態", "Condition"), Id(ConditionChoices()));
                 yield return (T("続く分", "Minutes"), Num(s.Value, v => s.Value = v));
                 foreach (var row in SaveRows(s, T("セーヴで防げる", "Save to resist"))) yield return row;
@@ -1082,6 +1084,20 @@ public sealed class EventsTab : IEditorTab
             case "warp":
                 yield return (T("着地点", "Landing point"), Id(MarkChoices("dest:")));
                 break;
+            case "trap":
+            {
+                bool bySet = s.Set != null;
+                yield return (T("何を", "What"), Radio([("trap", T("罠を1つ", "One trap")), ("set", T("罠の束から引く", "Draw from a trap set"))], bySet ? "set" : "trap", v =>
+                {
+                    if (v == "set") { s.Id = null; s.Set ??= Core.Items.TrapSetDef.Chest; }
+                    else { s.Set = null; s.Id ??= _context.BaseData.Traps.Keys.FirstOrDefault(); }
+                }, rebuild: true));
+                if (bySet) yield return (T("罠の束", "Trap set"), IdCombo(_context.BaseData.TrapSets.Keys.Select(k => new Choice(k, k)), s.Set, v => s.Set = v));
+                else yield return (T("罠", "Trap"), Id(_context.BaseData.Traps.Values.Select(t => new Choice(t.Id, Loc.Name(t.Name) ?? t.Id))));
+                yield return (T("HP が 0 になったら", "At 0 HP"), Radio([("", T("罠と束の決まりどおり", "As the trap and set say")), ("true", T("死ぬ", "Dies")), ("false", T("HP 1 で止まる", "Stops at 1 HP"))],
+                    s.Lethal is { } l ? (l ? "true" : "false") : "", v => s.Lethal = v == "" ? null : v == "true"));
+                break;
+            }
             case "sound":
                 yield return (T("効果音", "Sound"), Id(SoundChoices()));
                 break;
@@ -1101,6 +1117,23 @@ public sealed class EventsTab : IEditorTab
                 if (s.Value > 0) yield return (T("文章の番号", "Text number"), Num(s.Value, v => s.Value = v));
                 break;
         }
+    }
+
+    /// <summary>damage と condition の当たる相手(いつもどおり・全員・動かした人・クラスのタグ・種族)。</summary>
+    private ComboBox WhoCombo(EventStep s)
+    {
+        var data = _context.BaseData;
+        var choices = new List<Choice>
+        {
+            new("", T("いつもどおり(選んだ人か、動ける人全員)", "As usual (the chosen one, or every able member)")),
+            new("party", T("選んだかどうかにかかわらず全員", "Everyone, chosen or not")),
+            new("trigger", T("動かした人(選んだ人か、隊列の先頭)", "Whoever set it off (the chosen one, or the first in line)")),
+        };
+        foreach (var tag in data.Classes.Values.SelectMany(c => c.Tags).Distinct().Order())
+            choices.Add(new("tag:" + tag, T($"タグ {tag} のクラスの人", $"Members of a class tagged {tag}")));
+        foreach (var r in data.Races.Values)
+            choices.Add(new("race:" + r.Id, T($"種族: {Loc.Name(r.Name) ?? r.Id}", $"Race: {Loc.Name(r.Name) ?? r.Id}")));
+        return IdCombo(choices, s.Who ?? "", v => s.Who = string.IsNullOrEmpty(v) ? null : v);
     }
 
     /// <summary>セーヴの欄(セーヴがあるか → 能力値と難しさ)。</summary>
@@ -1231,8 +1264,9 @@ public sealed class EventsTab : IEditorTab
         ["xp"] = T("動ける人それぞれに経験値", "XP to each able member"),
         ["pick"] = T("一人を選ぶ。選べる人の条件は木の「選べる人」で(一人ずつ見る)。くじなら画面を出さない。選んだら「選んだら」、いないか「やめておく」なら「いない・やめた」(手順があるときだけ「やめておく」を出す)。選んだあとは、回復・ダメージ・状態・品・判定と、人を見る条件がその人だけになる", "Choose one member. Who can be chosen is set under it in the tree. By lot shows no menu. After choosing, heal, damage, conditions, items, checks and per-member conditions apply to that person only"),
         ["heal"] = T("動ける人全員の HP を戻す(一人を選んだあとは、その人)", "Heals every able member (or the chosen one)"),
-        ["damage"] = T("動ける人全員にダメージ(一人を選んだあとは、その人)。HP は 1 より下がらない。その種類に抵抗があれば半分", "Damages every able member (or the chosen one). HP never drops below 1. Resistance halves it"),
-        ["condition"] = T("状態にする。続く分が 0 なら治すまで", "Inflicts a condition. 0 minutes lasts until cured"),
+        ["damage"] = T("動ける人全員にダメージ(一人を選んだあとは、その人。当たる相手で、全員・動かした人・クラスのタグ・種族に変えられる)。HP は 1 より下がらない。守りは戦闘と同じ(抵抗・無効・回避・オーラなど)",
+            "Damages every able member (or the chosen one; Who can change it to everyone, whoever set it off, a class tag or a race). HP never drops below 1. Defenses work as in combat (resistance, immunity, evasion, auras)"),
+        ["condition"] = T("状態にする。続く分が 0 なら治すまで。当たる相手は「ダメージ」と同じく変えられる", "Inflicts a condition. 0 minutes lasts until cured. Who can be changed as with Damage"),
         ["cure"] = T("状態を治す(選ばなければ全部)", "Cures a condition (all, if none is chosen)"),
         ["spend_slot"] = T("決めたレベル以上の呪文スロットを1つ使う(残っている一番低いもの)。使えたら「使えた」、無ければ「残っていない」", "Spends one spell slot of the level or higher (the lowest left). then if spent, else if none"),
         ["light"] = T("明かりをつける・消す(消すと、明かりが消えているときだけ読める文字などに使える)", "Lights or puts out the light (for writing seen only in the dark, etc.)"),
@@ -1241,6 +1275,10 @@ public sealed class EventsTab : IEditorTab
         ["close"] = T("開けた門の錠を、また閉める(この階)", "Locks an opened gate again (this floor)"),
         ["warp"] = T("迷宮のタブで置いた着地点へパーティを移す(ほかの階へも)。向きはそのまま。イベントはここで終わり、着いたマスのイベントが起こる", "Moves the party to a landing point placed on the Maze tab (other floors too). Facing is kept. The event ends, and the landing cell's event fires"),
         ["sound"] = T("効果音を鳴らす", "Plays a sound effect"),
+        ["trap"] = T("罠を動かす(宝箱の罠と同じ。強さはこの階の宝箱と同じ)。当たるのは、選んだ人か隊列の先頭の動ける人と、罠が決めた人。HP が 0 になったら死ぬかは、ここで決めなければ罠、束の順で、どれにも無ければ HP 1 で止まる。罠が飛ばすか敵を呼んだら、イベントはそこで終わる",
+            "Springs a trap (as chest traps; strength as this floor's chests). It hits the chosen member or the first able one, and whoever the trap names. Whether 0 HP kills is set here, else by the trap, then the set; with none, HP stops at 1. If the trap teleports or calls enemies, the event ends"),
+        ["teleport"] = T("この階のどこか(岩盤でないマス)へパーティを飛ばす。イベントはここで終わる", "Teleports the party somewhere on this floor (not solid rock). The event ends"),
+        ["alarm"] = T("警報が鳴り、この階の敵が襲ってくる。イベントはここで終わる(戦闘のあとに続かない)", "An alarm rings and this floor's enemies attack. The event ends (it does not continue after the battle)"),
     };
 
     /// <summary>戦闘の敵の組(1行に1組。上で種類と脅威度を絞る)。</summary>

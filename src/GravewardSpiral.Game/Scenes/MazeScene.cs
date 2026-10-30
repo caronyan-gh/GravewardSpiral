@@ -492,7 +492,14 @@ public sealed class MazeScene : Scene
         Stack.Push(new EventScene(new EventRunner(def, ctx), EventCallbacks()));
     }
 
-    private EventScene.Callbacks EventCallbacks() => new(EventCombat, () => Stack.Replace(new TownScene()), Warp: Warped);
+    private EventScene.Callbacks EventCallbacks() => new(EventCombat, () => Stack.Replace(new TownScene()), Warp: Warped, Alarm: Alarmed);
+
+    /// <summary>イベントの警報(手順 alarm か、イベントの罠): この階の敵が襲ってくる。</summary>
+    private void Alarmed()
+    {
+        Say(Services.Strings["maze.alarm"]);
+        MaybeEncounter(force: true);
+    }
 
     /// <summary>このマスのイベントの場の情報。</summary>
     private EventContext EventCtx(bool turned, string? cast, bool rested)

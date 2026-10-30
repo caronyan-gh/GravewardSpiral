@@ -34,6 +34,32 @@ internal static class TestPaths
             return full;
         }
 
+        /// <summary>
+        /// 試しのパックの技・能力・回数に、名前の文言(キーそのもの)を日英で書く。クラスが指す技と能力に文言が無いと、読み込みの検査で落ちるため。
+        /// 技は feature.&lt;id&gt; と feature.about.&lt;id&gt;、能力は passive.&lt;id&gt; と passive.about.&lt;id&gt;、回数は pool.&lt;id&gt;。
+        /// </summary>
+        public void NameFeatures(string pack)
+        {
+            var keys = new SortedSet<string>(StringComparer.Ordinal);
+            string root = System.IO.Path.Combine(Path, pack);
+            foreach (var file in new[] { "features.json", "classes.json", "races.json" })
+            {
+                string full = System.IO.Path.Combine(root, file);
+                if (!File.Exists(full)) continue;
+                using var doc = System.Text.Json.JsonDocument.Parse(File.ReadAllText(full));
+                foreach (var e in doc.RootElement.EnumerateArray())
+                {
+                    if (file == "features.json" && e.TryGetProperty("id", out var id))
+                        foreach (var k in new[] { "feature.", "feature.about.", "passive.", "passive.about." }) keys.Add(k + id.GetString());
+                    if (e.TryGetProperty("pools", out var pools) && pools.ValueKind == System.Text.Json.JsonValueKind.Array)
+                        foreach (var pool in pools.EnumerateArray()) keys.Add("pool." + pool.GetProperty("id").GetString());
+                }
+            }
+            string json = System.Text.Json.JsonSerializer.Serialize(keys.ToDictionary(k => k, k => k));
+            Write(System.IO.Path.Combine(pack, "text", "ja.json"), json);
+            Write(System.IO.Path.Combine(pack, "text", "en.json"), json);
+        }
+
         public void Dispose()
         {
             try { Directory.Delete(Path, recursive: true); } catch (IOException) { }

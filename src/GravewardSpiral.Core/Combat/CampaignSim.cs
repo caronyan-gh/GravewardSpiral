@@ -239,6 +239,7 @@ public sealed class CampaignSim
             {
                 if (PartyGold.Pay(party, Shop.IdentifyPrice(defs[it.ItemId], it))) it.Identified = true;
             }
+            c.Inventory.MergeStacks(defs);   // 同じ品と分かったものを重ねる(ゲームの店の鑑定と同じ)
         }
         // 拾った装備を、使えてよくなる人に渡して替える
         var loot = party.SelectMany(c => c.Inventory.Items.Select(i => (Owner: c, Item: i))).Where(x => x.Item.Identified
@@ -464,7 +465,7 @@ public sealed class CampaignSim
     private void ShortRest(List<Character> party)
     {
         var rested = party.Where(c => c.CanAct).Select(c => (c, c.ShortRest(_data, _rng))).ToList();
-        ClassFeatures.SongOfRest(rested, party, _rng);
+        ClassFeatures.SongOfRest(_data, rested, party, _rng);
     }
 
     /// <summary>この階をうろついて鍛える(弱るか、歩数の上限まで)。そのあと町へ戻る。</summary>
@@ -612,7 +613,7 @@ public sealed class CampaignSim
             return;
         }
         bool thief = party.Any(c => c.CanAct && c.ClassIds.Any(id => _data.Classes[id].Tools.Contains("thieves_tools")));
-        if (chest.Trap != ChestTrap.None && _rng.NextDouble() < (thief ? 0.15 : 0.5))
+        if (chest.HasTrap && _rng.NextDouble() < (thief ? 0.15 : 0.5))
         {
             var opener = party.FirstOrDefault(c => c.CanAct) ?? party[0];
             chest.Trigger(_data, party, opener, _rng);

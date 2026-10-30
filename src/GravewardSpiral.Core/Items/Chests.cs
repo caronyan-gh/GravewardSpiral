@@ -6,19 +6,17 @@ using GravewardSpiral.Core.Rules;
 
 namespace GravewardSpiral.Core.Items;
 
-/// <summary>宝箱の罠(Wizardry 風の9種)。</summary>
-public enum ChestTrap { None, PoisonNeedle, GasBomb, CrossbowBolt, ExplodingBox, Stunner, Teleporter, MageBlaster, PriestBlaster, Alarm }
-
-/// <summary>罠が動いたときの結果。テレポーターと警報は、迷宮の画面が処理する。</summary>
-public sealed record TrapResult(List<(string Key, object[] Args)> Lines, bool Teleport, bool Alarm);
-
 /// <summary>
 /// 宝箱1つ。調べる(知力の判定。失敗すると違う罠の名前が分かったつもりになる)、罠を外す(罠の名前を選ぶ。
 /// 違う名前を選ぶと罠が動く。合っていれば敏捷力の判定。盗賊道具の習熟と道具があれば足す)、そのまま開ける(罠があればほぼ動く)。
+/// 罠は罠の束 chest(trapsets.json)から引き、中身は traps.json。
 /// </summary>
 public sealed class Chest
 {
-    public ChestTrap Trap { get; set; }
+    /// <summary>罠の id(traps.json)。空なら罠は無い。</summary>
+    public string Trap { get; set; } = "";
+
+    public bool HasTrap => Trap != "";
     public long Gold { get; set; }
     public List<ItemInstance> Items { get; set; } = [];
 
@@ -27,20 +25,26 @@ public sealed class Chest
 
     public bool Opened { get; set; }
 
-    public int Dc => 12 + Tier;
+    public int Dc => DcFor(Tier);
+
+    /// <summary>罠の強さの段階(目安のレベル / 4)。イベントで罠を使うときも、この階の宝箱と同じにする。</summary>
+    public static int TierFor(double targetLevel) => (int)(targetLevel / 4);
+
+    /// <summary>罠の難易度(調べる・外す・罠のセーヴ)。</summary>
+    public static int DcFor(int tier) => 12 + tier;
 
     /// <summary>宝箱を作る。drops は敵の落とし物(中身に足す)。</summary>
     public static Chest Generate(GameData data, TreasureSettings s, double depth, double targetLevel, IRandom rng, IEnumerable<ItemInstance>? drops = null)
     {
         double trapChance = s.TrapChanceFirst + (s.TrapChanceLast - s.TrapChanceFirst) * Math.Clamp(depth, 0, 1);
-        var trap = rng.NextDouble() < trapChance ? (ChestTrap)rng.Next(1, 10) : ChestTrap.None;
+        var trap = rng.NextDouble() < trapChance ? data.TrapSets.GetValueOrDefault(TrapSetDef.Chest)?.Pick(rng) ?? "" : "";
         int count = rng.Next(s.MinItems, s.MaxItems + 1);
         var materials = s.Materials.Where(m => depth >= m.MinDepth - 1e-9 && data.Items.ContainsKey(m.Item) && rng.NextDouble() < m.Chance)
             .Select(m => ItemInstance.Of(m.Item)).ToList();
         return new Chest
         {
             Trap = trap,
-            Tier = (int)(targetLevel / 4),
+            Tier = TierFor(targetLevel),
             Gold = (long)(Math.Max(1, targetLevel) * s.GoldPerLevel * (0.5 + rng.NextDouble())),
             Items = [.. Treasure.RollMany(data, s, depth, count, rng, targetLevel), .. materials, .. drops ?? []],
         };
@@ -58,121 +62,56 @@ public sealed class Chest
     }
 
     /// <summary>調べる。成功すれば本当の罠、失敗すれば違う罠(か「罠は無い」)が分かったつもりになる。1 が出ると罠が動く。</summary>
-    public (ChestTrap Seen, bool Triggered) Inspect(GameData data, Character c, IRandom rng)
+    public (string Seen, bool Triggered) Inspect(GameData data, Character c, IRandom rng)
     {
         int nat = rng.Roll(20);
-        if (nat == 1 && Trap != ChestTrap.None) return (Trap, true);
+        if (nat == 1 && HasTrap) return (Trap, true);
         int total = nat + InspectBonus(data, c);
         if (total >= Dc) return (Trap, false);
-        var wrong = Enum.GetValues<ChestTrap>().Where(t => t != Trap).ToList();
+        var wrong = Names(data).Where(t => t != Trap).ToList();
         return (wrong[rng.Next(0, wrong.Count)], false);
     }
+
+    /// <summary>宝箱の罠として名前を選べるもの(「罠は無い」の空と、束 chest の罠の並び)。調べ違いと、外す罠を選ぶ一覧に使う。</summary>
+    public static IReadOnlyList<string> Names(GameData data) =>
+        [.. (string[])[""], .. data.TrapSets.GetValueOrDefault(TrapSetDef.Chest)?.Traps.Select(t => t.Id).Distinct() ?? []];
 
     public enum DisarmResult { Disarmed, NoTrap, Failed, Triggered }
 
     /// <summary>罠を外す。guess が違えば罠が動く。合っていれば敏捷力の判定(盗賊道具の習熟と道具があれば足す。5 以上外すと動く)。</summary>
-    public DisarmResult Disarm(GameData data, Character c, ChestTrap guess, IRandom rng)
+    public DisarmResult Disarm(GameData data, Character c, string guess, IRandom rng)
     {
-        if (Trap == ChestTrap.None) return guess == ChestTrap.None ? DisarmResult.NoTrap : DisarmResult.Failed;
+        if (!HasTrap) return guess == "" ? DisarmResult.NoTrap : DisarmResult.Failed;
         if (guess != Trap) return DisarmResult.Triggered;
         int total = rng.Roll(20) + DisarmBonus(data, c).Bonus;
         if (total >= Dc)
         {
-            Trap = ChestTrap.None;
+            Trap = "";
             return DisarmResult.Disarmed;
         }
         return total <= Dc - 5 ? DisarmResult.Triggered : DisarmResult.Failed;
     }
 
     /// <summary>そのまま開ける。罠があれば 9 割で動く。動いたら true。</summary>
-    public bool OpenTriggers(IRandom rng) => Trap != ChestTrap.None && rng.NextDouble() < 0.9;
+    public bool OpenTriggers(IRandom rng) => HasTrap && rng.NextDouble() < 0.9;
 
-    private static readonly string[] ArcaneClasses = ["wizard", "sorcerer", "warlock", "bard"];
-    private static readonly string[] DivineClasses = ["cleric", "druid", "paladin", "ranger"];
-
-    /// <summary>罠を動かす。opener は開けようとした人。HP が 0 になった人は死ぬ(戦闘の外なので死亡セーヴは無い)。</summary>
+    /// <summary>
+    /// 罠を動かす。opener は開けようとした人。死ぬか耐えるかは、罠の lethal、なければ束 chest の lethal(今は HP 0 で死ぬ。戦闘の外なので死亡セーヴは無い)。
+    /// 最初の文は罠の text(文言 chest.sprung に入れる)。
+    /// </summary>
     public TrapResult Trigger(GameData data, IList<Character> party, Character opener, IRandom rng)
     {
-        var lines = new List<(string, object[])> { ("chest.trap." + Trap.ToString().ToLowerInvariant(), []) };
-        int Roll(string dice) => DiceExpression.Parse(dice).Roll(rng).Total;
-        void Hurt(Character c, int dmg, string type)
+        var lines = new List<(string Key, object[] Args)>();
+        if (!data.Traps.TryGetValue(Trap, out var trap))
         {
-            if (!c.IsAlive || dmg <= 0) return;
-            // 抵抗: 装備と種族(ドワーフの毒、ティーフリングとドラゴンボーンの火)
-            bool raceResist = (type == "poison" && c.HasTrait(data, "dwarven_resilience"))
-                || (type == "fire" && (c.HasTrait(data, "hellish_resistance") || c.HasTrait(data, "damage_resistance")));
-            if (raceResist || c.Passive(data).Any(p => p.Type == EffectPart.Resist && p.DamageType == type)) dmg /= 2;
-            int before = c.Hp;
-            c.Hp -= dmg;
-            lines.Add(("chest.hurt", [c.Name, dmg]));
-            // 不屈の耐久(ハーフオーク): 大休憩までに1回、HP 1 で踏みとどまる(即死になる大きなダメージ、残りを超えた分が最大 HP 以上のときは除く)
-            if (c.Hp <= 0 && dmg - before < c.MaxHp && c.HasTrait(data, "relentless_endurance") && ClassFeatures.Spend(c, "relentless_endurance"))
-            {
-                c.Hp = 1;
-                lines.Add(("chest.endure", [c.Name]));
-                return;
-            }
-            if (c.Hp <= 0)
-            {
-                c.Hp = 0;
-                c.State = LifeState.Dead;
-                lines.Add(("chest.died", [c.Name]));
-            }
+            Trap = "";
+            return new TrapResult(lines, false, false);
         }
-        // セーヴ: ハーフリングの幸運(1 を振り直す)、ドワーフの頑健(毒にするものに有利)
-        bool Save(Character c, Ability a, Condition? against = null)
-        {
-            int Die() { int r = rng.Roll(20); return r == 1 && c.HasTrait(data, "lucky") ? rng.Roll(20) : r; }
-            int roll = Die();
-            if (against == Condition.Poisoned && c.HasTrait(data, "dwarven_resilience")) roll = Math.Max(roll, Die());
-            return roll + c.SaveBonus(data, a) >= Dc;
-        }
-        void Lasting(Character c, Condition cond, int? minutes)
-        {
-            if (!c.IsAlive || c.Passive(data).Any(p => p.Type == EffectPart.ImmuneCondition && p.Condition == cond)) return;
-            c.Lasting.RemoveAll(l => l.Condition == cond);
-            c.Lasting.Add(new LastingCondition { Condition = cond, Minutes = minutes });
-            lines.Add(("chest.condition", [c.Name, cond]));
-        }
-        int t = Tier;
-        bool teleport = false, alarm = false;
-        switch (Trap)
-        {
-            case ChestTrap.PoisonNeedle:
-                Hurt(opener, Roll($"{1 + t}d4"), "piercing");
-                if (!Save(opener, Ability.Con, Condition.Poisoned)) Lasting(opener, Condition.Poisoned, 60);
-                break;
-            case ChestTrap.GasBomb:
-                foreach (var c in party.Where(c => c.IsAlive && !Save(c, Ability.Con, Condition.Poisoned))) Lasting(c, Condition.Poisoned, 30);
-                break;
-            case ChestTrap.CrossbowBolt:
-                Hurt(opener, Roll($"{2 + t}d10"), "piercing");
-                break;
-            case ChestTrap.ExplodingBox:
-                foreach (var c in party.Where(c => c.IsAlive))
-                {
-                    int dmg = Roll($"{2 + t * 2}d6");
-                    Hurt(c, Save(c, Ability.Dex) ? dmg / 2 : dmg, "fire");
-                }
-                break;
-            case ChestTrap.Stunner:
-                if (!Save(opener, Ability.Con)) Lasting(opener, Condition.Paralyzed, null);
-                break;
-            case ChestTrap.Teleporter:
-                teleport = true;
-                break;
-            case ChestTrap.MageBlaster:
-                foreach (var c in party.Where(c => c.ClassIds.Any(ArcaneClasses.Contains))) Hurt(c, Roll($"{3 + t}d8"), "lightning");
-                break;
-            case ChestTrap.PriestBlaster:
-                foreach (var c in party.Where(c => c.ClassIds.Any(DivineClasses.Contains))) Hurt(c, Roll($"{3 + t}d8"), "lightning");
-                break;
-            case ChestTrap.Alarm:
-                alarm = true;
-                break;
-        }
-        Trap = ChestTrap.None;
-        return new TrapResult(lines, teleport, alarm);
+        if (trap.Text != null) lines.Add(("chest.sprung", [trap.Text]));
+        bool lethal = trap.Lethal ?? data.TrapSets.GetValueOrDefault(TrapSetDef.Chest)?.Lethal ?? false;
+        var r = Traps.Spring(data, trap, Tier, Dc, party, opener, lethal, rng, "chest", lines);
+        Trap = "";
+        return r;
     }
 
     /// <summary>中身を受け取る。金はパーティで均等に分け、アイテムは入る人の袋に入れる。入らなかったものを返す。</summary>

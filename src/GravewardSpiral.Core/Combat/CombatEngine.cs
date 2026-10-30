@@ -45,7 +45,7 @@ public sealed class CombatEngine(GameData data, IRandom rng)
         var all = state.Party.Cast<Combatant>().Concat(state.Groups.SelectMany(g => g.Units)).ToList();
         // 野性の勘(バーバリアン L7): イニシアチブが有利
         foreach (var c in all)
-            c.Initiative = (c is PartyMember fp && ClassFeatures.Has(fp.Character, "barbarian", 7) ? Math.Max(D20(), D20()) : D20()) + c.AbilityMod(Ability.Dex);
+            c.Initiative = (FeatureChecks.InitiativeAdvantage(_data, c) ? Math.Max(D20(), D20()) : D20()) + c.AbilityMod(Ability.Dex);
         state.Order.AddRange(all.OrderByDescending(c => c.Initiative).ThenByDescending(c => c.AbilityMod(Ability.Dex))
             .ThenBy(c => c.Side));
         foreach (var g in state.Groups) state.Add("combat.appear", g.DisplayName, g.Units.Count);
@@ -259,13 +259,9 @@ public sealed class CombatEngine(GameData data, IRandom rng)
     /// 追加攻撃の回数(5版: ファイターは 5・11・20 レベルで増え、バーバリアン・パラディン・レンジャー・モンクは 5 レベルで 2 回)。
     /// マルチクラスでは、クラスごとのレベルで一番多いもの(足し合わせない)。
     /// </summary>
-    public static int AttacksPerAction(Character c) => c.ClassIds.Distinct().Select(id => (id, lv: c.LevelIn(id))).Select(x => x.id switch
-    {
-        "fighter" => x.lv >= 20 ? 4 : x.lv >= 11 ? 3 : x.lv >= 5 ? 2 : 1,
-        "barbarian" or "paladin" or "ranger" or "monk" => x.lv >= 5 ? 2 : 1,
-        "warlock" => x.lv >= 5 ? 2 : 1,   // 渇きの刃
-        _ => 1,
-    }).DefaultIfEmpty(1).Max();
+    public static int AttacksPerAction(GameData data, Character c) => c.ClassIds.Distinct()
+        .Select(id => data.Classes.GetValueOrDefault(id)?.Progression?.Attacks?.Eval(c, c.LevelIn(id)) ?? 1)
+        .DefaultIfEmpty(1).Max();
 
     /// <summary>攻撃に乗せるクラスの技(スマイト、連打、朦朧打撃)。</summary>
     private enum StrikeTechnique { None, Smite, Flurry, Stun }
@@ -274,7 +270,8 @@ public sealed class CombatEngine(GameData data, IRandom rng)
     private sealed record StrikePlan(ItemDef? Weapon, ItemInstance? Held, bool Shoot, int ToHit, string Dice, int DamageMod, bool Magical, bool Finesse)
     {
         /// <summary>大型武器のファイティングスタイル(ダメージの 1 と 2 を振り直す)。</summary>
-        public bool GreatWeapon { get; init; }
+        /// <summary>この値以下のダメージの目を振り直す(大型武器。0 なら振り直さない)。</summary>
+        public int RerollLow { get; init; }
 
         /// <summary>追加効果の、当たったときの追加のダメージの平均。</summary>
         public double AffixAverage { get; init; }
@@ -293,7 +290,7 @@ public sealed class CombatEngine(GameData data, IRandom rng)
     /// もう片方の手の攻撃のダメージには、能力値の修正を足さない(負なら足す)。
     /// </summary>
     /// <param name="bonusAction">ボーナスアクションの打撃(武術・連打・二刀流)もするか。アクション・サージの2回目はしない(ボーナスアクションは1ターンに1回)。</param>
-    private void PlayerAttack(CombatState s, PartyMember p, int groupIndex, StrikeTechnique technique = StrikeTechnique.None, bool bonusAction = true)
+    private void PlayerAttack(CombatState s, PartyMember p, int groupIndex, StrikeTechnique technique = StrikeTechnique.None, bool bonusAction = true, FeatureDef? feature = null)
     {
         if (p.Shape != null)
         {
@@ -302,10 +299,9 @@ public sealed class CombatEngine(GameData data, IRandom rng)
         }
         int str = p.AbilityMod(Ability.Str), dex = p.AbilityMod(Ability.Dex);
         var c = p.Character;
-        var style = ClassFeatures.StyleOf(_data, c);
         bool martial = ClassFeatures.MartialArts(_data, c);
         bool techniqueUsed = false, monkMelee = false;
-        int attacks = AttacksPerAction(p.Character) + p.Modifiers.Where(m => m.Stat == "attacks").Sum(m => m.Value);   // ヘイストなど
+        int attacks = AttacksPerAction(_data, p.Character) + p.Modifiers.Where(m => m.Stat == "attacks").Sum(m => m.Value);   // ヘイストなど
         bool usedMainMelee = false;
         var offItem = p.Character.Inventory[EquipSlot.OffHand];
 
@@ -318,8 +314,8 @@ public sealed class CombatEngine(GameData data, IRandom rng)
             bool monk = martial && !shoot && ClassFeatures.MonkWeapon(_data, weapon);   // 武術: モンク武器と素手は敏捷力も使える
             bool finesse = weapon?.Has("finesse") == true || monk;
             int mod = weapon is { Ranged: true } ? dex : finesse ? Math.Max(str, dex) : str;
-            int damageMod = offHand && style != FightingStyle.TwoWeapon ? Math.Min(0, mod) : mod;
-            string dice = weapon == null ? monk ? $"1d{ClassFeatures.MartialArtsDie(c)}" : "1" :
+            int damageMod = offHand && !FeatureChecks.OffhandAbilityDamage(_data, p) ? Math.Min(0, mod) : mod;   // 二刀流
+            string dice = weapon == null ? monk ? $"1d{ClassFeatures.MartialArtsDie(_data, c)}" : "1" :
                 !offHand && !shoot && weapon.VersatileDamage != null && offItem == null ? weapon.VersatileDamage : weapon.Damage ?? "1";
             int bonus = 0;
             bool magical = false;
@@ -339,16 +335,16 @@ public sealed class CombatEngine(GameData data, IRandom rng)
                 magical |= adef.IsMagic || enchant > 0;
             }
             bonus += p.Character.PassiveBonus(_data, "attack");
-            if (weapon == null && monk && ClassFeatures.Has(c, "monk", 6)) magical = true;   // 気の込もった打撃
-            if (style == FightingStyle.Archery && shoot && weapon is { Ranged: true }) bonus += 2;
-            if (style == FightingStyle.Dueling && !shoot && !offHand && weapon != null) damageMod += 2;
+            if (weapon == null && monk && FeatureChecks.UnarmedMagical(_data, p)) magical = true;   // 気の込もった打撃
+            if (shoot && weapon is { Ranged: true }) bonus += FeatureChecks.RangedShotHitBonus(_data, p);   // 弓術(利き手のスタイルにかかわらず、撃つ番に)
+            if (!shoot && !offHand && weapon != null) damageMod += FeatureChecks.MainMeleeDamageBonus(_data, p);   // 決闘
             // 激怒: 筋力で振る近接の攻撃のダメージに上乗せ
-            if (p.Raging && !shoot && mod == str) damageMod += ClassFeatures.RageDamage(c);
+            if (!shoot && mod == str) damageMod += PassiveRules.Sum(_data, c, "damage_bonus", "melee_str", p.Now);   // 激怒(能力 rage_damage は激怒のあいだ)
             int toHit = mod + bonus + (proficient ? p.Character.ProficiencyBonus : 0);
             return new StrikePlan(weapon, held, shoot, toHit, dice, damageMod, magical, finesse)
             {
                 AffixAverage = held != null && weapon != null && held.ItemId == weapon.Id ? Loot.OnHitAverage(_data, held) : 0,
-                GreatWeapon = style == FightingStyle.GreatWeapon && !shoot && !offHand && weapon != null,
+                RerollLow = !shoot && !offHand && weapon != null ? FeatureChecks.MainMeleeRerollLow(_data, p) : 0,   // 大型武器
             };
         }
 
@@ -390,10 +386,11 @@ public sealed class CombatEngine(GameData data, IRandom rng)
 
             var parts = new List<EffectPart>
             {
-                new() { Type = EffectPart.Damage, Dice = $"{plan.Dice}{Signed(plan.DamageMod)}", DamageType = weapon?.DamageType ?? "bludgeoning", Reroll = plan.GreatWeapon ? 2 : 0 },
+                new() { Type = EffectPart.Damage, Dice = $"{plan.Dice}{Signed(plan.DamageMod)}", DamageType = weapon?.DamageType ?? "bludgeoning", Reroll = plan.RerollLow },
             };
-            if (melee && weapon != null && ClassFeatures.Has(c, "paladin", 11))
-                parts.Add(new EffectPart { Type = EffectPart.Damage, Dice = "1d8", DamageType = "radiant" });   // 改良された神の一撃
+            if (melee && weapon != null)
+                foreach (var (dice, type) in FeatureChecks.MeleeWeaponExtraDamage(_data, p))
+                    parts.Add(new EffectPart { Type = EffectPart.Damage, Dice = dice, DamageType = type });   // 向上したディヴァイン・スマイト
             foreach (var m in p.Modifiers.Where(m => m.Stat == "damage" && m.Dice != null))
                 parts.Add(new EffectPart { Type = EffectPart.Damage, Dice = m.Dice, DamageType = "radiant" });
             // 当たったときの効果と属性(装備している武器のとき)
@@ -404,35 +401,36 @@ public sealed class CombatEngine(GameData data, IRandom rng)
                 parts.AddRange(held.AffixOnHit(_data));
             }
             var roll = AttackRoll(s, p, target, plan.ToHit, melee: !plan.Shoot, out bool advantage, extraDisadvantage: plan.Shoot && adjacent);
-            int rogue = p.Character.LevelIn("rogue");
-            if (p.SneakRound != s.Round && rogue > 0 && (plan.Finesse || weapon is { Ranged: true }) && roll.Hit   // 1ラウンドに1回(アクション・サージの2回目でも出ない)
+            int sneak = ClassFeatures.SneakAttackDice(_data, p.Character);
+            if (p.SneakRound != s.Round && sneak > 0 && (plan.Finesse || weapon is { Ranged: true }) && roll.Hit   // 1ラウンドに1回(アクション・サージの2回目でも出ない)
                 && (advantage || (s.IsNear(group) && s.FrontRowMembers.Any(x => x != p))))
             {
-                parts.Add(new EffectPart { Type = EffectPart.Damage, Dice = $"{(rogue + 1) / 2}d6", DamageType = weapon?.DamageType ?? "piercing" });
+                parts.Add(new EffectPart { Type = EffectPart.Damage, Dice = $"{sneak}d6", DamageType = weapon?.DamageType ?? "piercing" });
                 p.SneakRound = s.Round;
             }
             // ディヴァイン・スマイト: 最初に当たった近接の攻撃に、スロットを使って光輝のダメージを足す(アンデッドと悪魔には +1d8)
             if (technique == StrikeTechnique.Smite && !techniqueUsed && melee && roll.Hit && ClassFeatures.SmiteSlot(_data, c) is int slot)
             {
-                Spellcasting.UseSlot(c, slot);
+                Spellcasting.UseSlot(_data, c, slot);
                 int dice = Math.Min(5, slot + 1) + (group.Def.CreatureType is "undead" or "fiend" ? 1 : 0);
                 parts.Add(new EffectPart { Type = EffectPart.Damage, Dice = $"{dice}d8", DamageType = "radiant" });
                 s.Add("combat.smite", p.Name, slot);
                 techniqueUsed = true;
             }
             // 朦朧打撃: 最初に当たった近接の攻撃で気を1使い、耐久力のセーヴに失敗すると次の番まで朦朧
-            if (technique == StrikeTechnique.Stun && !techniqueUsed && melee && roll.Hit && ClassFeatures.Spend(c, "ki"))
+            if (technique == StrikeTechnique.Stun && !techniqueUsed && melee && roll.Hit
+                && feature is { } stun && SpendFor(c, stun))
             {
-                parts.Add(new EffectPart { Type = EffectPart.Save, Ability = "con", Dc = ClassFeatures.KiDc(c),
+                parts.Add(new EffectPart { Type = EffectPart.Save, Ability = "con", Dc = ClassFeatures.KiDc(_data, c, stun.Id),
                     Fail = [new EffectPart { Type = EffectPart.ConditionType, Condition = Condition.Stunned, Rounds = 1 }] });
                 s.Add("combat.stunning_strike", p.Name);
                 techniqueUsed = true;
             }
-            if (melee && weapon != null && ClassFeatures.Has(c, "warlock", 12))
-                parts.Add(new EffectPart { Type = EffectPart.Drain, Value = 30 });   // 命を吸う刃(このゲームでは吸う)
+            if (melee && weapon != null && FeatureChecks.MeleeWeaponDrain(_data, p) is int drain and > 0)
+                parts.Add(new EffectPart { Type = EffectPart.Drain, Value = drain });   // 命を吸う刃(このゲームでは吸う)
             ResolveAttack(s, p, target, weapon?.Name ?? LocalizedText.Of("unarmed strike", "素手"), roll, parts, plan.Magical);
             // 残忍な一撃(バーバリアン L9)と獰猛な攻撃(ハーフオーク): 近接のクリティカルで武器のダイスを足す
-            if (roll.Crit && melee && ClassFeatures.BrutalCritical(c) + (p.Trait("savage_attacks") ? 1 : 0) is int brutal and > 0 && target.Standing
+            if (roll.Crit && melee && FeatureChecks.MeleeCritExtraDice(_data, p) is int brutal and > 0 && target.Standing
                 && DiceExpression.Parse(plan.Dice).Terms.FirstOrDefault(t => !t.IsFlat) is { Sides: > 0 } die)
                 Damage(s, target, RollDice($"{brutal}d{die.Sides}"), weapon?.DamageType ?? "bludgeoning", false, plan.Magical);
             // 投げた武器は、この戦闘では手元から無くなる(勝てば拾う)。戻ってくる武器(returning)は減らない
@@ -500,16 +498,20 @@ public sealed class CombatEngine(GameData data, IRandom rng)
         p.Raging = false;
         p.Shape = null;
         p.ShapeHp = 0;
-        p.RelentlessDc = 10;
+        p.StayUpSaves = 0;
     }
 
     // ---------------- クラスの技 ----------------
+
+    /// <summary>その技の回数を使う(技のデータの pool と cost。amount を渡せばその数。pool が無ければ何も使わず true)。</summary>
+    private bool SpendFor(Character c, FeatureDef f, int? amount = null) =>
+        f.Pool == null || ClassFeatures.Spend(_data, c, f.Pool, amount ?? f.Cost);
 
     /// <summary>クラスの技を使う(使えなければ身構える)。</summary>
     private void UseFeature(CombatState s, PartyMember p, PlayerCommand cmd)
     {
         var c = p.Character;
-        var f = ClassFeatures.Active.FirstOrDefault(x => x.Id == cmd.FeatureId);
+        var f = cmd.FeatureId == null ? null : ClassFeatures.Action(_data, cmd.FeatureId);
         if (f == null || !ClassFeatures.CanUse(_data, c, f) || (p.Shape != null && !ClassFeatures.UsableInBeastForm(f)))
         {
             p.Dodging = true;
@@ -517,16 +519,16 @@ public sealed class CombatEngine(GameData data, IRandom rng)
             return;
         }
         var name = "feature." + f.Id;
-        switch (f.Id)
+        switch (f.Part)
         {
             case "second_wind":
-                ClassFeatures.Spend(c, "second_wind");
+                SpendFor(c, f);
                 s.Add("combat.feature", p.Name, name);
-                Heal(s, p, RollDice("1d10") + ClassFeatures.Level(c, "fighter"));
+                Heal(s, p, RollDice(f.Dice ?? "1d10") + ClassFeatures.SecondWindBonus(_data, c, f.Id));
                 FollowUp(s, p, cmd.TargetGroup);   // ボーナスアクションなので、そのあと攻撃する
                 break;
             case "action_surge":
-                ClassFeatures.Spend(c, "action_surge");
+                SpendFor(c, f);
                 s.Add("combat.feature", p.Name, name);
                 PlayerAttack(s, p, cmd.TargetGroup);
                 if (s.Outcome == CombatOutcome.Ongoing) PlayerAttack(s, p, cmd.TargetGroup, bonusAction: false);
@@ -535,9 +537,9 @@ public sealed class CombatEngine(GameData data, IRandom rng)
                 bool started = !p.Raging;
                 if (started)
                 {
-                    ClassFeatures.Spend(c, "rage");
+                    SpendFor(c, f);
                     p.Raging = true;
-                    EndConcentration(s, p);   // 激怒のあいだは呪文に集中できない
+                    if (ClassFeatures.Blocking(_data, c, "no_concentration", p.Now).Any()) EndConcentration(s, p);   // 激怒のあいだは集中できない(能力 rage_limits)
                     s.Add("combat.rage", p.Name);
                 }
                 PlayerAttack(s, p, cmd.TargetGroup, bonusAction: !started);   // 激怒に入るのはボーナスアクション(その番は二刀流・武術の打撃をしない)
@@ -552,36 +554,36 @@ public sealed class CombatEngine(GameData data, IRandom rng)
                 }
                 s.Add("combat.feature_on", p.Name, name, ally.Name);
                 // 毒は 5 点で消す。残りで HP を戻す(足りない分だけ)
-                if (ally.Has(Condition.Poisoned) && ClassFeatures.Spend(c, "lay_on_hands", 5))
+                if (ally.Has(Condition.Poisoned) && f.Pool != null && SpendFor(c, f, 5))
                 {
                     ally.Conditions.RemoveAll(x => x.Condition == Condition.Poisoned);
                     s.Add("combat.condition_end", ally.Name, Condition.Poisoned);
                 }
-                int need = ally.MaxHp - ally.Hp, pool = ClassFeatures.UsesLeft(c, "lay_on_hands");
-                if (Math.Min(need, pool) is int heal and > 0 && ClassFeatures.Spend(c, "lay_on_hands", heal)) Heal(s, ally, heal);
+                int need = ally.MaxHp - ally.Hp, pool = f.Pool == null ? 0 : ClassFeatures.UsesLeft(_data, c, f.Pool);
+                if (Math.Min(need, pool) is int heal and > 0 && SpendFor(c, f, heal)) Heal(s, ally, heal);
                 break;
             }
             case "divine_smite":
                 PlayerAttack(s, p, cmd.TargetGroup, StrikeTechnique.Smite);
                 break;
             case "flurry_of_blows":
-                ClassFeatures.Spend(c, "ki");
+                SpendFor(c, f);
                 PlayerAttack(s, p, cmd.TargetGroup, StrikeTechnique.Flurry);
                 break;
             case "patient_defense":
-                ClassFeatures.Spend(c, "ki");
+                SpendFor(c, f);
                 PlayerAttack(s, p, cmd.TargetGroup, bonusAction: false);   // 身構えるのがボーナスアクション
                 p.Dodging = true;
                 s.Add("combat.dodge", p.Name);
                 break;
             case "stunning_strike":
-                PlayerAttack(s, p, cmd.TargetGroup, StrikeTechnique.Stun);
+                PlayerAttack(s, p, cmd.TargetGroup, StrikeTechnique.Stun, feature: f);
                 break;
             case "turn_undead":
-                TurnUndead(s, p);
+                TurnUndead(s, p, f);
                 break;
             case "breath_weapon":
-                BreathWeapon(s, p, cmd.TargetGroup);
+                BreathWeapon(s, p, f, cmd.TargetGroup);
                 break;
             case "bardic_inspiration":
             {
@@ -591,25 +593,26 @@ public sealed class CombatEngine(GameData data, IRandom rng)
                     s.Add("combat.no_target", p.Name);
                     break;
                 }
-                ClassFeatures.Spend(c, "bardic_inspiration");
+                SpendFor(c, f);
                 ally.Modifiers.RemoveAll(m => m.Stat == "inspire");
-                ally.Modifiers.Add(new ActiveModifier { Stat = "inspire", Dice = $"1d{ClassFeatures.InspirationDie(c)}", RoundsLeft = 10, SourceId = p.Id });
+                ally.Modifiers.Add(new ActiveModifier { Stat = "inspire", Dice = $"1d{ClassFeatures.InspirationDie(_data, c, f.Id)}", RoundsLeft = 10, SourceId = p.Id });
                 s.Add("combat.feature_on", p.Name, name, ally.Name);
                 FollowUp(s, p, cmd.TargetGroup);   // ボーナスアクションなので、そのあと攻撃か初級呪文
                 break;
             }
             case "wild_shape":
             {
-                var beasts = ClassFeatures.WildShapeBeasts(c);
+                var beasts = ClassFeatures.WildShapeBeasts(_data, c, f.Id);
                 string? id = cmd.Option != null && beasts.Contains(cmd.Option) ? cmd.Option : beasts.LastOrDefault();   // 選ばなければ熊の型
-                if (p.Shape != null || id == null || !_data.Monsters.TryGetValue(id, out var beast))
+                if (p.Shape != null || id == null || !_data.Shapes.TryGetValue(id, out var beast))
                 {
                     s.Add("combat.no_effect", p.Name);
                     break;
                 }
-                ClassFeatures.Spend(c, "wild_shape");
+                SpendFor(c, f);
                 p.Shape = beast;
                 p.ShapeHp = beast.HpAverage;
+                if (ClassFeatures.Blocking(_data, c, "no_concentration", p.Now).Any()) EndConcentration(s, p);   // 獣の姿では集中は切れない(SRD は no_cast だけ)
                 s.Add("combat.wild_shape", p.Name, beast.Name);
                 break;
             }
@@ -620,8 +623,8 @@ public sealed class CombatEngine(GameData data, IRandom rng)
     /// アンデッド退散(クレリックのチャネル・ディヴィニティ): すべてのアンデッドが判断力のセーヴ(呪文の難易度)。失敗すると 10 ラウンド何もできない
     /// (ダメージを受けると解ける)。アンデッドの破壊の脅威度以下なら、失敗で滅びる。
     /// </summary>
-    /// <summary>竜の息(ドラゴンボーン): 近くのグループに火を吐く。敏捷力のセーヴ(8 + 耐久力 + 習熟)、成功で半分。2d6(L6 3d6、L11 4d6、L16 5d6)。</summary>
-    private void BreathWeapon(CombatState s, PartyMember p, int groupHint)
+    /// <summary>竜の息(ドラゴンボーン): 近くのグループに火を吐く。敏捷力のセーヴ(技の dc。8 + 耐久力 + 習熟)、成功で半分。技の dice の数の d6(合計のレベルで 2〜5)。</summary>
+    private void BreathWeapon(CombatState s, PartyMember p, FeatureDef f, int groupHint)
     {
         var c = p.Character;
         var near = s.Groups.Select((g, i) => (g, i)).Where(x => !x.g.Wiped && s.IsNear(x.g)).Select(x => x.i).ToList();
@@ -631,11 +634,11 @@ public sealed class CombatEngine(GameData data, IRandom rng)
             s.Add("combat.dodge", p.Name);
             return;
         }
-        ClassFeatures.Spend(c, "breath_weapon");
-        s.Add("combat.feature", p.Name, "feature.breath_weapon");
+        SpendFor(c, f);
+        s.Add("combat.feature", p.Name, "feature." + f.Id);
         var group = s.Groups[near.Contains(groupHint) ? groupHint : near[0]];
-        int dc = 8 + p.AbilityMod(Ability.Con) + c.ProficiencyBonus;
-        int dice = c.Level >= 16 ? 5 : c.Level >= 11 ? 4 : c.Level >= 6 ? 3 : 2;
+        int dc = (int)(ClassFeatures.FeatureValue(_data, c, f.Id, "dc", p.AbilityMod) ?? 0);
+        int dice = (int)(ClassFeatures.FeatureValue(_data, c, f.Id, "dice") ?? 0);
         foreach (var u in group.Alive.ToList())
         {
             int dmg = RollDice($"{dice}d6");
@@ -646,10 +649,10 @@ public sealed class CombatEngine(GameData data, IRandom rng)
         CheckOutcome(s);
     }
 
-    private void TurnUndead(CombatState s, PartyMember p)
+    private void TurnUndead(CombatState s, PartyMember p, FeatureDef f)
     {
         var c = p.Character;
-        ClassFeatures.Spend(c, "channel_divinity");
+        SpendFor(c, f);
         s.Add("combat.feature", p.Name, "feature.turn_undead");
         var undead = s.Groups.SelectMany(g => g.Alive).Where(u => u.Def.CreatureType == "undead").ToList();
         if (undead.Count == 0)
@@ -657,8 +660,8 @@ public sealed class CombatEngine(GameData data, IRandom rng)
             s.Add("combat.no_undead");
             return;
         }
-        int dc = _data.Classes.TryGetValue("cleric", out var cls) ? Spellcasting.SaveDc(cls, c) : 8 + c.ProficiencyBonus + c.Scores.Mod(Ability.Wis);
-        double destroy = ClassFeatures.DestroyUndeadCr(c);
+        int dc = ClassFeatures.TurnUndeadDc(_data, c, f.Id);
+        double destroy = ClassFeatures.DestroyUndeadCr(_data, c);
         foreach (var u in undead)
         {
             if (SaveOrResist(s, u, Ability.Wis, dc, magical: true))
@@ -903,11 +906,10 @@ public sealed class CombatEngine(GameData data, IRandom rng)
         if (attacker is PartyMember am && !am.Character.ArmorProficient(_data)) dis++;   // 習熟の無い鎧
         if (target.Dodging && !target.Incapacitated) dis++;
         if (target.Has(Condition.Invisible)) dis++;
-        // 無謀な攻撃(バーバリアン L2): 激怒のあいだは近接の攻撃が有利、そのかわり自分への攻撃も有利
-        if (attacker is PartyMember ra && ra.Raging && melee && ClassFeatures.Has(ra.Character, "barbarian", 2)) adv++;
-        if (target is PartyMember rt && rt.Raging && ClassFeatures.Has(rt.Character, "barbarian", 2)) adv++;
-        // とらえどころのなさ(ローグ L18): 自分への攻撃は有利にならない
-        if (target is PartyMember el && !el.Incapacitated && ClassFeatures.Has(el.Character, "rogue", 18)) adv = 0;
+        // クラスの能力: 無謀な攻撃(激怒のあいだの近接の攻撃と、激怒している人への攻撃が有利)、とらえどころのなさ(自分への攻撃は有利にならない)
+        var (featureAdv, cancelAdv) = FeatureChecks.Attack(_data, attacker, target, melee);
+        adv += featureAdv;
+        if (cancelAdv) adv = 0;
 
         advantage = adv > 0 && dis == 0;
         bool disadvantage = dis > 0 && adv == 0;
@@ -951,16 +953,12 @@ public sealed class CombatEngine(GameData data, IRandom rng)
         // リアクション: 飛び道具そらし(モンク L3)は飛び道具のダメージを減らし、アンキャニー・ドッジ(ローグ L5)はダメージを半分にする
         if (target is PartyMember tp && attacker.Side != tp.Side && !tp.ReactionUsed && !tp.Incapacitated)
         {
-            if (ranged && ClassFeatures.Has(tp.Character, "monk", 3))
+            if (FeatureChecks.ReactionFor(_data, tp, ranged) is { } r)
             {
-                tp.Deflect = RollDice("1d10") + tp.AbilityMod(Ability.Dex) + ClassFeatures.Level(tp.Character, "monk");
+                if (r.Halve) tp.Halving = true;
+                else tp.Deflect = (r.Dice != null ? RollDice(r.Dice) : 0) + (r.Ability is { } ab ? tp.AbilityMod(ab) : 0) + r.Bonus;
                 tp.ReactionUsed = true;
-            }
-            else if (ClassFeatures.Has(tp.Character, "rogue", 5))
-            {
-                tp.Halving = true;
-                tp.ReactionUsed = true;
-                s.Add("combat.uncanny_dodge", tp.Name);
+                if (r.Message != null) s.Add(r.Message, tp.Name);
             }
         }
         Apply(s, attacker, target, onHit, roll.Crit, magical);
@@ -1014,8 +1012,7 @@ public sealed class CombatEngine(GameData data, IRandom rng)
                     if (crit) expr = expr.WithDoubledDice();
                     int rolled = Math.Max(0, RollDamage(expr, part.Reroll, ctx?.Empower ?? 0));
                     // 苦痛の魔撃(ウォーロック L2): エルドリッチ・ブラストに魅力の修正を足す
-                    if (ctx is { Spell.Id: "eldritch_blast", Caster: PartyMember wl } && ClassFeatures.Has(wl.Character, "warlock", 2))
-                        rolled += Math.Max(0, wl.Character.Scores.Mod(Ability.Cha));
+                    if (ctx is { Caster: PartyMember wl }) rolled += FeatureChecks.SpellDamageBonus(_data, wl, ctx.Spell.Id);
                     if (source is MonsterUnit strong) rolled = (int)(rolled * strong.Scale.DamageMult);   // 深い階の敵はダメージが大きい
                     string type = part.DamageType ?? "bludgeoning";
                     dealt[type] = dealt.GetValueOrDefault(type) + Damage(s, target, rolled, type, crit, magical || ctx != null);
@@ -1086,6 +1083,7 @@ public sealed class CombatEngine(GameData data, IRandom rng)
                             .FirstOrDefault(i => !i.Identified) is { } unknown)
                     {
                         unknown.Identified = true;
+                        owner.Character.Inventory.MergeStacks(_data.Items);   // 同じ品と分かったものを重ねる
                         s.Add("combat.identified", owner.Name, _data.Items[unknown.ItemId].Name);
                     }
                     else s.Add("combat.nothing_to_identify", target.Name);
@@ -1119,7 +1117,7 @@ public sealed class CombatEngine(GameData data, IRandom rng)
                     s.Add(ok ? "combat.save_ok" : "combat.save_fail", target.Name, ability);
                     var withDc = part.Dc == dc ? part : new EffectPart { Ability = part.Ability, Dc = dc };
                     // 回避(ローグ・モンク L7): 敏捷力のセーヴで半分になる効果は、成功で 0、失敗で半分
-                    bool evade = part.Half && ability == Ability.Dex && target is PartyMember ev && !ev.Incapacitated && ClassFeatures.Evasion(ev.Character);
+                    bool evade = part.Half && ability == Ability.Dex && FeatureChecks.Evades(_data, target);
                     if (!ok && evade)
                     {
                         target.Halving = true;
@@ -1235,22 +1233,22 @@ public sealed class CombatEngine(GameData data, IRandom rng)
             s.Add("combat.armor_blocks", p.Name);
             return;
         }
-        if (!ClassFeatures.CanCastIn(c, p.Raging, p.Shape != null))
+        if (!ClassFeatures.CanCastIn(_data, c, p.Raging, p.Shape != null))
         {
             s.Add(p.Raging ? "combat.rage_no_cast" : "combat.shape_no_cast", p.Name);
             return;
         }
         int slot = spell.IsCantrip ? 0 : Math.Max(spell.Level, cmd.SlotLevel);
-        if (!spell.IsCantrip && Spellcasting.SlotsLeft(cls, c, slot) <= 0)
+        if (!spell.IsCantrip && Spellcasting.SlotsLeft(_data, c, slot) <= 0)
         {
-            if (Spellcasting.LowestSlot(cls, c, spell) is int lower) slot = lower;
+            if (Spellcasting.LowestSlot(_data, c, spell) is int lower) slot = lower;
             else
             {
                 s.Add("combat.no_slot", p.Name, spell.Name);
                 return;
             }
         }
-        if (!spell.IsCantrip) Spellcasting.UseSlot(c, slot);
+        if (!spell.IsCantrip) Spellcasting.UseSlot(_data, c, slot);
         s.Add("combat.cast", p.Name, spell.Name);
         if (TryCounter(s, p, spell, slot))   // 敵のカウンタースペル
         {
@@ -1259,7 +1257,7 @@ public sealed class CombatEngine(GameData data, IRandom rng)
         }
 
         var ctx = new CastContext(p, spell, spell.Scale == "character" ? c.Level : slot, Spellcasting.Mod(cls, c), Spellcasting.SaveDc(cls, c));   // 初級呪文はキャラクターの合計のレベルで強くなる(5版)
-        if (cmd.Empower && CanEmpower(c, spell) && ClassFeatures.Spend(c, "sorcery_points"))
+        if (cmd.Empower && CanEmpower(_data, c, spell) && ClassFeatures.Spend(_data, c, "sorcery_points"))
         {
             ctx.Empower = Math.Max(1, c.Scores.Mod(Ability.Cha));
             s.Add("combat.empowered", p.Name);
@@ -1307,7 +1305,7 @@ public sealed class CombatEngine(GameData data, IRandom rng)
     private SpellDef? FollowUpCantrip(CombatState s, PartyMember p)
     {
         var c = p.Character;
-        if (s.NoMagic || !c.ArmorProficient(_data) || !ClassFeatures.CanCastIn(c, p.Raging, p.Shape != null)) return null;
+        if (s.NoMagic || !c.ArmorProficient(_data) || !ClassFeatures.CanCastIn(_data, c, p.Raging, p.Shape != null)) return null;
         return Spellcasting.Castable(_data, c)
             .Where(x => x.IsCantrip && x.InCombat && x.TargetsEnemies && SpellReach(s, p, x).Any())
             .Select(x => (x, avg: x.Effects.SelectMany(e => e.Flatten()).Where(e => e.Type == EffectPart.Damage && e.DiceAt(c.Level) != null)
@@ -1316,8 +1314,8 @@ public sealed class CombatEngine(GameData data, IRandom rng)
     }
 
     /// <summary>呪文の強化ができるか(ソーサラー L3 がメインで、ポイントが残っていて、ダメージのある呪文)。</summary>
-    public static bool CanEmpower(Character c, SpellDef spell) =>
-        ClassFeatures.Has(c, "sorcerer", 3) && ClassFeatures.UsesLeft(c, "sorcery_points") > 0
+    public static bool CanEmpower(GameData data, Character c, SpellDef spell) =>
+        ClassFeatures.HasPassive(data, c, "empowered_spell") && ClassFeatures.UsesLeft(data, c, "sorcery_points") > 0
         && spell.Effects.SelectMany(e => e.Flatten()).Any(e => e.Type == EffectPart.Damage);
 
     /// <summary>
@@ -1425,8 +1423,18 @@ public sealed class CombatEngine(GameData data, IRandom rng)
         Resolve(s, p, spell, cmd, new CastContext(p, spell, level, mod, dc), dc - 8);
     }
 
-    /// <summary>呪文(か、呪文のように使うアイテム)の対象を決めて、効果を起こす。</summary>
+    /// <summary>
+    /// 呪文(か、呪文のように使うアイテム)の対象を決めて、効果を起こす。集中できない人(no_concentration)は、唱えられても集中がすぐ切れる(5版。
+    /// 激怒は唱えることもできないので、唱えられて集中だけできない能力のとき)。
+    /// </summary>
     private void Resolve(CombatState s, PartyMember p, SpellDef spell, PlayerCommand cmd, CastContext ctx, int attackBonus)
+    {
+        ResolveSpell(s, p, spell, cmd, ctx, attackBonus);
+        if (spell.Concentration && p.Concentration == spell.Id && ClassFeatures.Blocking(_data, p.Character, "no_concentration", p.Now).Any())
+            EndConcentration(s, p);
+    }
+
+    private void ResolveSpell(CombatState s, PartyMember p, SpellDef spell, PlayerCommand cmd, CastContext ctx, int attackBonus)
     {
         if (spell.Concentration) StartConcentration(s, p, spell);
         if (spell.Summon is { } summon && _data.Monsters.TryGetValue(summon.Monster, out var beast))
@@ -1641,11 +1649,10 @@ public sealed class CombatEngine(GameData data, IRandom rng)
     private bool SaveOrResist(CombatState s, Combatant c, Ability a, int dc, bool magical, bool advantage = false)
     {
         advantage |= magical && c.MagicResistant;
-        // ノームの知恵: 魔法への知力・判断力・魅力のセーヴに有利
-        advantage |= magical && a is Ability.Int or Ability.Wis or Ability.Cha && c is PartyMember gn && gn.Trait("gnome_cunning");
+        advantage |= magical && FeatureChecks.MagicSaveAdvantage(_data, c, a);   // ノームの知恵
         if (SavingThrow(c, a, dc, advantage)) return true;
         // 不屈(ファイター L9): 失敗したセーヴを振り直す
-        if (c is PartyMember ip && ClassFeatures.Spend(ip.Character, "indomitable"))
+        if (c is PartyMember ip && ClassFeatures.Spend(_data, ip.Character, "indomitable"))
         {
             s.Add("combat.indomitable", c.Name);
             if (SavingThrow(c, a, dc, advantage)) return true;
@@ -1719,10 +1726,10 @@ public sealed class CombatEngine(GameData data, IRandom rng)
             {
                 if (s.NoMagic || !Spellcasting.Castable(_data, p.Character).Any(x => x.Id == counter.Id)
                     || Spellcasting.ClassFor(_data, p.Character, counter.Id) is not { } cls) continue;
-                var levels = Enumerable.Range(3, 7).Where(l => Spellcasting.SlotsLeft(cls, p.Character, l) > 0).ToList();
+                var levels = Enumerable.Range(3, 7).Where(l => Spellcasting.SlotsLeft(_data, p.Character, l) > 0).ToList();
                 if (levels.Count == 0) continue;
                 use = levels.FirstOrDefault(l => l >= slot, levels.Max());
-                Spellcasting.UseSlot(p.Character, use);
+                Spellcasting.UseSlot(_data, p.Character, use);
                 mod = Spellcasting.Mod(cls, p.Character);
             }
             else if (f is MonsterUnit m && m.Def.Spellcasting is { } sc && sc.Spells.Contains(counter.Id))
@@ -1743,18 +1750,15 @@ public sealed class CombatEngine(GameData data, IRandom rng)
         return false;
     }
 
-    /// <summary>その状態にする(か、その状態を解く)セーヴに有利か(修正値 save_adv:&lt;状態&gt;)。</summary>
-    /// 種族: ドワーフの毒(ドワーフの頑健)、エルフとハーフエルフの魅了(妖精の血)、ハーフリングの恐怖(勇敢)。
-    private static bool SaveAdvantage(Combatant c, Condition condition) =>
-        c.Modifiers.Any(m => m.Stat == "save_adv:" + condition.ToString().ToLowerInvariant())
-        || c is PartyMember p && ((condition == Condition.Poisoned && p.Trait("dwarven_resilience"))
-            || (condition == Condition.Charmed && p.Trait("fey_ancestry")) || (condition == Condition.Frightened && p.Trait("brave")));
+    /// <summary>その状態にする(か、その状態を解く)セーヴに有利か(修正値 save_adv:&lt;状態&gt; と、能力。FeatureChecks.SaveAdvantageAgainst)。</summary>
+    private bool SaveAdvantage(Combatant c, Condition condition) =>
+        c.Modifiers.Any(m => m.Stat == "save_adv:" + condition.ToString().ToLowerInvariant()) || FeatureChecks.SaveAdvantageAgainst(_data, c, condition);
 
-    /// <summary>幸運(ハーフリング): 攻撃・セーヴ・死亡のセーヴの d20 の 1 を振り直す。</summary>
-    private static bool Lucky(Combatant c) => c is PartyMember p && p.Trait("lucky");
+    /// <summary>攻撃・セーヴ・死亡のセーヴの d20 の 1 を振り直すか(幸運)。</summary>
+    private bool Lucky(Combatant c) => FeatureChecks.Lucky(_data, c);
 
-    /// <summary>魔法で眠らされないか(エルフとハーフエルフの妖精の血)。</summary>
-    private static bool SleepImmune(Combatant c, EffectPart pool) => pool.Condition == Condition.Unconscious && c is PartyMember p && p.Trait("fey_ancestry");
+    /// <summary>魔法の眠りの呪文の状態に、魔法ではならないか(妖精の血)。</summary>
+    private bool SleepImmune(Combatant c, EffectPart pool) => pool.Condition is { } pc && FeatureChecks.MagicImmune(_data, c, pc);
 
     /// <summary>セーヴを振る。advantage なら d20 を2回振って良いほう(拘束の敏捷力のセーヴの不利と打ち消し合う)。</summary>
     public bool SavingThrow(Combatant c, Ability a, int dc, bool advantage = false)
@@ -1763,8 +1767,8 @@ public sealed class CombatEngine(GameData data, IRandom rng)
         if (helpless && a is Ability.Str or Ability.Dex) return false;   // 麻痺などでは筋力と敏捷力のセーヴに必ず失敗する
         int roll = D20();
         bool disadvantage = a == Ability.Dex && c.Has(Condition.Restrained);
-        // 危険感知(バーバリアン L2): 目が見えていれば、敏捷力のセーヴが有利
-        if (a == Ability.Dex && c is PartyMember ds && ClassFeatures.Has(ds.Character, "barbarian", 2) && !c.Has(Condition.Blinded)) advantage = true;
+        // クラスの能力のセーヴの有利(危険感知は、目が見えていれば敏捷力のセーヴ)
+        if (FeatureChecks.SaveAdvantage(_data, c, a)) advantage = true;
         if (advantage != disadvantage)
         {
             int second = D20();
@@ -1795,8 +1799,8 @@ public sealed class CombatEngine(GameData data, IRandom rng)
     {
         if (part.Condition is not { } cond || !target.Standing) return;
         if (target.Immune(cond)) return;
-        // 妖精の血(エルフ・ハーフエルフ): 呪文では眠らされない(アイバイトの眠りなども)
-        if (cond == Condition.Unconscious && ctx != null && target is PartyMember fp && fp.Trait("fey_ancestry")) return;
+        // 魔法(呪文)ではその状態にならない(妖精の血: 呪文では眠らされない。アイバイトの眠りなども)
+        if (ctx != null && FeatureChecks.MagicImmune(_data, target, cond)) return;
         target.Conditions.RemoveAll(x => x.Condition == cond);
         int escape = part.EscapeDc is 0 && ctx != null ? ctx.Dc : part.EscapeDc ?? 0;
         Ability? repeat = part.EscapeDc.HasValue ? Ability.Str
@@ -1905,20 +1909,21 @@ public sealed class CombatEngine(GameData data, IRandom rng)
             return taken;
         }
         var p = (PartyMember)target;
-        // 不屈の激怒(バーバリアン L11): 激怒のあいだに倒れても、耐久力のセーヴ(10、成功のたびに +5)で HP 1 で踏みとどまる
-        if (p.Raging && dealt - before < p.MaxHp && ClassFeatures.Has(p.Character, "barbarian", 11) && SavingThrow(p, Ability.Con, p.RelentlessDc))
+        // 即死でなければ、踏みとどまる手を順に試す(stay_up)。不屈の激怒(バーバリアン L11)は激怒のあいだに耐久力のセーヴ(10、成功のたびに +5)、
+        // 不屈の耐久(ハーフオーク)は大休憩までに1回。どちらかで HP 1 で踏みとどまる
+        if (dealt - before < p.MaxHp)
         {
-            p.RelentlessDc += 5;
-            p.Hp = 1;
-            s.Add("combat.relentless", p.Name);
-            return taken;
-        }
-        // 不屈の耐久(ハーフオーク): 即死でなければ、大休憩までに1回、HP 1 で踏みとどまる
-        if (dealt - before < p.MaxHp && p.Trait("relentless_endurance") && ClassFeatures.Spend(p.Character, "relentless_endurance"))
-        {
-            p.Hp = 1;
-            s.Add("combat.endurance", p.Name);
-            return taken;
+            foreach (var way in FeatureChecks.StayUp(_data, p))
+            {
+                bool up = way.Pool != null
+                    ? ClassFeatures.Spend(_data, p.Character, way.Pool)
+                    : SavingThrow(p, way.Ability!.Value, way.Dc + way.Step * p.StayUpSaves);
+                if (!up) continue;
+                if (way.Pool == null) p.StayUpSaves++;
+                p.Hp = 1;
+                if (way.Message != null) s.Add(way.Message, p.Name);
+                return taken;
+            }
         }
         p.Raging = false;
         EndConcentration(s, p);

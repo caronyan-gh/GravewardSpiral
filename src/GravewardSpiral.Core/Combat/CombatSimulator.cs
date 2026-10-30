@@ -36,7 +36,7 @@ public static class CombatSimulator
         foreach (var p in s.Party.Where(p => p.CanAct))
         {
             var targets = s.AttackableGroups(p).ToList();
-            bool canCast = ClassFeatures.CanCastIn(p.Character, p.Raging, p.Shape != null);
+            bool canCast = ClassFeatures.CanCastIn(data, p.Character, p.Raging, p.Shape != null);
             d[p.Id] = (useSpells ? AutoFeature(s, data, p) : null) ?? (useSpells && canCast ? Spread(s, data, AutoSpell(s, data, p)) : null)
                 ?? (targets.Count > 0 ? new PlayerCommand(CommandKind.Attack, targets[0]) : PlayerCommand.Dodge);
         }
@@ -59,13 +59,15 @@ public static class CombatSimulator
     private static PlayerCommand? AutoFeature(CombatState s, GameData data, PartyMember p)
     {
         var c = p.Character;
-        var have = ClassFeatures.ActiveFor(c).Where(f => ClassFeatures.CanUse(data, c, f) && (p.Shape == null || ClassFeatures.UsableInBeastForm(f)))
-            .Select(f => f.Id).ToHashSet();
+        // 使える技を部品の名前で引く(同じ部品の技がいくつかあれば、先に並ぶもの)
+        var usable = ClassFeatures.ActiveFor(data, c).Where(f => ClassFeatures.CanUse(data, c, f) && (p.Shape == null || ClassFeatures.UsableInBeastForm(f)))
+            .GroupBy(f => f.Part).ToDictionary(g => g.Key, g => g.First().Id);
+        var have = usable.Keys.ToHashSet();
         if (have.Count == 0) return null;
         var targets = s.AttackableGroups(p).ToList();
         int target = targets.Count > 0 ? targets[0] : -1;
         bool dangerous = Dangerous(s);
-        PlayerCommand Use(string id, int group = -1, int member = -1) => new(CommandKind.Feature, group, member, FeatureId: id);
+        PlayerCommand Use(string part, int group = -1, int member = -1) => new(CommandKind.Feature, group, member, FeatureId: usable[part]);
 
         if (have.Contains("second_wind") && p.Hp < p.MaxHp / 2) return Use("second_wind");
         if (have.Contains("lay_on_hands"))
@@ -81,7 +83,7 @@ public static class CombatSimulator
         }
         // 変身(熊の型)は、呪文スロットを使い切った前列のドルイドだけ(スロットがあるうちは呪文のほうが強い)
         if (have.Contains("wild_shape") && p.Shape == null && s.InFront(p) && s.LiveGroups.Any(g => s.IsNear(g))
-            && !Spellcasting.CasterClasses(data, c).Any(cls => Enumerable.Range(1, 9).Any(lv => Spellcasting.SlotsLeft(cls, c, lv) > 0)))
+            && !Enumerable.Range(1, 9).Any(lv => Spellcasting.SlotsLeft(data, c, lv) > 0))
             return Use("wild_shape");
         // 竜の息: 近くに2体以上いるグループに
         if (have.Contains("breath_weapon") && s.Groups.Select((g, i) => (g, i)).FirstOrDefault(x => !x.g.Wiped && s.IsNear(x.g) && x.g.AliveCount >= 2) is { g: not null } br)
@@ -97,7 +99,7 @@ public static class CombatSimulator
         if (have.Contains("bardic_inspiration"))
         {
             var best = s.Party.Select((m, i) => (m, i)).Where(x => x.m != p && x.m.Standing && !x.m.Modifiers.Any(m => m.Stat == "inspire"))
-                .OrderByDescending(x => CombatEngine.AttacksPerAction(x.m.Character)).FirstOrDefault();
+                .OrderByDescending(x => CombatEngine.AttacksPerAction(data, x.m.Character)).FirstOrDefault();
             if (best.m != null) return Use("bardic_inspiration", member: best.i);
         }
         return null;
@@ -110,7 +112,7 @@ public static class CombatSimulator
         var spells = Spellcasting.Castable(data, c).Where(x => x.InCombat).ToList();
         bool Has(SpellDef x, string type) => x.Effects.SelectMany(e => e.Flatten()).Any(e => e.Type == type);
         PlayerCommand? Cast(SpellDef x, int group = -1, int member = -1) =>
-            Spellcasting.LowestSlot(cls, c, x) is int slot ? new PlayerCommand(CommandKind.Cast, group, member, x.Id, slot) : null;
+            Spellcasting.LowestSlot(data, c, x) is int slot ? new PlayerCommand(CommandKind.Cast, group, member, x.Id, slot) : null;
 
         // 回復: HP が 4 割を切った(か倒れた)味方
         var hurt = s.Party.Select((m, i) => (m, i)).Where(x => x.m.Character.State is LifeState.Alive or LifeState.Unconscious
@@ -129,10 +131,10 @@ public static class CombatSimulator
         int? SlotFor(SpellDef x)
         {
             if (x.IsCantrip) return 0;
-            if (x.Scale != "slot") return Spellcasting.LowestSlot(cls, c, x);
+            if (x.Scale != "slot") return Spellcasting.LowestSlot(data, c, x);
             for (int lv = 9; lv >= x.Level; lv--)
             {
-                if (Spellcasting.SlotsLeft(cls, c, lv) > 0) return lv;
+                if (Spellcasting.SlotsLeft(data, c, lv) > 0) return lv;
             }
             return null;
         }
@@ -167,8 +169,8 @@ public static class CombatSimulator
             }
             // 強める: 攻撃の回数を増やす呪文(ヘイスト)を、攻撃の多い味方に
             var fighter = s.Party.Select((m, i) => (m, i)).Where(x => x.m.Standing && !x.m.Modifiers.Any(m => m.Stat == "attacks"))
-                .OrderByDescending(x => CombatEngine.AttacksPerAction(x.m.Character)).FirstOrDefault();
-            if (fighter.m != null && CombatEngine.AttacksPerAction(fighter.m.Character) >= 2)
+                .OrderByDescending(x => CombatEngine.AttacksPerAction(data, x.m.Character)).FirstOrDefault();
+            if (fighter.m != null && CombatEngine.AttacksPerAction(data, fighter.m.Character) >= 2)
             {
                 foreach (var x in spells.Where(x => x.Target is SpellTarget.Ally && Parts(x).Any(e => e.Type == EffectPart.Modifier && e.Stat == "attacks")))
                 {

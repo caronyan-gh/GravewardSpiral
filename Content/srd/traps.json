@@ -1,0 +1,11 @@
+[
+ {"id": "poison_needle", "name": {"en": "Poison Needle", "ja": "毒針"}, "text": {"en": "A poison needle!", "ja": "毒針だ！"}, "steps": [{"type": "damage", "who": "trigger", "dice": "1d4", "per_tier": 1, "damage_type": "piercing"}, {"type": "condition", "who": "trigger", "id": "poisoned", "value": 60, "save": {"ability": "con"}}]},
+ {"id": "gas_bomb", "name": {"en": "Gas", "ja": "ガス"}, "text": {"en": "Gas sprays out!", "ja": "ガスが吹き出した！"}, "steps": [{"type": "condition", "who": "party", "id": "poisoned", "value": 30, "save": {"ability": "con"}}]},
+ {"id": "crossbow_bolt", "name": {"en": "Crossbow", "ja": "石弓"}, "text": {"en": "A crossbow bolt flies out!", "ja": "石弓の矢が飛んできた！"}, "steps": [{"type": "damage", "who": "trigger", "dice": "2d10", "per_tier": 1, "damage_type": "piercing"}]},
+ {"id": "exploding_box", "name": {"en": "Explosion", "ja": "爆弾"}, "text": {"en": "The chest explodes!", "ja": "宝箱が爆発した！"}, "steps": [{"type": "damage", "who": "party", "dice": "2d6", "per_tier": 2, "damage_type": "fire", "save": {"ability": "dex", "success": "half"}}]},
+ {"id": "stunner", "name": {"en": "Stun", "ja": "スタン"}, "text": {"en": "A stun trap!", "ja": "スタンの罠だ！"}, "steps": [{"type": "condition", "who": "trigger", "id": "paralyzed", "save": {"ability": "con"}}]},
+ {"id": "teleporter", "name": {"en": "Teleporter", "ja": "テレポーター"}, "text": {"en": "A teleporter trap!", "ja": "テレポーターの罠だ！"}, "steps": [{"type": "teleport"}]},
+ {"id": "mage_blaster", "name": {"en": "Mage Blast", "ja": "術者への雷"}, "text": {"en": "Lightning strikes the spellcaster!", "ja": "術者への雷が走った！"}, "steps": [{"type": "damage", "who": "tag:arcane", "dice": "3d8", "per_tier": 1, "damage_type": "lightning"}]},
+ {"id": "priest_blaster", "name": {"en": "Priest Blast", "ja": "信仰者への雷"}, "text": {"en": "Lightning strikes the devout!", "ja": "信仰者への雷が走った！"}, "steps": [{"type": "damage", "who": "tag:divine", "dice": "3d8", "per_tier": 1, "damage_type": "lightning"}]},
+ {"id": "alarm", "name": {"en": "Alarm", "ja": "警報"}, "text": {"en": "An alarm rings out!", "ja": "警報が鳴り響いた！"}, "steps": [{"type": "alarm"}]}
+]

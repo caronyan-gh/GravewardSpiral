@@ -18,7 +18,7 @@ public sealed class AbilityIncreaseScene(Character c, Action? onClose = null) : 
 
     public override void Leave() => onClose?.Invoke();
 
-    private int Left => c.AbilityPoints - _pending.Count;
+    private int Left => c.AbilityPoints(Services.Data) - _pending.Count;
     private int ScoreOf(Ability a) => c.Scores[a] + _pending.Count(x => x == a);
 
     protected override string Title => Services.Strings.Format("asi.title", c.Name, Left);
@@ -66,7 +66,7 @@ public sealed class AbilityIncreaseScene(Character c, Action? onClose = null) : 
             {
                 if (i == 0)
                 {
-                    foreach (var a in _pending) c.IncreaseAbility(a);
+                    foreach (var a in _pending) c.IncreaseAbility(Services.Data, a);
                     Spellcasting.AutoPick(Services.Data, c);   // 準備できる数が増えた分を、おまかせで足す(訓練場で選び直せる)
                     Services.Audio.PlaySe(Sounds.LevelUp);
                 }

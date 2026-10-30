@@ -12,7 +12,8 @@ namespace GravewardSpiral.Core.Items;
 /// </summary>
 public static class RestStudy
 {
-    public static List<(Character Who, ItemInstance Item)> Run(IEnumerable<Character> party)
+    /// <param name="defs">品のデータ。渡せば、調べ終わったあとに全員の袋の同じ品を重ねる(正体が分かると、同じ品と重なるようになる)。</param>
+    public static List<(Character Who, ItemInstance Item)> Run(IEnumerable<Character> party, IReadOnlyDictionary<string, ItemDef>? defs = null)
     {
         var members = party.ToList();
         var taken = new HashSet<ItemInstance>(ReferenceEqualityComparer.Instance);
@@ -26,6 +27,8 @@ public static class RestStudy
             done.Add((c, item));
         }
         foreach (var (_, item) in done) item.Identified = true;
+        if (defs != null && done.Count > 0)
+            foreach (var c in members) c.Inventory.MergeStacks(defs);
         return done;
     }
 }

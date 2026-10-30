@@ -66,8 +66,11 @@ public sealed record EventCombat(List<(string Monster, int Count)> Groups, strin
 
 public sealed record EventSound(string Id) : EventOutput;
 
-/// <summary>パーティを別のマスへ移した(手順 warp)。イベントはここで終わる。画面は着いたマスの様子を知らせる。</summary>
+/// <summary>パーティを別のマスへ移した(手順 warp・teleport)。イベントはここで終わる。画面は着いたマスの様子を知らせる。</summary>
 public sealed record EventWarp(bool ChangedFloor) : EventOutput;
+
+/// <summary>警報(手順 alarm か、罠)。イベントはここで終わり、画面はこの階の敵と戦わせる。</summary>
+public sealed record EventAlarm : EventOutput;
 public sealed record EventToTown : EventOutput;
 public sealed record EventDone : EventOutput;
 
@@ -353,29 +356,36 @@ public sealed class EventRunner
                 Say(s.Dice == null ? "event.healed_full" : "event.healed");
                 break;
             case "damage":
-                foreach (var c in able)
+            {
+                // 守りは戦闘の外の共通のもの(装備・種族・クラスの能力・仲間のオーラ・回避)。イベントのダメージで HP は 1 より下がらない
+                var hazard = Hazard(_ctx.Party);   // オーラは選んだ人だけでなく、パーティ全員から
+                var save = SaveOf(s);
+                foreach (var c in Who(s, able))
                 {
                     int dmg = DiceExpression.Parse(EventScale.Dice(s.Dice ?? "1d6", _lift)!).Roll(_ctx.Rng).Total;
-                    if (s.Ability != null && Saved(c, s.Ability, EventScale.Dc(s.Dc, _dcBonus))) dmg /= 2;
-                    if (s.DamageType != null && c.Passive(data).Any(p => p.Type == EffectPart.Resist && p.DamageType == s.DamageType)) dmg /= 2;
-                    if (dmg <= 0) continue;
-                    c.Hp = Math.Max(1, c.Hp - dmg);
-                    Say("event.hurt", c.Name, dmg);
-                }
-                break;
-            case "condition":
-            {
-                if (!TryCondition(s.Id, out var cond)) break;
-                foreach (var c in able)
-                {
-                    if (s.Ability != null && Saved(c, s.Ability, EventScale.Dc(s.Dc, _dcBonus))) continue;
-                    if (c.Passive(data).Any(p => p.Type == EffectPart.ImmuneCondition && p.Condition == cond)) continue;
-                    c.Lasting.RemoveAll(l => l.Condition == cond);
-                    c.Lasting.Add(new LastingCondition { Condition = cond, Minutes = s.Value > 0 ? s.Value : null });
-                    Say("event.condition", c.Name, cond);
+                    hazard.Damage(c, dmg, s.DamageType, save, lethal: false);
                 }
                 break;
             }
+            case "condition":
+            {
+                if (!TryCondition(s.Id, out var cond)) break;
+                var hazard = Hazard(_ctx.Party);   // オーラは選んだ人だけでなく、パーティ全員から
+                var save = SaveOf(s);
+                foreach (var c in Who(s, able))
+                    hazard.AddCondition(c, cond, s.Value > 0 ? s.Value : null, save is var (a, dc, _) ? (a, dc) : null);
+                break;
+            }
+            case "trap":
+                SpringTrap(s);
+                break;
+            case "teleport":
+                Teleport();
+                break;
+            case "alarm":
+                _frames.Clear();
+                _out.Enqueue(new EventAlarm());
+                break;
             case "cure":
             {
                 bool any = TryCondition(s.Id, out var cond);
@@ -441,14 +451,14 @@ public sealed class EventRunner
             case "spend_slot":
             {
                 int min = Math.Max(1, s.Value);
-                var who = able.FirstOrDefault(c => LowestSlot(c, min) > 0);
+                var who = able.FirstOrDefault(c => LowestSlot(_ctx.Data, c, min) > 0);
                 if (who == null)
                 {
                     _frames.Push((s.Else, 0));
                     break;
                 }
-                int level = LowestSlot(who, min);
-                Spellcasting.UseSlot(who, level);
+                int level = LowestSlot(_ctx.Data, who, min);
+                Spellcasting.UseSlot(_ctx.Data, who, level);
                 Say("event.slot_used", who.Name, level);
                 _frames.Push((s.Then, 0));
                 break;
@@ -490,11 +500,11 @@ public sealed class EventRunner
     }
 
     /// <summary>min レベル以上で、残っている一番低い呪文スロットのレベル(無ければ 0)。</summary>
-    private static int LowestSlot(Character c, int min)
+    private static int LowestSlot(GameData data, Character c, int min)
     {
         for (int lv = min; lv <= 9; lv++)
         {
-            if (Math.Max(0, Spellcasting.RegularSlots(c, lv) - c.SlotsUsed.GetValueOrDefault(lv)) + Spellcasting.PactLeft(c, lv) > 0) return lv;
+            if (Spellcasting.SlotsLeft(data, c, lv) > 0) return lv;
         }
         return 0;
     }
@@ -529,9 +539,75 @@ public sealed class EventRunner
         return ok;
     }
 
-    private bool Saved(Character c, string ability, int dc) => _ctx.Rng.Roll(20) + c.SaveBonus(_ctx.Data, Abilities.Parse(ability)) >= dc;
+    /// <summary>
+    /// damage と condition の当たる相手。who が無ければ今までどおり(able: 選んだ人か、動ける人全員)。party は動ける人全員、trigger は動かした人、
+    /// tag:&lt;名前&gt; と race:&lt;id&gt; は、そのタグのクラスか、その種族の動ける人。
+    /// </summary>
+    private List<Character> Who(EventStep s, List<Character> able)
+    {
+        if (s.Who == null) return able;
+        if (s.Who == "trigger") return TriggerPerson() is { } t ? [t] : [];
+        var party = _ctx.Party.Where(c => c.CanAct).ToList();
+        return s.Who == "party" ? party : Traps.Targets(_ctx.Data, s.Who, party, party.FirstOrDefault()!).ToList();
+    }
 
-    private static bool TryCondition(string? id, out Condition cond)
+    /// <summary>動かした人(選んだ人。選んでいなければ隊列の先頭の動ける人)。</summary>
+    private Character? TriggerPerson() => _ctx.Chosen ?? _ctx.Party.FirstOrDefault(c => c.CanAct);
+
+    /// <summary>手順のセーヴ(save があればそれ、無ければ ability と dc で半分)。難易度にはイベントの引き上げを足す。</summary>
+    private (Ability Ability, int Dc, SaveSuccess Success)? SaveOf(EventStep s)
+    {
+        if (s.Save is { } sv) return (Abilities.Parse(sv.Ability), EventScale.Dc(sv.Dc ?? s.Dc, _dcBonus), sv.Success);
+        return s.Ability != null ? (Abilities.Parse(s.Ability), EventScale.Dc(s.Dc, _dcBonus), SaveSuccess.Half) : null;
+    }
+
+    /// <summary>
+    /// 罠を動かす(手順 trap)。強さはこの階の宝箱と同じ(イベントの倍率は掛けない)。死ぬかどうかは、手順の lethal、罠の lethal、束の lethal の順で、
+    /// どれにも無ければ HP 1 で止まる。罠が飛ばすか敵を呼んだら、イベントはそこで終わる(true を返す)。
+    /// </summary>
+    private bool SpringTrap(EventStep s)
+    {
+        var data = _ctx.Data;
+        var set = s.Set != null ? data.TrapSets.GetValueOrDefault(s.Set) : null;
+        string? id = s.Set != null ? set?.Pick(_ctx.Rng) : s.Id;
+        if (id == null || !data.Traps.TryGetValue(id, out var trap) || TriggerPerson() is not { } trigger) return false;
+        bool lethal = s.Lethal ?? trap.Lethal ?? set?.Lethal ?? false;
+        int tier = Chest.TierFor(_ctx.TargetLevel);
+        if (trap.Text != null) Say("event.sprung", trap.Text);
+        var lines = new List<(string Key, object[] Args)>();
+        var r = Traps.Spring(data, trap, tier, Chest.DcFor(tier), _ctx.Party, trigger, lethal, _ctx.Rng, "event", lines);
+        foreach (var (key, args) in lines) Say(key, args);
+        if (r.Teleport) Teleport();
+        else if (r.Alarm)
+        {
+            _frames.Clear();
+            _out.Enqueue(new EventAlarm());
+        }
+        return r.Teleport || r.Alarm;
+    }
+
+    /// <summary>この階のどこか(岩盤でないマス)へパーティを飛ばす。イベントはここで終わる。迷宮の外では何もしない。</summary>
+    private void Teleport()
+    {
+        if (_ctx.Maze is not { } maze) return;
+        var floor = maze.Floor;
+        var cells = new List<GridPos>();
+        for (int y = 0; y < floor.Height; y++)
+        for (int x = 0; x < floor.Width; x++)
+            if (!floor[x, y].IsSolid) cells.Add(new GridPos(x, y));
+        if (cells.Count == 0) return;
+        var to = cells[_ctx.Rng.Next(0, cells.Count)];
+        maze.Position = new PartyPosition(maze.Position.Floor, to, maze.Position.Facing);
+        maze.AutoMap.Record(maze);   // 飛ばされた先を地図に
+        _frames.Clear();
+        _out.Enqueue(new EventWarp(false));
+    }
+
+    /// <summary>戦闘の外の守り(イベントの文で知らせる)。</summary>
+    private Hazard Hazard(IList<Character> party) => new(_ctx.Data, party, _ctx.Rng, "event", (key, args) => Say(key, args));
+
+    /// <summary>状態の名前(poisoned など)を読む。</summary>
+    public static bool TryCondition(string? id, out Condition cond)
     {
         cond = default;
         return id != null && Enum.TryParse(id.Replace("_", ""), true, out cond);
@@ -637,7 +713,7 @@ public sealed class EventRunner
             "class" => who.Any(p => p.ClassIds.Contains(c.Id)),
             "race" => who.Any(p => p.RaceId == c.Id),
             "equipped" => who.Any(p => p.Inventory.Equipped.Values.Any(i => i.ItemId == c.Id)),
-            "slots" => who.Any(p => p.CanAct && LowestSlot(p, Math.Max(1, c.Value)) > 0),
+            "slots" => who.Any(p => p.CanAct && LowestSlot(ctx.Data, p, Math.Max(1, c.Value)) > 0),
             "entered" => ctx.Entered != null && string.Equals(ctx.Entered, c.Id, StringComparison.OrdinalIgnoreCase),
             "status" => TryCondition(c.Id, out var cond) && who.Any(p => p.Lasting.Any(l => l.Condition == cond)),
             "hp" => who.Any(p => p.IsAlive && p.MaxHp > 0 && Compare(p.Hp * 100 / p.MaxHp, c.Op, c.Value)),

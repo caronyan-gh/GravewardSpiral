@@ -1,6 +1,7 @@
 using GravewardSpiral.Core.Content;
 using GravewardSpiral.Core.Effects;
 using GravewardSpiral.Core.Items;
+using Traps_ = GravewardSpiral.Core.Items.Traps;
 using GravewardSpiral.Core.Magic;
 using GravewardSpiral.Core.Monsters;
 using GravewardSpiral.Core.Rules;
@@ -36,6 +37,13 @@ public sealed class RaceDef
     public bool Darkvision { get; set; }
     public int HpPerLevel { get; set; }
     public List<string> Traits { get; set; } = [];
+
+    /// <summary>種族の技と能力(features.json の id。level は合計のレベル)。数は合計のレベルで数え、class_level は使えない。</summary>
+    public List<FeatureRef> Features { get; set; } = [];
+
+    /// <summary>種族の技の回数(上限と戻り方。上限は合計のレベルで数える)。</summary>
+    public List<PoolDef> Pools { get; set; } = [];
+
     public LocalizedText? Description { get; set; }
 }
 
@@ -45,6 +53,15 @@ public sealed class ClassDef
     public LocalizedText Name { get; set; } = LocalizedText.Of("");
     public int HitDie { get; set; } = 8;
 
+    /// <summary>伸び方(攻撃の回数と能力値上昇のレベル)。docs/class-data-design.md の progression。</summary>
+    public ProgressionDef? Progression { get; set; }
+
+    /// <summary>覚える技と能力(features.json の id と、覚えるクラスのレベル)。</summary>
+    public List<FeatureRef> Features { get; set; } = [];
+
+    /// <summary>技の回数(上限と戻り方)。状態の画面には、この並びで残りを出す。</summary>
+    public List<PoolDef> Pools { get; set; } = [];
+
     /// <summary>大事な能力値の順(能力値を「おまかせ」で割り当てるときに使う)。</summary>
     public List<string> Primary { get; set; } = [];
 
@@ -52,12 +69,16 @@ public sealed class ClassDef
     public List<string> Armor { get; set; } = [];
     public List<string> Weapons { get; set; } = [];
     public List<string> Tools { get; set; } = [];
+
+    /// <summary>クラスのタグ(arcane・divine など。罠やイベントの who の tag:&lt;名前&gt; で当たる相手を決める)。</summary>
+    public List<string> Tags { get; set; } = [];
     public int SkillChoices { get; set; }
 
     /// <summary>選べる技能。["*"] ならどれでも。</summary>
     public List<string> Skills { get; set; } = [];
 
-    public string? Spellcasting { get; set; }
+    /// <summary>呪文の扱い。術者のクラスだけが持つ(docs/class-data-design.md の spellcasting)。</summary>
+    public SpellcastingDef? Spellcasting { get; set; }
 
     /// <summary>
     /// マルチクラスの条件(5版)。どれか1つの組を満たせばよく、組の中は全部の能力値が要る(例: ファイターは 筋力 13 か 敏捷力 13)。
@@ -69,9 +90,6 @@ public sealed class ClassDef
     public bool MeetsMulticlass(AbilityScores scores) =>
         Multiclass.Count == 0 || Multiclass.Any(group => group.All(kv => scores[Abilities.Parse(kv.Key)] >= kv.Value));
 
-    /// <summary>鎧を着ていないときの AC に足す能力値(バーバリアンは con、モンクは wis)。</summary>
-    public string? UnarmoredDefense { get; set; }
-
     /// <summary>最初の金のダイス式。10 倍して金貨にする(5版の初期の財産と同じ)。</summary>
     public string StartGold { get; set; } = "4d4";
 
@@ -80,6 +98,194 @@ public sealed class ClassDef
 
     public IEnumerable<Ability> PrimaryAbilities => Primary.Select(Abilities.Parse);
     public bool SavesWith(Ability a) => Saves.Any(s => Abilities.Parse(s) == a);
+}
+
+/// <summary>
+/// クラスの呪文の扱い。ability は呪文に使う能力値、style は 準備する(prepared)・覚える(known)・呪文書から準備する(book)・協約魔術(pact)、
+/// progression はスロットの伸び方(full / half / third / pact。マルチクラスの術者のレベルの数え方もこれで決まる)、
+/// from_level は呪文を使い始めるクラスのレベル(それより下では、覚える数も準備の数も 0)。
+/// cantrips・known・prepared は覚える初級呪文の数・覚える呪文の数・準備できる数で、そのクラスのレベルで数える。
+/// </summary>
+public sealed class SpellcastingDef
+{
+    public string Ability { get; set; } = "";
+    public CasterKind Style { get; set; }
+    /// <summary>スロットの伸び方(spell_progressions.json の id)。</summary>
+    public string Progression { get; set; } = "";
+    public int FromLevel { get; set; } = 1;
+    public LevelNumber? Cantrips { get; set; }
+    public LevelNumber? Known { get; set; }
+    public LevelNumber? Prepared { get; set; }
+    public List<SpellAccess> SpellAccess { get; set; } = [];
+}
+
+/// <summary>クラスのレベル lv になったら、set の束の呪文を spelllv レベルの呪文として使える(0 は初級呪文)。</summary>
+public sealed class SpellAccess
+{
+    public int Lv { get; set; } = 1;
+    public int Spelllv { get; set; }
+    public string Set { get; set; } = "";
+}
+
+/// <summary>
+/// クラスの伸び方。attacks は1回の攻撃で振る回数(そのクラスのレベルで数える。書かなければ 1。マルチクラスは一番多いもの)、
+/// ability_increases は能力値上昇を得るクラスのレベル(書かなければ 5版のふつうの 4・8・12・16・19。マルチクラスはクラスごとに数えて足す)。
+/// </summary>
+public sealed class ProgressionDef
+{
+    public static readonly IReadOnlyList<int> StandardAbilityIncreases = [4, 8, 12, 16, 19];
+
+    public LevelNumber? Attacks { get; set; }
+    public List<int>? AbilityIncreases { get; set; }
+}
+
+/// <summary>
+/// 技の回数1つ。max は上限(数の書き方。そのクラスのレベルで数える)、recharge は戻る休憩(short / long)、from_level はこのクラスのレベルから持つ
+/// (それより下では 0)、short_with はその勝手に効く能力を持てば小休憩でも戻る(鼓舞と鼓舞の泉)。
+/// 2つのクラスが同じ id の回数を持てば、上限は大きいほう。小休憩では、小休憩で戻るクラスの上限まで満たす。
+/// </summary>
+public sealed class PoolDef
+{
+    public string Id { get; set; } = "";
+    public LevelNumber Max { get; set; } = LevelNumber.Of(0);
+    public string Recharge { get; set; } = "long";
+    public int FromLevel { get; set; } = 1;
+    public string? ShortWith { get; set; }
+}
+
+/// <summary>クラスが覚える技か能力(features.json の id と、覚えるクラスのレベル)。name はこのクラスでの呼び名の文言のキー、subclass は見込み(今は使わない)。</summary>
+public sealed class FeatureRef
+{
+    public string Id { get; set; } = "";
+    public int Level { get; set; } = 1;
+    public string? Name { get; set; }
+    public string? Subclass { get; set; }
+}
+
+/// <summary>
+/// 技(action)か、勝手に効く能力(passive)の中身(features.json)。values はその能力の数(名前と数の書き方。武術のダイスなど)で、
+/// 能力をくれたクラスのレベルで数える。効き方そのものは、まだコアが id で知っている(名前で呼ぶ特別な部品。Step 4c・5 で効果の部品に)。
+/// </summary>
+public sealed class ClassFeatureDef
+{
+    public string Id { get; set; } = "";
+    public string Kind { get; set; } = "";
+    public Dictionary<string, LevelNumber> Values { get; set; } = [];
+
+    /// <summary>効く場面(PassiveRules.Whens)。書かなければ always。</summary>
+    public string When { get; set; } = "always";
+
+    /// <summary>重なりを数えるまとまり。書かなければ id。</summary>
+    public string? Group { get; set; }
+
+    /// <summary>まとまりの中での重なり方(own / max / first)。</summary>
+    public string Stacks { get; set; } = "own";
+
+    /// <summary>効果の部品(PassiveRules.EffectTypes)。書いていない能力の効き方は、コアが id で知っている。</summary>
+    public List<PassiveEffectDef> Effects { get; set; } = [];
+
+    /// <summary>状態の画面の能力の一覧に出すか(ファイティングスタイルは、専用の行に出すので false)。</summary>
+    public bool Listed { get; set; } = true;
+
+    // ---- 技(kind が action)の項目。効き方は、まだコアが id で知っている(Step 5c で数をデータに) ----
+
+    /// <summary>技の動きの部品(ClassFeatures.ActionParts の名前)。省くと id。別の id で同じ部品を使えば、数や回数の違う派生の技になる。</summary>
+    public string? Part { get; set; }
+
+    /// <summary>技の動きの部品の名前(part、省けば id)。</summary>
+    [System.Text.Json.Serialization.JsonIgnore]
+    public string PartId => Part ?? Id;
+
+    /// <summary>技の相手(self / ally / enemy_group / none)。</summary>
+    public FeatureTarget Target { get; set; } = FeatureTarget.Self;
+
+    /// <summary>技が使う回数(クラスの pools の id)。無ければ回数を使わない(ディヴァイン・スマイトは呪文スロット)。</summary>
+    public string? Pool { get; set; }
+
+    /// <summary>技1回で使う数。</summary>
+    public int Cost { get; set; } = 1;
+
+    /// <summary>獣の姿でも使えるか(武器や素手の打撃に乗せる技は false)。</summary>
+    public bool BeastForm { get; set; } = true;
+
+    /// <summary>技のダイス(セカンド・ウィンドの回復の 1d10 など。呪文と同じ書き方)。</summary>
+    public string? Dice { get; set; }
+
+    /// <summary>変身の技で選べる変身先(shapes.json の id)。キーはその技をくれたクラスのレベルで、そのレベル以下の一番大きなキーの一覧を使う。</summary>
+    public Dictionary<string, List<string>> Shapes { get; set; } = [];
+}
+
+/// <summary>
+/// 勝手に効く能力の効果1つ。to は self(自分)か allies(パーティ全員。オーラ)。ability・condition・damage_type・value は種類ごとに使う
+/// (ac_ability は鎧なしの AC に足す能力値、save_proficiency はそのセーヴの習熟(書かなければ全部)、save_bonus は value をセーヴに足す(ability があればその能力値のセーヴだけ)、
+/// immune_condition はその状態にならない、immune_damage はその種類のダメージを受けない)。
+/// </summary>
+public sealed class PassiveEffectDef
+{
+    public string Type { get; set; } = "";
+    public string To { get; set; } = "self";
+    public string? Ability { get; set; }
+    public Effects.Condition? Condition { get; set; }
+    public string? DamageType { get; set; }
+    public LevelNumber? Value { get; set; }
+
+    /// <summary>advantage の振る判定(PassiveRules.Rolls。initiative / melee_attack / attacked / save。save は condition でその状態のセーヴに、on: magic で魔法へのセーヴに絞れる)。</summary>
+    public string? Roll { get; set; }
+
+    /// <summary>効く攻撃(種類ごとに書ける値が決まる。PassiveRules.OnsFor)。</summary>
+    public string? On { get; set; }
+
+    /// <summary>extra_damage で足すダメージのダイス(呪文と同じ書き方)。</summary>
+    public string? Dice { get; set; }
+
+    /// <summary>spell_damage_bonus の呪文の id。</summary>
+    public string? Spell { get; set; }
+
+    /// <summary>stay_up で、成功のたびに難易度に足す数。</summary>
+    public int Step { get; set; }
+
+    /// <summary>stay_up で、セーヴの代わりに使う回数(pools の id。不屈の耐久)。</summary>
+    public string? Pool { get; set; }
+
+    /// <summary>no_cast と no_concentration を外す能力の id(その能力を持っていれば効かない。獣の姿の no_cast を外す獣の呪文)。</summary>
+    public string? Unless { get; set; }
+
+    /// <summary>効果が働いたときに出す文言のキー(反応や踏みとどまったとき。無ければ出さない)。</summary>
+    public string? Message { get; set; }
+}
+
+/// <summary>
+/// スロットの伸び方(spell_progressions.json)。caster_level はそのクラスだけのときの術者のレベル、multiclass はマルチクラスで足す術者のレベル
+/// (どちらもそのクラスのレベルで数え、ふつうのスロットの表 spell_slots.json を引く)。pact があれば協約魔術で、ふつうのスロットに数えず、
+/// 協約魔術のクラスのレベルの合計で、スロットの数(slots)とレベル(level)を決める。
+/// </summary>
+public sealed class SpellProgressionDef
+{
+    public string Id { get; set; } = "";
+    public LevelNumber? CasterLevel { get; set; }
+    public LevelNumber? Multiclass { get; set; }
+    public PactSlotsDef? Pact { get; set; }
+}
+
+/// <summary>協約魔術のスロットの数とレベル(協約魔術のクラスのレベルの合計で数える)。</summary>
+public sealed class PactSlotsDef
+{
+    public LevelNumber Slots { get; set; } = LevelNumber.Of(0);
+    public LevelNumber Level { get; set; } = LevelNumber.Of(0);
+}
+
+/// <summary>ふつうのスロットの表の1行(spell_slots.json)。id は術者のレベル(1〜20)、slots は 1 レベルからの呪文レベルごとの数。</summary>
+public sealed class SpellSlotRowDef
+{
+    public string Id { get; set; } = "";
+    public List<int> Slots { get; set; } = [];
+}
+
+/// <summary>名前を付けた呪文の束(spellsets.json)。どのクラスが使うかは、クラスの spell_access で決める。</summary>
+public sealed class SpellSetDef
+{
+    public string Id { get; set; } = "";
+    public List<string> Spells { get; set; } = [];
 }
 
 public sealed class BackgroundDef
@@ -100,6 +306,25 @@ public sealed class GameData
     public Dictionary<string, ItemDef> Items { get; } = new(StringComparer.Ordinal);
     public Dictionary<string, MonsterDef> Monsters { get; } = new(StringComparer.Ordinal);
     public Dictionary<string, SpellDef> Spells { get; } = new(StringComparer.Ordinal);
+    public Dictionary<string, SpellSetDef> SpellSets { get; } = new(StringComparer.Ordinal);
+
+    /// <summary>スロットの伸び方(spell_progressions.json)。クラスの spellcasting の progression で id を指す。</summary>
+    public Dictionary<string, SpellProgressionDef> SpellProgressions { get; } = new(StringComparer.Ordinal);
+
+    /// <summary>ふつうのスロットの表(spell_slots.json。キーは術者のレベル)。どのクラスも、マルチクラスでもこの1つを引く。</summary>
+    public Dictionary<string, SpellSlotRowDef> SpellSlots { get; } = new(StringComparer.Ordinal);
+
+    /// <summary>罠(traps.json)。</summary>
+    public Dictionary<string, TrapDef> Traps { get; } = new(StringComparer.Ordinal);
+
+    /// <summary>罠の束(trapsets.json)。宝箱は chest。</summary>
+    public Dictionary<string, TrapSetDef> TrapSets { get; } = new(StringComparer.Ordinal);
+
+    /// <summary>変身先(shapes.json。モンスターと同じ書き方で、変身して戦うための数値)。モンスターの数値を直しても、変身の釣り合いは変わらない。</summary>
+    public Dictionary<string, MonsterDef> Shapes { get; } = new(StringComparer.Ordinal);
+
+    /// <summary>技と勝手に効く能力の中身(features.json)。クラスは features で id を指す。</summary>
+    public Dictionary<string, ClassFeatureDef> Features { get; } = new(StringComparer.Ordinal);
     public Dictionary<string, WishDef> Wishes { get; } = new(StringComparer.Ordinal);
     public Dictionary<string, BossDef> Bosses { get; } = new(StringComparer.Ordinal);
 
@@ -124,6 +349,36 @@ public sealed class GameData
     public List<string> RaceOrder { get; } = [];
     public List<string> ClassOrder { get; } = [];
     public List<string> BackgroundOrder { get; } = [];
+
+    public const string SpellSetCollection = "spellsets";
+    public const string SpellProgressionCollection = "spell_progressions";
+    public const string SpellSlotCollection = "spell_slots";
+    public const string FeatureCollection = "features";
+    public const string ShapeCollection = "shapes";
+
+    /// <summary>
+    /// 前の形の呪文(classes を書いたもの。シナリオのパックの呪文など)は、前の形と同じく使えるクラスを置き換える:
+    /// 全部の束から外してから、そのクラスの束(&lt;クラス&gt;_cantrips か &lt;クラス&gt;_&lt;レベル&gt;)に足す。
+    /// 束が無ければ作る(標準のクラスの spell_access は、この名前の束を指している)。
+    /// </summary>
+    private void AddLegacySpellClasses()
+    {
+        foreach (var s in Spells.Values.Where(s => s.Classes != null))
+        {
+            foreach (var set in SpellSets.Values) set.Spells.Remove(s.Id);
+            foreach (var cls in s.Classes!)
+            {
+                string id = s.IsCantrip ? $"{cls}_cantrips" : $"{cls}_{s.Level}";
+                if (!SpellSets.TryGetValue(id, out var set)) SpellSets[id] = set = new SpellSetDef { Id = id };
+                if (!set.Spells.Contains(s.Id)) set.Spells.Add(s.Id);
+            }
+        }
+    }
+
+    /// <summary>その呪文を、束を通して使えるクラス(クラスの並びの順)。</summary>
+    public IEnumerable<ClassDef> ClassesWithSpell(string spellId) =>
+        ClassOrder.Distinct().Select(id => Classes.GetValueOrDefault(id)).OfType<ClassDef>()
+            .Where(c => c.Spellcasting?.SpellAccess.Any(a => SpellSets.TryGetValue(a.Set, out var set) && set.Spells.Contains(spellId)) == true);
 
     public static GameData Load(ContentLibrary content)
     {
@@ -154,6 +409,14 @@ public sealed class GameData
         Read("items", d.Items, null, i => i.Id);
         Read("monsters", d.Monsters, null, m => m.Id);
         Read("spells", d.Spells, null, s => s.Id);
+        Read(SpellSetCollection, d.SpellSets, null, s => s.Id);
+        Read(SpellProgressionCollection, d.SpellProgressions, null, p => p.Id);
+        Read(SpellSlotCollection, d.SpellSlots, null, r => r.Id);
+        Read(TrapDef.Collection, d.Traps, null, t => t.Id);
+        Read(TrapSetDef.Collection, d.TrapSets, null, t => t.Id);
+        Read(FeatureCollection, d.Features, null, f => f.Id);
+        Read(ShapeCollection, d.Shapes, null, m => m.Id);
+        d.AddLegacySpellClasses();
         Read("wishes", d.Wishes, d.WishOrder, w => w.Id);
         Read("bosses", d.Bosses, null, b => b.Id);
         Read(NamedMonsterDef.Collection, d.NamedMonsters, null, n => n.Id);
@@ -166,6 +429,127 @@ public sealed class GameData
         Read(Ai.WorldPart.Collection, d.WorldParts, null, p => p.Id);
         d.Check(content);
         return d;
+    }
+
+
+    /// <summary>クラスか種族の features と pools の検査(指す能力があるか、レベル、重なり、回数の戻り方)。</summary>
+    private void CheckFeatureRefs(ContentLibrary content, string where, List<FeatureRef> refs, List<PoolDef> pools)
+    {
+        foreach (var r in refs)
+        {
+            if (!Features.ContainsKey(r.Id)) content.Problems.Add($"{where} の features: features に '{r.Id}' がありません");
+            if (r.Level is < 1 or > 20) content.Problems.Add($"{where} の features の '{r.Id}': level は 1〜20 です");
+        }
+        foreach (var dup in refs.GroupBy(r => r.Id).Where(g => g.Count() > 1))
+            content.Problems.Add($"{where} の features: '{dup.Key}' が2つあります");
+        foreach (var pool in pools)
+        {
+            if (pool.Recharge is not ("short" or "long")) content.Problems.Add($"{where} の pools '{pool.Id}': recharge は short か long です");
+            if (pool.FromLevel is < 1 or > 20) content.Problems.Add($"{where} の pools '{pool.Id}': from_level は 1〜20 です");
+            if (pool.ShortWith != null && !Features.ContainsKey(pool.ShortWith))
+                content.Problems.Add($"{where} の pools '{pool.Id}': short_with の '{pool.ShortWith}' が features にありません");
+        }
+        foreach (var dup in pools.GroupBy(p => p.Id).Where(g => g.Count() > 1))
+            content.Problems.Add($"{where} の pools: '{dup.Key}' が2つあります");
+    }
+
+    /// <summary>
+    /// クラスと種族が指す技・能力・回数の文言が日英にあるか(画面に出す名前)。技は feature.&lt;id&gt; と feature.about.&lt;id&gt;、
+    /// 能力の一覧に出す能力(listed)は passive.&lt;id&gt;、ファイティングスタイルは passive.&lt;id&gt; と passive.about.&lt;id&gt;、回数は pool.&lt;id&gt;。
+    /// </summary>
+    private void CheckFeatureTexts(ContentLibrary content)
+    {
+        var owners = Classes.Values.Select(c => ($"classes '{c.Id}'", c.Features, c.Pools))
+            .Concat(Races.Values.Select(r => ($"races '{r.Id}'", r.Features, r.Pools)));
+        var keys = new SortedDictionary<string, string>(StringComparer.Ordinal);
+        foreach (var (where, refs, pools) in owners)
+        {
+            foreach (var r in refs)
+            {
+                if (!Features.TryGetValue(r.Id, out var f)) continue;
+                if (f.Kind == "action") { keys.TryAdd("feature." + f.Id, where); keys.TryAdd("feature.about." + f.Id, where); }
+                else if (f.Group == "fighting_style") { keys.TryAdd("passive." + f.Id, where); keys.TryAdd("passive.about." + f.Id, where); }
+                else if (f.Listed) keys.TryAdd("passive." + f.Id, where);
+            }
+            foreach (var pool in pools) keys.TryAdd("pool." + pool.Id, where);
+        }
+        foreach (var lang in new[] { "ja", "en" })
+        {
+            var texts = content.Texts(lang);
+            foreach (var (key, where) in keys.Where(k => !texts.ContainsKey(k.Key)))
+                content.Problems.Add($"{where}: 文言 '{key}' が {lang} にありません(text/{lang}.json)");
+        }
+    }
+
+    /// <summary>罠と罠の束の検査(手順の部品・当たる相手・セーヴ・状態、束の罠と重み)。</summary>
+    private void CheckTraps(ContentLibrary content)
+    {
+        foreach (var t in Traps.Values)
+        {
+            foreach (var s in t.Steps)
+            {
+                string where = $"traps '{t.Id}' の {s.Type}";
+                if (!TrapDef.StepTypes.Contains(s.Type)) content.Problems.Add($"traps '{t.Id}': 手順 '{s.Type}' は使えません({string.Join(" / ", TrapDef.StepTypes)})");
+                if (!Traps_.ValidWho(s.Who)) content.Problems.Add($"{where}: who '{s.Who}' は trigger / party / tag:<名前> / race:<id> です");
+                if (s.Save is { } sv && !PassiveRules.ValidAbility(sv.Ability)) content.Problems.Add($"{where}: save の ability '{sv.Ability}' は能力値です");
+                if (s.Type == "damage" && s.Dice != null && !DiceExpression.TryParse(s.Dice, out _, out _)) content.Problems.Add($"{where}: dice '{s.Dice}' が読めません");
+                if (s.Type == "condition" && !GravewardSpiral.Core.Events.EventRunner.TryCondition(s.Id, out _)) content.Problems.Add($"{where}: 状態 '{s.Id}' がありません");
+            }
+        }
+        foreach (var set in TrapSets.Values)
+        {
+            foreach (var pick in set.Traps)
+            {
+                if (!Traps.ContainsKey(pick.Id)) content.Problems.Add($"trapsets '{set.Id}': traps に '{pick.Id}' がありません");
+                if (pick.Weight < 1) content.Problems.Add($"trapsets '{set.Id}' の '{pick.Id}': weight は 1 以上です");
+            }
+        }
+    }
+
+    /// <summary>スロットの表(術者のレベル 1〜20 がそろい、数は 9 レベルまで)と伸び方(協約魔術か、caster_level と multiclass がある)の検査。</summary>
+    private void CheckSpellSlots(ContentLibrary content)
+    {
+        if (Classes.Values.All(c => c.Spellcasting == null)) return;
+        foreach (var r in SpellSlots.Values)
+        {
+            if (!int.TryParse(r.Id, out int lv) || lv is < 1 or > 20) content.Problems.Add($"spell_slots '{r.Id}': id は術者のレベル 1〜20 です");
+            if (r.Slots.Count > 9 || r.Slots.Any(n => n < 0)) content.Problems.Add($"spell_slots '{r.Id}': slots は 9 レベルまでの 0 以上の数です");
+        }
+        var missing = Enumerable.Range(1, 20).Where(l => !SpellSlots.ContainsKey(l.ToString())).ToList();
+        if (missing.Count > 0) content.Problems.Add($"spell_slots: 術者のレベル {string.Join("・", missing)} の行がありません");
+        foreach (var pr in SpellProgressions.Values.Where(pr => pr.Pact == null && (pr.CasterLevel == null || pr.Multiclass == null)))
+            content.Problems.Add($"spell_progressions '{pr.Id}': 協約魔術でなければ caster_level と multiclass が要ります");
+    }
+
+    /// <summary>クラスの呪文の扱いの検査(能力値、扱いと伸び方の組、束、割り当てたレベル)。</summary>
+    private void CheckSpellcasting(ContentLibrary content, string classId, SpellcastingDef sc)
+    {
+        string where = $"classes '{classId}' の spellcasting";
+        try { Abilities.Parse(sc.Ability); }
+        catch (FormatException ex) { content.Problems.Add($"{where}: {ex.Message}"); }
+        if (sc.Style == CasterKind.None) content.Problems.Add($"{where}: style は prepared / known / book / pact のどれかです");
+        if (!SpellProgressions.TryGetValue(sc.Progression, out var prog))
+            content.Problems.Add($"{where}: progression '{sc.Progression}' が spell_progressions にありません");
+        else if ((sc.Style == CasterKind.Pact) != (prog.Pact != null))
+            content.Problems.Add($"{where}: style が pact のときだけ、progression を協約魔術(pact のあるもの)にします");
+        if (sc.FromLevel is < 1 or > 20) content.Problems.Add($"{where}: from_level は 1〜20 です");
+        if (sc.Style is CasterKind.Known or CasterKind.Book or CasterKind.Pact && sc.Known == null)
+            content.Problems.Add($"{where}: style が {sc.Style.ToString().ToLowerInvariant()} なら known が要ります");
+        if (sc.Style is CasterKind.Prepared or CasterKind.Book && sc.Prepared == null)
+            content.Problems.Add($"{where}: style が {sc.Style.ToString().ToLowerInvariant()} なら prepared が要ります");
+        foreach (var a in sc.SpellAccess)
+        {
+            if (a.Lv is < 1 or > 20 || a.Spelllv is < 0 or > 9)
+                content.Problems.Add($"{where} の spell_access: lv は 1〜20、spelllv は 0〜9 です(set '{a.Set}')");
+            if (!SpellSets.TryGetValue(a.Set, out var set))
+            {
+                content.Problems.Add($"{where} の spell_access: spellsets に '{a.Set}' がありません");
+                continue;
+            }
+            // 呪文のもとのレベルと違うレベルに割り当てる形は、唱える処理がまだ割り当てたレベルを使わないので、今は受け付けない
+            foreach (var id in set.Spells.Where(id => Spells.TryGetValue(id, out var s) && s.Level != a.Spelllv))
+                content.Problems.Add($"{where} の spell_access: '{id}' は {Spells[id].Level} レベルの呪文です(set '{a.Set}' の spelllv {a.Spelllv}。もとのレベルと違う割り当ては、まだ使えません)");
+        }
     }
 
     private void Check(ContentLibrary content)
@@ -197,7 +581,48 @@ public sealed class GameData
             Need($"classes '{c.Id}' の start_items", "items", c.StartItems, Items.ContainsKey);
             if (!DiceExpression.TryParse(c.StartGold, out _, out var err))
                 content.Problems.Add($"classes '{c.Id}' の start_gold: {err}");
+            if (c.Spellcasting is { } sc) CheckSpellcasting(content, c.Id, sc);
+            CheckFeatureRefs(content, $"classes '{c.Id}'", c.Features, c.Pools);
+            if (c.Progression?.AbilityIncreases is { } asi && (asi.Any(l => l is < 1 or > 20) || asi.Distinct().Count() != asi.Count))
+                content.Problems.Add($"classes '{c.Id}' の progression の ability_increases: 1〜20 のレベルを重ねずに書きます");
         }
+        foreach (var r in Races.Values)
+        {
+            CheckFeatureRefs(content, $"races '{r.Id}'", r.Features, r.Pools);
+            // 種族の数は合計のレベルで数えるので、クラスのレベル(class_level)は使えない
+            foreach (var f in r.Features.Select(x => Features.GetValueOrDefault(x.Id)).OfType<ClassFeatureDef>())
+                if (f.Values.Values.Concat(f.Effects.Select(e => e.Value)).Any(n => n is { ClassLevel: not 0 }))
+                    content.Problems.Add($"races '{r.Id}' の features '{f.Id}': 種族の数は class_level でなく total_level で書きます");
+            if (r.Pools.Any(p => p.Max.ClassLevel != 0))
+                content.Problems.Add($"races '{r.Id}' の pools: 種族の数は class_level でなく total_level で書きます");
+        }
+        foreach (var set in SpellSets.Values)
+            Need($"spellsets '{set.Id}' の spells", "spells", set.Spells, Spells.ContainsKey);
+        CheckSpellSlots(content);
+        CheckFeatureTexts(content);
+        CheckTraps(content);
+        foreach (var f in Features.Values.Where(f => f.Kind is not ("passive" or "action")))
+            content.Problems.Add($"features '{f.Id}': kind は passive か action です");
+        foreach (var f in Features.Values.Where(f => f.Kind == "action" && !ClassFeatures.ActionParts.Contains(f.PartId)))
+            content.Problems.Add($"features '{f.Id}': 技(action)の動きはコアの部品です。part(省けば id)は {string.Join(" / ", ClassFeatures.ActionParts)} のどれかにします(勝手に効く能力なら kind を passive に)");
+        foreach (var f in Features.Values) content.Problems.AddRange(PassiveRules.Check(f));
+        content.Problems.AddRange(PassiveRules.CheckMaxGroups(Features.Values));
+        foreach (var f in Features.Values)
+        {
+            foreach (var (lv, ids) in f.Shapes)
+            {
+                if (!int.TryParse(lv, out int n) || n is < 1 or > 20) content.Problems.Add($"features '{f.Id}' の shapes: キー '{lv}' は 1〜20 のレベルです");
+                Need($"features '{f.Id}' の shapes", "shapes", ids, Shapes.ContainsKey);
+            }
+        }
+        foreach (var m in Shapes.Values) CheckMonster(content, m);
+        var poolIds = Classes.Values.SelectMany(c => c.Pools).Concat(Races.Values.SelectMany(r => r.Pools)).Select(p => p.Id).ToHashSet();
+        foreach (var f in Features.Values.Where(f => f.Kind == "action" && f.Pool != null && !poolIds.Contains(f.Pool)))
+            content.Problems.Add($"features '{f.Id}': pool '{f.Pool}' を持つクラスか種族がありません");
+        foreach (var (f, e) in Features.Values.SelectMany(f => f.Effects.Select(e => (f, e))).Where(x => x.e.Unless != null && !Features.ContainsKey(x.e.Unless)))
+            content.Problems.Add($"features '{f.Id}' の {e.Type}: unless の '{e.Unless}' が features にありません");
+        foreach (var (f, e) in Features.Values.SelectMany(f => f.Effects.Select(e => (f, e))).Where(x => x.e.Pool != null && !poolIds.Contains(x.e.Pool)))
+            content.Problems.Add($"features '{f.Id}' の {e.Type}: pool '{e.Pool}' を持つクラスか種族がありません");
         foreach (var b in Backgrounds.Values)
             Need($"backgrounds '{b.Id}' の skills", "skills", b.Skills, Skills.ContainsKey);
         ResolveItemBases(content);

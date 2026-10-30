@@ -226,29 +226,6 @@ public class SaveTests
     }
 
     [Fact]
-    public void AnOldClanBringsItsSpentPactSlotsAlong()
-    {
-        // 協約魔術のスロットを分けて数える前のクラン: 使い切った2つは、読んだあとも使ったまま(再レビューの R01)
-        using var dir = new TestPaths.TempDir();
-        var store = new SaveStore(dir.Path);
-        var s = NewSession(1);
-        var warlock = CharacterFactory.QuickCreate(Data, "W", "human", "warlock", 5);
-        s.Roster.Characters.Add(warlock);
-        warlock.PactSlotsUsed = 2;
-        store.Save(s, Content);
-        string path = Path.Combine(dir.Path, s.ClanId, "clan.json");
-        var node = System.Text.Json.Nodes.JsonNode.Parse(File.ReadAllText(path))!;
-        var raw = node["characters"]!.AsArray().Single(c => (string?)c!["id"] == warlock.Id)!.AsObject();
-        raw.Remove("pact_slots_used");
-        raw["slots_used"] = new System.Text.Json.Nodes.JsonObject { ["3"] = 2 };
-        File.WriteAllText(path, node.ToJsonString());
-        var loaded = store.Load(s.ClanId, s.WorldKey).Roster.Find(warlock.Id)!;
-        Assert.Equal(0, Core.Magic.Spellcasting.SlotsLeft(Data.Classes["warlock"], loaded, 3));
-        Assert.Equal(2, loaded.PactSlotsUsed);
-        Assert.Empty(loaded.SlotsUsed);
-    }
-
-    [Fact]
     public void SaveAndLoadKeepsEverything()
     {
         using var dir = new TestPaths.TempDir();

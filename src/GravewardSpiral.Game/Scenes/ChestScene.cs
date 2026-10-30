@@ -1,4 +1,5 @@
 using GravewardSpiral.Core.Characters;
+using GravewardSpiral.Core.Content;
 using GravewardSpiral.Core.Effects;
 using GravewardSpiral.Core.Items;
 using GravewardSpiral.Core.Rng;
@@ -17,6 +18,13 @@ namespace GravewardSpiral.Game.Scenes;
 public sealed class ChestScene(Chest chest, Action onTeleport, Action onAlarm) : MenuScene
 {
     private enum Mode { Main, InspectWho, DisarmWho, DisarmTrap, OpenWho, Done }
+
+    /// <summary>外す罠の一覧で選んだ名前(空なら「罠は無い」)。</summary>
+    private sealed record TrapGuess(string Id);
+
+    /// <summary>罠の名前(空なら「罠は無い」)。</summary>
+    private string TrapName(string id) =>
+        Data.Traps.TryGetValue(id, out var t) ? Services.Name(t.Name) : Services.Strings["chest.trap_name.none"];
 
     private Mode _mode;
     private Character? _who;
@@ -48,7 +56,7 @@ public sealed class ChestScene(Chest chest, Action onTeleport, Action onAlarm) :
                 yield return new MenuItem(s["chest.leave"], Tag: "leave");
                 break;
             case Mode.DisarmTrap:
-                foreach (var t in Enum.GetValues<ChestTrap>()) yield return new MenuItem(s["chest.trap_name." + t.ToString().ToLowerInvariant()], Tag: t);
+                foreach (var t in Chest.Names(Data)) yield return new MenuItem(TrapName(t), Tag: new TrapGuess(t));
                 break;
             case Mode.Done:
                 yield return new MenuItem(s["chest.close"], Tag: "leave");
@@ -98,7 +106,7 @@ public sealed class ChestScene(Chest chest, Action onTeleport, Action onAlarm) :
                     Trigger(c);
                     return;
                 }
-                Say(s.Format("chest.inspect_result", c.Name, s["chest.trap_name." + seen.ToString().ToLowerInvariant()]));
+                Say(s.Format("chest.inspect_result", c.Name, TrapName(seen)));
                 Go(Mode.Main);
                 return;
             }
@@ -106,8 +114,8 @@ public sealed class ChestScene(Chest chest, Action onTeleport, Action onAlarm) :
                 _who = c;
                 Go(Mode.DisarmTrap);
                 return;
-            case (Mode.DisarmTrap, ChestTrap guess):
-                switch (chest.Disarm(Data, _who!, guess, Rng))
+            case (Mode.DisarmTrap, TrapGuess guess):
+                switch (chest.Disarm(Data, _who!, guess.Id, Rng))
                 {
                     case Chest.DisarmResult.Disarmed:
                         Say(s.Format("chest.disarmed", _who!.Name));
@@ -139,7 +147,12 @@ public sealed class ChestScene(Chest chest, Action onTeleport, Action onAlarm) :
         Services.Audio.PlaySe(Sounds.Trap);
         var r = chest.Trigger(Data, Party, opener, Rng);
         foreach (var (key, args) in r.Lines)
-            Say(Services.Strings.Format(key, args.Select(a => a is Condition c ? Services.Strings["condition." + c.ToString().ToLowerInvariant()] : a).ToArray()));
+            Say(Services.Strings.Format(key, args.Select(a => a switch
+            {
+                Condition c => Services.Strings["condition." + c.ToString().ToLowerInvariant()],
+                LocalizedText t => Services.Name(t),
+                _ => a,
+            }).ToArray()));
         if (r.Teleport)
         {
             Stack.Pop();

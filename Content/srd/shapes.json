@@ -1,0 +1,311 @@
+[
+ {
+  "id": "wolf",
+  "name": {
+   "en": "Wolf",
+   "ja": "狼"
+  },
+  "size": "medium",
+  "creature_type": "beast",
+  "cr": 0.25,
+  "xp": 50,
+  "proficiency": 2,
+  "ac": 13,
+  "hp": "2d8+2",
+  "hp_average": 11,
+  "speed": 40,
+  "flies": false,
+  "abilities": {
+   "str": 12,
+   "dex": 15,
+   "con": 12,
+   "int": 3,
+   "wis": 12,
+   "cha": 6
+  },
+  "passive_perception": 13,
+  "appearing": "1d6",
+  "unknown_name": {
+   "en": "medium beast",
+   "ja": "獣"
+  },
+  "skills": {
+   "perception": 3,
+   "stealth": 4
+  },
+  "traits": [
+   "keen_hearing_and_smell",
+   "pack_tactics"
+  ],
+  "actions": [
+   {
+    "id": "bite",
+    "name": {
+     "en": "Bite",
+     "ja": "噛みつき"
+    },
+    "range": "melee",
+    "to_hit": 4,
+    "target": "one",
+    "effects": [
+     {
+      "type": "damage",
+      "dice": "2d4+2",
+      "damage_type": "piercing"
+     },
+     {
+      "type": "save",
+      "ability": "str",
+      "dc": 11,
+      "fail": [
+       {
+        "type": "condition",
+        "condition": "prone"
+       }
+      ]
+     }
+    ]
+   }
+  ],
+  "art": "square"
+ },
+ {
+  "id": "black_bear",
+  "name": {
+   "en": "Black Bear",
+   "ja": "黒熊"
+  },
+  "size": "medium",
+  "creature_type": "beast",
+  "cr": 0.5,
+  "xp": 100,
+  "proficiency": 2,
+  "ac": 11,
+  "hp": "3d8+6",
+  "hp_average": 19,
+  "speed": 40,
+  "flies": false,
+  "abilities": {
+   "str": 15,
+   "dex": 10,
+   "con": 14,
+   "int": 2,
+   "wis": 12,
+   "cha": 7
+  },
+  "passive_perception": 13,
+  "appearing": "1d6",
+  "unknown_name": {
+   "en": "medium beast",
+   "ja": "獣"
+  },
+  "traits": [
+   "keen_smell"
+  ],
+  "actions": [
+   {
+    "id": "bite",
+    "name": {
+     "en": "Bite",
+     "ja": "噛みつき"
+    },
+    "range": "melee",
+    "to_hit": 3,
+    "target": "one",
+    "effects": [
+     {
+      "type": "damage",
+      "dice": "1d6+2",
+      "damage_type": "piercing"
+     }
+    ]
+   },
+   {
+    "id": "claws",
+    "name": {
+     "en": "Claws",
+     "ja": "かぎ爪"
+    },
+    "range": "melee",
+    "to_hit": 3,
+    "target": "one",
+    "effects": [
+     {
+      "type": "damage",
+      "dice": "2d4+2",
+      "damage_type": "slashing"
+     }
+    ]
+   }
+  ],
+  "multiattack": [
+   [
+    {
+     "action": "bite",
+     "count": 1
+    },
+    {
+     "action": "claws",
+     "count": 1
+    }
+   ]
+  ],
+  "art": "square"
+ },
+ {
+  "id": "dire_wolf",
+  "name": {
+   "en": "Dire Wolf",
+   "ja": "ダイアウルフ"
+  },
+  "size": "large",
+  "creature_type": "beast",
+  "cr": 1,
+  "xp": 200,
+  "proficiency": 2,
+  "ac": 14,
+  "hp": "5d10+10",
+  "hp_average": 37,
+  "speed": 50,
+  "flies": false,
+  "abilities": {
+   "str": 17,
+   "dex": 15,
+   "con": 15,
+   "int": 3,
+   "wis": 12,
+   "cha": 7
+  },
+  "passive_perception": 13,
+  "appearing": "1d4",
+  "unknown_name": {
+   "en": "large beast",
+   "ja": "大きな獣"
+  },
+  "skills": {
+   "perception": 3,
+   "stealth": 4
+  },
+  "traits": [
+   "keen_hearing_and_smell",
+   "pack_tactics"
+  ],
+  "actions": [
+   {
+    "id": "bite",
+    "name": {
+     "en": "Bite",
+     "ja": "噛みつき"
+    },
+    "range": "melee",
+    "to_hit": 5,
+    "target": "one",
+    "effects": [
+     {
+      "type": "damage",
+      "dice": "2d6+3",
+      "damage_type": "piercing"
+     },
+     {
+      "type": "save",
+      "ability": "str",
+      "dc": 13,
+      "fail": [
+       {
+        "type": "condition",
+        "condition": "prone"
+       }
+      ]
+     }
+    ]
+   }
+  ],
+  "art": "square"
+ },
+ {
+  "id": "brown_bear",
+  "name": {
+   "en": "Brown Bear",
+   "ja": "ヒグマ"
+  },
+  "size": "large",
+  "creature_type": "beast",
+  "cr": 1,
+  "xp": 200,
+  "proficiency": 2,
+  "ac": 11,
+  "hp": "4d10+12",
+  "hp_average": 34,
+  "speed": 40,
+  "flies": false,
+  "abilities": {
+   "str": 19,
+   "dex": 10,
+   "con": 16,
+   "int": 2,
+   "wis": 13,
+   "cha": 7
+  },
+  "passive_perception": 13,
+  "appearing": "1d4",
+  "unknown_name": {
+   "en": "large beast",
+   "ja": "大きな獣"
+  },
+  "skills": {
+   "perception": 3
+  },
+  "traits": [
+   "keen_smell"
+  ],
+  "actions": [
+   {
+    "id": "bite",
+    "name": {
+     "en": "Bite",
+     "ja": "噛みつき"
+    },
+    "range": "melee",
+    "to_hit": 5,
+    "target": "one",
+    "effects": [
+     {
+      "type": "damage",
+      "dice": "1d8+4",
+      "damage_type": "piercing"
+     }
+    ]
+   },
+   {
+    "id": "claws",
+    "name": {
+     "en": "Claws",
+     "ja": "かぎ爪"
+    },
+    "range": "melee",
+    "to_hit": 5,
+    "target": "one",
+    "effects": [
+     {
+      "type": "damage",
+      "dice": "2d6+4",
+      "damage_type": "slashing"
+     }
+    ]
+   }
+  ],
+  "multiattack": [
+   [
+    {
+     "action": "bite",
+     "count": 1
+    },
+    {
+     "action": "claws",
+     "count": 1
+    }
+   ]
+  ],
+  "art": "square"
+ }
+]

@@ -52,7 +52,7 @@ This is the game's only Metamagic option. Other Metamagic choices and conversion
 
 These abilities work without selecting a combat command. Levels below refer to levels in the relevant class.
 
-- Fighting Style: Fighters, paladins, and rangers learn this ability. Equipment determines whether Archery, Two-Weapon Fighting, Great Weapon Fighting, Dueling, or Defense applies.
+- Fighting Style: Fighters, paladins, and rangers learn this ability. Archery always applies when you shoot a ranged weapon; in melee, your equipment determines whether Two-Weapon Fighting, Great Weapon Fighting, Dueling, or Defense applies.
 - Paladin auras: From level 6, a paladin able to act improves the whole party's saves with Aura of Protection. At level 10, Aura of Courage protects allies from fear.
 - Rogue's Uncanny Dodge: From level 5, reduce damage from an attack. At level 7, Evasion further reduces damage that allows a Dexterity save for reduced damage.
 - Monk's Martial Arts and Evasion: Without armor or a shield, you can use Dexterity with unarmed strikes and monk weapons (shortswords and simple melee weapons that aren't heavy or two-handed), and make an extra unarmed strike after attacking. With armor or a shield, Martial Arts stops working and Flurry of Blows can't be chosen. Evasion becomes available at level 7.

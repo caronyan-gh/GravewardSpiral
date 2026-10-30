@@ -142,6 +142,14 @@ public sealed class EventCondition
     public bool Not { get; set; }
 }
 
+/// <summary>手順のセーヴ(何の能力値で、難易度、成功したときの扱い)。</summary>
+public sealed class EventSave
+{
+    public string Ability { get; set; } = "";
+    public int? Dc { get; set; }
+    public Combat.SaveSuccess Success { get; set; } = Combat.SaveSuccess.Half;
+}
+
 /// <summary>選択肢、または random の候補。</summary>
 public sealed class EventOption
 {
@@ -167,7 +175,15 @@ public sealed class EventOption
 /// - xp: 動ける人それぞれに value
 /// - heal: dice(省くと全回復)。damage: dice、type、ability と dc(セーヴで半分)。どちらも動ける人全員。damage では HP は 1 より下がらない
 ///   (heal・damage・condition・cure・xp・give_item・take_item は、pick で選んだあとは、その人だけ)
+///   damage と condition は who で当たる相手を変えられる: party(選んだかどうかにかかわらず動ける人全員)、trigger(選んだ人。選んでいなければ隊列の先頭の動ける人)、
+///   tag:&lt;名前&gt;(取ったクラスのどれかがそのタグを持つ動ける人)、race:&lt;id&gt;(その種族の動ける人)。
+///   セーヴは save { ability, dc, success: half | none } でも書ける(success は damage のセーヴに成功したときの扱い)。守りは戦闘と同じ(クラスの能力・オーラ・回避・幸運)
 /// - condition: id(状態の名前)、value(分。0 なら治療するまで)、ability と dc(セーヴで防ぐ)。cure: id(省くと全部)
+/// - trap: id の罠(traps.json)か、set の罠の束(trapsets.json)から1つを動かす。動かしたのは trigger と同じ人。罠の強さは、この階の宝箱と同じ
+///   (イベントの倍率は掛けない)。lethal を書けば、HP 0 で死ぬか(true)HP 1 で止まるか(false)をこのイベントで決める。
+///   書かなければ罠の lethal、束の lethal の順で、どれにも無ければ HP 1 で止まる。罠が飛ばしたり敵を呼んだりしたら、イベントはそこで終わる
+/// - teleport: この階のどこか(岩盤でないマス)へパーティを飛ばす。イベントはここで終わる
+/// - alarm: 警報。この階の敵が襲ってくる。イベントはここで終わる(戦闘のあとに続かない)
 /// - light: value 分の明かり(0 なら明かりを消す)
 /// - combat: groups[monster, count] か boss か、どちらも無ければこの階の敵。win / lose(逃げた)
 /// - open: id。印 gate:&lt;id&gt; のマスの錠を開ける(この階)。close: id。開けた錠をまた閉める
@@ -193,7 +209,7 @@ public sealed class EventStep
     [
         "text", "choice", "if", "cases", "check", "random", "flag", "unflag", "counter", "counter_set", "give_item", "take_item", "treasure", "gold",
         "xp", "heal", "damage", "condition", "cure", "light", "combat", "open", "sound", "run", "town", "end", "again",
-        "world_doc", "ending", "close", "pick", "spend_slot", "warp", "timer", "timer_stop",
+        "world_doc", "ending", "close", "pick", "spend_slot", "warp", "timer", "timer_stop", "trap", "teleport", "alarm",
     ];
 
     public string Type { get; set; } = "";
@@ -224,6 +240,21 @@ public sealed class EventStep
 
     /// <summary>damage のダメージの種類(抵抗を見る)。</summary>
     public string? DamageType { get; set; }
+
+    /// <summary>damage と condition の当たる相手(罠では trigger / party / tag:&lt;名前&gt; / race:&lt;id&gt;。省くと罠では動かした人)。</summary>
+    public string? Who { get; set; }
+
+    /// <summary>damage と condition のセーヴ(罠。ability、dc(省くと罠の難易度)、success(ダメージのセーヴに成功したとき half か none))。</summary>
+    public EventSave? Save { get; set; }
+
+    /// <summary>damage のダイスを、罠の等級 1 ごとに増やす数(罠)。</summary>
+    public int PerTier { get; set; }
+
+    /// <summary>trap で使う罠の束(trapsets.json の id。id の代わりに)。</summary>
+    public string? Set { get; set; }
+
+    /// <summary>trap で、HP 0 で死ぬか(true)HP 1 で止まるか(false)。省くと罠、束の順。</summary>
+    public bool? Lethal { get; set; }
 
     public List<BossDef.BossGroup> Groups { get; set; } = [];
     public string? Boss { get; set; }

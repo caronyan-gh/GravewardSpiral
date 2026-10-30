@@ -92,6 +92,18 @@ public static class EventCheck
                     Add($"手順 {s.Type}: 状態 '{s.Id}' がありません");
                 if (s.Type == "condition" && s.Id == null) Add("手順 condition に id がありません");
                 if (s.Type == "damage" && s.DamageType != null && !DamageTypes.All.Contains(s.DamageType)) Add($"手順 damage: ダメージの種類 '{s.DamageType}' がありません");
+                if (s.Type is "damage" or "condition" && !Items.Traps.ValidWho(s.Who)) Add($"手順 {s.Type}: who '{s.Who}' は party / trigger / tag:<名前> / race:<id> です");
+                if (s.Save is { } sv)
+                {
+                    try { Abilities.Parse(sv.Ability); }
+                    catch (FormatException ex) { Add($"手順 {s.Type} の save: {ex.Message}"); }
+                }
+                if (s.Type == "trap")
+                {
+                    if ((s.Id == null) == (s.Set == null)) Add("手順 trap には、id(罠)か set(罠の束)のどちらか1つを書きます");
+                    if (s.Id != null && !data.Traps.ContainsKey(s.Id)) Add($"手順 trap: traps に '{s.Id}' がありません");
+                    if (s.Set != null && !data.TrapSets.ContainsKey(s.Set)) Add($"手順 trap: trapsets に '{s.Set}' がありません");
+                }
                 if (s.Type == "combat")
                 {
                     foreach (var g in s.Groups.Where(g => !data.Monsters.ContainsKey(g.Monster))) Add($"手順 combat: monsters に '{g.Monster}' がありません");

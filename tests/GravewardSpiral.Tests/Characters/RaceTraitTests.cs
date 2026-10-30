@@ -40,7 +40,7 @@ public class RaceTraitTests
         me.Character.State = LifeState.Alive;   // 起きてから宿に泊まる
         me.Character.Hp = 1;
         me.Character.LongRest();
-        Assert.Equal(1, ClassFeatures.UsesLeft(me.Character, "relentless_endurance"));
+        Assert.Equal(1, ClassFeatures.UsesLeft(Data, me.Character, "relentless_endurance"));
     }
 
     [Fact]
@@ -59,16 +59,16 @@ public class RaceTraitTests
     public void DragonbornBreathBurnsANearGroupAndComesBackOnAShortRest()
     {
         var c = CharacterFactory.QuickCreate(Data, "T", "dragonborn", "fighter", 3);
-        Assert.Contains(ClassFeatures.ActiveFor(c), f => f.Id == "breath_weapon");
+        Assert.Contains(ClassFeatures.ActiveFor(Data, c), f => f.Id == "breath_weapon");
         var engine = new CombatEngine(Data, new Pcg32(3, 3));
         var s = engine.Start([c], [(Data.Monsters["goblin"], 3)]);
         s.Surprised = null;
         engine.RunRound(s, new Dictionary<string, PlayerCommand> { [c.Id] = new(CommandKind.Feature, 0, FeatureId: "breath_weapon") });
         Assert.Contains(s.Log, l => l.Key == "combat.feature" && l.Args.Contains("feature.breath_weapon"));
-        Assert.Equal(0, ClassFeatures.UsesLeft(c, "breath_weapon"));
+        Assert.Equal(0, ClassFeatures.UsesLeft(Data, c, "breath_weapon"));
         c.ShortRest(Data, new Pcg32(1, 1));
-        Assert.Equal(1, ClassFeatures.UsesLeft(c, "breath_weapon"));
-        Assert.DoesNotContain(ClassFeatures.ActiveFor(CharacterFactory.QuickCreate(Data, "T", "human", "fighter", 3)), f => f.Id == "breath_weapon");
+        Assert.Equal(1, ClassFeatures.UsesLeft(Data, c, "breath_weapon"));
+        Assert.DoesNotContain(ClassFeatures.ActiveFor(Data, CharacterFactory.QuickCreate(Data, "T", "human", "fighter", 3)), f => f.Id == "breath_weapon");
     }
 
     [Fact]
@@ -79,7 +79,7 @@ public class RaceTraitTests
         {
             var c = CharacterFactory.QuickCreate(Data, "T", race, "fighter", 5);
             c.MaxHp = c.Hp = 500;
-            new GravewardSpiral.Core.Items.Chest { Trap = GravewardSpiral.Core.Items.ChestTrap.ExplodingBox, Tier = 3 }.Trigger(Data, [c], c, new Pcg32(5, 5));
+            new GravewardSpiral.Core.Items.Chest { Trap = "exploding_box", Tier = 3 }.Trigger(Data, [c], c, new Pcg32(5, 5));
             return 500 - c.Hp;
         }
         Assert.True(Hurt("tiefling") < Hurt("human"));
@@ -87,13 +87,13 @@ public class RaceTraitTests
         var orc = CharacterFactory.QuickCreate(Data, "T", "half_orc", "fighter", 1);
         orc.MaxHp = 200;   // 即死にならないよう、最大 HP を大きく
         orc.Hp = 1;
-        new GravewardSpiral.Core.Items.Chest { Trap = GravewardSpiral.Core.Items.ChestTrap.CrossbowBolt, Tier = 3 }.Trigger(Data, [orc], orc, new Pcg32(5, 5));
+        new GravewardSpiral.Core.Items.Chest { Trap = "crossbow_bolt", Tier = 3 }.Trigger(Data, [orc], orc, new Pcg32(5, 5));
         Assert.Equal(LifeState.Alive, orc.State);
         Assert.Equal(1, orc.Hp);
         // 即死になる大きなダメージ(残りを超えた分が最大 HP 以上)では踏みとどまらない
         var big = CharacterFactory.QuickCreate(Data, "T", "half_orc", "fighter", 1);
         big.MaxHp = big.Hp = 2;
-        new GravewardSpiral.Core.Items.Chest { Trap = GravewardSpiral.Core.Items.ChestTrap.CrossbowBolt, Tier = 3 }.Trigger(Data, [big], big, new Pcg32(5, 5));
+        new GravewardSpiral.Core.Items.Chest { Trap = "crossbow_bolt", Tier = 3 }.Trigger(Data, [big], big, new Pcg32(5, 5));
         Assert.Equal(LifeState.Dead, big.State);
     }
 

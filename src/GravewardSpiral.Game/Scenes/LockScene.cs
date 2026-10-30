@@ -47,7 +47,7 @@ public sealed class LockScene(ExplorationState state, Direction dir, int tier, A
     /// <summary>ノックを唱えられる人(ノックを持っていて、スロットが残っている)。</summary>
     private bool CanKnock(Character c) =>
         c.CanAct && Spellcasting.CasterClass(Data, c) is { } cls && Data.Spells.TryGetValue("knock", out var k)
-        && Spellcasting.Castable(Data, c).Contains(k) && Spellcasting.LowestSlot(cls, c, k) != null;
+        && Spellcasting.Castable(Data, c).Contains(k) && Spellcasting.LowestSlot(Data, c, k) != null;
 
     protected override IEnumerable<MenuItem> Items()
     {
@@ -69,7 +69,7 @@ public sealed class LockScene(ExplorationState state, Direction dir, int tier, A
                     string? detail = _mode switch
                     {
                         Mode.PickWho => Core.Items.Chest.DisarmBonus(Data, c) is var (b, tools) ? $"{Signed(b)} {s[tools ? "chest.tools" : "chest.no_tools"]}" : null,
-                        Mode.KnockWho => CanKnock(c) && Spellcasting.CasterClass(Data, c) is { } kc && Spellcasting.LowestSlot(kc, c, Data.Spells["knock"]) is int slot
+                        Mode.KnockWho => CanKnock(c) && Spellcasting.CasterClass(Data, c) is { } kc && Spellcasting.LowestSlot(Data, c, Data.Spells["knock"]) is int slot
                             ? s.Format("lock.knock_slot", slot) : null,
                         Mode.KickWho => Signed(KickBonus(c)),
                         _ => null,
@@ -125,7 +125,7 @@ public sealed class LockScene(ExplorationState state, Direction dir, int tier, A
             {
                 var cls = Spellcasting.CasterClass(Data, c)!;
                 var knock = Data.Spells["knock"];
-                Spellcasting.UseSlot(c, Spellcasting.LowestSlot(cls, c, knock)!.Value);
+                Spellcasting.UseSlot(Data, c, Spellcasting.LowestSlot(Data, c, knock)!.Value);
                 Services.Audio.PlaySe(Sounds.SpellCast);
                 _lines.Add(s.Format("lock.knocked", c.Name));
                 Open();

@@ -115,6 +115,20 @@ public class ItemTests
     }
 
     [Fact]
+    public void StudiedItemsStackWithTheSameKnownItems()
+    {
+        // キャンプで調べて正体が分かった水薬は、もう持っている同じ水薬に重なる(店に入り直すまで別の枠のままだった)
+        var data = Fresh();
+        var a = Fighter(data);
+        a.Inventory.Items.Clear();
+        a.Inventory.Items.Add(new ItemInstance { ItemId = "potion_of_healing", Identified = true, Count = 2 });
+        a.Inventory.Items.Add(new ItemInstance { ItemId = "potion_of_healing", Identified = false, Count = 1 });
+        RestStudy.Run([a], data.Items);
+        var potion = Assert.Single(a.Inventory.Items);
+        Assert.Equal(3, potion.Count);
+    }
+
+    [Fact]
     public void ShortRestStudiesOneItemEachWithoutRolls()
     {
         var data = Fresh();
@@ -233,13 +247,13 @@ public class ItemTests
         var data = Fresh();
         var party = new List<Character> { Fighter(data), CharacterFactory.QuickCreate(data, "R", "halfling", "rogue") };
         var rng = new Pcg32(4, 4);
-        var chest = new Chest { Trap = ChestTrap.CrossbowBolt, Gold = 101, Tier = 0, Items = [ItemInstance.Of("potion_of_healing")] };
-        Assert.Equal(Chest.DisarmResult.Triggered, chest.Disarm(data, party[1], ChestTrap.PoisonNeedle, rng));
+        var chest = new Chest { Trap = "crossbow_bolt", Gold = 101, Tier = 0, Items = [ItemInstance.Of("potion_of_healing")] };
+        Assert.Equal(Chest.DisarmResult.Triggered, chest.Disarm(data, party[1], "poison_needle", rng));
         int hp = party[1].Hp;
         var r = chest.Trigger(data, party, party[1], rng);
         Assert.True(party[1].Hp < hp || party[1].State == LifeState.Dead);
         Assert.False(r.Teleport);
-        Assert.Equal(ChestTrap.None, chest.Trap);
+        Assert.False(chest.HasTrap);
         long gold = party.Sum(c => c.Gold);
         var left = chest.Loot(data, party.Where(c => c.IsAlive).ToList());
         Assert.Empty(left);
@@ -252,10 +266,10 @@ public class ItemTests
         var data = Fresh();
         var party = new List<Character> { Fighter(data) };
         party[0].Scores.Con = 3;   // セーヴに落ちやすく
-        var chest = new Chest { Trap = ChestTrap.GasBomb, Tier = 4 };
+        var chest = new Chest { Trap = "gas_bomb", Tier = 4 };
         for (int i = 0; i < 20 && party[0].Lasting.Count == 0; i++)
         {
-            chest.Trap = ChestTrap.GasBomb;
+            chest.Trap = "gas_bomb";
             chest.Trigger(data, party, party[0], new Pcg32((ulong)i, 1));
         }
         Assert.Contains(party[0].Lasting, l => l.Condition == Condition.Poisoned);

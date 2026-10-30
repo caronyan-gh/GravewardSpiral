@@ -22,7 +22,12 @@ public sealed class SpellDef
 
     /// <summary>アイコンの種類(fire / heal / debuff など。art/spells/&lt;icon&gt;.png)。同じ種類の呪文は同じアイコン。</summary>
     public string? Icon { get; set; }
-    public List<string> Classes { get; set; } = [];
+    /// <summary>
+    /// 前の形(どのクラスが使えるか)。今は spellsets.json の束とクラスの spell_access で決める。
+    /// これを書いた呪文は(空の一覧でも)、読むときに前の形と同じく使えるクラスを置き換える: 全部の束から外してから、
+    /// &lt;クラス&gt;_cantrips か &lt;クラス&gt;_&lt;レベル&gt; の束に足す(GameData.AddLegacySpellClasses)。書いていなければ null。
+    /// </summary>
+    public List<string>? Classes { get; set; }
     public bool Ritual { get; set; }
     public bool Concentration { get; set; }
 

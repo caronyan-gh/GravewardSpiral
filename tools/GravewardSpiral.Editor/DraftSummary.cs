@@ -32,6 +32,16 @@ public sealed class DraftSummary(EditorContext context)
     }
 
     public string DamageType(string? type) => type == null ? "" : Word("damage." + type, type);
+
+    /// <summary>手順の当たる相手(who)の言い方。</summary>
+    public string Who(string who) => who switch
+    {
+        "party" => T("全員", "Everyone"),
+        "trigger" => T("動かした人", "Whoever set it off"),
+        _ when who.StartsWith("tag:") => T($"タグ {who[4..]} のクラスの人", $"Members tagged {who[4..]}"),
+        _ when who.StartsWith("race:") => T($"種族 {who[5..]} の人", $"Members of race {who[5..]}"),
+        _ => who,
+    };
     public string ConditionName(string name) => Word("condition." + name, name);
     private string ConditionName(Condition c) => ConditionName(JsonNamingPolicy.SnakeCaseLower.ConvertName(c.ToString()));
     private string Ability(string? a) => a == null ? "" : Word("ability." + a, a);
@@ -290,7 +300,8 @@ public sealed class DraftSummary(EditorContext context)
         "take_item" => T($"{ItemName(s.Id)}×{s.Count} を失う", $"Lose {ItemName(s.Id)}×{s.Count}"),
         "treasure" => T($"宝を {s.Count} つ手に入れる(この階の表から)", $"Find {s.Count} treasure (this floor's table)"),
         "heal" => T($"全員の HP が {s.Dice ?? "全部"} 回復する", $"Everyone heals {s.Dice ?? "fully"}"),
-        "damage" => T($"全員が {s.Dice} の{DamageType(s.DamageType)}ダメージを受ける", $"Everyone takes {s.Dice} {DamageType(s.DamageType)} damage")
+        "damage" => (s.Who is { } w ? T($"{Who(w)}が {s.Dice} の{DamageType(s.DamageType)}ダメージを受ける", $"{Who(w)} takes {s.Dice} {DamageType(s.DamageType)} damage")
+                : T($"全員が {s.Dice} の{DamageType(s.DamageType)}ダメージを受ける", $"Everyone takes {s.Dice} {DamageType(s.DamageType)} damage"))
             + (s.Ability != null ? T($"({Ability(s.Ability)}のセーヴ DC {s.Dc} で半分)", $" ({Ability(s.Ability)} save DC {s.Dc} for half)") : ""),
         "condition" => T($"{ConditionName(s.Id ?? "?")}になる({(s.Value > 0 ? s.Value + " 分" : "治すまで")})", $"{ConditionName(s.Id ?? "?")} for {(s.Value > 0 ? s.Value + " minutes" : "until cured")}")
             + (s.Ability != null ? T($"({Ability(s.Ability)}のセーヴ DC {s.Dc} で防ぐ)", $" ({Ability(s.Ability)} save DC {s.Dc} to resist)") : ""),
@@ -305,6 +316,10 @@ public sealed class DraftSummary(EditorContext context)
         "timer" => T($"{s.Value} 歩あとに、イベント {s.Id} が起こる", $"In {s.Value} steps, event {s.Id} happens"),
         "timer_stop" => T($"あとで起こるはずのイベント {s.Id} を取りやめる", $"Event {s.Id} will no longer happen"),
         "warp" => T($"着地点 {s.Id} へ飛ばされる(イベントはここで終わる)", $"Moved to landing point {s.Id} (the event ends)"),
+        "trap" => (s.Set != null ? T($"罠の束 {s.Set} から罠が動く", $"A trap from set {s.Set} springs") : T($"罠 {s.Id} が動く", $"Trap {s.Id} springs"))
+            + (s.Lethal is { } l ? (l ? T("(HP 0 で死ぬ)", " (0 HP kills)") : T("(HP 1 で止まる)", " (stops at 1 HP)")) : ""),
+        "teleport" => T("この階のどこかへ飛ばされる(イベントはここで終わる)", "Teleported somewhere on this floor (the event ends)"),
+        "alarm" => T("警報が鳴り、敵が襲ってくる(イベントはここで終わる)", "An alarm rings and enemies attack (the event ends)"),
         "sound" => T($"音が鳴る: {s.Id}", $"Sound: {s.Id}"),
         "run" => T($"イベント {s.Id} へ続く", $"Continue with event {s.Id}"),
         "end" => T("終わる", "End"),

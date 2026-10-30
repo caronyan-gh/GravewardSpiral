@@ -168,7 +168,7 @@ public sealed class PartyMember(Character character, GameData data) : Combatant
     public override int MaxHp => Shape?.HpAverage ?? Character.MaxHp;
     /// <summary>修正値の前の AC。ac_unarmored(メイジ・アーマー)は、鎧を着ていないときの基本の値(13 + 敏捷力)にする。</summary>
     public override int BaseAc => Shape?.Ac ?? Character.ArmorClass(_data,
-        Modifiers.Where(m => m.Stat == "ac_unarmored").Select(m => (int?)m.Value).Max());
+        Modifiers.Where(m => m.Stat == "ac_unarmored").Select(m => (int?)m.Value).Max(), Now);
 
     /// <summary>同じパーティの仲間(パラディンのオーラを見る)。戦闘を始めるときに入れる。</summary>
     public IReadOnlyList<PartyMember> Allies { get; set; } = [];
@@ -177,7 +177,8 @@ public sealed class PartyMember(Character character, GameData data) : Combatant
     public bool Raging { get; set; }
 
     /// <summary>不屈の激怒の難易度(倒れずに踏みとどまるたびに 5 上がる)。</summary>
-    public int RelentlessDc { get; set; } = 10;
+    /// <summary>この戦闘で、倒れかけて踏みとどまるセーヴに成功した数(不屈の激怒。成功のたびに難易度が上がる)。</summary>
+    public int StayUpSaves { get; set; }
 
     /// <summary>急所攻撃を最後に使ったラウンド(1ラウンドに1回)。</summary>
     public int SneakRound { get; set; } = -1;
@@ -187,9 +188,12 @@ public sealed class PartyMember(Character character, GameData data) : Combatant
 
     public int ShapeHp { get; set; }
 
-    /// <summary>倒れずに立っている、オーラを持つパラディンの中で一番高い魅力の修正(守りのオーラ。最低 +1。重ねない)。</summary>
-    private int AuraOfProtection() => Allies.Where(a => a.Standing && ClassFeatures.Has(a.Character, "paladin", 6))
-        .Select(a => Math.Max(1, a.Character.Scores.Mod(Ability.Cha))).DefaultIfEmpty(0).Max();
+    /// <summary>この人に届く、能力のその種類の効果(自分の to: self と、立っている仲間(自分も)の to: allies。オーラなど)。</summary>
+    private List<(Character Source, PassiveRules.Active Active)> Reaching(string type) =>
+        PassiveRules.Reaching(_data, Character, Now, Allies.Select(a => (a.Character, a.Now)), type);
+
+    /// <summary>能力の効く場面を決める、今の様子(立っている・激怒・目が見えない・行動不能)。</summary>
+    public PassiveRules.Situation Now => new(Standing, Raging, Has(Condition.Blinded), Incapacitated, Shape != null);
 
     public override int TempHp
     {
@@ -204,26 +208,27 @@ public sealed class PartyMember(Character character, GameData data) : Combatant
         foreach (var m in Modifiers.Where(m => m.Stat == "set:" + a.Code())) score = Math.Max(score, m.Value);
         return Abilities.Modifier(score);
     }
-    public override int SaveBonus(Ability a) => Character.SaveBonus(_data, a) + AuraOfProtection();
+    /// <summary>
+    /// セーヴの修正。能力の save_bonus は、まとまりごとに数える(守りのオーラはパーティに何人いても一番大きいもの1つ)。
+    /// save_bonus に ability があれば、その能力値のセーヴだけに足す。
+    /// </summary>
+    public override int SaveBonus(Ability a) => Character.SaveBonus(_data, a)
+        + PassiveRules.Total(Reaching("save_bonus").Where(x => x.Active.Effect.Ability is not { } ab || Abilities.Parse(ab) == a));
 
-    /// <summary>状態の耐性: 装備、モンクの体の清浄(L10 毒)、パラディンの勇気のオーラ(L10 恐怖)。</summary>
+    /// <summary>状態の耐性: 装備と、能力の immune_condition(自分のものと、立っている仲間のオーラ。体の清浄の毒、勇気のオーラの恐怖)。</summary>
     public override bool ImmuneTo(Condition c) =>
         Character.Passive(_data).Any(p => p.Type == EffectPart.ImmuneCondition && p.Condition == c)
-        || (c == Condition.Poisoned && ClassFeatures.Has(Character, "monk", 10))
-        || (c == Condition.Frightened && Allies.Any(a => a.Standing && ClassFeatures.Has(a.Character, "paladin", 10)));
-
-    /// <summary>種族の特性を持っているか(races.json の traits)。</summary>
-    public bool Trait(string trait) => Character.HasTrait(_data, trait);
+        || Reaching("immune_condition").Any(x => x.Active.Effect.Condition == c);
 
     /// <summary>
-    /// 装備の抵抗と脆弱。種族の抵抗: ドワーフの毒(ドワーフの頑健)、ティーフリングの火(地獄の抵抗)、ドラゴンボーンの火(このゲームでは赤い竜の血)。
+    /// 装備の抵抗と脆弱と、能力の無効と抵抗(immune_damage・resist_damage。種族の抵抗もここ: ドワーフの毒、ティーフリングとドラゴンボーンの火)。
     /// </summary>
     protected override (bool Immune, bool Resist, bool Vulnerable) DamageTraits(string damageType, bool magical)
     {
         var passive = Character.Passive(_data).ToList();
-        bool raceResist = (damageType == "poison" && Trait("dwarven_resilience")) || (damageType == "fire" && (Trait("hellish_resistance") || Trait("damage_resistance")));
-        return (damageType == "poison" && ClassFeatures.Has(Character, "monk", 10),
-            passive.Any(p => p.Type == EffectPart.Resist && p.DamageType == damageType) || (Raging && DamageTypes.IsPhysical(damageType)) || raceResist,
+        return (Reaching("immune_damage").Any(x => x.Active.Effect.DamageType == damageType),
+            passive.Any(p => p.Type == EffectPart.Resist && p.DamageType == damageType) || (Raging && DamageTypes.IsPhysical(damageType))
+                || Reaching("resist_damage").Any(x => x.Active.Effect.DamageType == damageType),
             passive.Any(p => p.Type == EffectPart.Vulnerable && p.DamageType == damageType));
     }
 

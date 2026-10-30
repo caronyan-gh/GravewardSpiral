@@ -323,7 +323,10 @@ public sealed class Inventory
         }
     }
 
-    /// <summary>袋の中の、重ねて持てる同じ品をまとめる(重ねられるようになる前のセーブの品など)。</summary>
+    /// <summary>
+    /// 袋の中の、重ねて持てる同じ品をまとめる(重ねられるようになる前のセーブの品や、鑑定して正体が分かり、同じ品と分かったものなど)。
+    /// 鑑定したところでは、すぐこれを呼ぶ(未鑑定と鑑定済みは別の品として重ならないので、鑑定すると重なる相手が増える)。
+    /// </summary>
     public void MergeStacks(IReadOnlyDictionary<string, ItemDef> defs)
     {
         for (int i = Items.Count - 1; i >= 0; i--)

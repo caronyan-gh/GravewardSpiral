@@ -61,6 +61,10 @@ The installer is not signed, so Windows may warn you.
 
 The installer also includes the scenario editor ("GRAVEWARD SPIRAL Scenario Editor" in the Start menu). Draw or generate the dungeon, choose the monsters, bosses, events, story text, items and monsters, and play-test right away. Scenarios are saved to `%LOCALAPPDATA%\GravewardSpiral\Scenarios` and appear under New Game; you can also export them as zip files to share. With a Claude API key, the AI can write the story text (optional).
 
+クラス・種族・技と能力・呪文の束・宝箱の罠も、シナリオのフォルダの JSON で足したり直したりできます(エディタの画面ではまだ作れません)。書き方は [docs/class-pack-guide.md](docs/class-pack-guide.md) にあります(日本語)。
+
+Classes, races, features, spell lists and chest traps can also be added or changed with JSON files in the scenario folder (not yet from the editor screens). See [docs/class-pack-guide.md](docs/class-pack-guide.md) (Japanese).
+
 ## 作る / Build
 
 .NET 10 SDK が要ります。 / Requires the .NET 10 SDK.

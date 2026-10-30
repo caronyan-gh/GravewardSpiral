@@ -123,7 +123,7 @@ public sealed class CampScene : MenuScene
                 var cls = Spellcasting.CasterClass(data, _caster!)!;
                 for (int l = _spell!.Level; l <= 9; l++)
                 {
-                    int left = Spellcasting.SlotsLeft(cls, _caster!, l);
+                    int left = Spellcasting.SlotsLeft(Services.Data, _caster!, l);
                     if (left > 0) yield return new MenuItem(s.Format("spell.level", l), $"({left})", Tag: l);
                 }
                 break;
@@ -228,7 +228,7 @@ public sealed class CampScene : MenuScene
     /// <summary>ウィッシュ: 選んだ大きな効果を起こす(スロットを使う)。</summary>
     private void Wish(Core.Magic.WishDef wish)
     {
-        Spellcasting.UseSlot(_caster!, Math.Max(9, _slot));
+        Spellcasting.UseSlot(Services.Data, _caster!, Math.Max(9, _slot));
         Services.Audio.PlaySe(Sounds.SpellCast);
         if (wish.Special == Core.Magic.WishDef.ReturnTown)
         {
@@ -304,7 +304,7 @@ public sealed class CampScene : MenuScene
             if (c.LastSlotsRecovered > 0) rested.Add(s.Format("camp.arcane_recovery", c.Name, c.LastSlotsRecovered));
         }
         // 休息の歌(バード): ヒットダイスを使った仲間の HP が、さらに戻る
-        if (ClassFeatures.SongOfRest(dice, Party, rng) is int sung and > 0) rested.Add(s.Format("camp.song_of_rest", sung));
+        if (ClassFeatures.SongOfRest(Services.Data, dice, Party, rng) is int sung and > 0) rested.Add(s.Format("camp.song_of_rest", sung));
         // 休むあいだに、1人1個ずつ未鑑定の品を調べる(休みが邪魔されたら分からない)
         var unknownNames = Party.SelectMany(c => c.Inventory.Items.Concat(c.Inventory.Equipped.Values)).Where(i => !i.Identified)
             .ToDictionary(i => (object)i, i => ItemText.Name(Services, i, count: false), ReferenceEqualityComparer.Instance);
@@ -319,7 +319,7 @@ public sealed class CampScene : MenuScene
             Stack.Pop();
             return;
         }
-        var studied = RestStudy.Run(Party);
+        var studied = RestStudy.Run(Party, Services.Data.Items);
         Message = string.Join("\n", studied.Select(x => s.Format("camp.studied", x.Who.Name, unknownNames[x.Item], ItemText.Name(Services, x.Item, count: false)))
             .Prepend(string.Join("\n", rested.Prepend(s["camp.rested"]))));
         if (studied.Count > 0) Services.Audio.PlaySe(Sounds.Confirm);

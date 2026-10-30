@@ -26,6 +26,57 @@ public class ClassFeatureTests
     private static void Round(CombatEngine e, CombatState s, PartyMember p, PlayerCommand cmd) =>
         e.RunRound(s, new Dictionary<string, PlayerCommand> { [p.Id] = cmd });
 
+    /// <summary>
+    /// 組み替えた技と効果(astra のレビュー、DB のテストケース 348): 技はデータの pool と cost で回数を減らし、
+    /// max のまとまりの反応と追加ダメージは一番大きいもの1つ、大小を比べられない max のまとまりは検査で拾う。
+    /// </summary>
+    [Fact]
+    public void ReassembledActionsAndMaxGroupsFollowTheData()
+    {
+        using var dir = new TestPaths.TempDir();
+        dir.Write("p/manifest.json", """{"id": "p", "depends": ["srd"]}""");
+        dir.Write("p/features.json", """
+            [{"id": "flurry_of_blows", "kind": "action", "target": "enemy_group", "pool": "ki", "cost": 2, "beast_form": false},
+             {"id": "patient_defense", "kind": "action", "target": "enemy_group", "pool": "calm"},
+             {"id": "guard_small", "kind": "passive", "group": "guard", "stacks": "max", "effects": [{"type": "reaction_reduce", "on": "attacked", "value": 4}]},
+             {"id": "guard_big", "kind": "passive", "group": "guard", "stacks": "max", "effects": [{"type": "reaction_reduce", "on": "attacked", "value": 9}]},
+             {"id": "fire_small", "kind": "passive", "group": "fire", "stacks": "max", "effects": [{"type": "extra_damage", "on": "melee_weapon", "dice": "1d6", "damage_type": "fire"}]},
+             {"id": "fire_big", "kind": "passive", "group": "fire", "stacks": "max", "effects": [{"type": "extra_damage", "on": "melee_weapon", "dice": "2d6", "damage_type": "fire"}]}]
+            """);
+        dir.Write("p/classes.json", """
+            [{"id": "test_monk", "extends": "monk", "pools": [{"id": "ki", "max": {"class_level": 1}, "recharge": "short", "from_level": 2}, {"id": "calm", "max": 2, "recharge": "short"}],
+              "features": [{"id": "flurry_of_blows", "level": 2}, {"id": "patient_defense", "level": 2}, {"id": "guard_small", "level": 1}, {"id": "guard_big", "level": 1},
+                           {"id": "fire_small", "level": 1}, {"id": "fire_big", "level": 1}, {"id": "martial_arts", "level": 1}, {"id": "unarmored_defense_wis", "level": 1}]}]
+            """);
+        dir.NameFeatures("p");
+        var content = ContentLibrary.Load(TestPaths.Content, Path.Combine(dir.Path, "p"));
+        var data = GameData.Load(content);
+        Assert.Empty(content.Problems);
+        var c = CharacterFactory.QuickCreate(data, "T", "human", "test_monk", 5);
+        var engine = new CombatEngine(data, new Pcg32(1, 1));
+        var s = engine.Start([c], [(data.Monsters["ogre"], 1)]);
+        s.Surprised = null;
+        var p = s.Party[0];
+        engine.RunRound(s, new Dictionary<string, PlayerCommand> { [p.Id] = new(CommandKind.Feature, FeatureId: "flurry_of_blows") });
+        Assert.Equal(5 - 2, ClassFeatures.UsesLeft(data, c, "ki"));   // cost 2
+        engine.RunRound(s, new Dictionary<string, PlayerCommand> { [p.Id] = new(CommandKind.Feature, FeatureId: "patient_defense") });
+        Assert.Equal(3, ClassFeatures.UsesLeft(data, c, "ki"));        // 気は減らず
+        Assert.Equal(1, ClassFeatures.UsesLeft(data, c, "calm"));      // データの pool から減る
+
+        Assert.Equal(9, FeatureChecks.ReactionFor(data, p, ranged: false)!.Bonus);   // max は大きいほう
+        Assert.Equal([("2d6", "fire")], FeatureChecks.MeleeWeaponExtraDamage(data, p));
+
+        using var dir2 = new TestPaths.TempDir();
+        dir2.Write("p/manifest.json", """{"id": "p", "depends": ["srd"]}""");
+        dir2.Write("p/features.json", """
+            [{"id": "mix_a", "kind": "passive", "group": "mix", "stacks": "max", "effects": [{"type": "reaction_reduce", "on": "attacked", "value": 4}]},
+             {"id": "mix_b", "kind": "passive", "group": "mix", "stacks": "max", "effects": [{"type": "reaction_halve", "on": "attacked"}]}]
+            """);
+        var bad = ContentLibrary.Load(TestPaths.Content, Path.Combine(dir2.Path, "p"));
+        GameData.Load(bad);
+        Assert.Contains(bad.Problems, x => x.Contains("'mix'"));
+    }
+
     [Fact]
     public void EveryClassGivesItsFeaturesAtItsOwnLevel()
     {
@@ -36,15 +87,15 @@ public class ClassFeatureTests
         var wizardFirst = Make("wizard", 3);
         wizardFirst.Classes.Add(new ClassLevel { ClassId = "fighter", Level = 2 });
         wizardFirst.Level = 5;
-        Assert.Contains(ClassFeatures.ActiveFor(fighterFirst), f => f.Id == "action_surge");
-        Assert.Contains(ClassFeatures.ActiveFor(wizardFirst), f => f.Id == "action_surge");   // ファイター 2 で借りられる
-        Assert.Equal(1, ClassFeatures.MaxUses(wizardFirst, "second_wind"));
-        Assert.Equal(1, ClassFeatures.MaxUses(wizardFirst, "arcane_recovery"));
-        Assert.Equal(1, ClassFeatures.MaxUses(fighterFirst, "arcane_recovery"));
-        Assert.Equal(0, ClassFeatures.MaxUses(Make("fighter", 5), "arcane_recovery"));
+        Assert.Contains(ClassFeatures.ActiveFor(Data, fighterFirst), f => f.Id == "action_surge");
+        Assert.Contains(ClassFeatures.ActiveFor(Data, wizardFirst), f => f.Id == "action_surge");   // ファイター 2 で借りられる
+        Assert.Equal(1, ClassFeatures.MaxUses(Data, wizardFirst, "second_wind"));
+        Assert.Equal(1, ClassFeatures.MaxUses(Data, wizardFirst, "arcane_recovery"));
+        Assert.Equal(1, ClassFeatures.MaxUses(Data, fighterFirst, "arcane_recovery"));
+        Assert.Equal(0, ClassFeatures.MaxUses(Data, Make("fighter", 5), "arcane_recovery"));
         // 回数を数えるものは、どれもそのクラスを持っていなければ 0
         var paladin = Make("paladin", 1);
-        Assert.Equal(["lay_on_hands"], ClassFeatures.Pools.Where(p => ClassFeatures.MaxUses(paladin, p) > 0));
+        Assert.Equal(["lay_on_hands"], ClassFeatures.PoolsOf(Data, paladin));
     }
 
     [Fact]
@@ -56,9 +107,9 @@ public class ClassFeatureTests
         s.Groups[0].Units[0].Conditions.Add(new ActiveCondition { Condition = Condition.Incapacitated });
         Round(e, s, s.Party[0], new PlayerCommand(CommandKind.Feature, FeatureId: "second_wind"));
         Assert.True(c.Hp >= 5 + 1 + 4);
-        Assert.Equal(0, ClassFeatures.UsesLeft(c, "second_wind"));
+        Assert.Equal(0, ClassFeatures.UsesLeft(Data, c, "second_wind"));
         c.ShortRest(Data, new Pcg32(1, 1));
-        Assert.Equal(1, ClassFeatures.UsesLeft(c, "second_wind"));
+        Assert.Equal(1, ClassFeatures.UsesLeft(Data, c, "second_wind"));
     }
 
     [Fact]
@@ -69,7 +120,7 @@ public class ClassFeatureTests
         var p = s.Party[0];
         Round(e, s, p, new PlayerCommand(CommandKind.Feature, 0, FeatureId: "rage"));
         Assert.True(p.Raging);
-        Assert.Equal(2, ClassFeatures.UsesLeft(c, "rage"));   // L3 は 3 回
+        Assert.Equal(2, ClassFeatures.UsesLeft(Data, c, "rage"));   // L3 は 3 回
         p.Hp = p.MaxHp;
         e.Damage(s, p, 10, "slashing", false, false);
         Assert.Equal(p.MaxHp - 5, p.Hp);
@@ -90,7 +141,7 @@ public class ClassFeatureTests
         int need = ally.MaxHp - 3;
         Round(e, s, s.Party[0], new PlayerCommand(CommandKind.Feature, -1, 1, FeatureId: "lay_on_hands"));
         Assert.Equal(Math.Min(ally.MaxHp, 3 + 10), ally.Hp);
-        Assert.Equal(10 - Math.Min(10, need), ClassFeatures.UsesLeft(paladin, "lay_on_hands"));
+        Assert.Equal(10 - Math.Min(10, need), ClassFeatures.UsesLeft(Data, paladin, "lay_on_hands"));
     }
 
     [Fact]
@@ -112,8 +163,8 @@ public class ClassFeatureTests
     [Fact]
     public void WildShapeLetsTheDruidPickTheBeast()
     {
-        Assert.Equal(["wolf", "black_bear"], ClassFeatures.WildShapeBeasts(Make("druid", 4)));
-        Assert.Equal(["dire_wolf", "brown_bear"], ClassFeatures.WildShapeBeasts(Make("druid", 8)));
+        Assert.Equal(["wolf", "black_bear"], ClassFeatures.WildShapeBeasts(Data, Make("druid", 4)));
+        Assert.Equal(["dire_wolf", "brown_bear"], ClassFeatures.WildShapeBeasts(Data, Make("druid", 8)));
         var c = Make("druid", 4);
         var (e, s) = Fight([c]);
         s.Groups[0].Units[0].Conditions.Add(new ActiveCondition { Condition = Condition.Incapacitated });
@@ -125,9 +176,9 @@ public class ClassFeatureTests
     [Fact]
     public void ADruidOf18CastsInBeastForm()
     {
-        Assert.False(ClassFeatures.CanCastIn(Make("druid", 17), raging: false, shaped: true));
-        Assert.True(ClassFeatures.CanCastIn(Make("druid", 18), raging: false, shaped: true));
-        Assert.Equal(99, ClassFeatures.MaxUses(Make("druid", 20), "wild_shape"));
+        Assert.False(ClassFeatures.CanCastIn(Data, Make("druid", 17), raging: false, shaped: true));
+        Assert.True(ClassFeatures.CanCastIn(Data, Make("druid", 18), raging: false, shaped: true));
+        Assert.Equal(99, ClassFeatures.MaxUses(Data, Make("druid", 20), "wild_shape"));
     }
 
     private static Character Multi(params (string Class, int Level)[] classes)
@@ -147,9 +198,9 @@ public class ClassFeatureTests
         var p = s.Party[0];
         p.Shape = Data.Monsters["wolf"];
         p.ShapeHp = p.Shape.HpAverage;
-        Assert.False(ClassFeatures.UsableInBeastForm(ClassFeatures.Active.First(f => f.Id == "flurry_of_blows")));
+        Assert.False(ClassFeatures.UsableInBeastForm(ClassFeatures.Action(Data, "flurry_of_blows")!));
         Round(e, s, p, new PlayerCommand(CommandKind.Feature, 0, FeatureId: "flurry_of_blows"));
-        Assert.Equal(2, ClassFeatures.UsesLeft(c, "ki"));
+        Assert.Equal(2, ClassFeatures.UsesLeft(Data, c, "ki"));
         Assert.DoesNotContain(s.Log, l => l.Key == "combat.flurry");
     }
 
@@ -255,20 +306,20 @@ public class ClassFeatureTests
         c.ShortRest(Data, new Pcg32(1, 1));
         Assert.Equal(0, c.LastSlotsRecovered);
         c.LongRest();
-        Assert.Equal(1, ClassFeatures.UsesLeft(c, "arcane_recovery"));
+        Assert.Equal(1, ClassFeatures.UsesLeft(Data, c, "arcane_recovery"));
     }
 
     [Fact]
     public void EmpoweredSpellSpendsASorceryPoint()
     {
         var c = Make("sorcerer", 3);
-        var spell = Data.Spells.Values.First(x => x.Level == 1 && x.Classes.Contains("sorcerer") && x.TargetsEnemies
-            && x.Effects.Any(e => e.Type == EffectPart.Damage) && c.Books.Values.Any(b => b.Has(x.Id)) || x.Id == "magic_missile" && x.Classes.Contains("sorcerer"));
+        var spell = Data.Spells.Values.First(x => x.Level == 1 && Data.ClassesWithSpell(x.Id).Any(k => k.Id == "sorcerer") && x.TargetsEnemies
+            && x.Effects.Any(e => e.Type == EffectPart.Damage) && c.Books.Values.Any(b => b.Has(x.Id)) || x.Id == "magic_missile" && Data.ClassesWithSpell(x.Id).Any(k => k.Id == "sorcerer"));
         c.Book("sorcerer").Known.Add(spell.Id);
-        Assert.True(CombatEngine.CanEmpower(c, spell));
+        Assert.True(CombatEngine.CanEmpower(Data, c, spell));
         var (e, s) = Fight([c]);
         Round(e, s, s.Party[0], new PlayerCommand(CommandKind.Cast, 0, -1, spell.Id, 1, Empower: true));
-        Assert.Equal(2, ClassFeatures.UsesLeft(c, "sorcery_points"));
+        Assert.Equal(2, ClassFeatures.UsesLeft(Data, c, "sorcery_points"));
         Assert.Contains(s.Log, l => l.Key == "combat.empowered");
     }
 
@@ -287,7 +338,7 @@ public class ClassFeatureTests
     public void FlurryIsNotOfferedInArmor()
     {
         var c = Make("monk", 3);
-        var flurry = ClassFeatures.Active.First(f => f.Id == "flurry_of_blows");
+        var flurry = ClassFeatures.Action(Data, "flurry_of_blows")!;
         Assert.True(ClassFeatures.CanUse(Data, c, flurry));
         c.Inventory.Equipped[GravewardSpiral.Core.Items.EquipSlot.Armor] = new GravewardSpiral.Core.Items.ItemInstance { ItemId = "leather_armor", Identified = true };
         Assert.False(ClassFeatures.CanUse(Data, c, flurry));   // 鎧では素手の連打が出ないので、選べない(気だけ減らない)

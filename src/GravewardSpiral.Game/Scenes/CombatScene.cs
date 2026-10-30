@@ -160,7 +160,7 @@ public sealed class CombatScene : Scene
         _spread = false;
         var c = Current.Character;
         bool reach = _state.AttackableGroups(Current).Any();
-        bool canCast = ClassFeatures.CanCastIn(c, Current.Raging, Current.Shape != null);   // 激怒と獣の姿では唱えられない(獣の呪文があれば獣でも)
+        bool canCast = ClassFeatures.CanCastIn(Services.Data, c, Current.Raging, Current.Shape != null);   // 激怒と獣の姿では唱えられない(獣の呪文があれば獣でも)
         var items = new List<MenuItem>
         {
             new(S["combat.cmd.attack"], reach ? null : S["combat.cannot_reach"], reach, CommandKind.Attack),
@@ -170,11 +170,11 @@ public sealed class CombatScene : Scene
                 : new(S["combat.cmd.cast"], S["inv.no_proficiency"], false, CommandKind.Cast),
         };
         // ソーサラーの呪文の強化(残りのポイントを出す。0 なら選べない)
-        if (ClassFeatures.Has(c, "sorcerer", 3))
-            items.Add(new(S.Format("combat.cmd.empower", ClassFeatures.UsesLeft(c, "sorcery_points")),
+        if (ClassFeatures.HasPassive(Services.Data, c, "empowered_spell"))
+            items.Add(new(S.Format("combat.cmd.empower", ClassFeatures.UsesLeft(Services.Data, c, "sorcery_points")),
                 Enabled: canCast && c.ArmorProficient(Services.Data) && EmpowerSpells().Any(x => x.Slot != null), Tag: "empower"));
-        if (ClassFeatures.ActiveFor(c).Any())
-            items.Add(new(S["combat.cmd.feature"], Enabled: ClassFeatures.ActiveFor(c).Any(f => ClassFeatures.CanUse(Services.Data, c, f)
+        if (ClassFeatures.ActiveFor(Services.Data, c).Any())
+            items.Add(new(S["combat.cmd.feature"], Enabled: ClassFeatures.ActiveFor(Services.Data, c).Any(f => ClassFeatures.CanUse(Services.Data, c, f)
                 && (Current.Shape == null || ClassFeatures.UsableInBeastForm(f))), Tag: CommandKind.Feature));
         items.AddRange(
         [
@@ -198,21 +198,21 @@ public sealed class CombatScene : Scene
     {
         if (CurrentClass is not { } cls) return [];
         return Spellcasting.Castable(Services.Data, Current.Character).Where(x => x.InCombat)
-            .Select(x => (x, Spellcasting.LowestSlot(cls, Current.Character, x)));
+            .Select(x => (x, Spellcasting.LowestSlot(Services.Data, Current.Character, x)));
     }
 
     /// <summary>強化して唱えられる呪文(ダメージのある呪文)と、唱えられる一番低いスロット。</summary>
     private IEnumerable<(SpellDef Spell, int? Slot)> EmpowerSpells() =>
-        CombatSpells().Where(x => CombatEngine.CanEmpower(Current.Character, x.Spell));
+        CombatSpells().Where(x => CombatEngine.CanEmpower(Services.Data, Current.Character, x.Spell));
 
     /// <summary>クラスの技の一覧(残りの回数を右に。使えないものはグレー)。</summary>
     private void ShowFeatures()
     {
         _phase = Phase.Feature;
         var c = Current.Character;
-        SetMenu(ClassFeatures.ActiveFor(c).Select(f =>
+        SetMenu(ClassFeatures.ActiveFor(Services.Data, c).Select(f =>
         {
-            string? left = f.Pool != null ? S.Format("combat.feature_left", ClassFeatures.UsesLeft(c, f.Pool)) : null;
+            string? left = f.Pool != null ? S.Format("combat.feature_left", ClassFeatures.UsesLeft(Services.Data, c, f.Pool)) : null;
             bool usable = ClassFeatures.CanUse(Services.Data, c, f) && (Current.Shape == null || ClassFeatures.UsableInBeastForm(f));   // 獣の姿では打撃の技は使えない
             return new MenuItem(S["feature." + f.Id], left, usable, f);
         }));
@@ -222,7 +222,7 @@ public sealed class CombatScene : Scene
     private void ShowBeasts()
     {
         _phase = Phase.Beast;
-        SetMenu(ClassFeatures.WildShapeBeasts(Current.Character).Select(id => Services.Data.Monsters[id])
+        SetMenu(ClassFeatures.WildShapeBeasts(Services.Data, Current.Character, _feature?.Id).Select(id => Services.Data.Shapes[id])
             .Select(b => new MenuItem(Services.Name(b.Name), S.Format("combat.beast_stats", b.HpAverage, b.Ac), Tag: b)));
     }
 
@@ -231,7 +231,7 @@ public sealed class CombatScene : Scene
     {
         _feature = f;
         _pending = CommandKind.Feature;
-        if (f.Id == "wild_shape")
+        if (f.Part == "wild_shape")
         {
             ShowBeasts();
             return;
@@ -243,7 +243,7 @@ public sealed class CombatScene : Scene
                 break;
             case FeatureTarget.EnemyGroup:
                 // 竜の息は近くのグループに(列に関係なく)。ほかは、その人が攻撃の届くグループ
-                var reach = f.Id == "breath_weapon"
+                var reach = f.Part == "breath_weapon"
                     ? _state.Groups.Select((g, i) => (g, i)).Where(x => !x.g.Wiped && _state.IsNear(x.g)).Select(x => x.i).ToList()
                     : _state.AttackableGroups(Current).ToList();
                 if (reach.Count == 1) Set(new PlayerCommand(CommandKind.Feature, reach[0], FeatureId: f.Id));
@@ -389,7 +389,7 @@ public sealed class CombatScene : Scene
                 CommandKind.Cast => CombatEngine.AllyTargetable(_spell!, p.Character.State),
                 CommandKind.Item => _itemSpell != null ? CombatEngine.AllyTargetable(_itemSpell, p.Character.State) : p.Character.State is LifeState.Alive or LifeState.Unconscious,
                 // レイ・オン・ハンズは自分にも倒れた人にも。鼓舞は自分以外の立っている人
-                CommandKind.Feature => _feature?.Id == "lay_on_hands" ? p.Character.State is LifeState.Alive or LifeState.Unconscious : p != Current && p.Standing,
+                CommandKind.Feature => _feature?.Part == "lay_on_hands" ? p.Character.State is LifeState.Alive or LifeState.Unconscious : p != Current && p.Standing,
                 _ => p != Current && (_pending != CommandKind.Help || p.Standing),
             }, i));
         SetMenu(items);
@@ -450,7 +450,7 @@ public sealed class CombatScene : Scene
                 ChooseFeatureTarget(f);
                 break;
             case Phase.Beast when item.Tag is MonsterDef beast:
-                Set(new PlayerCommand(CommandKind.Feature, FeatureId: "wild_shape", Option: beast.Id));
+                Set(new PlayerCommand(CommandKind.Feature, FeatureId: _feature!.Id, Option: beast.Id));
                 break;
             case Phase.Target when item.Tag is int fg && _pending == CommandKind.Feature:
                 Set(new PlayerCommand(CommandKind.Feature, fg, FeatureId: _feature!.Id));
@@ -858,7 +858,7 @@ public sealed class CombatScene : Scene
             float fy = d.TextWrapped(S["feature." + f.Id], new Vector2(fx, SpellInfoArea.Y + 16), fw, 26, Theme.Title) + 8;
             fy = d.TextWrapped(S["feature.about." + f.Id], new Vector2(fx, fy), fw, 19, Theme.Text, 6);
             // スマイト: 当たったら使う呪文の回数のレベル
-            if (f.Id == "divine_smite" && ClassFeatures.SmiteSlot(Services.Data, Current.Character) is int smite)
+            if (f.Part == "divine_smite" && ClassFeatures.SmiteSlot(Services.Data, Current.Character) is int smite)
                 d.TextWrapped(S.Format("combat.smite_slot", smite), new Vector2(fx, fy + 6), fw, 18, Theme.Gold, 6);
             return;
         }

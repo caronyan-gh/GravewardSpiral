@@ -45,13 +45,13 @@ public class MagicTests
     [InlineData("warlock", 5, 1, 0)]
     [InlineData("fighter", 10, 1, 0)]
     public void SlotTablesFollow5e(string cls, int level, int spellLevel, int slots) =>
-        Assert.Equal(slots, Spellcasting.MaxSlots(Data.Classes[cls], Make(cls, level), spellLevel));
+        Assert.Equal(slots, Spellcasting.MaxSlots(Data, Make(cls, level), spellLevel));
 
     [Fact]
     public void NewCastersGetSpellsPicked()
     {
         var cleric = Make("cleric");
-        int usableCantrips = Data.Spells.Values.Count(x => x.Usable && x.IsCantrip && x.Classes.Contains("cleric"));
+        int usableCantrips = Data.Spells.Values.Count(x => x.Usable && x.IsCantrip && Data.ClassesWithSpell(x.Id).Any(k => k.Id == "cleric"));
         Assert.Equal(Math.Min(3, usableCantrips), cleric.Book("cleric").Cantrips.Count);   // 使える初級呪文が足りなければ、ある分だけ
         Assert.Equal(Spellcasting.PreparedCount(Data.Classes["cleric"], cleric), cleric.Book("cleric").Prepared.Count);
         Assert.Contains("cure_wounds", cleric.Book("cleric").Prepared.Concat(cleric.Book("cleric").Cantrips).Concat(["cure_wounds"]));
@@ -205,20 +205,20 @@ public class MagicTests
         Assert.Equal(5, c.Level);
         Assert.Equal(2, c.LevelIn("fighter"));
         Assert.Equal(3, c.LevelIn("wizard"));
-        Assert.Equal(3, Spellcasting.CasterLevel(c));
-        Assert.Equal(4, Spellcasting.MaxSlots(Data.Classes["wizard"], c, 1));
-        Assert.Equal(2, Spellcasting.MaxSlots(Data.Classes["wizard"], c, 2));
+        Assert.Equal(3, Spellcasting.CasterLevel(Data, c));
+        Assert.Equal(4, Spellcasting.MaxSlots(Data, c, 1));
+        Assert.Equal(2, Spellcasting.MaxSlots(Data, c, 2));
         Assert.Equal("wizard", Spellcasting.CasterClass(Data, c)!.Id);
-        Assert.Equal(1, CombatEngine.AttacksPerAction(c));                    // ファイター 2 では追加攻撃なし
+        Assert.Equal(1, CombatEngine.AttacksPerAction(Data, c));                    // ファイター 2 では追加攻撃なし
         Assert.Equal(10, Spellcasting.SpellsKnown(Data.Classes["wizard"], c)); // 呪文書はウィザードのレベル 3 で 10
 
         var both = Multi(("cleric", 1), ("wizard", 1));
-        Assert.Equal(2, Spellcasting.CasterLevel(both));
-        Assert.Equal(3, Spellcasting.MaxSlots(Data.Classes["cleric"], both, 1));
+        Assert.Equal(2, Spellcasting.CasterLevel(Data, both));
+        Assert.Equal(3, Spellcasting.MaxSlots(Data, both, 1));
 
         var pact = Multi(("warlock", 3), ("sorcerer", 2));
-        Assert.Equal(3, Spellcasting.MaxSlots(Data.Classes["sorcerer"], pact, 1));   // ソーサラー 2 の 1 レベルのスロット 3 つ
-        Assert.Equal(2, Spellcasting.MaxSlots(Data.Classes["warlock"], pact, 2));    // 2 レベルはウォーロック 3 の協約魔術の 2 つだけ
+        Assert.Equal(3, Spellcasting.MaxSlots(Data, pact, 1));   // ソーサラー 2 の 1 レベルのスロット 3 つ
+        Assert.Equal(2, Spellcasting.MaxSlots(Data, pact, 2));    // 2 レベルはウォーロック 3 の協約魔術の 2 つだけ
     }
 
     [Fact]
@@ -252,8 +252,8 @@ public class MagicTests
         var wizard = c.Book("wizard");
         Assert.NotEmpty(cleric.Prepared);
         Assert.NotEmpty(wizard.Known);
-        Assert.All(cleric.Prepared, id => Assert.Contains("cleric", Data.Spells[id].Classes));
-        Assert.All(wizard.Known, id => Assert.Contains("wizard", Data.Spells[id].Classes));
+        Assert.All(cleric.Prepared, id => Assert.Contains(Data.ClassesWithSpell(id), k => k.Id == "cleric"));
+        Assert.All(wizard.Known, id => Assert.Contains(Data.ClassesWithSpell(id), k => k.Id == "wizard"));
         var castable = Spellcasting.Castable(Data, c).Select(x => x.Id).ToList();
         Assert.Contains(cleric.Prepared[0], castable);
         Assert.Contains(wizard.Prepared[0], castable);
@@ -295,9 +295,9 @@ public class MagicTests
     {
         // ウィザード 1 / クレリック 4: スロットは術者のレベル 5 でも、ウィザードとして覚えられるのは 1 レベルの呪文まで(5版)
         var c = Multi(("cleric", 4), ("wizard", 1));
-        Assert.Equal(3, Spellcasting.MaxSpellLevel(Data.Classes["wizard"], c));
-        Assert.Equal(1, Spellcasting.ClassMaxSpellLevel(Data.Classes["wizard"], c));
-        Assert.Equal(2, Spellcasting.ClassMaxSpellLevel(Data.Classes["cleric"], c));
+        Assert.Equal(3, Spellcasting.MaxSpellLevel(Data, c));
+        Assert.Equal(1, Spellcasting.ClassMaxSpellLevel(Data, Data.Classes["wizard"], c));
+        Assert.Equal(2, Spellcasting.ClassMaxSpellLevel(Data, Data.Classes["cleric"], c));
         Assert.DoesNotContain(Spellcasting.ClassSpells(Data, Data.Classes["wizard"], c, cantrips: false), s => s.Id == "fireball");
         Assert.All(Spellcasting.ClassSpells(Data, Data.Classes["wizard"], c, cantrips: false), s => Assert.Equal(1, s.Level));
     }
@@ -310,13 +310,13 @@ public class MagicTests
         var c = Multi(("warlock", 3), ("wizard", 3));
         c.FeatureUses["arcane_recovery"] = 1;
         var wiz = Data.Classes["wizard"];
-        Assert.Equal(4, Spellcasting.SlotsLeft(wiz, c, 2));
-        for (int i = 0; i < 4; i++) Spellcasting.UseSlot(c, 2);
-        Assert.Equal(0, Spellcasting.SlotsLeft(wiz, c, 2));
+        Assert.Equal(4, Spellcasting.SlotsLeft(Data, c, 2));
+        for (int i = 0; i < 4; i++) Spellcasting.UseSlot(Data, c, 2);
+        Assert.Equal(0, Spellcasting.SlotsLeft(Data, c, 2));
         c.ShortRest(Data, new Pcg32(1, 1));
-        Assert.Equal(2, Spellcasting.SlotsLeft(wiz, c, 2));
+        Assert.Equal(2, Spellcasting.SlotsLeft(Data, c, 2));
         c.LongRest();
-        Assert.Equal(4, Spellcasting.SlotsLeft(wiz, c, 2));
+        Assert.Equal(4, Spellcasting.SlotsLeft(Data, c, 2));
     }
 
     [Fact]
@@ -326,7 +326,7 @@ public class MagicTests
         var w = Multi(("warlock", 5));
         var hold = Data.Spells["hold_person"];
         Assert.NotEqual("slot", hold.Scale);
-        Assert.Equal(0, Spellcasting.MaxSlots(Data.Classes["warlock"], w, 2));   // 2 の欄は持っていない(タブは黒)
+        Assert.Equal(0, Spellcasting.MaxSlots(Data, w, 2));   // 2 の欄は持っていない(タブは黒)
         Assert.True(Spellcasting.ListedAt(Data, w, hold, 3));
 
         // ウィザード 3: 1 レベルを使い切ったら、強くならない 1 レベルの呪文は 2 の欄に並ぶ(残っているあいだは 1 の欄だけ)
@@ -334,7 +334,7 @@ public class MagicTests
         var plain = Data.Spells.Values.First(s => s.Level == 1 && s.Scale != "slot" && s.Usable);
         Assert.True(Spellcasting.ListedAt(Data, c, plain, 1));
         Assert.False(Spellcasting.ListedAt(Data, c, plain, 2));
-        for (int i = 0; i < 4; i++) Spellcasting.UseSlot(c, 1);
+        for (int i = 0; i < 4; i++) Spellcasting.UseSlot(Data, c, 1);
         Assert.True(Spellcasting.ListedAt(Data, c, plain, 2));
         Assert.False(Spellcasting.ListedAt(Data, c, plain, 3));
     }
