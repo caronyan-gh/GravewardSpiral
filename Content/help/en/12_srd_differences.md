@@ -36,6 +36,7 @@ This game adapts the D&D 5th edition SRD 5.1 for dungeon exploration. These are 
 ## Resting and death
 
 - Short rests: Hit Dice are spent automatically until HP is full or no dice remain. If the rest ends without an ambush, each member able to act identifies one unidentified item.
+- Blessing of ACGRW: Winning a battle restores HP based on the number of foes defeated and each member's level (a rule of this game, to soften attrition from long strings of weak foes).
 - Long rests: Available only at the town inn or a clan house with beds. The HP recovery limit depends on where you sleep; the stables restore HP up to 50% of maximum.
 - Chest traps: Reaching 0 HP from a chest trap causes death without death saves.
 - Resurrection and wipes: Depending on settings, failed resurrection can turn a character to ash or cause permanent loss. A wipe may require a rescue party to retrieve bodies from the dungeon.

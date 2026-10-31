@@ -37,6 +37,13 @@ public static class DungeonLoader
         /// <summary>エレベーターの縦穴(座標と上下の階)。読むときに、範囲の空いている階へ止まるマスを入れる。</summary>
         public List<ElevatorShaft> Elevators { get; set; } = [];
 
+        /// <summary>
+        /// Lord B の呪い: true なら、この迷宮では ACGRW の祝福(勝った戦闘の終わりに、倒した数で HP が戻る)が効かない。ふつうは省くか false。
+        /// 置いた戦闘を通して、HP の消耗を作者が考えたとおりに管理させたいシナリオで使うかを考える。
+        /// 「D&amp;D 風」や「さまよう敵が出ない」というだけの理由で、決まりごとのように true にしない。
+        /// </summary>
+        public bool CurseOfLordB { get; set; }
+
         public string? Note { get; set; }
     }
 

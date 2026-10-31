@@ -384,6 +384,9 @@ public sealed class GameData
         }
     }
 
+    /// <summary>選んでいるシナリオの迷宮に Lord B の呪いがかかっている(ACGRW の祝福が効かない)。</summary>
+    [System.Text.Json.Serialization.JsonIgnore] public bool CurseOfLordB { get; set; }
+
     /// <summary>その呪文を、束を通して使えるクラス(クラスの並びの順)。</summary>
     public IEnumerable<ClassDef> ClassesWithSpell(string spellId) =>
         ClassOrder.Distinct().Select(id => Classes.GetValueOrDefault(id)).OfType<ClassDef>()
@@ -392,6 +395,7 @@ public sealed class GameData
     public static GameData Load(ContentLibrary content)
     {
         var d = new GameData();
+        d.CurseOfLordB = Maze.DungeonLoader.ScenarioDef(content)?.CurseOfLordB == true;
         void Read<T>(string collection, Dictionary<string, T> into, List<string>? order, Func<T, string> id) where T : class
         {
             foreach (var item in content.All(collection))

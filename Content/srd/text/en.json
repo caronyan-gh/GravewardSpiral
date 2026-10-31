@@ -387,6 +387,7 @@
   "spell.fx.dot": "{0} {1} damage each turn ({2} rounds)",
   "item.on_hit_dot": "On hit, {0} {1} damage each turn ({2} rounds)",
   "combat.drain": "{0} drains {1} HP.",
+  "combat.acgrw_blessing": "The Blessing of ACGRW mends wounds for the {0} foes defeated.",
   "combat.heal": "{0} recovers {1} HP.",
   "combat.save_ok": "{0} succeeds on the {1} save.",
   "combat.save_fail": "{0} fails the {1} save.",

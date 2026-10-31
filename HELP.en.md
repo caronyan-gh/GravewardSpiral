@@ -479,6 +479,8 @@ Poisoned, Blinded, Deafened, Frightened, and Paralyzed may linger after combat. 
 
 Victory divides experience equally among party members and awards gold. A treasure chest may also appear. See Exploring the Dungeon for chest handling.
 
+Adventuring clans also carry the Blessing of ACGRW. When you win a battle, every surviving member recovers HP for each foe defeated. The amount depends on that member's level: 1 at levels 1-4, 2 at 5-10, 3 at 11-16 and 4 at 17-22 (and 1 more every 6 levels after that). Fleeing gives nothing. It helps most after clearing a horde of weak foes and very little after a single strong one.
+
 ### Reviewing the log
 
 Press Tab during combat to open the log. After combat, Previous Battle Log at camp lets you review the latest battle.
@@ -750,6 +752,7 @@ This game adapts the D&D 5th edition SRD 5.1 for dungeon exploration. These are 
 ### Resting and death
 
 - Short rests: Hit Dice are spent automatically until HP is full or no dice remain. If the rest ends without an ambush, each member able to act identifies one unidentified item.
+- Blessing of ACGRW: Winning a battle restores HP based on the number of foes defeated and each member's level (a rule of this game, to soften attrition from long strings of weak foes).
 - Long rests: Available only at the town inn or a clan house with beds. The HP recovery limit depends on where you sleep; the stables restore HP up to 50% of maximum.
 - Chest traps: Reaching 0 HP from a chest trap causes death without death saves.
 - Resurrection and wipes: Depending on settings, failed resurrection can turn a character to ash or cause permanent loss. A wipe may require a rescue party to retrieve bodies from the dungeon.

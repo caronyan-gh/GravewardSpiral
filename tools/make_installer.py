@@ -1,6 +1,6 @@
 """配布用のビルドをして、Inno Setup でインストーラーを作る。
 
-使い方: python tools/make_installer.py [--version 0.3.2] [--skip-publish]
+使い方: python tools/make_installer.py [--version 0.3.3] [--skip-publish]
   1. dotnet publish で、.NET を入れていない PC でも動く形(win-x64、self-contained)を out/publish に作る。
      ゲームとシナリオエディタと検査の道具(ScenarioCheck)を同じフォルダに入れる(エディタと道具は横の Content を使う。.NET の部品は同じ版なので共用する)。
      シナリオを作る人とエージェント向けの scenario-kit(手引きと、ソースから書き出した形式の一覧)も入れる(tools/make_scenario_kit.py)。
@@ -33,7 +33,7 @@ def find_iscc():
 
 def main():
     ap = argparse.ArgumentParser()
-    ap.add_argument("--version", default="0.3.2", help="インストーラーに付ける版")
+    ap.add_argument("--version", default="0.3.3", help="インストーラーに付ける版")
     ap.add_argument("--skip-publish", action="store_true", help="out/publish をそのまま使う")
     args = ap.parse_args()
 

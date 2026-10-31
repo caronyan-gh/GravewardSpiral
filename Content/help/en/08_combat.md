@@ -68,6 +68,8 @@ Poisoned, Blinded, Deafened, Frightened, and Paralyzed may linger after combat. 
 
 Victory divides experience equally among party members and awards gold. A treasure chest may also appear. See Exploring the Dungeon for chest handling.
 
+Adventuring clans also carry the Blessing of ACGRW. When you win a battle, every surviving member recovers HP for each foe defeated. The amount depends on that member's level: 1 at levels 1-4, 2 at 5-10, 3 at 11-16 and 4 at 17-22 (and 1 more every 6 levels after that). Fleeing gives nothing. It helps most after clearing a horde of weak foes and very little after a single strong one.
+
 ## Reviewing the log
 
 Press Tab during combat to open the log. After combat, Previous Battle Log at camp lets you review the latest battle.

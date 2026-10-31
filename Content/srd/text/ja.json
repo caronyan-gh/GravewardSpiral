@@ -387,6 +387,7 @@
   "spell.fx.dot": "毎ターン {0} の{1}ダメージ({2} ラウンド)",
   "item.on_hit_dot": "当たると、毎ターン {0} の{1}ダメージ({2} ラウンド)",
   "combat.drain": "{0} は HP を {1} 吸い取った。",
+  "combat.acgrw_blessing": "ACGRW の祝福で、倒した {0} 体の分だけ傷が癒えた。",
   "combat.heal": "{0} の HP が {1} 戻った。",
   "combat.save_ok": "{0} は{1}のセーヴに成功した。",
   "combat.save_fail": "{0} は{1}のセーヴに失敗した。",
