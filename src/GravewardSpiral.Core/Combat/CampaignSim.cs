@@ -613,8 +613,8 @@ public sealed class CampaignSim
     {
         var drops = Loot.RollDrops(_data, _treasure, defeated, _enc.TargetLevel(DepthOf(floor)), _rng, boss, _session.DropBoostOf(_data, floor));
         Drops += drops.Count;
-        Uniques += drops.Count(d => _data.Items[d.ItemId].NoRandom);
-        foreach (var d in drops.Where(d => _data.Items[d.ItemId].NoRandom)) Log($"固有の品を拾った: {d.ItemId}(平均 L{AverageLevel:F1})");
+        Uniques += drops.Count(d => _data.Items[d.ItemId] is { NoRandom: true, Kind: not ItemKind.Gear });   // クランハウスの素材(道具)は数えない
+        foreach (var d in drops.Where(d => _data.Items[d.ItemId] is { NoRandom: true, Kind: not ItemKind.Gear })) Log($"固有の品を拾った: {d.ItemId}(平均 L{AverageLevel:F1})");
         if (drops.Count > 0 || (randomChest && _rng.NextDouble() < (room ? _treasure.RoomChestChance : _treasure.ChestChance))) OpenChest(floor, drops);
     }
 

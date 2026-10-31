@@ -193,4 +193,16 @@ public class LootTests
         Assert.Equal(2, item.Affixes.Count);
         Assert.False(item.Identified);
     }
+
+    [Fact]
+    public void ClanHouseMaterialsAreNotSoldOrRandomLoot()
+    {
+        // 素材は深い宝箱・アンデッド・竜からだけ(決めたこと 82)。店にも、おまかせの宝にも出ない
+        var data = GameData.Load(ContentLibrary.Load(TestPaths.Content));
+        foreach (var id in new[] { "obsidian_cornerstone", "consecrated_bell", "ancient_dragon_scale" })
+        {
+            Assert.True(data.Items[id].NoRandom, id);
+            Assert.DoesNotContain(Shop.Standard(data), i => i.Id == id);
+        }
+    }
 }

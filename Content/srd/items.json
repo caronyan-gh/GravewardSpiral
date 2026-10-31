@@ -6041,6 +6041,7 @@
  {
   "id": "ancient_dragon_scale",
   "kind": "gear",
+  "no_random": true,
   "name": {
    "en": "Ancient Dragon Scale",
    "ja": "古竜の鱗"
@@ -6055,6 +6056,7 @@
  {
   "id": "consecrated_bell",
   "kind": "gear",
+  "no_random": true,
   "name": {
    "en": "Consecrated Bell",
    "ja": "聖別された鐘"
@@ -6069,6 +6071,7 @@
  {
   "id": "obsidian_cornerstone",
   "kind": "gear",
+  "no_random": true,
   "name": {
    "en": "Obsidian Cornerstone",
    "ja": "黒曜の礎石"
