@@ -222,11 +222,13 @@ public sealed class SlotScene : MenuScene
                 y = Line(d, area, y, s.Format("slot.saved_at", info.SavedAt), Theme.Text);
                 y = Line(d, area, y, s.Format("slot.dungeon", info.Floors, info.DeepestFloor, info.Seed), Theme.Text);
                 y = Line(d, area, y, s.Format("slot.party", info.Party.Count == 0 ? s["slot.no_party"] : s.List(info.Party)), Theme.Text);
+                if (_scenarios.FirstOrDefault(x => x.Id == info.Scenario)?.Manifest.Levels is [int wlo, int whi]) y = Line(d, area, y, s.Format("slot.levels", wlo, whi), Theme.Text);
                 Line(d, area, y, info.Location == "maze" ? s["slot.in_maze"] : s["slot.in_town"], Theme.Dim);
                 break;
             case Unvisited u when _scenarios.FirstOrDefault(x => x.Id == u.ScenarioId) is { } sc:
                 y = Line(d, area, y, Services.ScenarioDisplayName(sc.Id), Theme.Title, 26);
                 if (sc.Manifest.Description != null) y = Line(d, area, y, Services.Name(sc.Manifest.Description), Theme.Text);
+                if (sc.Manifest.Levels is [int lo, int hi]) y = Line(d, area, y, s.Format("slot.levels", lo, hi), Theme.Text);   // 推奨レベル(参考)
                 Line(d, area, y + 6, s["slot.about_unvisited"], Theme.Dim, 18);
                 break;
             case "free":

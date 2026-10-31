@@ -22,10 +22,12 @@ public static class CombatText
             string str when e.Key == "combat.damage" && i == 2 => s["damage." + str],
             string str when e.Key is "combat.dot" or "combat.dot_on" or "combat.dot_end" && i == 1 => s["damage." + str],
             string str when str.StartsWith("stat.") => s[str],
-            string str when str.StartsWith("feature.") => s[str],
+            string str when str.StartsWith("feature.") || str.StartsWith("passive.") || str.StartsWith("combat.src.") => s[str],
             _ => a,
         }).ToArray();
-        return s.Format(e.Key, args);
+        // 命中とダメージの行の4つめは出どころ(急所攻撃・ボーナスアクションなど、おまけの分だけ)。括弧で添える形の文言にする
+        string key = e.Key is "combat.damage" or "combat.hit" or "combat.crit" or "combat.miss" && args.Length == 4 ? e.Key + "_labeled" : e.Key;
+        return s.Format(key, args);
     }
 
     /// <summary>

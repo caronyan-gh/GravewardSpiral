@@ -565,12 +565,13 @@ public sealed class CombatScene : Scene
                 if (input.Pressed(GameAction.Confirm) || input.Pressed(GameAction.Cancel) || input.LeftClicked) End();
                 break;
             default:
-                // 呪文: 左右かタブのクリックで、呪文のレベルを切り替える
+                // 呪文: 左右かタブのクリック(設定で載せるだけにもできる)で、呪文のレベルを切り替える
                 if (_phase == Phase.Spell)
                 {
                     if (input.Repeat(GameAction.Left)) { MoveSpellTab(-1); return; }
                     if (input.Repeat(GameAction.Right)) { MoveSpellTab(1); return; }
-                    if (input.LeftClicked && input.Mouse is { } m && UI.SpellTabs.At(SpellTabArea, m) is int tab)
+                    // 設定でマウスを載せるだけにしていれば、載せたタブにする
+                    if ((input.LeftClicked || Services.Options.SpellTabHover && input.MouseMoved) && input.Mouse is { } m && UI.SpellTabs.At(SpellTabArea, m) is int tab)
                     {
                         if (SpellTabs().Contains(tab) && tab != _spellTab)
                         {

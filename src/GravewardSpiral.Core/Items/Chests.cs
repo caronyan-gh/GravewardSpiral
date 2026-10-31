@@ -25,6 +25,9 @@ public sealed class Chest
 
     public bool Opened { get; set; }
 
+    /// <summary>調べて分かったつもりになった罠の名前(調べた順。空は「罠は無い」)。外す罠を選ぶ一覧の並びに使う。</summary>
+    public List<string> Readings { get; set; } = [];
+
     public int Dc => DcFor(Tier);
 
     /// <summary>罠の強さの段階(目安のレベル / 4)。イベントで罠を使うときも、この階の宝箱と同じにする。</summary>
@@ -67,9 +70,22 @@ public sealed class Chest
         int nat = rng.Roll(20);
         if (nat == 1 && HasTrap) return (Trap, true);
         int total = nat + InspectBonus(data, c);
-        if (total >= Dc) return (Trap, false);
-        var wrong = Names(data).Where(t => t != Trap).ToList();
-        return (wrong[rng.Next(0, wrong.Count)], false);
+        string seen = Trap;
+        if (total < Dc)
+        {
+            var wrong = Names(data).Where(t => t != Trap).ToList();
+            seen = wrong[rng.Next(0, wrong.Count)];
+        }
+        Readings.Add(seen);
+        return (seen, false);
+    }
+
+    /// <summary>外す罠を選ぶ一覧の並び。調べて出た名前を、出た回数の多い順(同じなら先に出た順)に上へ置き、残りは元の並び。</summary>
+    public IReadOnlyList<string> GuessOrder(GameData data)
+    {
+        var names = Names(data);
+        var seen = Readings.Where(names.Contains).GroupBy(t => t).OrderByDescending(g => g.Count()).Select(g => g.Key).ToList();
+        return [.. seen, .. names.Where(t => !seen.Contains(t))];
     }
 
     /// <summary>宝箱の罠として名前を選べるもの(「罠は無い」の空と、束 chest の罠の並び)。調べ違いと、外す罠を選ぶ一覧に使う。</summary>

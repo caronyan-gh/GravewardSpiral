@@ -9,6 +9,7 @@
   <Folder Name="/tools/">
     <Project Path="tools/GravewardSpiral.Editor/GravewardSpiral.Editor.csproj" />
     <Project Path="tools/GravewardSpiral.MapCheck/GravewardSpiral.MapCheck.csproj" />
+    <Project Path="tools/GravewardSpiral.ScenarioCheck/GravewardSpiral.ScenarioCheck.csproj" />
     <Project Path="tools/GravewardSpiral.Sim/GravewardSpiral.Sim.csproj" />
   </Folder>
 </Solution>

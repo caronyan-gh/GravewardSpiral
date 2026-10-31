@@ -1,8 +1,16 @@
 # Town Facilities
 
+## Clan House
+
+Your clan's shared base. Manage equipment, and under Party, form your party (add or remove companions and change their order) and use "View Status". A party holds up to six members: the first three are the front row and the rest are the back row. You can also deposit or withdraw items.
+
+Upgrades require gold and sometimes materials. They increase storage and add facilities. Once you have beds, you can take a long rest for free. Basic beds restore HP up to 70% of maximum; better beds restore it fully. HP above the recovery limit is not reduced.
+
+Other facilities offer benefits such as cheaper identification with a library. The screen shows the cost, materials, and facilities for an upgrade.
+
 ## Tavern
 
-Form and manage your party here. Add or remove companions and change their order. A party holds up to six members: the first three are the front row and the rest are the back row. You can also hear rumors from patrons.
+Hear rumors from patrons, such as where named foes lurk in the maze or news from town. Party forming is done under Party at the Clan House.
 
 ## Inn
 
@@ -24,14 +32,6 @@ Resurrect dead companions and treat conditions such as poison and paralysis. You
 ## Training Grounds
 
 Create characters, inspect their status, level up, rename them, or delete them. You can also change spell selections here. "Export Clan" saves the roster to a file.
-
-## Clan House
-
-Your clan's shared base. Deposit or withdraw items, manage equipment, and use "View Status" to inspect current party members.
-
-Upgrades require gold and sometimes materials. They increase storage and add facilities. Once you have beds, you can take a long rest for free. Basic beds restore HP up to 70% of maximum; better beds restore it fully. HP above the recovery limit is not reduced.
-
-Other facilities offer benefits such as cheaper identification with a library. The screen shows the cost, materials, and facilities for an upgrade.
 
 ## Enter the Maze
 

@@ -1,0 +1,16 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <ItemGroup>
+    <ProjectReference Include="..\..\src\GravewardSpiral.Core\GravewardSpiral.Core.csproj" />
+  </ItemGroup>
+
+  <PropertyGroup>
+    <OutputType>Exe</OutputType>
+    <TargetFramework>net10.0</TargetFramework>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <Nullable>enable</Nullable>
+    <!-- 配布物ではゲームとエディタの横に ScenarioCheck.exe として入れる(シナリオを作る人とそのエージェント向けの検査の道具) -->
+    <AssemblyName>ScenarioCheck</AssemblyName>
+  </PropertyGroup>
+
+</Project>

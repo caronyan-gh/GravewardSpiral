@@ -313,6 +313,9 @@ public sealed class ContentLibrary
 
     private static string Rel(string root, string path) => Path.GetRelativePath(root, path).Replace('\\', '/');
 
+    /// <summary>読み込んだ集まりの名前(classes、events など。何かを指している所を探すときに回す)。</summary>
+    public IReadOnlyCollection<string> Collections => _collections.Keys;
+
     public IReadOnlyCollection<ContentItem> All(string collection) =>
         _collections.TryGetValue(collection, out var items) ? items.Values : [];
 

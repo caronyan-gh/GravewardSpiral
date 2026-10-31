@@ -112,8 +112,12 @@ public static class FeatureChecks
 
     /// <summary>近接の武器の攻撃が当たったときに足すダメージ(extra_damage の melee_weapon。ダイスと種類。向上したディヴァイン・スマイトの光輝 1d8)。</summary>
     public static IReadOnlyList<(string Dice, string Type)> MeleeWeaponExtraDamage(GameData data, PartyMember p) =>
+        MeleeWeaponExtraDamageFrom(data, p).Select(x => (x.Dice, x.Type)).ToList();
+
+    /// <summary>同じもので、くれた能力の id も(戦闘のログに出どころを添える)。</summary>
+    public static IReadOnlyList<(string Dice, string Type, string Feature)> MeleeWeaponExtraDamageFrom(GameData data, PartyMember p) =>
         PassiveRules.PickByGroup(Effects(data, p, "extra_damage").Where(e => e.Effect.On == "melee_weapon"), e => DiceAverage(e.Effect.Dice))   // max は平均の大きいもの1つ
-            .Select(e => (e.Effect.Dice!, e.Effect.DamageType!)).ToList();
+            .Select(e => (e.Effect.Dice!, e.Effect.DamageType!, e.Def.Id)).ToList();
 
     /// <summary>ダイスの式の平均(読めないか無ければ 0)。</summary>
     private static double DiceAverage(string? dice) =>

@@ -45,6 +45,8 @@ public sealed class NamedMonsterDef
 public sealed class NamedSpawn
 {
     public string Id { get; set; } = "";
+
+    /// <summary>いる階。0 から数える(0 が B1、1 が B2)。</summary>
     public int Floor { get; set; }
 
     /// <summary>ねぐらにいる(false ならさまよう)。</summary>

@@ -9,7 +9,7 @@ using Microsoft.Xna.Framework;
 
 namespace GravewardSpiral.Game.Scenes.Town;
 
-/// <summary>町。酒場・宿屋・商店・寺院・訓練場と、迷宮への入口。町に来るたびに自動でセーブする。</summary>
+/// <summary>町。クランハウス・酒場・宿屋・商店・寺院・訓練場と、迷宮への入口。町に来るたびに自動でセーブする。</summary>
 public sealed class TownScene : MenuScene
 {
     /// <summary>施設が10あるので、一覧の行を少し詰めて、全部が見えるようにする。</summary>
@@ -47,12 +47,12 @@ public sealed class TownScene : MenuScene
     protected override IEnumerable<MenuItem> Items()
     {
         var s = Services.Strings;
+        yield return new MenuItem(s["town.house"], Tag: Place.House);   // クランの拠点(パーティを組む)を一番上に
         yield return new MenuItem(s["town.tavern"], Tag: Place.Tavern);
         yield return new MenuItem(s["town.inn"], Tag: Place.Inn);
         yield return new MenuItem(s["town.shop"], Tag: Place.Shop);
         yield return new MenuItem(s["town.temple"], Tag: Place.Temple);
         yield return new MenuItem(s["town.training"], Tag: Place.Training);
-        yield return new MenuItem(s["town.house"], Tag: Place.House);
         // 町のイベントがあるときだけ出す
         if (Services.Data.Events.Values.Any(e => e.Place == "town")) yield return new MenuItem(s["town.visit"], Tag: Place.Visit);
         yield return new MenuItem(s["town.maze"], Enabled: PartyCanEnter, Tag: Place.Maze);
@@ -72,7 +72,7 @@ public sealed class TownScene : MenuScene
             case Place.Training: Stack.Push(new TrainingScene(Refresh)); break;
             case Place.Visit: Stack.Push(new VisitScene()); break;
             case Place.Story: Stack.Push(new StoryScene()); break;
-            case Place.House: Stack.Push(new ClanHouseScene()); break;
+            case Place.House: Stack.Push(new ClanHouseScene(Refresh)); break;
             case Place.Maze:
                 var state = Services.Session!.EnterMaze();
                 Stack.Replace(new MazeScene(state, Services.Session.Request.Seed));
@@ -113,114 +113,26 @@ public sealed class TownScene : MenuScene
     }
 }
 
-/// <summary>酒場: パーティを組む(最大6人。前の3人が前列)。</summary>
+/// <summary>酒場: 客の噂を聞く。パーティを組むのはクランハウスの「仲間の管理」(前は酒場だった)。</summary>
 public sealed class TavernScene : MenuScene
 {
-    private enum Mode { Main, Add, Remove, Reorder }
-
     private readonly Action _onLeave;
-    private Mode _mode;
-
-    /// <summary>新しい隊列(選んだ順)。</summary>
-    private readonly List<Character> _newOrder = [];
 
     public TavernScene(Action onLeave) => _onLeave = onLeave;
 
-    private Roster Roster => Services.Session!.Roster;
-
     protected override string Title => Services.Strings["town.tavern"];
-
-    protected override int? PartyHighlight => _mode switch
-    {
-        Mode.Remove => List.Cursor,
-        Mode.Reorder when List.Current?.Tag is Character c => Roster.Party.IndexOf(c.Id),
-        _ => null,
-    };
 
     protected override IEnumerable<MenuItem> Items()
     {
         var s = Services.Strings;
-        switch (_mode)
-        {
-            case Mode.Main:
-                yield return new MenuItem(s["tavern.add"], Enabled: Roster.Party.Count < Roster.MaxParty && Available().Any());
-                yield return new MenuItem(s["tavern.remove"], Enabled: Roster.Party.Count > 0);
-                yield return new MenuItem(s["tavern.swap"], Enabled: Roster.Party.Count > 1);
-                yield return new MenuItem(s["tavern.rumor"]);
-                yield return new MenuItem(s["common.back"]);
-                break;
-            case Mode.Add:
-                foreach (var c in Available()) yield return new MenuItem(c.Name, Describe(c), Tag: c);
-                break;
-            case Mode.Reorder:
-                // まだ選んでいない人だけ(選んだ並びは文で見せる)
-                foreach (var c in Roster.PartyMembers.Where(c => !_newOrder.Contains(c))) yield return new MenuItem(c.Name, Describe(c), Tag: c);
-                break;
-            default:
-                foreach (var c in Roster.PartyMembers) yield return new MenuItem(c.Name, Describe(c), Tag: c);
-                break;
-        }
-    }
-
-    private IEnumerable<Character> Available() =>
-        Roster.Characters.Where(c => !Roster.InParty(c) && Roster.Available(c));
-
-    private string Describe(Character c) => $"{Services.Name(Services.Data.Classes[c.ClassId].Name)} Lv{c.Level}";
-
-    private void SetMode(Mode mode)
-    {
-        _mode = mode;
-        List.SetItems(Items(), 0);
+        yield return new MenuItem(s["tavern.rumor"], Tag: "rumor");
+        yield return new MenuItem(s["common.back"], Tag: "back");
     }
 
     protected override void Choose(MenuItem item, int index)
     {
-        var s = Services.Strings;
-        switch (_mode)
-        {
-            case Mode.Main:
-                if (index == 2)
-                {
-                    _newOrder.Clear();
-                    Message = OrderMessage();
-                }
-                if (index == 3)
-                {
-                    Message = Rumors();
-                    break;
-                }
-                SetMode(index switch { 0 => Mode.Add, 1 => Mode.Remove, 2 => Mode.Reorder, _ => Mode.Main });
-                if (index == 4) Cancel();
-                break;
-            case Mode.Add:
-                Roster.AddToParty((Character)item.Tag!);
-                Message = s.Format("tavern.added", item.Label);
-                if (Roster.Party.Count >= Roster.MaxParty || !Available().Any()) SetMode(Mode.Main);
-                else Refresh();
-                break;
-            case Mode.Remove:
-                Roster.RemoveFromParty((Character)item.Tag!);
-                Message = s.Format("tavern.removed", item.Label);
-                SetMode(Roster.Party.Count > 0 ? Mode.Remove : Mode.Main);
-                break;
-            case Mode.Reorder:
-            {
-                _newOrder.Add((Character)item.Tag!);
-                // 残りが1人なら、その人が最後
-                var rest = Roster.PartyMembers.Where(x => !_newOrder.Contains(x)).ToList();
-                if (rest.Count == 1) _newOrder.Add(rest[0]);
-                if (rest.Count <= 1)
-                {
-                    Roster.Reorder(_newOrder);
-                    Message = s["camp.order_done"];
-                    SetMode(Mode.Main);
-                    break;
-                }
-                Message = OrderMessage();
-                SetMode(Mode.Reorder);
-                break;
-            }
-        }
+        if (item.Tag is "rumor") Message = Rumors();
+        else Cancel();
     }
 
     /// <summary>
@@ -261,41 +173,14 @@ public sealed class TavernScene : MenuScene
     /// <summary>すぐ前に聞いた噂(続けて同じ話をしない)。</summary>
     private string? _lastRumor;
 
-    /// <summary>並べ直しの途中の文(ここまでの並びと、次は何番目か)。</summary>
-    private string OrderMessage()
-    {
-        var s = Services.Strings;
-        if (_newOrder.Count == 0) return s["camp.order_first"];
-        string sofar = string.Join("  ", _newOrder.Select((c, i) => s.Format("camp.order_n", i + 1, c.Name)));
-        return sofar + "\n" + s.Format("camp.order_next", _newOrder.Count + 1);
-    }
-
     protected override void Cancel()
     {
-        if (_mode == Mode.Main)
-        {
-            Stack.Pop();
-            _onLeave();
-        }
-        else if (_mode == Mode.Reorder && _newOrder.Count > 0)
-        {
-            _newOrder.RemoveAt(_newOrder.Count - 1);   // 1人戻す
-            Message = OrderMessage();
-            SetMode(Mode.Reorder);
-        }
-        else
-        {
-            Message = null;
-            SetMode(Mode.Main);
-        }
+        Stack.Pop();
+        _onLeave();
     }
 
-    protected override void DrawInfo(Draw2D d, RectangleF area)
-    {
-        var s = Services.Strings;
-        float y = Line(d, area, area.Y + 20, s[$"tavern.about_{_mode.ToString().ToLowerInvariant()}"], Theme.Text, 19);
-        if (List.Current?.Tag is Character c) StatusScene.DrawSummary(d, Services, c, new Vector2(area.X + 20, y + 10));
-    }
+    protected override void DrawInfo(Draw2D d, RectangleF area) =>
+        Line(d, area, area.Y + 20, Services.Strings["tavern.about_main"], Theme.Text, 19);
 }
 
 /// <summary>宿屋: 大休憩。部屋の種類で料金と戻る HP が変わる。料金は1人ずつ自分の金で払う。</summary>

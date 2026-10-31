@@ -8,18 +8,32 @@ namespace GravewardSpiral.Game.Scenes;
 
 /// <summary>
 /// 設定の画面。上下で項目を選び、左右(か決定)で値を変える。変えたらすぐ効き、取消で戻るときに保存する。
+/// 項目は「基本」「ゲームプレイ」「その他」のタブに分ける(ページのキー Q / E・L1 / R1 か、タブのクリックで切り替える)。
 /// タイトルとキャンプから開く。「シナリオのフォルダ」は、決定でシナリオの置き場所をエクスプローラーで開く。
 /// </summary>
 public sealed class OptionsScene : Scene
 {
-    private enum Row { Language, Bgm, Se, LogSpeed, Wireframe, StoryFont, Map, BackKey, Ai, Scenarios, Back }
+    private enum Row { Language, Bgm, Se, Screen, WindowSize, StoryFont, Wireframe, LogSpeed, RepeatSpeed, Map, BackKey, MazeMouse, MazeOverlay, SpellTab, Ai, Scenarios, Back }
 
-    private static readonly Row[] Rows = Enum.GetValues<Row>();
+    /// <summary>タブごとの項目(どのタブにも、最後に「戻る」)。</summary>
+    private static readonly (string Key, Row[] Rows)[] Tabs =
+    [
+        ("options.tab.basic", [Row.Language, Row.Bgm, Row.Se, Row.Screen, Row.WindowSize, Row.StoryFont, Row.Wireframe, Row.Back]),
+        ("options.tab.play", [Row.LogSpeed, Row.RepeatSpeed, Row.Map, Row.BackKey, Row.MazeMouse, Row.MazeOverlay, Row.SpellTab, Row.Back]),
+        ("options.tab.other", [Row.Ai, Row.Scenarios, Row.Back]),
+    ];
+
     private static readonly RectangleF Area = new(240, 40, 800, 640);
     private const float RowHeight = 48f;
 
     private readonly bool _overlay;
+    private int _tab;
     private int _cursor;
+
+    private Row[] Rows => Tabs[_tab].Rows;
+
+    /// <summary>タブの見出し(題の下に横に並べる)。</summary>
+    private static RectangleF TabRect(int i) => new(Area.X + 24 + i * 190, Area.Y + 64, 180, 38);
 
     /// <param name="overlay">下の画面に重ねて出す(キャンプから開いたとき)。</param>
     public OptionsScene(bool overlay = false) => _overlay = overlay;
@@ -28,7 +42,7 @@ public sealed class OptionsScene : Scene
 
     private GameOptions O => Services.Options;
 
-    private RectangleF RowRect(int i) => new(Area.X + 24, Area.Y + 70 + i * RowHeight, Area.Width - 48, RowHeight - 8);
+    private RectangleF RowRect(int i) => new(Area.X + 24, Area.Y + 118 + i * RowHeight, Area.Width - 48, RowHeight - 8);
 
     /// <summary>音量のバー(クリックか引きずりで、その位置の音量にする)。</summary>
     private RectangleF BarRect(int i)
@@ -54,6 +68,26 @@ public sealed class OptionsScene : Scene
 
     public override void Update(GameTime time, InputState input)
     {
+        // タブ: ページのキーか、見出しのクリックで切り替える
+        int tab = _tab;
+        if (input.Pressed(GameAction.PageUp)) tab = (_tab + Tabs.Length - 1) % Tabs.Length;
+        if (input.Pressed(GameAction.PageDown)) tab = (_tab + 1) % Tabs.Length;
+        if (input.LeftClicked && input.Mouse is { } tm)
+        {
+            for (int i = 0; i < Tabs.Length; i++)
+            {
+                if (TabRect(i).Contains(tm)) tab = i;
+            }
+        }
+        if (tab != _tab)
+        {
+            _tab = tab;
+            _cursor = 0;
+            _dragging = null;
+            Services.Audio.PlaySe(Sounds.Cursor);
+            return;
+        }
+
         int before = _cursor;
         if (input.Repeat(GameAction.Up)) _cursor = (_cursor + Rows.Length - 1) % Rows.Length;
         if (input.Repeat(GameAction.Down)) _cursor = (_cursor + 1) % Rows.Length;
@@ -164,6 +198,40 @@ public sealed class OptionsScene : Scene
                 O.BackKey = GameOptions.BackKeys[(i + step + GameOptions.BackKeys.Length) % GameOptions.BackKeys.Length];
                 break;
             }
+            case Row.SpellTab:
+                O.SpellTabHover = !O.SpellTabHover;
+                break;
+            case Row.RepeatSpeed:
+            {
+                int i = Math.Max(0, Array.IndexOf(GameOptions.RepeatSpeeds, O.RepeatSpeed));
+                O.RepeatSpeed = GameOptions.RepeatSpeeds[(i + step + GameOptions.RepeatSpeeds.Length) % GameOptions.RepeatSpeeds.Length];
+                break;
+            }
+            case Row.MazeMouse:
+                O.MazeMouse = !O.MazeMouse;
+                break;
+            case Row.MazeOverlay:
+                if (!O.MazeMouse) return;   // マウスで動かないときは変えられない(灰色)
+                O.MazeMouseOverlay = !O.MazeMouseOverlay;
+                break;
+            case Row.Screen:
+                if (Services.Display is not { } display) return;
+                display.SetFullscreen(!display.Fullscreen);
+                Services.Audio.PlaySe(Sounds.Cursor);
+                return;
+            case Row.WindowSize:
+            {
+                if (Services.Display is not { } screen) return;
+                // 今の大きさの次(か前)の候補へ。手で広げた半端な大きさなら、近い候補へ
+                var sizes = screen.WindowSizes;
+                var now = screen.WindowSize;
+                int i = sizes.ToList().FindIndex(x => x == now);
+                int next = i >= 0 ? (i + step + sizes.Count) % sizes.Count
+                    : step > 0 ? Math.Max(0, sizes.ToList().FindIndex(x => x.Width > now.Width)) : Math.Max(0, sizes.ToList().FindLastIndex(x => x.Width < now.Width));
+                screen.SetWindowSize(sizes[next].Width, sizes[next].Height);
+                Services.Audio.PlaySe(Sounds.Cursor);
+                return;
+            }
             default:
                 return;
         }
@@ -218,10 +286,16 @@ public sealed class OptionsScene : Scene
             Row.Bgm => $"{O.BgmVolume}%",
             Row.Se => $"{O.SeVolume}%",
             Row.LogSpeed => s["options.log." + O.LogSpeed],
+            Row.RepeatSpeed => s["options.repeat." + O.RepeatSpeed],
             Row.Wireframe => s[O.MonoWireframe ? "options.wire.mono" : "options.wire.color"],
             Row.StoryFont => s["options.storyfont." + O.StoryFont],
             Row.Map => s["options.map." + O.MapMode],
             Row.BackKey => s["options.backkey." + O.BackKey],
+            Row.SpellTab => s[O.SpellTabHover ? "options.spelltab.hover" : "options.spelltab.click"],
+            Row.MazeMouse => s[O.MazeMouse ? "options.on_use" : "options.off_use"],
+            Row.MazeOverlay => s[O.MazeMouseOverlay ? "options.ai.on" : "options.ai.off"],
+            Row.Screen => s[Services.Display?.Fullscreen == true ? "options.screen.full" : "options.screen.window"],
+            Row.WindowSize => Services.Display is { } screen ? $"{screen.WindowSize.Width} × {screen.WindowSize.Height}" : "",
             Row.Scenarios => s["options.scenarios.open"],
             Row.Ai => s[!O.AiEnabled ? "options.ai.off" : Ai.ApiKeyStore.Load(Ai.ApiKeyStore.Claude) != null ? "options.ai.on" : "options.ai.no_key"],
             _ => "",
@@ -235,6 +309,14 @@ public sealed class OptionsScene : Scene
         else d.FillRect(new RectangleF(0, 0, 1280, 720), new Color(6, 8, 12));
         Theme.Panel(d, Area);
         d.Text(s["options.title"], new Vector2(Area.X + 24, Area.Y + 18), 28, Theme.Title);
+        for (int i = 0; i < Tabs.Length; i++)
+        {
+            var t = TabRect(i);
+            bool on = i == _tab;
+            if (on) d.FillRect(t, Theme.SelectedFill);
+            d.Rect(t, on ? Theme.SelectedFrame : Theme.Frame, on ? 1.5f : 1f);
+            d.Text(s[Tabs[i].Key], new Vector2(t.X + t.Width / 2, t.Y + 7), 22, on ? Color.White : Theme.Dim, TextAlign.Center);
+        }
         for (int i = 0; i < Rows.Length; i++)
         {
             var r = RowRect(i);
@@ -244,7 +326,8 @@ public sealed class OptionsScene : Scene
                 d.FillRect(r, Theme.SelectedFill);
                 d.Rect(r, Theme.SelectedFrame, 1.5f);
             }
-            var color = selected ? Color.White : Theme.Text;
+            bool disabled = Rows[i] == Row.MazeOverlay && !O.MazeMouse;   // マウスで動かないときのオーバーレイは灰色
+            var color = disabled ? Theme.Disabled : selected ? Color.White : Theme.Text;
             d.Text(s["options." + Rows[i].ToString().ToLowerInvariant()], new Vector2(r.X + 16, r.Y + 12), 24, color);
             if (Rows[i] == Row.Back) continue;
             if (Rows[i] is Row.Ai or Row.Scenarios)
@@ -276,6 +359,11 @@ public sealed class OptionsScene : Scene
         string hint = Rows[_cursor] switch
         {
             Row.BackKey => s["options.backkey.hint"],
+            Row.SpellTab => s["options.spelltab.hint"],
+            Row.RepeatSpeed => s["options.repeatspeed.hint"],
+            Row.MazeMouse => s["options.mazemouse.hint"],
+            Row.MazeOverlay => s["options.mazeoverlay.hint"],
+            Row.WindowSize when Services.Display?.Fullscreen == true => s["options.windowsize.hint_full"],
             Row.Scenarios => s.Format("options.scenarios.hint", Services.UserScenarios),
             _ => s["options.hint"],
         };

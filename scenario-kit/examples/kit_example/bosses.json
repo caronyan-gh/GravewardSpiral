@@ -1,0 +1,8 @@
+[
+  {
+    "id": "final",
+    "name": { "ja": "見本の番人", "en": "Example Warden" },
+    "groups": [{ "monster": "skeleton", "count": 2 }],
+    "auto": false
+  }
+]

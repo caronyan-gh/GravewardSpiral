@@ -14,12 +14,12 @@ Choose "New Game" on the title screen, then select a scenario, clan, and difficu
 - Clan: the roster of characters you bring on the adventure. Create a new clan or keep using one from a previous adventure.
 - Difficulty: determines what happens after a party wipe, whether resurrection can fail, and how saving works. See "Difficulty" under "Options and More".
 
-A new world may carry over the party from a previous world, selecting available companions starting with the most recent world. Check the members and formation at the Tavern before setting out.
+A new world may carry over the party from a previous world, selecting available companions starting with the most recent world. Check the members and formation under Party at the Clan House before setting out.
 
 ## What to do first
 
 - Create characters at the Training Grounds. For a brief guide to each class, see "Races and classes" under "Characters".
-- Form a party of up to six at the Tavern. The first three members are the front row; the rest are the back row. Put melee fighters in front and companions using bows or spells in back.
+- Form a party of up to six under Party at the Clan House. The first three members are the front row; the rest are the back row. Put melee fighters in front and companions using bows or spells in back.
 - Check equipment under "Items". A weapon or armor in a pack is not equipped. Buy any gear or supplies you need at the Shop.
 - Check your spellcasters' spells at the Training Grounds. Some classes must prepare spells before using them, even if they already know them. "Auto-fill" fills unused choices.
 - Choose "Enter the Maze" in town to set out. You need a companion who can act.

@@ -1,0 +1,12 @@
+[
+  {
+    "id": "kit_example",
+    "name": { "ja": "手引きの見本", "en": "Kit Example" },
+    "floors": ["maps/kit_example_b1.txt", "maps/kit_example_b2.txt"],
+    "rosters": [
+      ["giant_rat", "kobold", "skeleton"],
+      ["skeleton", "zombie", "acolyte"]
+    ],
+    "events_placed": true
+  }
+]

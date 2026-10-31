@@ -8,10 +8,10 @@ using GravewardSpiral.Game.UI;
 namespace GravewardSpiral.Game.Scenes.Town;
 
 /// <summary>
-/// クランハウス。倉庫に品を預ける・引き出す、金を投資して次の段階にする。
+/// クランハウス。持ち物の整理、仲間の管理(パーティを組む・状態)、倉庫に品を預ける・引き出す、金を投資して次の段階にする。
 /// 倉庫はクランで共有で、クランファイルと一緒に持ち歩く(シナリオが変わっても残る)。
 /// </summary>
-public sealed class ClanHouseScene : MenuScene
+public sealed class ClanHouseScene(Action? onLeave = null) : MenuScene
 {
     private enum Mode { Main, DepositWho, Deposit, Withdraw, WithdrawTo }
 
@@ -41,8 +41,8 @@ public sealed class ClanHouseScene : MenuScene
         {
             case Mode.Main:
             {
+                yield return new MenuItem(s["house.party"], Tag: "party");
                 yield return new MenuItem(s["town.items"], Enabled: Party.Count > 0, Tag: "items");
-                yield return new MenuItem(s["camp.status"], Enabled: Party.Count > 0, Tag: "status");
                 if (House.Has(_levels, ClanHouseLevel.Bed))
                     yield return new MenuItem(s["house.sleep"], s[House.Has(_levels, ClanHouseLevel.BedFull) ? "house.sleep_full" : "house.sleep_half"], Tag: "sleep");
                 yield return new MenuItem(s["house.deposit"], Enabled: Party.Any(c => c.Inventory.Items.Count > 0), Tag: Mode.DepositWho);
@@ -99,14 +99,14 @@ public sealed class ClanHouseScene : MenuScene
         var s = Services.Strings;
         switch (_mode, item.Tag)
         {
-            case (Mode.Main, "back"): Stack.Pop(); return;
+            case (Mode.Main, "back"): Cancel(); return;
             case (Mode.Main, "items"):
                 // 持ち物の整理(装備の付け替え、仲間に渡す)
-                Stack.Push(new MemberPickScene(Services.Strings["town.items"], _ => true, c => Stack.Push(new InventoryScene(c, Services.Session!.Roster.PartyMembers.ToList()))));
+                Stack.Push(new MemberPickScene(s["town.items"], _ => true, c => Stack.Push(new InventoryScene(c, Services.Session!.Roster.PartyMembers.ToList()))));
                 return;
-            case (Mode.Main, "status"):
-                // 仲間の詳しい状態(訓練場やキャンプと同じ画面)
-                Stack.Push(new MemberPickScene(s["camp.status"], _ => true, c => Stack.Push(new StatusScene(c, Services.Session!.Roster.PartyMembers.ToList()))));
+            case (Mode.Main, "party"):
+                // 仲間の管理(パーティを組む・状態)
+                Stack.Push(new PartyScene(Refresh));
                 return;
             case (Mode.Main, Mode m): Go(m); return;
             case (Mode.Main, "sleep"):
@@ -170,7 +170,10 @@ public sealed class ClanHouseScene : MenuScene
     {
         switch (_mode)
         {
-            case Mode.Main: Stack.Pop(); break;
+            case Mode.Main:
+                Stack.Pop();
+                onLeave?.Invoke();
+                break;
             case Mode.Deposit: Go(Mode.DepositWho); break;
             case Mode.WithdrawTo: Go(Mode.Withdraw); break;
             default: Go(Mode.Main); break;

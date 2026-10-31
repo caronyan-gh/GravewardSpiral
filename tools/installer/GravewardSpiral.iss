@@ -4,7 +4,7 @@
 ; 管理者の権限は要らない(ユーザーのフォルダに入れる)。セーブと設定は %LOCALAPPDATA%\GravewardSpiral にあり、消しても残る。
 
 #ifndef AppVersion
-  #define AppVersion "0.3.1"
+  #define AppVersion "0.3.2"
 #endif
 
 [Setup]

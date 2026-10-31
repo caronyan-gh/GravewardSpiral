@@ -54,6 +54,20 @@ public sealed class GameOptions
 
     public static readonly string[] AiModels = Core.Ai.ClaudeClient.Models;
 
+    /// <summary>長押しの繰り返しの速さ: slow / normal / fast / fastest(メニューのカーソルと、迷宮で歩き続ける速さ)。</summary>
+    public string RepeatSpeed { get; set; } = "normal";
+
+    public static readonly string[] RepeatSpeeds = ["slow", "normal", "fast", "fastest"];
+
+    /// <summary>迷宮の絵をマウスで押して動く(真ん中は調べる。まわりの8つの領域で、進む・横歩き・向きを変える・振り向く・下がる)。</summary>
+    public bool MazeMouse { get; set; } = true;
+
+    /// <summary>迷宮のマウスの領域(区切りの線と矢印)を、絵の上に薄く重ねて見せる。</summary>
+    public bool MazeMouseOverlay { get; set; }
+
+    /// <summary>呪文を唱える画面のレベルのタブを、マウスを載せるだけで切り替える(切なら、クリックで切り替える)。</summary>
+    public bool SpellTabHover { get; set; }
+
     public bool ShowMiniMap => MapMode == "auto";
     public bool AllowMap => MapMode != "none";
 
@@ -71,6 +85,13 @@ public sealed class GameOptions
             audio.SeVolume = SeFull * Math.Clamp(SeVolume, 0, 100) / 100f;
         }
         WireframeRenderer.Monochrome = MonoWireframe;
+        (Input.InputState.RepeatDelay, Input.InputState.RepeatInterval) = RepeatSpeed switch
+        {
+            "slow" => (0.45, 0.14),
+            "fast" => (0.25, 0.05),
+            "fastest" => (0.18, 0.03),
+            _ => (0.35, 0.08),
+        };
         TextRenderer.StoryFont = TextRenderer.StoryFonts.Contains(StoryFont) ? StoryFont : "hina";
     }
 

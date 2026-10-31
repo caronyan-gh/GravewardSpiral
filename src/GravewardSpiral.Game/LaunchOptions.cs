@@ -103,6 +103,8 @@ public sealed record LaunchOptions(string? ScreenshotPath, int? ScreenshotFrame,
                             "V" => GameAction.Reverse,   // 次の動作を、押しながらにする(後ろのキーの逆の動き)
                             "<" => GameAction.PrevMember,
                             ">" => GameAction.NextMember,
+                            "[" => GameAction.PageUp,     // 前のページ・タブ(設定のタブなど)
+                            "]" => GameAction.PageDown,
                             "." => null,
                             _ => throw new ArgumentException($"--actions の '{token}' は読めません"),
                         });

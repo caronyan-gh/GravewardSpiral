@@ -56,7 +56,13 @@ public sealed class ChestScene(Chest chest, Action onTeleport, Action onAlarm) :
                 yield return new MenuItem(s["chest.leave"], Tag: "leave");
                 break;
             case Mode.DisarmTrap:
-                foreach (var t in Chest.Names(Data)) yield return new MenuItem(TrapName(t), Tag: new TrapGuess(t));
+                // 調べて出た名前には、後ろに小さく「調べた結果」(何度も出たら回数)を添える
+                foreach (var t in chest.GuessOrder(Data))
+                {
+                    int n = chest.Readings.Count(r => r == t);
+                    string? note = n switch { 0 => null, 1 => s["chest.guess_seen"], _ => s.Format("chest.guess_seen_n", n) };
+                    yield return new MenuItem(TrapName(t), Tag: new TrapGuess(t), BadgeText: note);
+                }
                 break;
             case Mode.Done:
                 yield return new MenuItem(s["chest.close"], Tag: "leave");

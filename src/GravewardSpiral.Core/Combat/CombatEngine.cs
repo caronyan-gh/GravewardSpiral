@@ -178,7 +178,9 @@ public sealed class CombatEngine(GameData data, IRandom rng)
         {
             if (!c.Standing) return;
             s.Add("combat.dot", c is MonsterUnit m ? s.GroupOf(m).DisplayName : c.Name, dot.DamageType);
+            _damageLabel = "combat.src.dot";
             Damage(s, c, Math.Max(0, RollDice(dot.Dice)), dot.DamageType, false, dot.Magical);
+            _damageLabel = null;
             CheckOutcome(s);
         }
     }
@@ -359,9 +361,9 @@ public sealed class CombatEngine(GameData data, IRandom rng)
             return hit * plan.Average(plan.Weapon);
         }
 
-        // 1回の攻撃。届く敵がいなければ false。unarmed は武術の素手の打撃(ボーナスアクション)
+        // 1回の攻撃。届く敵がいなければ false。unarmed は武術の素手の打撃(ボーナスアクション)。bonus はボーナスアクションの攻撃(ログに添える)
         bool killTried = false;   // 一撃で倒す判定(instant_kill)は、1回の攻撃の行動で1度だけ(Wizardry: 何回殴っても振るのは1度。効果の当てはまる攻撃だけを数える)
-        bool Strike(bool first, bool offHand, bool unarmed = false)
+        bool Strike(bool first, bool offHand, bool unarmed = false, bool bonus = false)
         {
             var targets = s.AttackableGroups(p).ToList();
             if (targets.Count == 0)
@@ -393,23 +395,25 @@ public sealed class CombatEngine(GameData data, IRandom rng)
                 new() { Type = EffectPart.Damage, Dice = $"{plan.Dice}{Signed(plan.DamageMod)}", DamageType = weapon?.DamageType ?? "bludgeoning", Reroll = plan.RerollLow },
             };
             if (melee && weapon != null)
-                foreach (var (dice, type) in FeatureChecks.MeleeWeaponExtraDamage(_data, p))
-                    parts.Add(new EffectPart { Type = EffectPart.Damage, Dice = dice, DamageType = type });   // 向上したディヴァイン・スマイト
+                foreach (var (dice, type, from) in FeatureChecks.MeleeWeaponExtraDamageFrom(_data, p))
+                    parts.Add(new EffectPart { Type = EffectPart.Damage, Dice = dice, DamageType = type, Label = "passive." + from });   // 向上したディヴァイン・スマイト
             foreach (var m in p.Modifiers.Where(m => m.Stat == "damage" && m.Dice != null))
-                parts.Add(new EffectPart { Type = EffectPart.Damage, Dice = m.Dice, DamageType = "radiant" });
+                parts.Add(new EffectPart { Type = EffectPart.Damage, Dice = m.Dice, DamageType = "radiant",
+                    Label = m.SpellId != null && _data.Spells.TryGetValue(m.SpellId, out var bySpell) ? bySpell.Name : "combat.src.bonus_damage" });
             // 当たったときの効果と属性(装備している武器のとき)
             if (weapon != null && plan.Held is { } held && held.ItemId == weapon.Id)
             {
-                if (!weapon.Attunement || held.Attuned) parts.AddRange(weapon.OnHit);
-                if (held.ElementDice(weapon) is { } ed) parts.Add(new EffectPart { Type = EffectPart.Damage, Dice = ed, DamageType = held.Element });
-                parts.AddRange(held.AffixOnHit(_data));
+                // 武器の追加の分は、ログに出どころを添える(元の部品は武器の定義なので、写してから付ける)
+                if (!weapon.Attunement || held.Attuned) parts.AddRange(weapon.OnHit.Select(x => Labeled(x, weapon.Name)));
+                if (held.ElementDice(weapon) is { } ed) parts.Add(new EffectPart { Type = EffectPart.Damage, Dice = ed, DamageType = held.Element, Label = "combat.src.element" });
+                parts.AddRange(held.AffixOnHit(_data).Select(x => Labeled(x, "combat.src.affix")));
             }
             var roll = AttackRoll(s, p, target, plan.ToHit, melee: !plan.Shoot, out bool advantage, extraDisadvantage: plan.Shoot && adjacent);
             int sneak = ClassFeatures.SneakAttackDice(_data, p.Character);
             if (p.SneakRound != s.Round && sneak > 0 && (plan.Finesse || weapon is { Ranged: true }) && roll.Hit   // 1ラウンドに1回(アクション・サージの2回目でも出ない)
                 && (advantage || (s.IsNear(group) && s.FrontRowMembers.Any(x => x != p))))
             {
-                parts.Add(new EffectPart { Type = EffectPart.Damage, Dice = $"{sneak}d6", DamageType = weapon?.DamageType ?? "piercing" });
+                parts.Add(new EffectPart { Type = EffectPart.Damage, Dice = $"{sneak}d6", DamageType = weapon?.DamageType ?? "piercing", Label = "passive.sneak_attack" });
                 p.SneakRound = s.Round;
             }
             // ディヴァイン・スマイト: 最初に当たった近接の攻撃に、スロットを使って光輝のダメージを足す(アンデッドと悪魔には +1d8)
@@ -417,7 +421,7 @@ public sealed class CombatEngine(GameData data, IRandom rng)
             {
                 Spellcasting.UseSlot(_data, c, slot);
                 int dice = Math.Min(5, slot + 1) + (group.Def.CreatureType is "undead" or "fiend" ? 1 : 0);
-                parts.Add(new EffectPart { Type = EffectPart.Damage, Dice = $"{dice}d8", DamageType = "radiant" });
+                parts.Add(new EffectPart { Type = EffectPart.Damage, Dice = $"{dice}d8", DamageType = "radiant", Label = "combat.src.smite" });
                 s.Add("combat.smite", p.Name, slot);
                 techniqueUsed = true;
             }
@@ -433,14 +437,18 @@ public sealed class CombatEngine(GameData data, IRandom rng)
             if (melee && weapon != null && FeatureChecks.MeleeWeaponDrain(_data, p) is int drain and > 0)
                 parts.Add(new EffectPart { Type = EffectPart.Drain, Value = drain });   // 命を吸う刃(このゲームでは吸う)
             long dealtBefore = _damageDealt;
-            ResolveAttack(s, p, target, weapon?.Name ?? LocalizedText.Of("unarmed strike", "素手"), roll, parts, plan.Magical);
+            ResolveAttack(s, p, target, weapon?.Name ?? LocalizedText.Of("unarmed strike", "素手"), roll, parts, plan.Magical, label: bonus ? "combat.src.bonus_action" : null);
             // 一撃で倒す(instant_kill): ダメージを1以上与えた(一時的な HP で受けた分も、アンデッドの不屈でこらえた分も数える)最初の攻撃で、1度だけ振る。
             // 不屈でこらえた敵も、首はねは別に振る(不屈はダメージだけをこらえる)
             if (!killTried && roll.Hit && _damageDealt > dealtBefore) killTried = TryInstantKill(s, p, target, unarmed: weapon == null, melee);
             // 残忍な一撃(バーバリアン L9)と獰猛な攻撃(ハーフオーク): 近接のクリティカルで武器のダイスを足す
             if (roll.Crit && melee && FeatureChecks.MeleeCritExtraDice(_data, p) is int brutal and > 0 && target.Standing
                 && DiceExpression.Parse(plan.Dice).Terms.FirstOrDefault(t => !t.IsFlat) is { Sides: > 0 } die)
+            {
+                _damageLabel = "combat.src.crit_extra";
                 Damage(s, target, RollDice($"{brutal}d{die.Sides}"), weapon?.DamageType ?? "bludgeoning", false, plan.Magical);
+                _damageLabel = null;
+            }
             // 投げた武器は、この戦闘では手元から無くなる(勝てば拾う)。戻ってくる武器(returning)は減らない
             if (plan.Shoot && weapon is { Ranged: false } && weapon.Has("thrown") && !weapon.Has("returning") && plan.Held is { } thrown)
             {
@@ -465,10 +473,10 @@ public sealed class CombatEngine(GameData data, IRandom rng)
         if (technique == StrikeTechnique.Flurry && martial)
         {
             s.Add("combat.flurry", p.Name);
-            for (int n = 0; n < 2 && s.Outcome == CombatOutcome.Ongoing; n++) Strike(false, offHand: false, unarmed: true);
+            for (int n = 0; n < 2 && s.Outcome == CombatOutcome.Ongoing; n++) Strike(false, offHand: false, unarmed: true, bonus: true);
         }
-        else if (monkMelee) Strike(false, offHand: false, unarmed: true);
-        else if (usedMainMelee && CanTwoWeapon(p.Character)) Strike(false, offHand: true);
+        else if (monkMelee) Strike(false, offHand: false, unarmed: true, bonus: true);
+        else if (usedMainMelee && CanTwoWeapon(p.Character)) Strike(false, offHand: true, bonus: true);
     }
 
     /// <summary>獣の姿の攻撃: 獣の行動(複数回攻撃があればその組)で、近くのグループを殴る。前列からだけ届く。</summary>
@@ -948,16 +956,18 @@ public sealed class CombatEngine(GameData data, IRandom rng)
     }
 
     private void ResolveAttack(CombatState s, Combatant attacker, Combatant target, LocalizedText weapon, AttackResult roll,
-        List<EffectPart> onHit, bool magical, LocalizedText? actorName = null, bool ranged = false)
+        List<EffectPart> onHit, bool magical, LocalizedText? actorName = null, bool ranged = false, object? label = null)
     {
         var who = actorName ?? attacker.Name;
         var whom = target is MonsterUnit tu ? s.GroupOf(tu).DisplayName : target.Name;
+        // label(ボーナスアクションの攻撃など)は、命中の行の4つめに添える(画面が括弧で出す)
+        object[] Args() => label == null ? [who, weapon, whom] : [who, weapon, whom, label];
         if (!roll.Hit)
         {
-            s.Add("combat.miss", who, weapon, whom);
+            s.Add("combat.miss", Args());
             return;
         }
-        s.Add(roll.Crit ? "combat.crit" : "combat.hit", who, weapon, whom);
+        s.Add(roll.Crit ? "combat.crit" : "combat.hit", Args());
         // リアクション: 飛び道具そらし(モンク L3)は飛び道具のダメージを減らし、アンキャニー・ドッジ(ローグ L5)はダメージを半分にする
         if (target is PartyMember tp && attacker.Side != tp.Side && !tp.ReactionUsed && !tp.Incapacitated)
         {
@@ -1023,7 +1033,9 @@ public sealed class CombatEngine(GameData data, IRandom rng)
                     if (ctx is { Caster: PartyMember wl }) rolled += FeatureChecks.SpellDamageBonus(_data, wl, ctx.Spell.Id);
                     if (source is MonsterUnit strong) rolled = (int)(rolled * strong.Scale.DamageMult);   // 深い階の敵はダメージが大きい
                     string type = part.DamageType ?? "bludgeoning";
+                    _damageLabel = part.Label;   // 急所攻撃などのおまけの分は、ダメージの行に出どころを添える
                     dealt[type] = dealt.GetValueOrDefault(type) + Damage(s, target, rolled, type, crit, magical || ctx != null);
+                    _damageLabel = null;
                     break;
                 }
                 case EffectPart.Heal:
@@ -1900,6 +1912,16 @@ public sealed class CombatEngine(GameData data, IRandom rng)
     }
 
     /// <summary>ダメージを与える。抵抗などの倍率をかけ、HP が 0 になったら倒れる。与えたダメージ(一時的な HP で受けた分も含む)を返す。</summary>
+    /// <summary>今与えているダメージの出どころ(ログのダメージの行の4つめに添える。おまけの分だけ。空なら添えない)。</summary>
+    private object? _damageLabel;
+
+    /// <summary>ダメージの行の引数(出どころがあれば4つめに添える)。</summary>
+    private object[] DamageArgs(object who, int amount, string type) => _damageLabel == null ? [who, amount, type] : [who, amount, type, _damageLabel];
+
+    /// <summary>部品を写して、出どころを付ける(武器やアイテムの定義の部品は書き換えない)。</summary>
+    private static EffectPart Labeled(EffectPart part, object label) =>
+        part.Type == EffectPart.Damage ? part.WithLabel(label) : part;
+
     public int Damage(CombatState s, Combatant target, int amount, string type, bool crit, bool magical)
     {
         int taken = DealDamage(s, target, amount, type, crit, magical);
@@ -1945,10 +1967,10 @@ public sealed class CombatEngine(GameData data, IRandom rng)
             if (dealt < shaped.ShapeHp)
             {
                 shaped.ShapeHp -= dealt;
-                s.Add("combat.damage", target.Name, dealt, type);
+                s.Add("combat.damage", DamageArgs(target.Name, dealt, type));
                 return taken;
             }
-            s.Add("combat.damage", target.Name, shaped.ShapeHp, type);
+            s.Add("combat.damage", DamageArgs(target.Name, shaped.ShapeHp, type));
             dealt -= shaped.ShapeHp;
             shaped.Shape = null;
             shaped.ShapeHp = 0;
@@ -1967,7 +1989,7 @@ public sealed class CombatEngine(GameData data, IRandom rng)
         int before = target.Hp;
         target.Hp = before - dealt;
         taken = taken - dealt + (before - target.Hp);   // HP は 0 より下がらないので、吸えるのは実際に減った分まで
-        s.Add("combat.damage", target is MonsterUnit tu ? s.GroupOf(tu).DisplayName : target.Name, dealt, type);
+        s.Add("combat.damage", DamageArgs(target is MonsterUnit tu ? s.GroupOf(tu).DisplayName : target.Name, dealt, type));
         if (target.Hp > 0) return taken;
 
         if (target is SummonUnit summon)

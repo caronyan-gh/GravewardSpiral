@@ -12,6 +12,8 @@
 //   --ai-draft 種類[@元]:希望  開いたら、AI に下書きを頼む窓(event / item / monster)で書かせて、その窓を撮る(--fake-ai と使う)。
 //                     --screenshot が無ければ、希望を入れて窓を開くだけ(書かせない)
 //   --ai-paste ファイル  --ai-draft で、書かせる代わりに、ファイルの中身をチャットの答えとして貼る
+//   --agent-guide  「AI エージェントで作る」の案内の窓を撮る
+//   --bar-menu N   上の帯の N 番目(0 から)の ▾ の一覧を開いて撮る(.dropdown.png も)
 //   --scenarios DIR   新しく作るシナリオの置き場所(省くと %LOCALAPPDATA%\GravewardSpiral\Scenarios。ゲームと同じ)
 //   --select x,y[,x2,y2]  迷宮のタブで、そのマス(か四角)を選んでおく(確かめ用)
 //   --reopen N        開いたあと、全部のタブを N 回作り直す(名前を付けて保存などと同じ。確かめ用)
@@ -28,9 +30,39 @@ namespace GravewardSpiral.Editor;
 
 public static class Program
 {
+    [System.Runtime.InteropServices.DllImport("kernel32.dll")]
+    private static extern bool AttachConsole(int processId);
+
+    /// <summary>--help で出す使い方(よく使うものだけ。確かめ用の引数はソースの先頭の説明)。</summary>
+    private const string Help = """
+        GravewardSpiralEditor(シナリオエディタ / Scenario Editor)
+
+          GravewardSpiralEditor [--open <フォルダか zip>] [--scenarios <フォルダ>] [--lang ja|en]
+
+          --open <DIR|ZIP>     シナリオを開く / open a scenario
+          --scenarios <DIR>    新しく作るシナリオの置き場所(省くと本物の %LOCALAPPDATA%\GravewardSpiral\Scenarios)
+                               where new scenarios go (default: your real scenario folder)
+          --lang ja|en         画面の言語 / UI language
+          --screenshot <PNG>   窓を PNG に保存して終わる(--open のシナリオは保存されることがあるので、写しを開く)
+                               save the window to PNG and exit (may save the opened scenario: open a copy)
+
+        道具やエージェントから起こすときは、必ず --scenarios に使い捨てのフォルダを付け、--open にはシナリオの写しを渡す。
+        When launched by a tool or agent, always pass a disposable --scenarios folder and --open a copy.
+        画面なしで検査するなら、同じフォルダの ScenarioCheck.exe を使う(ScenarioCheck --help)。
+        To check without a window, use ScenarioCheck.exe in the same folder (ScenarioCheck --help).
+        """;
+
     [STAThread]
     public static int Main(string[] args)
     {
+        // --help: 使い方を出して、窓を開かずに終わる(エージェントが試しに起こしても、本物の置き場所を開かないように)
+        if (args.Any(a => a is "--help" or "-h" or "/?"))
+        {
+            AttachConsole(-1);
+            Console.OutputEncoding = System.Text.Encoding.UTF8;   // ScenarioCheck と同じ。窓のアプリなので、起こしたコンソールに付ける(出力を受けているときはそのまま出る)
+            Console.WriteLine(Help);
+            return 0;
+        }
         var options = EditorOptions.Parse(args);
         var app = new Application { ShutdownMode = ShutdownMode.OnMainWindowClose };
         // 思わぬエラーは知らせて続ける(直しかけのシナリオを失わないように)。確かめの起動では、エラーを出して終わる
@@ -72,6 +104,12 @@ public sealed record EditorOptions(string? Open, string? NewId, string? Tab, int
 
     /// <summary>--ai-draft で、AI に書かせる代わりに、このファイルの中身をチャットの答えとして貼る(--ai-paste。確かめ用)。</summary>
     public static string? AiPaste { get; private set; }
+
+    /// <summary>開いたら「AI エージェントで作る」の案内の窓を撮る(--agent-guide。確かめ用)。</summary>
+    public static bool AgentGuide { get; private set; }
+
+    /// <summary>開いたら上の帯の N 番目(0 から)の ▾ の一覧を開き、窓と一覧(.dropdown.png)を撮る(--bar-menu N。確かめ用)。</summary>
+    public static int? BarMenu { get; private set; }
 
     /// <summary>迷宮のタブで選んでおくマス(--select x,y か x0,y0,x1,y1。確かめ用)。</summary>
     public static int[]? Select { get; private set; }
@@ -118,6 +156,8 @@ public sealed record EditorOptions(string? Open, string? NewId, string? Tab, int
                 case "--ai-write": AiWrite = true; break;
                 case "--ai-draft": AiDraft = next; i++; break;
                 case "--ai-paste": AiPaste = next; i++; break;
+                case "--agent-guide": AgentGuide = true; break;
+                case "--bar-menu": BarMenu = int.Parse(next); i++; break;
                 case "--select": Select = next.Split(',').Select(int.Parse).ToArray(); i++; break;
                 case "--reopen": Reopen = int.Parse(next); i++; break;
                 case "--picker": Picker = next; i++; break;

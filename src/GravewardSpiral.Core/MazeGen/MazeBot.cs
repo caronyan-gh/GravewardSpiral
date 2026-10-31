@@ -39,6 +39,8 @@ public static class MazeBot
             }
         }
 
+        // 開けられなかった錠の辺(行けないマスの原因の見当に使う)
+        var stuck = new HashSet<(int Floor, GridPos Cell, Direction Dir)>();
         Visit(state.Position);
         while (queue.Count > 0)
         {
@@ -55,6 +57,7 @@ public static class MazeBot
                     state.Position = new PartyPosition(floor, cell, d);
                     r = nav.Forward();
                 }
+                if (r == MoveResult.Locked) stuck.Add((floor, cell, d));
                 if (r is not (MoveResult.Bumped or MoveResult.Locked)) Visit(state.Position);
             }
             var here = dungeon.Floors[floor][cell];
@@ -85,7 +88,14 @@ public static class MazeBot
                 && !visited.Contains((f, p))).ToList();
             standing += fl.AllCells().Count(p => !fl[p].IsSolid);
             if (missed.Count > 0)
-                problems.Add($"B{f + 1}: 歩いて行けないマスが {missed.Count} 個(例: {string.Join(" ", missed.Take(5).Select(p => $"({p.X},{p.Y})"))})");
+            {
+                // 行けないマスの手前で開けられなかった錠があれば、原因かもしれないと添える(門の印 gate: を外して L だけ残った、など)
+                var missedSet = missed.ToHashSet();
+                var locks = stuck.Where(s => s.Floor == f && fl.Neighbor(s.Cell, s.Dir) is { } n && missedSet.Contains(n))
+                    .Select(s => $"({s.Cell.X},{s.Cell.Y}) {s.Dir.JaName()}").Distinct().Take(3).ToList();
+                string hint = locks.Count > 0 ? $"。手前で開かない錠の辺(L)がある: {string.Join(" ", locks)}。門の印 gate: もその階の鍵 key も無い L が原因かもしれない" : "";
+                problems.Add($"B{f + 1}: 歩いて行けないマスが {missed.Count} 個(例: {string.Join(" ", missed.Take(5).Select(p => $"({p.X},{p.Y})"))}){hint}");
+            }
         }
         var last = dungeon.Floors.Count - 1;
         bool boss = !dungeon.Floors[last].AllCells().Any(p => dungeon.Floors[last][p].Mark?.StartsWith("boss:") == true)

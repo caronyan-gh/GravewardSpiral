@@ -22,7 +22,7 @@ public sealed class BasicTab(EditorContext context, Action<string, bool> say) : 
         if (context.Pack is not { } pack)
         {
             panel.Children.Add(Ui.Heading(T("シナリオを開いていません", "No scenario open")));
-            panel.Children.Add(Ui.Note(T("上の「新しく作る」か「開く」「zip を開く」から始めます。開くまで、ほかのタブは使えません。シナリオは、ゲームのパックのフォルダ(manifest.json・dungeons.json と maps・events.json など)です。", "Start with \"New\", \"Open\" or \"Open zip\" above. The other tabs are available once a scenario is open.A scenario is a game pack folder (manifest.json, dungeons.json, maps, events.json, etc.).")));
+            panel.Children.Add(Ui.Note(T("上の「新しく作る」か「開く」(フォルダか zip)から始めます。開くまで、ほかのタブは使えません。シナリオは、ゲームのパックのフォルダ(manifest.json・dungeons.json と maps・events.json など)です。", "Start with \"New\" or \"Open\" (a folder or a zip) above. The other tabs are available once a scenario is open. A scenario is a game pack folder (manifest.json, dungeons.json, maps, events.json, etc.).")));
             return;
         }
         var m = pack.Manifest;

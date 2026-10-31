@@ -26,12 +26,12 @@ On the 5e-style (gentle) difficulty setting, resurrection always succeeds, but s
 
 Difficulty determines what happens after a wipe.
 
-- Harsh: Everyone's body remains where the party fell. Those characters cannot join a party at the tavern. Form a rescue party with other characters and return for them.
+- Harsh: Everyone's body remains where the party fell. Those characters cannot join a party. Form a rescue party with other characters and return for them.
 - Gentle: The party is brought back to town. Unconscious characters recover with 1 HP, but those already dead remain dead. Each character loses half their gold.
 
 ## Rescuing bodies
 
-Form a rescue party at the tavern, travel to the square where the party fell, and press Confirm to investigate. Recovered bodies join empty party positions.
+Form a rescue party under Party at the Clan House, travel to the square where the party fell, and press Confirm to investigate. Recovered bodies join empty party positions.
 
 The party limit is six, including bodies. A full party has no room to carry anyone back. Leave enough positions empty for those you intend to rescue. A five-member rescue party can bring back one body.
 

@@ -353,14 +353,15 @@ public sealed class CampScene : MenuScene
 
     public override void Update(GameTime time, Input.InputState input)
     {
-        // 呪文: 左右かタブのクリックで、呪文のレベルを切り替える(呪文のあるタブだけを回る)
+        // 呪文: 左右かタブのクリック(設定で載せるだけにもできる)で、呪文のレベルを切り替える(呪文のあるタブだけを回る)
         if (_mode == Mode.CastSpell)
         {
             var tabs = SpellTabs.Tabs(Services.Data, _caster!, CampSpells(_caster!));
             int next = _spellTab;
             if (input.Repeat(Input.GameAction.Left)) next = SpellTabs.Move(tabs, _spellTab, -1);
             else if (input.Repeat(Input.GameAction.Right)) next = SpellTabs.Move(tabs, _spellTab, 1);
-            else if (input.LeftClicked && input.Mouse is { } m && SpellTabs.At(SpellTabArea, m) is int tab && tabs.Contains(tab)) next = tab;
+            // 設定でマウスを載せるだけにしていれば、載せたタブにする
+            else if ((input.LeftClicked || Services.Options.SpellTabHover && input.MouseMoved) && input.Mouse is { } m && SpellTabs.At(SpellTabArea, m) is int tab && tabs.Contains(tab)) next = tab;
             if (next != _spellTab)
             {
                 _spellTab = next;

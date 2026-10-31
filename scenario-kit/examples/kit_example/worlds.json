@@ -1,0 +1,30 @@
+[
+  {
+    "id": "kit_example",
+    "text": {
+      "model": "scenario",
+      "prologue": {
+        "ja": "これは手引きの見本の迷宮だ。鍵、レバー、門を試してから、奥の番人に挑もう。",
+        "en": "This is the kit's example maze. Try the key, the lever and the gate, then face the warden below."
+      },
+      "floors": [
+        {
+          "name": { "ja": "見本の上の階", "en": "Example Upper Floor" },
+          "enter": { "ja": "壁に、見本と書いた札が下がっている。", "en": "A sign on the wall reads: example." },
+          "documents": []
+        },
+        {
+          "name": { "ja": "見本の下の階", "en": "Example Lower Floor" },
+          "enter": { "ja": "奥から、骨の鳴る音がする。", "en": "Bones rattle somewhere ahead." },
+          "documents": []
+        }
+      ],
+      "boss": {
+        "name": { "ja": "見本の番人", "en": "Example Warden" },
+        "intro": { "ja": "門の奥で、骨の番人が立ち上がった。", "en": "Behind the gate, the bone wardens rise." },
+        "victory": { "ja": "番人は崩れ、見本の迷宮は静かになった。", "en": "The wardens fall; the example maze falls silent." },
+        "escorts": []
+      }
+    }
+  }
+]

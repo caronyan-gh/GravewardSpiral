@@ -50,7 +50,7 @@ After a victory, unconscious survivors rise with 1 HP. Dead characters require r
 
 ## Ongoing damage
 
-Some attacks leave ongoing damage, such as burning or poison damage at the start of each turn. Depending on the effect, it ends after a set number of rounds or a successful save. Copies of the same effect do not stack, but different effects can apply together. Ongoing damage ends when combat ends.
+Some attacks leave ongoing damage, such as burning or poison. The damage lands at the start of the affected creature's own turn, before it acts. So a target that has not acted yet this round takes it in the same round, while one that has already acted takes it from its turn next round. Depending on the effect, it ends after a set number of rounds or a successful save at the end of its turn. Copies of the same effect do not stack, but different effects can apply together. Ongoing damage ends when combat ends.
 
 These effects are separate from conditions such as Poisoned, which may linger after combat.
 

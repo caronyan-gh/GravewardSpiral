@@ -1,0 +1,17 @@
+{
+  "id": "kit_example",
+  "guid": "5e0b7c1a-3f52-4d6e-9a1b-8c4d2e7f6a10",
+  "name": { "ja": "手引きの見本", "en": "Kit Example" },
+  "description": {
+    "ja": "scenario-kit の見本。2階の小さな迷宮に、鍵と錠、レバーと祭壇、門、最下層の主を置いた。",
+    "en": "The scenario-kit example: a two-floor maze with a key and lock, a lever and an altar, a gate, and a final boss."
+  },
+  "version": "1.0",
+  "format": 1,
+  "depends": ["srd"],
+  "kind": "scenario",
+  "author": "scenario-kit",
+  "levels": [1, 3],
+  "dungeon": "kit_example",
+  "standard_events": false
+}

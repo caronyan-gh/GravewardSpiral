@@ -1,0 +1,59 @@
+[
+  {
+    "id": "kit_example_lever",
+    "note": "フラグを立てる仕掛け。once: game で1回だけ。やめたときは again で、また来れば選び直せる",
+    "place": "maze",
+    "once": "game",
+    "steps": [
+      {
+        "type": "choice",
+        "text": { "ja": "壁に錆びたレバーがある。", "en": "A rusty lever juts from the wall." },
+        "options": [
+          {
+            "label": { "ja": "引く", "en": "Pull it" },
+            "steps": [
+              { "type": "flag", "id": "kit_example_lever_pulled" },
+              { "type": "text", "text": { "ja": "どこか下の階で、石の動く音がした。", "en": "Somewhere below, stone grinds against stone." } }
+            ]
+          },
+          {
+            "label": { "ja": "やめておく", "en": "Leave it" },
+            "steps": [
+              { "type": "again" }
+            ]
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "id": "kit_example_altar",
+    "note": "フラグを読む仕掛け。if の when でフラグを見る。まだなら again で、レバーを引いてから来れば起こる",
+    "place": "maze",
+    "once": "game",
+    "steps": [
+      {
+        "type": "if",
+        "when": [{ "type": "flag", "id": "kit_example_lever_pulled" }],
+        "then": [
+          { "type": "text", "text": { "ja": "祭壇の蓋が開いている。", "en": "The altar lid stands open." } },
+          { "type": "treasure", "count": 1 }
+        ],
+        "else": [
+          { "type": "text", "text": { "ja": "祭壇の蓋は固く閉じている。", "en": "The altar lid is shut tight." } },
+          { "type": "again" }
+        ]
+      }
+    ]
+  },
+  {
+    "id": "kit_example_switch",
+    "note": "門を開ける仕掛け。open の id と、地図の印 gate:<id> を合わせる",
+    "place": "maze",
+    "once": "game",
+    "steps": [
+      { "type": "text", "text": { "ja": "床のスイッチを踏むと、遠くで錠の外れる音がした。", "en": "A floor switch clicks; far away, a lock falls open." } },
+      { "type": "open", "id": "kit_example_gate" }
+    ]
+  }
+]

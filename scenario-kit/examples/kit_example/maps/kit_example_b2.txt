@@ -1,0 +1,22 @@
+# B2: 上り階段(u)から下へ。祭壇はレバーを引いたかで変わる。左下のスイッチが、右上の門(錠の扉 L と印 gate:)を開ける。
+# 門の奥に最下層の主(mark boss:final)。
+floor kit_example_b2
+name.ja 見本の下の階
+name.en Example Lower Floor
+size 4 4
+wrap none
+start 0 0 S
+walls
++-+-+-+-+
+|u      |
++ +-+-+L+
+|     | |
++ + + +-+
+|       |
++ + + + +
+|       |
++-+-+-+-+
+mark 3 0 gate:kit_example_gate
+mark 3 1 boss:final
+mark 2 2 event:kit_example_altar
+mark 0 3 event:kit_example_switch

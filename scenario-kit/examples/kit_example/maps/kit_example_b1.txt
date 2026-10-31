@@ -1,0 +1,21 @@
+# B1: 町からの上り階段(u)のある左上。鍵(mark key)を拾うと、錠の扉(L)を開けて右と下へ進める。
+# 下の左にレバー、右下に下り階段(d)。
+floor kit_example_b1
+name.ja 見本の上の階
+name.en Example Upper Floor
+size 4 4
+wrap none
+start 0 0 S
+walls
++-+-+-+-+
+|u  |   |
++ +-+ + +
+|   L   |
++-+-+ + +
+|   |   |
++ + + + +
+|      d|
++-+-+-+-+
+mark 1 0 key
+mark 0 1 message:kit_example_welcome
+mark 0 3 event:kit_example_lever

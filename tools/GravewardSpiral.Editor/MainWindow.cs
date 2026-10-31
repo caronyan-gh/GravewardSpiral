@@ -96,16 +96,33 @@ public sealed class MainWindow : Window
         names.Children.Add(nameRow);
         title.Children.Add(names);
         var commands = new StackPanel { Orientation = Orientation.Horizontal, HorizontalAlignment = HorizontalAlignment.Right, VerticalAlignment = VerticalAlignment.Center };
-        commands.Children.Add(BarButton("\uE710", T("新しく作る", "New"), NewScenario));
-        commands.Children.Add(BarButton("\uE8B7", T("開く", "Open"), OpenFolder, T("シナリオのフォルダを開く", "Open a scenario folder")));
-        commands.Children.Add(BarButton("\uE8C8", T("zip を開く", "Open zip"), OpenZip));
-        commands.Children.Add(BarButton("\uEDE1", T("zip に書き出す", "Export zip"), ExportZip));
-        commands.Children.Add(BarButton("", T("置き場所", "Folder"), OpenScenariosFolder, T($"シナリオの置き場所({_context.ScenariosDir})をエクスプローラーで開く", $"Open the scenario folder ({_context.ScenariosDir}) in Explorer")));
-        commands.Children.Add(BarButton("\uE792", T("名前を付けて保存", "Save As"), SaveAs, T("フォルダを丸ごと写して、新しい id の別のシナリオにする(第1部を元に改造するときなど)", "Copy the whole folder as a new scenario with a new id (e.g. to modify Part 1)")));
+        // たまに使うものは ▾ の中にまとめる(帯が混まないように)。保存・試し遊び・設定はそのまま
+        commands.Children.Add(MenuButton("\uE710", T("新しく作る", "New"),
+        [
+            (T("新しく作る", "New scenario"), NewScenario, null),
+            (T("AI エージェントで作る", "With an AI agent"), ShowAgentGuide, T("Claude Code や Codex などのエージェントにシナリオを作らせるときの案内(手引きのフォルダを開ける)", "How to have an agent such as Claude Code or Codex build a scenario (opens the guide folder)")),
+        ]));
+        commands.Children.Add(MenuButton("\uE8B7", T("開く", "Open"),
+        [
+            (T("フォルダを開く", "Open folder"), OpenFolder, T("シナリオのフォルダを開く", "Open a scenario folder")),
+            (T("zip を開く", "Open zip"), OpenZip, null),
+        ]));
+        commands.Children.Add(MenuButton("\uE8A5", T("ファイル", "File"),
+        [
+            (T("zip に書き出す", "Export zip"), ExportZip, null),
+            (T("名前を付けて保存", "Save As"), SaveAs, T("フォルダを丸ごと写して、新しい id の別のシナリオにする(第1部を元に改造するときなど)", "Copy the whole folder as a new scenario with a new id (e.g. to modify Part 1)")),
+            (T("置き場所を開く", "Open scenario folder"), OpenScenariosFolder, T($"シナリオの置き場所({_context.ScenariosDir})をエクスプローラーで開く", $"Open the scenario folder ({_context.ScenariosDir}) in Explorer")),
+        ]));
         commands.Children.Add(BarButton("\uE74E", T("保存", "Save"), () => Save(), primary: true));
         commands.Children.Add(BarButton("\uE768", T("試し遊び", "Test play"), TestPlay, T("保存してから、ゲームをこのシナリオのおまかせの6人で始める(セーブしない)", "Saves, then starts the game on this scenario with the default party of 6 (nothing is saved)"), primary: true));
         commands.Children.Add(BarButton("", T("設定", "Settings"), OpenSettings, T("画面の言語、AI のモデル、API キー", "Language, AI model, API key")));
+        // 狭い窓では、ボタンを優先して、題のほうを切る(重ならないように)
         var headerGrid = new Grid();
+        headerGrid.ColumnDefinitions.Add(new ColumnDefinition { Width = new GridLength(1, GridUnitType.Star) });
+        headerGrid.ColumnDefinitions.Add(new ColumnDefinition { Width = GridLength.Auto });
+        title.ClipToBounds = true;
+        title.Margin = new Thickness(0, 0, 10, 0);
+        Grid.SetColumn(commands, 1);
         headerGrid.Children.Add(title);
         headerGrid.Children.Add(commands);
         var bar = new Border
@@ -213,6 +230,29 @@ public sealed class MainWindow : Window
             Dispatcher.BeginInvoke(DispatcherPriority.ApplicationIdle, async () =>
             {
                 while (_tabList.OfType<StoryTab>().First().Busy) await Task.Delay(100);
+                if (EditorOptions.BarMenu is int barMenu && barMenu < _barMenus.Count)
+                {
+                    // 帯の ▾ の一覧を開いて、窓と一覧を撮る(--bar-menu N。確かめ用)
+                    var menu = _barMenus[barMenu];
+                    menu.IsOpen = true;
+                    await Dispatcher.Yield(DispatcherPriority.ApplicationIdle);
+                    SaveScreenshot(shot, this);
+                    SaveVisualScreenshot(Path.ChangeExtension(shot, ".dropdown.png"), menu, Brushes.White);
+                    menu.IsOpen = false;
+                    Close();
+                    return;
+                }
+                if (EditorOptions.AgentGuide)
+                {
+                    // 「AI エージェントで作る」の案内の窓(--agent-guide。確かめ用)
+                    var guide = new AgentGuideWindow(KitDir) { Owner = this, ShowActivated = false };
+                    guide.Show();
+                    await Dispatcher.Yield(DispatcherPriority.ApplicationIdle);
+                    SaveScreenshot(shot, guide);
+                    guide.Close();
+                    Close();
+                    return;
+                }
                 if (EditorOptions.AiDraft is { } ask)
                 {
                     // AI に下書きを頼む窓(--ai-draft event:希望 / item@元:希望 / monster@元:希望。確かめ用)
@@ -388,6 +428,31 @@ public sealed class MainWindow : Window
         return b;
     }
 
+    /// <summary>帯の ▾ の付いたボタン(押すと、下に項目の一覧を出す)。</summary>
+    private Button MenuButton(string icon, string label, (string Label, Action Run, string? Tip)[] items)
+    {
+        var b = BarButton(icon, label + "  ", () => { }, null);
+        // 「▾」はアイコンの字で出す(名前の後ろに小さく)
+        var text = (TextBlock)((StackPanel)b.Content).Children[1];
+        text.Inlines.Clear();
+        text.Inlines.Add(new System.Windows.Documents.Run(label));
+        text.Inlines.Add(new System.Windows.Documents.Run("  ") { FontFamily = Theme.Icons, FontSize = 9 });
+        var menu = new ContextMenu { PlacementTarget = b, Placement = System.Windows.Controls.Primitives.PlacementMode.Bottom };
+        foreach (var (itemLabel, run, tip) in items)
+        {
+            var item = new MenuItem { Header = itemLabel, ToolTip = tip };
+            item.Click += (_, _) => run();
+            menu.Items.Add(item);
+        }
+        b.Click += (_, _) => menu.IsOpen = true;
+        b.ContextMenu = menu;
+        _barMenus.Add(menu);
+        return b;
+    }
+
+    /// <summary>帯の ▾ の一覧(確かめ用の --bar-menu で開いて撮る)。</summary>
+    private readonly List<ContextMenu> _barMenus = [];
+
     public void Say(string text, bool warn = false)
     {
         _status.Text = text;
@@ -535,6 +600,12 @@ public sealed class MainWindow : Window
             : _tabList.OfType<DataTab>().First().AskAi(fromStandard: head.Length > 1, head.Length > 1 ? head[1] : null, head[0] == "monster" ? "monsters" : "items");
         return (window, wish);
     }
+
+    /// <summary>scenario-kit のフォルダ(Content の横。インストール先ではゲームと同じ所、開発ではリポジトリの根)。</summary>
+    private string KitDir => Path.Combine(Path.GetDirectoryName(Path.GetFullPath(_context.ContentRoot))!, "scenario-kit");
+
+    /// <summary>「AI エージェントで作る」: 案内の窓を出すだけ(エディタは AI を呼ばない)。</summary>
+    private void ShowAgentGuide() => new AgentGuideWindow(KitDir) { Owner = this }.ShowDialog();
 
     /// <summary>窓の中身を PNG に書く(確かめ用)。</summary>
     private static void SaveScreenshot(string path, Window window)

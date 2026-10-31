@@ -41,6 +41,16 @@ Some screens use Left and Right to switch tabs or pages. Check the controls show
 - Confirm: examine what is ahead or underfoot, such as a door, chest, or staircase.
 - Hold Shift (gamepad L2) and press Down: perform the opposite of the "Back key" setting. If Down normally steps backward, you turn around; if it normally turns around, you step backward.
 
+You can also move with the mouse (the "Maze mouse movement" option). Over the maze view, the cursor turns into an arrow for that area; click to do it. Hold the button to keep walking.
+
+- Small circle at the upper right: search (same as Confirm).
+- Top: move forward.
+- Upper left and upper right: turn left or right.
+- Lower left and lower right: strafe left or right.
+- Bottom left half: turn around. Bottom right half: step back.
+
+Turn on "Movement overlay" to see these areas and arrows faintly over the view.
+
 ### The Esc menu
 
 Press Esc to open the menu for Help, Options, and quitting. In the maze, it also offers Camp and "Suspend and Quit".
@@ -69,12 +79,12 @@ Choose "New Game" on the title screen, then select a scenario, clan, and difficu
 - Clan: the roster of characters you bring on the adventure. Create a new clan or keep using one from a previous adventure.
 - Difficulty: determines what happens after a party wipe, whether resurrection can fail, and how saving works. See "Difficulty" under "Options and More".
 
-A new world may carry over the party from a previous world, selecting available companions starting with the most recent world. Check the members and formation at the Tavern before setting out.
+A new world may carry over the party from a previous world, selecting available companions starting with the most recent world. Check the members and formation under Party at the Clan House before setting out.
 
 ### What to do first
 
 - Create characters at the Training Grounds. For a brief guide to each class, see "Races and classes" under "Characters".
-- Form a party of up to six at the Tavern. The first three members are the front row; the rest are the back row. Put melee fighters in front and companions using bows or spells in back.
+- Form a party of up to six under Party at the Clan House. The first three members are the front row; the rest are the back row. Put melee fighters in front and companions using bows or spells in back.
 - Check equipment under "Items". A weapon or armor in a pack is not equipped. Buy any gear or supplies you need at the Shop.
 - Check your spellcasters' spells at the Training Grounds. Some classes must prepare spells before using them, even if they already know them. "Auto-fill" fills unused choices.
 - Choose "Enter the Maze" in town to set out. You need a companion who can act.
@@ -87,9 +97,17 @@ Press Confirm at the up stairs on B1 to return to town. The game saves automatic
 
 ## Town Facilities
 
+### Clan House
+
+Your clan's shared base. Manage equipment, and under Party, form your party (add or remove companions and change their order) and use "View Status". A party holds up to six members: the first three are the front row and the rest are the back row. You can also deposit or withdraw items.
+
+Upgrades require gold and sometimes materials. They increase storage and add facilities. Once you have beds, you can take a long rest for free. Basic beds restore HP up to 70% of maximum; better beds restore it fully. HP above the recovery limit is not reduced.
+
+Other facilities offer benefits such as cheaper identification with a library. The screen shows the cost, materials, and facilities for an upgrade.
+
 ### Tavern
 
-Form and manage your party here. Add or remove companions and change their order. A party holds up to six members: the first three are the front row and the rest are the back row. You can also hear rumors from patrons.
+Hear rumors from patrons, such as where named foes lurk in the maze or news from town. Party forming is done under Party at the Clan House.
 
 ### Inn
 
@@ -111,14 +129,6 @@ Resurrect dead companions and treat conditions such as poison and paralysis. You
 ### Training Grounds
 
 Create characters, inspect their status, level up, rename them, or delete them. You can also change spell selections here. "Export Clan" saves the roster to a file.
-
-### Clan House
-
-Your clan's shared base. Deposit or withdraw items, manage equipment, and use "View Status" to inspect current party members.
-
-Upgrades require gold and sometimes materials. They increase storage and add facilities. Once you have beds, you can take a long rest for free. Basic beds restore HP up to 70% of maximum; better beds restore it fully. HP above the recovery limit is not reduced.
-
-Other facilities offer benefits such as cheaper identification with a library. The screen shows the cost, materials, and facilities for an upgrade.
 
 ### Enter the Maze
 
@@ -451,7 +461,7 @@ After a victory, unconscious survivors rise with 1 HP. Dead characters require r
 
 ### Ongoing damage
 
-Some attacks leave ongoing damage, such as burning or poison damage at the start of each turn. Depending on the effect, it ends after a set number of rounds or a successful save. Copies of the same effect do not stack, but different effects can apply together. Ongoing damage ends when combat ends.
+Some attacks leave ongoing damage, such as burning or poison. The damage lands at the start of the affected creature's own turn, before it acts. So a target that has not acted yet this round takes it in the same round, while one that has already acted takes it from its turn next round. Depending on the effect, it ends after a set number of rounds or a successful save at the end of its turn. Copies of the same effect do not stack, but different effects can apply together. Ongoing damage ends when combat ends.
 
 These effects are separate from conditions such as Poisoned, which may linger after combat.
 
@@ -623,12 +633,12 @@ On the 5e-style (gentle) difficulty setting, resurrection always succeeds, but s
 
 Difficulty determines what happens after a wipe.
 
-- Harsh: Everyone's body remains where the party fell. Those characters cannot join a party at the tavern. Form a rescue party with other characters and return for them.
+- Harsh: Everyone's body remains where the party fell. Those characters cannot join a party. Form a rescue party with other characters and return for them.
 - Gentle: The party is brought back to town. Unconscious characters recover with 1 HP, but those already dead remain dead. Each character loses half their gold.
 
 ### Rescuing bodies
 
-Form a rescue party at the tavern, travel to the square where the party fell, and press Confirm to investigate. Recovered bodies join empty party positions.
+Form a rescue party under Party at the Clan House, travel to the square where the party fell, and press Confirm to investigate. Recovered bodies join empty party positions.
 
 The party limit is six, including bodies. A full party has no room to carry anyone back. Leave enough positions empty for those you intend to rescue. A five-member rescue party can bring back one body.
 
@@ -644,15 +654,29 @@ Gentle settings save when returning to town or suspending in the dungeon. To sto
 
 ### Changing settings
 
-Open Options from the title screen, the Esc menu, or camp. Select an option with Up and Down, then change it with Left, Right, or Confirm. Returning with Cancel saves the settings.
+Open Options from the title screen, the Esc menu, or camp. Options are split into Basic, Gameplay, and Other tabs; switch tabs with Q and E (L1 and R1 on a pad) or by clicking a tab. Select an option with Up and Down, then change it with Left, Right, or Confirm. Returning with Cancel saves the settings.
+
+Basic tab:
 
 - Language: Change the display language.
 - BGM and sound volume: Adjust music and sound effects separately.
-- Battle log speed: Change how quickly battle messages appear.
-- Dungeon wireframe: Switch between color and monochrome.
+- Display: Switch between a window and fullscreen. F11 also toggles it.
+- Window size: Pick a 16:9 size from 1280×720 up to what fits your screen. While fullscreen, this sets the size used when you return to a window.
 - Story font: Change the font used for narrative text.
+- Dungeon wireframe: Switch between color and monochrome.
+
+Gameplay tab:
+
+- Battle log speed: Change how quickly battle messages appear.
+- Hold repeat: Choose slow, normal, fast, or fastest for how quickly the cursor moves and the party keeps walking while you hold a key or button.
 - Dungeon map: Choose minimap and map, map only, or no map.
 - Back key: Choose whether Down steps backward or turns around. Hold Shift to use the opposite behavior.
+- Maze mouse movement: Choose whether clicking the maze view moves the party (see "Moving in the maze" under Controls).
+- Movement overlay: Faintly draw the mouse areas and arrows over the maze view. Available only when maze mouse movement is on.
+- Spell level tabs: Choose whether the tabs above the spell list (in combat and camp) switch on click or when you hover the mouse over them.
+
+Other tab:
+
 - AI settings: Choose whether AI generates text for a free dungeon.
 - Scenario folder: Open the folder where scenarios are stored.
 

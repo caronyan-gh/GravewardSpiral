@@ -23,6 +23,16 @@ Some screens use Left and Right to switch tabs or pages. Check the controls show
 - Confirm: examine what is ahead or underfoot, such as a door, chest, or staircase.
 - Hold Shift (gamepad L2) and press Down: perform the opposite of the "Back key" setting. If Down normally steps backward, you turn around; if it normally turns around, you step backward.
 
+You can also move with the mouse (the "Maze mouse movement" option). Over the maze view, the cursor turns into an arrow for that area; click to do it. Hold the button to keep walking.
+
+- Small circle at the upper right: search (same as Confirm).
+- Top: move forward.
+- Upper left and upper right: turn left or right.
+- Lower left and lower right: strafe left or right.
+- Bottom left half: turn around. Bottom right half: step back.
+
+Turn on "Movement overlay" to see these areas and arrows faintly over the view.
+
 ## The Esc menu
 
 Press Esc to open the menu for Help, Options, and quitting. In the maze, it also offers Camp and "Suspend and Quit".

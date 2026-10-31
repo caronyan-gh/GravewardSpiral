@@ -9,8 +9,16 @@ namespace GravewardSpiral.Game.Input;
 /// </summary>
 public sealed class InputState
 {
-    private const double RepeatDelay = 0.35;
-    private const double RepeatInterval = 0.08;
+    /// <summary>
+    /// 押し続けたときの繰り返し(最初の待ちと、そのあとの間隔。メニューのカーソル、迷宮で歩くとき、マウスで押し続けて歩くときも同じ)。
+    /// 設定の「長押しの繰り返し」で変わる(GameOptions.Apply)。
+    /// </summary>
+    public static double RepeatDelay { get; set; } = 0.35;
+    public static double RepeatInterval { get; set; } = 0.08;
+
+    /// <summary>窓を選び直したときのクリック(放すまで)。ゲームの中のクリックにしない。</summary>
+    private bool _ignoreLeft;
+    private bool _wasActive;
 
     private readonly InputBindings _bindings;
     private readonly HashSet<GameAction> _held = [];
@@ -138,8 +146,12 @@ public sealed class InputState
 
         Mouse = windowActive ? screen.ToVirtual(mouse.Position) : null;
         MouseMoved = Mouse.HasValue && mouse.Position != _prevMouse.Position;
-        LeftClicked = Mouse.HasValue && mouse.LeftButton == ButtonState.Pressed && _prevMouse.LeftButton == ButtonState.Released;
-        LeftHeld = Mouse.HasValue && mouse.LeftButton == ButtonState.Pressed;
+        // 窓を選び直したときに押していたボタンは、放すまで数えない(選び直すクリックで、迷宮を歩いたりしない)
+        if (windowActive && !_wasActive && mouse.LeftButton == ButtonState.Pressed) _ignoreLeft = true;
+        if (mouse.LeftButton == ButtonState.Released) _ignoreLeft = false;
+        _wasActive = windowActive;
+        LeftClicked = Mouse.HasValue && !_ignoreLeft && mouse.LeftButton == ButtonState.Pressed && _prevMouse.LeftButton == ButtonState.Released;
+        LeftHeld = Mouse.HasValue && !_ignoreLeft && mouse.LeftButton == ButtonState.Pressed;
         RightClicked = Mouse.HasValue && mouse.RightButton == ButtonState.Pressed && _prevMouse.RightButton == ButtonState.Released;
         WheelDelta = windowActive ? (mouse.ScrollWheelValue - _prevMouse.ScrollWheelValue) / 120 : 0;
         if (RightClicked) _pressed.Add(GameAction.Cancel);

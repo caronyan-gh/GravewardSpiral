@@ -12,7 +12,7 @@ using Microsoft.Xna.Framework.Graphics;
 
 namespace GravewardSpiral.Game;
 
-public sealed class GravewardGame : Microsoft.Xna.Framework.Game
+public sealed class GravewardGame : Microsoft.Xna.Framework.Game, IDisplay
 {
     private static readonly Color Background = new(8, 10, 14);
 
@@ -26,6 +26,7 @@ public sealed class GravewardGame : Microsoft.Xna.Framework.Game
     private int _frame;
     private int _updates;
     private int _nextAction;
+    private Microsoft.Xna.Framework.Input.MouseCursor? _cursor;
 
     public GravewardGame(LaunchOptions options)
     {
@@ -90,6 +91,7 @@ public sealed class GravewardGame : Microsoft.Xna.Framework.Game
             Exit = Exit,
             Debug = _options.Debug,
             Options = startOptions,
+            Display = this,
             KeepVolume = _options.Volume != null,
             PersistOptions = _options.ScreenshotPath == null,
             // --saves のとき(確かめの起動)は、自由な迷宮から作るシナリオも、その横の使い捨ての場所に書く
@@ -148,6 +150,40 @@ public sealed class GravewardGame : Microsoft.Xna.Framework.Game
         _display.WindowHeight = b.Height;
     }
 
+    bool IDisplay.Fullscreen => _graphics.IsFullScreen;
+
+    (int Width, int Height) IDisplay.WindowSize => (_display.WindowWidth, _display.WindowHeight);
+
+    /// <summary>窓の大きさの候補(16:9)。画面に収まるものだけ(いちばん小さい 1280x720 はいつも出す)。</summary>
+    private static readonly (int Width, int Height)[] Sizes = [(1280, 720), (1600, 900), (1920, 1080), (2560, 1440), (3200, 1800), (3840, 2160)];
+
+    IReadOnlyList<(int Width, int Height)> IDisplay.WindowSizes
+    {
+        get
+        {
+            var mode = GraphicsAdapter.DefaultAdapter.CurrentDisplayMode;
+            return Sizes.Where(s => s.Width == 1280 || s.Width <= mode.Width && s.Height <= mode.Height).ToList();
+        }
+    }
+
+    void IDisplay.SetFullscreen(bool on)
+    {
+        if (on != _graphics.IsFullScreen) SetFullscreen(on);
+    }
+
+    void IDisplay.SetWindowSize(int width, int height)
+    {
+        _display.WindowWidth = width;
+        _display.WindowHeight = height;
+        if (_graphics.IsFullScreen) return;
+        _graphics.PreferredBackBufferWidth = width;
+        _graphics.PreferredBackBufferHeight = height;
+        _graphics.ApplyChanges();
+        // 大きくして画面からはみ出さないように、真ん中に置き直す
+        var mode = GraphicsAdapter.DefaultAdapter.CurrentDisplayMode;
+        Window.Position = new Point(Math.Max(0, (mode.Width - width) / 2), Math.Max(0, (mode.Height - height) / 2));
+    }
+
     private void SetFullscreen(bool on)
     {
         if (on)
@@ -183,7 +219,14 @@ public sealed class GravewardGame : Microsoft.Xna.Framework.Game
 
         // 確認用の起動の --drop: 少し待ってから、落としたことにする
         if (_updates == LaunchOptions.FramesPerAction && _options.Drop is { } drop) _services.DroppedFiles.Add(drop);
+        _services.Cursor = null;
         _services.Scenes.Update(gameTime, _input);
+        // 画面が決めたカーソル(迷宮のマウスの矢印など)を当てる。変わったときだけ
+        if (_services.Cursor != _cursor)
+        {
+            _cursor = _services.Cursor;
+            Microsoft.Xna.Framework.Input.Mouse.SetCursor(_cursor ?? Microsoft.Xna.Framework.Input.MouseCursor.Arrow);
+        }
         _services.DroppedFiles.Clear();
         _services.Audio.Update(gameTime.ElapsedGameTime.TotalSeconds);
         if (_services.Scenes.Count == 0) Exit();

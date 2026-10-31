@@ -61,6 +61,12 @@ public sealed class GameServices
     /// <summary>遊び方の設定(音量・ログの速さ・線画の色)。</summary>
     public required GameOptions Options { get; init; }
 
+    /// <summary>このフレームで使いたいマウスのカーソル(空なら普通の矢印)。ゲームがフレームごとに空に戻し、画面が決めたものを当てる。</summary>
+    public Microsoft.Xna.Framework.Input.MouseCursor? Cursor { get; set; }
+
+    /// <summary>画面(全画面と窓の大きさ)。設定の画面から変える。</summary>
+    public IDisplay? Display { get; init; }
+
     /// <summary>音量を設定で変えない(起動の引数 --volume で決めたとき)。</summary>
     public bool KeepVolume { get; init; }
 

@@ -16,6 +16,9 @@ public static class DirectionExtensions
 
     public static char Letter(this Direction d) => "NESW"[(int)d];
 
+    /// <summary>日本語の名前(北・東・南・西)。</summary>
+    public static string JaName(this Direction d) => "北東南西"[(int)d].ToString();
+
     public static Direction FromLetter(char c) => char.ToUpperInvariant(c) switch
     {
         'N' => Direction.North,

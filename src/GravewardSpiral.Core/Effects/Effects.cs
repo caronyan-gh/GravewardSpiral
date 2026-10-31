@@ -64,6 +64,21 @@ public sealed class EffectPart
     /// <summary>kill で、一撃で倒す確率(百分率。Wizardry の首はね)。HP に関わらず倒し、くらう側は resist_instant_kill の能力でこらえられる。</summary>
     public int? Chance { get; set; }
 
+    /// <summary>
+    /// 戦闘のログで、このダメージの行に添える出どころ(急所攻撃・ボーナスアクションの攻撃など、おまけの分だけ)。
+    /// 文言のキー(passive. / combat.src. / feature. で始まる)か、名前(LocalizedText)。データには書かない(コアが付ける)。
+    /// </summary>
+    [System.Text.Json.Serialization.JsonIgnore]
+    public object? Label { get; set; }
+
+    /// <summary>写しに出どころを付けたもの(定義の部品は書き換えない)。</summary>
+    public EffectPart WithLabel(object label)
+    {
+        var copy = (EffectPart)MemberwiseClone();
+        copy.Label = label;
+        return copy;
+    }
+
     /// <summary>kill の chance で倒したときの文言のキー(省くと combat.instant_killed。首をはねるなら combat.decapitated)。</summary>
     public string? Message { get; set; }
 

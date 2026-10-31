@@ -28,6 +28,25 @@ public class TrapTests
     }
 
     [Fact]
+    public void TheDisarmListPutsWhatInspectingShowedOnTopMostSeenFirst()
+    {
+        var chest = new Chest { Trap = "gas_bomb" };
+        Assert.Equal(Chest.Names(Data), chest.GuessOrder(Data));
+        chest.Readings.AddRange(["stunner", "gas_bomb", "gas_bomb", "", "stunner", "gas_bomb"]);
+        var order = chest.GuessOrder(Data);
+        Assert.Equal(["gas_bomb", "stunner", "", "poison_needle", "crossbow_bolt"], order.Take(5));
+        Assert.Equal(Chest.Names(Data).Count, order.Count);
+
+        // 調べると、出た名前が残る
+        var c = Make(Data, "rogue");
+        for (int i = 0; i < 20; i++)
+        {
+            var (seen, triggered) = chest.Inspect(Data, c, new Pcg32((ulong)i, 1));
+            if (!triggered) Assert.Equal(seen, chest.Readings[^1]);
+        }
+    }
+
+    [Fact]
     public void TheChestSetHoldsTheNineTrapsAndKillsAtZero()
     {
         var set = Data.TrapSets[TrapSetDef.Chest];

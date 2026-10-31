@@ -14,6 +14,9 @@ public sealed class TextureCache : IDisposable
 
     public TextureCache(GraphicsDevice device) => _device = device;
 
+    /// <summary>コードで絵を作るとき(迷宮のマウスの矢印など)に使う。</summary>
+    public GraphicsDevice Device => _device;
+
     /// <summary>path は Content からの相対パス(例: srd/art/title/logo.png)か、絶対パス(シナリオのパックの画像)。</summary>
     public Texture2D? Get(string path)
     {

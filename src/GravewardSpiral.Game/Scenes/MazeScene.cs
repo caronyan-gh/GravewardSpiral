@@ -124,6 +124,7 @@ public sealed class MazeScene : Scene
             _version = Stack.Version;
             AutoSave();
             _waitMoveRelease = true;
+            _mouseHeld = MouseMove.None;   // マウスの押しっぱなしでも、戻ってきたら歩き続けない
         }
         // 戻ってきたあとは、移動のキーを全部放すか、新しく押すまで、押しっぱなしでは歩かない
         if (_waitMoveRelease && (!MoveActions.Any(input.Held) || MoveActions.Any(input.Pressed))) _waitMoveRelease = false;
@@ -137,7 +138,19 @@ public sealed class MazeScene : Scene
         if (Services.Debug && DebugKeys()) return;
         bool walk = !_waitMoveRelease;   // 押しっぱなしのまま戻ってきたあいだは、歩かない(回転やメニューはできる)
         bool backTurns = BackTurns(input);
-        if (walk && input.Repeat(GameAction.Up))
+        var mouse = MouseAction(time, input);
+        if (mouse == MouseMove.Back && walk)
+        {
+            // マウスの「下がる」は、後ろのキーの設定によらず下がる(振り向くは別の領域)
+            bool door = ThroughDoor(State.Position.Facing.Opposite());
+            _moveDir = State.Position.Facing.Opposite();
+            _stepFrom = State.Position.Cell;
+            _entered = "back";
+            Report(_nav.Backward(), door);
+        }
+        else if (mouse == MouseMove.TurnAround) Turned(_nav.TurnAround());
+        else if (mouse == MouseMove.Search) UseOrSearch();
+        else if (walk && (input.Repeat(GameAction.Up) || mouse == MouseMove.Forward))
         {
             bool door = ThroughDoor(State.Position.Facing);   // 動く前に、これから通る辺を見る
             _moveDir = State.Position.Facing;
@@ -154,17 +167,17 @@ public sealed class MazeScene : Scene
             _entered = "back";
             Report(_nav.Backward(), door);
         }
-        else if (walk && (input.Repeat(GameAction.StrafeLeft) || input.Repeat(GameAction.StrafeRight)))
+        else if (walk && (input.Repeat(GameAction.StrafeLeft) || input.Repeat(GameAction.StrafeRight) || mouse is MouseMove.StrafeLeft or MouseMove.StrafeRight))
         {
-            var dir = input.Repeat(GameAction.StrafeLeft) ? State.Position.Facing.Left() : State.Position.Facing.Right();
+            var dir = input.Repeat(GameAction.StrafeLeft) || mouse == MouseMove.StrafeLeft ? State.Position.Facing.Left() : State.Position.Facing.Right();
             bool door = ThroughDoor(dir);
             _moveDir = dir;
             _stepFrom = State.Position.Cell;
             _entered = dir == State.Position.Facing.Left() ? "left" : "right";
             Report(dir == State.Position.Facing.Left() ? _nav.StrafeLeft() : _nav.StrafeRight(), door);
         }
-        else if (input.Pressed(GameAction.Left)) Turned(_nav.TurnLeft());
-        else if (input.Pressed(GameAction.Right)) Turned(_nav.TurnRight());
+        else if (input.Pressed(GameAction.Left) || mouse == MouseMove.TurnLeft) Turned(_nav.TurnLeft());
+        else if (input.Pressed(GameAction.Right) || mouse == MouseMove.TurnRight) Turned(_nav.TurnRight());
         else if (input.Pressed(GameAction.Confirm)) UseOrSearch();
         else if (input.Pressed(GameAction.Map) && !Services.Options.AllowMap) Say(Services.Strings["maze.no_map"]);
         else if (input.Pressed(GameAction.Map))
@@ -188,6 +201,72 @@ public sealed class MazeScene : Scene
     }
 
     private bool InFog => State.Cell.Zone.HasFlag(Zone.Fog);
+
+    /// <summary>マウスで押し続けている歩く動き(押したままなら、キーと同じ間隔で繰り返す)と、押している時間。</summary>
+    private MouseMove _mouseHeld;
+    private double _mouseHeldTime;
+
+    /// <summary>
+    /// 迷宮の絵をマウスで押したときの動き(設定で使うときだけ)。絵の上では、その領域の矢印をカーソルにする。
+    /// 押した瞬間に1回。歩く動きは、押したまま同じ領域にいれば繰り返す。
+    /// </summary>
+    private MouseMove MouseAction(GameTime time, InputState input)
+    {
+        if (!Services.Options.MazeMouse || input.Mouse is not { } m)
+        {
+            _mouseHeld = MouseMove.None;
+            return MouseMove.None;
+        }
+        var zone = MouseZones.At(ViewArea.X, ViewArea.Y, ViewArea.Width, ViewArea.Height, m.X, m.Y);
+        if (zone != MouseMove.None) Services.Cursor = MazeCursors.Cursor(Services.Textures.Device, zone);
+        if (input.LeftClicked && zone != MouseMove.None)
+        {
+            _mouseHeld = MouseZones.Repeats(zone) ? zone : MouseMove.None;
+            _mouseHeldTime = 0;
+            return zone;
+        }
+        if (_mouseHeld == MouseMove.None || !input.LeftHeld || zone != _mouseHeld)
+        {
+            _mouseHeld = MouseMove.None;
+            return MouseMove.None;
+        }
+        double before = _mouseHeldTime;
+        _mouseHeldTime += time.ElapsedGameTime.TotalSeconds;
+        double delay = InputState.RepeatDelay, interval = InputState.RepeatInterval;
+        return _mouseHeldTime >= delay && Math.Floor((_mouseHeldTime - delay) / interval) != Math.Floor((before - delay) / interval) ? zone : MouseMove.None;
+    }
+
+    /// <summary>マウスの領域を、絵の上に薄く重ねる(設定でオンのとき): 区切りの線、各領域の矢印、右上の調べる円(点線)。</summary>
+    private void DrawMouseOverlay(Draw2D d)
+    {
+        var a = ViewArea;
+        var c = new Vector2(a.X + a.Width / 2, a.Y + a.Height / 2);
+        var line = new Color(170, 200, 230) * 0.18f;   // 迷宮の線画のじゃまにならないよう、暗めに
+        // 角から角への対角線、真ん中の横線、真ん中から下への縦線
+        d.Line(new Vector2(a.X, a.Y), new Vector2(a.X + a.Width, a.Y + a.Height), line, 1.5f);
+        d.Line(new Vector2(a.X + a.Width, a.Y), new Vector2(a.X, a.Y + a.Height), line, 1.5f);
+        d.Line(new Vector2(a.X, c.Y), new Vector2(a.X + a.Width, c.Y), line, 1.5f);
+        d.Line(c, new Vector2(c.X, a.Y + a.Height), line, 1.5f);
+        // 調べる円(点線。ほかの領域の上に乗っている)
+        var sc = new Vector2(a.X + a.Width * MouseZones.SearchX, a.Y + a.Height * MouseZones.SearchY);
+        float r = a.Height * MouseZones.SearchRadius;
+        for (int i = 0; i < 40; i += 2)
+        {
+            double t0 = Math.PI * 2 * i / 40, t1 = Math.PI * 2 * (i + 1) / 40;
+            d.Line(sc + new Vector2((float)Math.Cos(t0), (float)Math.Sin(t0)) * r, sc + new Vector2((float)Math.Cos(t1), (float)Math.Sin(t1)) * r, line, 1.5f);
+        }
+        // 矢印(領域のだいたい真ん中に)
+        var icons = new (MouseMove Move, float X, float Y)[]
+        {
+            (MouseMove.Search, MouseZones.SearchX, MouseZones.SearchY), (MouseMove.Forward, 0.5f, 0.17f),
+            (MouseMove.TurnLeft, 0.13f, 0.38f), (MouseMove.TurnRight, 0.87f, 0.38f),
+            (MouseMove.StrafeLeft, 0.13f, 0.62f), (MouseMove.StrafeRight, 0.87f, 0.62f),
+            (MouseMove.TurnAround, 0.42f, 0.85f), (MouseMove.Back, 0.58f, 0.85f),
+        };
+        const float size = 44;
+        foreach (var (move, fx, fy) in icons)
+            d.Image(MazeCursors.Texture(Services.Textures.Device, move), new RectangleF(a.X + a.Width * fx - size / 2, a.Y + a.Height * fy - size / 2, size, size), Color.White * 0.2f);
+    }
 
     /// <summary>後ろのキーで振り向くか(設定で「振り向く」なら振り向き、Shift か L2 を押しながらだと逆)。</summary>
     private bool BackTurns(InputState input) => (Services.Options.BackKey == "turn") != input.Held(GameAction.Reverse);
@@ -782,9 +861,10 @@ public sealed class MazeScene : Scene
 
     private string FloorLabel()
     {
+        // 名前は物語(worlds.json の階)を先に、無ければ地図の名前(画面の言語のほう)、無ければ階のテーマ
         var f = State.Floor;
-        var themeName = WorldFloor?.Name ?? CurrentTheme?.Name;
-        string? name = f.NameJa ?? f.NameEn ?? (themeName is { } tn ? Services.Name(tn) : null);
+        string? mapName = GameServices.Language == "en" ? f.NameEn ?? f.NameJa : f.NameJa ?? f.NameEn;
+        string? name = WorldFloor?.Name is { } wn ? Services.Name(wn) : mapName ?? (CurrentTheme?.Name is { } tn ? Services.Name(tn) : null);
         return name == null ? $"B{State.Position.Floor + 1}" : $"B{State.Position.Floor + 1} {name}";
     }
 
@@ -793,7 +873,9 @@ public sealed class MazeScene : Scene
     private void SayFloorEnter()
     {
         Services.Audio.PlayBgm(Services.BgmFor(Bgm, State.Position.Floor), gain: BgmGain);
-        if (State.Floor.NameJa == null && State.Floor.NameEn == null && (WorldFloor?.Enter ?? CurrentTheme?.Enter) is { } text) Say(Services.Name(text));
+        // 入ったときの文は、物語(worlds.json の階)にあればいつも出す。階のテーマの文は、地図に名前の無い階(自動生成)だけ
+        var text = WorldFloor?.Enter ?? (State.Floor.NameJa == null && State.Floor.NameEn == null ? CurrentTheme?.Enter : null);
+        if (text != null) Say(Services.Name(text));
     }
 
     private void Say(string message)
@@ -807,6 +889,7 @@ public sealed class MazeScene : Scene
         var s = Services.Strings;
         d.Primitives(ViewArea, pb => WireframeRenderer.Draw(pb, State, ViewArea, _time));
         d.Rect(ViewArea, new Color(70, 90, 110), 1.5f);
+        if (Services.Options.MazeMouse && Services.Options.MazeMouseOverlay) DrawMouseOverlay(d);
         if (State.InDark)
             d.Text(s["maze.darkness"], new Vector2(ViewArea.X + ViewArea.Width / 2, ViewArea.Y + ViewArea.Height / 2 - 16), 28, new Color(90, 100, 110), TextAlign.Center, FontStyle.Story);
 
@@ -832,7 +915,11 @@ public sealed class MazeScene : Scene
             DrawWrapped(d, _messages[i], new Vector2(InfoArea.X + 16, InfoArea.Y + 44 + (i - start) * 30), InfoArea.Width - 32, 19,
                 latest ? Color.White : Theme.Dim);
         }
-        d.Text(s.Format("maze.help", s[Services.Options.BackKey == "turn" ? "maze.help.turn" : "maze.help.step"]), new Vector2(InfoArea.X + 16, InfoArea.Y + InfoArea.Height - 40), 13, Theme.Dim);
+        // キーの説明(2行)。長い行(言語や後ろのキーの設定で変わる)も枠に収まるよう、字を小さくする
+        string help = s.Format("maze.help", s[Services.Options.BackKey == "turn" ? "maze.help.turn" : "maze.help.step"]);
+        float widest = help.Split('\n').Max(l => d.Fonts.Measure(l, 13).X);
+        float helpSize = Math.Min(13f, 13f * (InfoArea.Width - 48) / Math.Max(1f, widest));   // 測った幅より少し広く描かれることがあるので、余白を多めに
+        d.Text(help, new Vector2(InfoArea.X + 16, InfoArea.Y + InfoArea.Height - 40 + (13 - helpSize)), helpSize, Theme.Dim);
 
         PartyPanel.Draw(d, Services, PartyArea);
     }
