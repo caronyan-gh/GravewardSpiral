@@ -1,3 +1,4 @@
+using System.IO.Compression;
 using System.Text.Json;
 using System.Text.Json.Serialization;
 using GravewardSpiral.Core.Characters;
@@ -38,8 +39,11 @@ public sealed class SaveStore
 
     public string Root { get; }
 
-    private string ClanDir(string clanId) => Path.Combine(Root, clanId);
-    private string WorldDir(string clanId, string worldKey) => Path.Combine(ClanDir(clanId), WorldsDir, worldKey);
+    /// <summary>クランのフォルダ(解散するとき、ごみ箱へ移すのに使う)。</summary>
+    public string ClanDir(string clanId) => Path.Combine(Root, clanId);
+
+    /// <summary>世界のフォルダ(消すとき、ごみ箱へ移すのに使う)。</summary>
+    public string WorldDir(string clanId, string worldKey) => Path.Combine(ClanDir(clanId), WorldsDir, worldKey);
 
     /// <summary>世界のファイル(テストと確かめ用)。</summary>
     public string WorldFile(string clanId, string worldKey) => Path.Combine(WorldDir(clanId, worldKey), WorldFileName);
@@ -152,6 +156,94 @@ public sealed class SaveStore
     {
         var dir = WorldDir(clanId, worldKey);
         if (Directory.Exists(dir)) Directory.Delete(dir, recursive: true);
+    }
+
+    /// <summary>クランを持ち出すファイルの拡張子(中は zip。clan.json と worlds/&lt;世界&gt;/world.json を、セーブのフォルダと同じ形で入れる)。</summary>
+    public const string ClanExtension = ".gsclan";
+
+    /// <summary>書き出すときに勧めるファイル名(クランの名前。ファイル名に使えない字は _)。</summary>
+    public static string ClanFileNameFor(string name)
+    {
+        string safe = string.Concat(name.Select(ch => Path.GetInvalidFileNameChars().Contains(ch) ? '_' : ch)).Trim();
+        return (safe.Length == 0 ? "clan" : safe) + ClanExtension;
+    }
+
+    /// <summary>
+    /// クランを世界ごと、1つのファイル(.gsclan)に書き出す(置き換えの途中で落ちた世界は先に戻す)。書いたファイルを読み直して確かめる。
+    /// 手元のクランは消さない(消すのは呼ぶ側。書けたのを確かめてから)。
+    /// </summary>
+    public void ExportClan(string clanId, string path)
+    {
+        string clanPath = Path.Combine(ClanDir(clanId), ClanFileName);
+        if (!File.Exists(clanPath)) throw new InvalidDataException("クランがありません");
+        ReadWorlds(clanId);
+        string full = Path.GetFullPath(path);
+        Directory.CreateDirectory(Path.GetDirectoryName(full)!);
+        string tmp = full + ".tmp";
+        using (var zip = System.IO.Compression.ZipFile.Open(tmp, System.IO.Compression.ZipArchiveMode.Create))
+        {
+            zip.CreateEntryFromFile(clanPath, ClanFileName);
+            string dir = Path.Combine(ClanDir(clanId), WorldsDir);
+            if (Directory.Exists(dir))
+                foreach (var w in Directory.EnumerateDirectories(dir))
+                {
+                    string file = Path.Combine(w, WorldFileName);
+                    if (File.Exists(file)) zip.CreateEntryFromFile(file, $"{WorldsDir}/{Path.GetFileName(w)}/{WorldFileName}");
+                }
+        }
+        if (ReadClanArchive(tmp).Id != clanId) throw new InvalidDataException("書き出したファイルを読み直せません");
+        File.Move(tmp, full, overwrite: true);
+    }
+
+    /// <summary>.gsclan のクラン(clan.json)を読む。中の形が違えば InvalidDataException。</summary>
+    public static ClanData ReadClanArchive(string path)
+    {
+        using var zip = System.IO.Compression.ZipFile.OpenRead(path);
+        var entry = zip.GetEntry(ClanFileName) ?? throw new InvalidDataException("クランのファイルではありません");
+        using var reader = new StreamReader(entry.Open());
+        var clan = JsonSerializer.Deserialize<ClanData>(reader.ReadToEnd(), Json) ?? throw new InvalidDataException("クランが読めません");
+        if (!SafeKey(clan.Id)) throw new InvalidDataException($"クランの id が使えません: {clan.Id}");
+        return clan;
+    }
+
+    /// <summary>世界の key やクランの id が、フォルダの名前に使えるか(読み込むファイルの名前で、ほかの場所に書かないように)。</summary>
+    private static bool SafeKey(string key) =>
+        key.Length > 0 && key != "." && key != ".." && key.IndexOfAny(Path.GetInvalidFileNameChars()) < 0;
+
+    /// <summary>
+    /// 書き出したクラン(.gsclan)を読み込み、名簿も世界も元どおりに戻す。同じクランがもう一覧にあれば戻さない(InvalidDataException)。
+    /// 中にあってよいのは clan.json と worlds/&lt;世界&gt;/world.json だけ。読み込んだクランの id と名前を返す。
+    /// </summary>
+    public (string ClanId, string? Name) ImportClan(string path)
+    {
+        var clan = ReadClanArchive(path);
+        if (Directory.Exists(ClanDir(clan.Id))) throw new InvalidDataException("同じクランがもう一覧にあります");
+        using var zip = System.IO.Compression.ZipFile.OpenRead(path);
+        var worlds = new List<(string Key, System.IO.Compression.ZipArchiveEntry Entry)>();
+        foreach (var e in zip.Entries)
+        {
+            if (e.FullName == ClanFileName) continue;
+            var parts = e.FullName.Split('/');
+            if (parts.Length != 3 || parts[0] != WorldsDir || parts[2] != WorldFileName || !SafeKey(parts[1]))
+                throw new InvalidDataException($"クランのファイルに知らないものがあります: {e.FullName}");
+            worlds.Add((parts[1], e));
+        }
+        try
+        {
+            foreach (var (key, e) in worlds)
+            {
+                Directory.CreateDirectory(WorldDir(clan.Id, key));
+                e.ExtractToFile(WorldFile(clan.Id, key));
+            }
+            Directory.CreateDirectory(ClanDir(clan.Id));   // 世界の無いクランでも、クランのフォルダを作る
+            zip.GetEntry(ClanFileName)!.ExtractToFile(Path.Combine(ClanDir(clan.Id), ClanFileName));
+        }
+        catch
+        {
+            DeleteClan(clan.Id);   // 途中で失敗したら、半端なクランを残さない
+            throw;
+        }
+        return (clan.Id, clan.Name);
     }
 
     public void DeleteClan(string clanId)
@@ -344,6 +436,12 @@ public sealed class ClanData
     public Dictionary<string, int> LegendsHeard { get; set; } = [];
     /// <summary>世界ごとの、最後にこのクランと一緒に保存した印(世界の key → SaveData.SaveId)。食い違いを見つけるのに使う。</summary>
     public Dictionary<string, string> WorldSaves { get; set; } = [];
+
+    /// <summary>
+    /// 世界のほかに、このクランで遊んだことにするシナリオ(前の形のクランファイルから読み込んだクランが持っている)。
+    /// シリーズのシナリオへ連れて入れるかに使う(ClanImport)。世界を消しても、遊んだことは残す。
+    /// </summary>
+    public List<string?> PlayedBefore { get; set; } = [];
 
     public static ClanData From(GameSession s) => new()
     {

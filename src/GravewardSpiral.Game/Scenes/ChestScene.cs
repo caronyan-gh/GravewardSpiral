@@ -185,6 +185,18 @@ public sealed class ChestScene(Chest chest, Action onTeleport, Action onAlarm) :
         Go(Mode.Done);
     }
 
+    public override void Update(GameTime time, Input.InputState input)
+    {
+        // 開けたあとは、戦闘の結果と同じく、どこを左クリックしても閉じる
+        if (_mode == Mode.Done && input.LeftClicked)
+        {
+            Services.Audio.PlaySe(Sounds.Confirm);
+            Stack.Pop();
+            return;
+        }
+        base.Update(time, input);
+    }
+
     protected override void Cancel()
     {
         if (_mode is Mode.Main or Mode.Done) Stack.Pop();

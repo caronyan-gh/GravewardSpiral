@@ -51,6 +51,12 @@ public sealed class TitleScene : Scene
             Dropped(Services.DroppedFiles[0]);
             return;
         }
+        // ダブルクリックで開かれたファイル(ゲームを起こしたものと、動いているあいだに渡されたもの)
+        if (SingleInstance.Pending.TryDequeue(out var opened))
+        {
+            Dropped(opened);
+            return;
+        }
 
         if (input.Repeat(GameAction.Up)) _cursor = (_cursor + MenuKeys.Length - 1) % MenuKeys.Length;
         if (input.Repeat(GameAction.Down)) _cursor = (_cursor + 1) % MenuKeys.Length;
@@ -133,13 +139,8 @@ public sealed class TitleScene : Scene
         }
         if (key == "title.continue")
         {
-            if (Services.Saves.HasAny())
-            {
-                Stack.Replace(new ContinueScene());
-                return;
-            }
-            _message = Services.Strings["title.no_save"];
-            _messageTime = 2.0;
+            // セーブが無くても開く(書き出したクランを読み込めるように)
+            Stack.Replace(new ContinueScene());
             return;
         }
         _message = Services.Strings["title.not_yet"];
@@ -156,6 +157,13 @@ public sealed class TitleScene : Scene
     private void Dropped(string path)
     {
         var s = Services.Strings;
+        // クランのファイルは、続きからで読み込む
+        if (path.EndsWith(Core.Save.SaveStore.ClanExtension, StringComparison.OrdinalIgnoreCase))
+        {
+            Services.Audio.PlaySe(Sounds.Confirm);
+            Stack.Replace(new ContinueScene(importPath: path));
+            return;
+        }
         var check = ScenarioInstall.Check(path, Services.UserScenarios, [AppPaths.BundledScenarios], AppPaths.ScenarioCache);
         if (check.Info is not { } info)
         {

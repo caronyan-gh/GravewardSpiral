@@ -25,7 +25,7 @@ GRAVEWARD SPIRAL のシナリオは、データ(JSON と迷宮のテキスト)�
   - 道具のコマンドごとの説明は `ScenarioCheck <コマンド> --help`(例: `new --help`)。
 
   - パスは Windows の形(`C:\...`)で渡す。Git Bash の `/tmp/...` や `/c/...` の形は、ゲームとエディタが読めない(`cygpath -w` で直す)。PowerShell で `&` を付けて起こすときは、`& "C:\...\ScenarioCheck.exe" check "C:\...\my_scenario"` のように、exe とパスを引用符で囲む。
-  - 作るシナリオは、自分の作業フォルダで作り、できたら Scenarios に置く(か zip にしてタイトル画面に落とす)。
+  - 作るシナリオは、自分の作業フォルダで作り、できたら Scenarios に置く(かエディタで .gssnro に書き出して、ダブルクリックするかタイトル画面に落とす)。
 - **JSON と手引きは UTF-8 のまま読み書きする**。Windows PowerShell 5 の `Get-Content` は、指定しないと日本語を化けて読む(この README も)。読むときは必ず `Get-Content -Encoding UTF8 <ファイル>`、書くときも `Set-Content -Encoding utf8` にする。
   - PowerShell の `ConvertTo-Json` は、パイプで渡した要素が1つだけの配列を、配列でない1つのオブジェクトにしてしまう。一番上が配列のファイル(`dungeons.json`・`bosses.json`・`encounters.json`・`worlds.json`・`events.json`・`monsters.json`・`items.json` など。`manifest.json` と `text/*.json` はオブジェクト)は、`ConvertTo-Json -InputObject @($list) -Depth 20` のように渡して、`[ ]` のまま保つ。書いたあとは `check` を流す(形が崩れると読み込みで × が出る)。
 - **同梱のシナリオを写して始めるときは、`manifest.json` の `id` と `guid` を新しくする**。同じ id・guid のままだと、元のシナリオと同じ物として扱われる。
@@ -86,7 +86,7 @@ GRAVEWARD SPIRAL のシナリオは、データ(JSON と迷宮のテキスト)�
 | 使える id の一覧 | `ScenarioCheck list monsters\|items\|conditions\|skills\|abilities\|damage\|classes\|races\|sounds`(モンスターは `--cr 1/4-3 --type undead,construct` で絞れる) |
 | 座標つきの地図 | `ScenarioCheck map <フォルダ> [--floor N]` |
 | 仕上げの点検(最後に流して、報告に貼る) | `ScenarioCheck finish <フォルダ>` |
-| まとめての検査(エディタの「検査」と同じ) | `ScenarioCheck check <フォルダか zip>` |
+| まとめての検査(エディタの「検査」と同じ) | `ScenarioCheck check <フォルダか .gssnro>` |
 | ボットに通しで遊ばせる | `ScenarioCheck check <フォルダ> --bots 5 [--party fighter,cleric,wizard] [--level 5]`(既定は標準の6人・Lv 1。推奨レベルの下限で見るなら `--level` を付ける) |
 | 決めていない中身を埋める | `ScenarioCheck fill <フォルダ> [--seed 1]`(フォルダを書き換える) |
 | クラスのレベルごとのスロット・覚える数・使える呪文 | `ScenarioCheck spells <クラス> --scenario <フォルダ>` |

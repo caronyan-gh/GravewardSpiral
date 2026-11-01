@@ -10,11 +10,17 @@ namespace GravewardSpiral.Game.Input;
 public sealed class InputState
 {
     /// <summary>
-    /// 押し続けたときの繰り返し(最初の待ちと、そのあとの間隔。メニューのカーソル、迷宮で歩くとき、マウスで押し続けて歩くときも同じ)。
-    /// 設定の「長押しの繰り返し」で変わる(GameOptions.Apply)。
+    /// 押し続けたときの繰り返し(最初の待ちと、そのあとの間隔。秒)。カーソルはメニューなど、移動は迷宮で歩き続けるとき(マウスで押し続けて歩くときも)。
+    /// 設定の「カーソルの繰り返し」「移動の繰り返し」で変わる(GameOptions.Apply)。
     /// </summary>
     public static double RepeatDelay { get; set; } = 0.35;
     public static double RepeatInterval { get; set; } = 0.08;
+    public static double MoveRepeatDelay { get; set; } = 0.35;
+    public static double MoveRepeatInterval { get; set; } = 0.08;
+
+    /// <summary>押し続けた時間が before から after に進むあいだに、繰り返しの1回が来るか。</summary>
+    public static bool RepeatTick(double before, double after, double delay, double interval) =>
+        after >= delay && (before < delay || Math.Floor((after - delay) / interval) != Math.Floor((before - delay) / interval));
 
     /// <summary>窓を選び直したときのクリック(放すまで)。ゲームの中のクリックにしない。</summary>
     private bool _ignoreLeft;
@@ -24,6 +30,7 @@ public sealed class InputState
     private readonly HashSet<GameAction> _held = [];
     private readonly HashSet<GameAction> _pressed = [];
     private readonly HashSet<GameAction> _repeated = [];
+    private readonly HashSet<GameAction> _moveRepeated = [];
     private readonly Dictionary<GameAction, double> _heldTime = [];
     private KeyboardState _prevKeys;
     private MouseState _prevMouse;
@@ -86,6 +93,9 @@ public sealed class InputState
     /// <summary>押した瞬間と、押し続けたときの繰り返し(メニューのカーソル用)。</summary>
     public bool Repeat(GameAction action) => _repeated.Contains(action);
 
+    /// <summary>押した瞬間と、押し続けたときの繰り返し(迷宮で歩き続ける用。間隔は移動の設定)。</summary>
+    public bool RepeatMove(GameAction action) => _moveRepeated.Contains(action);
+
     public void Update(GameTime time, VirtualScreen screen, bool windowActive)
     {
         var keys = Keyboard.GetState();
@@ -95,6 +105,7 @@ public sealed class InputState
 
         _pressed.Clear();
         _repeated.Clear();
+        _moveRepeated.Clear();
         foreach (var action in Enum.GetValues<GameAction>())
         {
             bool down = windowActive && (_bindings.KeysFor(action).Any(k => KeyDown(keys, k))
@@ -104,6 +115,7 @@ public sealed class InputState
             {
                 _pressed.Add(action);
                 _repeated.Add(action);
+                _moveRepeated.Add(action);
                 _heldTime[action] = 0;
                 _held.Add(action);
             }
@@ -112,8 +124,8 @@ public sealed class InputState
                 double before = _heldTime[action];
                 double after = before + dt;
                 _heldTime[action] = after;
-                if (after >= RepeatDelay && Math.Floor((after - RepeatDelay) / RepeatInterval) != Math.Floor((before - RepeatDelay) / RepeatInterval))
-                    _repeated.Add(action);
+                if (RepeatTick(before, after, RepeatDelay, RepeatInterval)) _repeated.Add(action);
+                if (RepeatTick(before, after, MoveRepeatDelay, MoveRepeatInterval)) _moveRepeated.Add(action);
             }
             else
             {
@@ -130,7 +142,7 @@ public sealed class InputState
             }
         }
         MemberKey = null;
-        for (int i = 0; i < 6 && windowActive; i++)
+        for (int i = 0; i < 7 && windowActive; i++)   // F7 はクランハウスの荷物の整理の倉庫
         {
             if (Pressed(keys, Keys.F1 + i)) MemberKey = i;
         }
@@ -161,6 +173,7 @@ public sealed class InputState
         {
             _pressed.Add(action);
             _repeated.Add(action);
+            _moveRepeated.Add(action);
         }
         if (_reverseNext && _injected.Count > 0)
         {

@@ -106,7 +106,7 @@ public sealed class GameServices
     }
 
     /// <summary>前の戦闘のログ(キャンプで読み返す。セーブには書かない)。</summary>
-    public List<(string Text, Microsoft.Xna.Framework.Color? Color)> LastCombatLog { get; set; } = [];
+    public List<UI.LogLine> LastCombatLog { get; set; } = [];
 
     /// <summary>戦闘のメニューで、キャラ(id)と画面ごとに前に選んだもの(ゲームを閉じるまで覚える。セーブには書かない)。</summary>
     public Dictionary<(string CharacterId, string Phase), string> CombatCursor { get; } = [];
@@ -280,6 +280,13 @@ public sealed class GameServices
     public Microsoft.Xna.Framework.Graphics.Texture2D? MonsterArt(Core.Monsters.MonsterDef def, int depth = 0) =>
         Art("monsters", def.Id)
         ?? (depth < 4 && def.ArtFrom != null && Data.Monsters.GetValueOrDefault(def.ArtFrom) is { } from && from != def ? MonsterArt(from, depth + 1) : null);   // 借りる先をたどる(輪にならないよう4つまで)
+
+    /// <summary>
+    /// 正体が分かる前の敵の絵(種類ごと。art/unknown/&lt;unknown_art か creature_type&gt;.png。後から読んだパックを優先)。
+    /// unknown_art の絵(亜人など)が無ければ creature_type の絵。どちらも無ければ null。
+    /// </summary>
+    public Microsoft.Xna.Framework.Graphics.Texture2D? UnknownArt(Core.Monsters.MonsterDef def) =>
+        (def.UnknownArt is { } kind ? Art("unknown", kind) : null) ?? Art("unknown", def.CreatureType);
 
     /// <summary>呪文のアイコン(効果の種類ごと。art/spells/&lt;icon&gt;.png)。無ければ null。</summary>
     public Microsoft.Xna.Framework.Graphics.Texture2D? SpellIcon(Core.Magic.SpellDef spell) => Art("spells", spell.Icon ?? "buff");

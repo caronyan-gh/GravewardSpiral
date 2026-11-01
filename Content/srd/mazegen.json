@@ -153,6 +153,7 @@
         1
       ]
     },
+    "align_stairs": true,
     "elevator_every": 4,
     "elevator_min_floors": 6,
     "events_per_floor": [

@@ -53,6 +53,12 @@ public sealed class ScenarioPack
     /// <summary>散らすイベントを迷宮のマスに置いてある(新しいゲームでは散らさない)。DungeonDef.EventsPlaced。</summary>
     public bool EventsPlaced { get; set; }
 
+    /// <summary>階段とシュートの上下の座標をそろえる(DungeonDef.AlignStairs)。新しく作るシナリオは true。</summary>
+    public bool AlignStairs { get; set; }
+
+    /// <summary>Lord B の呪い(DungeonDef.CurseOfLordB。エディタでは変えないが、書くときに残す)。</summary>
+    private bool _curseOfLordB;
+
     /// <summary>読んだときの dungeons.json のメモ(そのまま残す)。</summary>
     private string? _dungeonNote;
 
@@ -146,6 +152,7 @@ public sealed class ScenarioPack
             Dungeon = id,
         },
         Floors = floors.Select((f, i) => MazeEdit.Copy(f, $"{id}_b{i + 1}")).ToList(),
+        AlignStairs = true,
     };
 
     /// <summary>フォルダのシナリオを読む。読めないところは problems に足し、読めたところだけで開く。</summary>
@@ -181,6 +188,8 @@ public sealed class ScenarioPack
             pack.Rosters = def.Rosters;
             pack.Named = def.Named;
             pack.EventsPlaced = def.EventsPlaced;
+            pack.AlignStairs = def.AlignStairs;
+            pack._curseOfLordB = def.CurseOfLordB;
             pack._dungeonNote = def.Note;
             foreach (var path in def.Floors)
             {
@@ -313,7 +322,7 @@ public sealed class ScenarioPack
         if (rosters.All(r => r.Count == 0)) rosters = [];
         var dungeonNode = JsonSerializer.SerializeToNode(new[]
         {
-            new DungeonLoader.DungeonDef { Id = Id, Name = Manifest.Name, Floors = files, Rosters = rosters, Named = Named, EventsPlaced = EventsPlaced, Note = _dungeonNote, Elevators = Elevators },
+            new DungeonLoader.DungeonDef { Id = Id, Name = Manifest.Name, Floors = files, Rosters = rosters, Named = Named, EventsPlaced = EventsPlaced, AlignStairs = AlignStairs, CurseOfLordB = _curseOfLordB, Note = _dungeonNote, Elevators = Elevators },
         }, Indented)!;
         Prune(dungeonNode);
         // 名のある敵「なし」(空の並び)は空のまま書く(省くと「未指定」になり、新しいゲームのたびに抽選してしまう)
@@ -385,7 +394,7 @@ public sealed class ScenarioPack
         t.Prologue != null || t.Boss is { } b && (b.Name != null || b.Intro != null || b.Victory != null)
         || t.Floors.Any(f => f.Name != null || f.Enter != null || f.Documents.Count > 0);
 
-    /// <summary>zip に書き出す(フォルダの中身を、一番上に manifest.json がある形で)。</summary>
+    /// <summary>1つのファイル(.gssnro。中は zip)に固める(フォルダの中身を、一番上に manifest.json がある形で)。</summary>
     public void ExportZip(string zipPath)
     {
         if (File.Exists(zipPath)) File.Delete(zipPath);

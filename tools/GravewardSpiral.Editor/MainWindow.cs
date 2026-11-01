@@ -5,6 +5,7 @@ using System.Windows.Controls;
 using System.Windows.Media;
 using System.Windows.Media.Imaging;
 using System.Windows.Threading;
+using GravewardSpiral.Core.Content;
 using GravewardSpiral.Core.Save;
 using GravewardSpiral.Editor.Tabs;
 using static GravewardSpiral.Editor.Loc;
@@ -105,11 +106,11 @@ public sealed class MainWindow : Window
         commands.Children.Add(MenuButton("\uE8B7", T("開く", "Open"),
         [
             (T("フォルダを開く", "Open folder"), OpenFolder, T("シナリオのフォルダを開く", "Open a scenario folder")),
-            (T("zip を開く", "Open zip"), OpenZip, null),
+            (T("シナリオファイルを開く", "Open scenario file"), OpenZip, null),
         ]));
         commands.Children.Add(MenuButton("\uE8A5", T("ファイル", "File"),
         [
-            (T("zip に書き出す", "Export zip"), ExportZip, null),
+            (T("シナリオファイルに書き出す", "Export scenario file"), ExportZip, null),
             (T("名前を付けて保存", "Save As"), SaveAs, T("フォルダを丸ごと写して、新しい id の別のシナリオにする(第1部を元に改造するときなど)", "Copy the whole folder as a new scenario with a new id (e.g. to modify Part 1)")),
             (T("置き場所を開く", "Open scenario folder"), OpenScenariosFolder, T($"シナリオの置き場所({_context.ScenariosDir})をエクスプローラーで開く", $"Open the scenario folder ({_context.ScenariosDir}) in Explorer")),
         ]));
@@ -479,15 +480,15 @@ public sealed class MainWindow : Window
 
     private void OpenZip()
     {
-        var dialog = new Microsoft.Win32.OpenFileDialog { Filter = T("シナリオの zip|*.zip", "Scenario zip|*.zip"), InitialDirectory = _context.ScenariosDir };
+        var dialog = new Microsoft.Win32.OpenFileDialog { Filter = T("シナリオ|*" + ScenarioCatalog.PackExtension + ";*.zip", "Scenario|*" + ScenarioCatalog.PackExtension + ";*.zip"), InitialDirectory = _context.ScenariosDir };
         if (dialog.ShowDialog(this) == true) OpenPath(dialog.FileName);
     }
 
-    /// <summary>フォルダか zip を開く。zip は、シナリオの置き場所に同じ名前のフォルダとして展開してから開く。</summary>
+    /// <summary>フォルダか .gssnro を開く。.gssnro は、シナリオの置き場所に同じ名前のフォルダとして展開してから開く。</summary>
     private void OpenPath(string path)
     {
         if (!ConfirmDiscard()) return;
-        if (path.EndsWith(".zip", StringComparison.OrdinalIgnoreCase))
+        if (ScenarioCatalog.IsPackFile(path))
         {
             string target = Path.Combine(_context.ScenariosDir, Path.GetFileNameWithoutExtension(path));
             if (Directory.Exists(target))
@@ -554,10 +555,10 @@ public sealed class MainWindow : Window
     private void ExportZip()
     {
         if (_context.Pack is not { } pack || !Save()) return;
-        var dialog = new Microsoft.Win32.SaveFileDialog { Filter = T("シナリオの zip|*.zip", "Scenario zip|*.zip"), FileName = pack.Id + ".zip" };
+        var dialog = new Microsoft.Win32.SaveFileDialog { Filter = T("シナリオ|*" + ScenarioCatalog.PackExtension, "Scenario|*" + ScenarioCatalog.PackExtension), FileName = pack.Id + ScenarioCatalog.PackExtension };
         if (dialog.ShowDialog(this) != true) return;
         pack.ExportZip(dialog.FileName);
-        Say(T($"zip に書き出しました: {dialog.FileName}(ゲームのタイトル画面に落とすと、ゲームで選べます)", $"Exported zip: {dialog.FileName} (drop it on the game's title screen to pick it in the game)"));
+        Say(T($"シナリオファイルに書き出しました: {dialog.FileName}(ダブルクリックするか、ゲームのタイトル画面に落とすと、ゲームで選べます)", $"Exported: {dialog.FileName} (double-click it or drop it on the game's title screen to pick it in the game)"));
     }
 
     /// <summary>保存してから、ゲームをこのシナリオで始める(迷宮のタブで選んでいる階から)。</summary>

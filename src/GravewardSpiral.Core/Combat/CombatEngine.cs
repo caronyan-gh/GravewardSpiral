@@ -129,6 +129,14 @@ public sealed class CombatEngine(GameData data, IRandom rng)
 
     private void TakeTurn(CombatState s, Combatant c, IReadOnlyDictionary<string, PlayerCommand> commands)
     {
+        // ログの行の、した側を見分けるため、手番のあいだは行動している者を覚えておく
+        s.Acting = c;
+        try { Turn(s, c, commands); }
+        finally { s.Acting = null; }
+    }
+
+    private void Turn(CombatState s, Combatant c, IReadOnlyDictionary<string, PlayerCommand> commands)
+    {
         c.Dodging = false;
         if (c is PartyMember pm && pm.Character.State == LifeState.Unconscious)
         {

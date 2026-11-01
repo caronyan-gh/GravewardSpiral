@@ -54,10 +54,30 @@ public sealed class GameOptions
 
     public static readonly string[] AiModels = Core.Ai.ClaudeClient.Models;
 
-    /// <summary>長押しの繰り返しの速さ: slow / normal / fast / fastest(メニューのカーソルと、迷宮で歩き続ける速さ)。</summary>
-    public string RepeatSpeed { get; set; } = "normal";
+    /// <summary>押し続けたときの繰り返しの間隔(ミリ秒)。カーソルはメニューなど、移動は迷宮で歩き続けるとき。繰り返しが始まるまでの待ちは RepeatDelayMs で決まる。</summary>
+    public int CursorRepeatMs { get; set; } = 100;
+    public int MoveRepeatMs { get; set; } = 300;
 
-    public static readonly string[] RepeatSpeeds = ["slow", "normal", "fast", "fastest"];
+    public const int RepeatMinMs = 10, RepeatMaxMs = 1500;
+
+    /// <summary>
+    /// 繰り返しが始まるまでの待ち(ミリ秒)。間隔の 3 倍(10ms のとき)から、間隔が大きくなるほど倍率を下げ、1000ms 以上で 1 倍(倍率は間隔の対数で変える)。
+    /// </summary>
+    public static int RepeatDelayMs(int intervalMs)
+    {
+        int i = Math.Clamp(intervalMs, RepeatMinMs, RepeatMaxMs);
+        double factor = i >= 1000 ? 1 : 3 - Math.Log10(i / 10.0);
+        return (int)Math.Round(i * factor);
+    }
+
+    /// <summary>設定の画面で ◀ ▶ を押したときの一段(小さい値ほど細かく)。</summary>
+    public static int RepeatStep(int ms, int step)
+    {
+        int at = step > 0 ? ms : ms - 1;
+        int unit = at < 100 ? 5 : at < 300 ? 10 : at < 1000 ? 50 : 100;
+        int next = step > 0 ? (ms / unit + 1) * unit : (ms - 1) / unit * unit;
+        return Math.Clamp(next, RepeatMinMs, RepeatMaxMs);
+    }
 
     /// <summary>迷宮の絵をマウスで押して動く(真ん中は調べる。まわりの8つの領域で、進む・横歩き・向きを変える・振り向く・下がる)。</summary>
     public bool MazeMouse { get; set; } = true;
@@ -85,13 +105,10 @@ public sealed class GameOptions
             audio.SeVolume = SeFull * Math.Clamp(SeVolume, 0, 100) / 100f;
         }
         WireframeRenderer.Monochrome = MonoWireframe;
-        (Input.InputState.RepeatDelay, Input.InputState.RepeatInterval) = RepeatSpeed switch
-        {
-            "slow" => (0.45, 0.14),
-            "fast" => (0.25, 0.05),
-            "fastest" => (0.18, 0.03),
-            _ => (0.35, 0.08),
-        };
+        CursorRepeatMs = Math.Clamp(CursorRepeatMs, RepeatMinMs, RepeatMaxMs);
+        MoveRepeatMs = Math.Clamp(MoveRepeatMs, RepeatMinMs, RepeatMaxMs);
+        (Input.InputState.RepeatDelay, Input.InputState.RepeatInterval) = (RepeatDelayMs(CursorRepeatMs) / 1000.0, CursorRepeatMs / 1000.0);
+        (Input.InputState.MoveRepeatDelay, Input.InputState.MoveRepeatInterval) = (RepeatDelayMs(MoveRepeatMs) / 1000.0, MoveRepeatMs / 1000.0);
         TextRenderer.StoryFont = TextRenderer.StoryFonts.Contains(StoryFont) ? StoryFont : "hina";
     }
 

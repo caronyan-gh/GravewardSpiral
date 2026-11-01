@@ -331,12 +331,12 @@ public sealed class Character
         return cls.MeetsMulticlass(Scores) && ClassIds.All(id => data.Classes[id].MeetsMulticlass(Scores));
     }
 
-    /// <summary>大休憩(宿屋)。HP が全部戻り、ヒットダイスがレベルの半分(最低 1)戻る。</summary>
+    /// <summary>大休憩(宿屋)。HP が hpFraction まで戻り、ヒットダイスが全部戻る(5版の 2024 年の決まりと同じ。何泊でもできるので、半分ずつ戻しても手間が増えるだけ)。</summary>
     public void LongRest(double hpFraction = 1.0)
     {
         if (!IsAlive) return;
         Hp = Math.Max(Hp, Math.Min(MaxHp, (int)Math.Ceiling(MaxHp * hpFraction)));
-        HitDice = Math.Min(Level, HitDice + Math.Max(1, Level / 2));
+        HitDice = Level;
         SlotsUsed.Clear();
         PactSlotsUsed = 0;
         TempHp = 0;

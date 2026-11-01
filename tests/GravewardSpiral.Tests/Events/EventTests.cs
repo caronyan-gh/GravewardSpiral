@@ -400,10 +400,7 @@ public partial class EventTests
         var (s, state) = Room("lever_room.txt", 1, 1);
         Drive(new EventRunner(Data.Events["fountain"], Ctx(s, state)), [1]);   // 立ち去る(again)でも、見たことにはなる
         Assert.Contains("fountain", s.EventsSeen);
-        var clan = ClanFile.From(s, "c", null);
-        var next = GameSession.New(1, s.Request, s.Dungeon);
-        clan.ApplyTo(next);
-        Assert.Contains("fountain", next.EventsSeen);
+        Assert.Contains("fountain", ClanData.From(s).EventsSeen);   // クランのセーブに入り、次の世界はそこから始める
     }
 
     [Fact]

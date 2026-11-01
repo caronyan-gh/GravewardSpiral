@@ -24,7 +24,7 @@ public sealed record DropCheck(DropProblem Problem, string? Detail, ScenarioInfo
 
 /// <summary>
 /// タイトル画面に落とされたシナリオ(フォルダか zip)を、ユーザーのシナリオの置き場所へ置く。
-/// 置く名前は id(zip は id.zip)。同じ id がもうあれば、置いてから古い方を消す(置けなければ古い方は残る。Install)。
+/// 置く名前は id(固めたものは id.gssnro。.zip も .gssnro にして置く)。同じ id がもうあれば、置いてから古い方を消す(置けなければ古い方は残る。Install)。
 /// </summary>
 public static class ScenarioInstall
 {
@@ -32,7 +32,7 @@ public static class ScenarioInstall
     {
         string full = Path.GetFullPath(path.TrimEnd(Path.DirectorySeparatorChar, Path.AltDirectorySeparatorChar));
         bool isDir = Directory.Exists(full);
-        bool isZip = !isDir && File.Exists(full) && Path.GetExtension(full).Equals(".zip", StringComparison.OrdinalIgnoreCase);
+        bool isZip = !isDir && File.Exists(full) && ScenarioCatalog.IsPackFile(full);
         if (!isDir && !isZip) return Fail(DropProblem.NotScenario);
         if (SamePath(Path.GetDirectoryName(full), userDir)) return Fail(DropProblem.AlreadyPlaced);
 
@@ -71,7 +71,7 @@ public static class ScenarioInstall
         bool isZip = File.Exists(info.Source);
         Directory.CreateDirectory(userDir);
         CleanLeftovers(userDir, SafeName(info.Id));
-        string name = SafeName(info.Id) + (isZip ? ".zip" : "");
+        string name = SafeName(info.Id) + (isZip ? ScenarioCatalog.PackExtension : "");
 
         // まず仮の名前で置く
         string temp = Path.Combine(userDir, $".{name}.{Guid.NewGuid():N}{NewSuffix}");
@@ -126,7 +126,7 @@ public static class ScenarioInstall
 
         string dest = Path.Combine(userDir, name);
         for (int i = 2; File.Exists(dest) || Directory.Exists(dest); i++)
-            dest = Path.Combine(userDir, $"{SafeName(info.Id)}-{i}{(isZip ? ".zip" : "")}");
+            dest = Path.Combine(userDir, $"{SafeName(info.Id)}-{i}{(isZip ? ScenarioCatalog.PackExtension : "")}");
         MovePath(temp, dest);
         foreach (var (_, to) in moved) TryRemove(to);
         return dest;

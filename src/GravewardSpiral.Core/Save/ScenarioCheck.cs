@@ -50,6 +50,14 @@ public static class ScenarioCheck
         var reach = ReachabilityValidator.Validate(dungeon);
         foreach (var p in reach.Problems) Problem(t("行けるか: ", "Reachability: ") + p);
         if (structure.Count == 0 && reach.Ok) Pass(t($"迷宮の辻褄と、町から行けるか(立てるマス {reach.StandingCells}、行けるマス {reach.ReachedCells})", $"Maze consistency and reachability from town (standable cells {reach.StandingCells}, reachable cells {reach.ReachedCells})"));
+        // 上下の座標をそろえる迷宮(align_stairs)なら、階段とシュートのずれ
+        if (pack.AlignStairs)
+            foreach (var g in StairAlignment.Gaps(pack.Floors))
+                Warn(g.Chute
+                    ? t($"B{g.Floor + 1} のシュート ({g.Up.X},{g.Up.Y}) の落ちる先 ({g.Down.X},{g.Down.Y}) が真下でない(上下の座標をそろえる迷宮)",
+                        $"B{g.Floor + 1}: the chute at ({g.Up.X},{g.Up.Y}) lands at ({g.Down.X},{g.Down.Y}), not straight below (this maze aligns floors)")
+                    : t($"B{g.Floor + 1} の下り階段 ({g.Up.X},{g.Up.Y}) と B{g.Floor + 2} の上り階段 ({g.Down.X},{g.Down.Y}) の座標が違う(上下の座標をそろえる迷宮)",
+                        $"The down stairs on B{g.Floor + 1} ({g.Up.X},{g.Up.Y}) and the up stairs on B{g.Floor + 2} ({g.Down.X},{g.Down.Y}) are at different positions (this maze aligns floors)"));
         var bot = MazeBot.Explore(dungeon);
         foreach (var p in bot.Problems) Problem(t("歩くボット: ", "Walking bot: ") + p);
         if (bot.Ok) Pass(t($"ボットが全部の階を歩いて、主まで行って戻れた(歩いたマス {bot.Visited} / {bot.Standing})", $"The bot walked every floor, reached the boss and returned (cells walked {bot.Visited} / {bot.Standing})"));

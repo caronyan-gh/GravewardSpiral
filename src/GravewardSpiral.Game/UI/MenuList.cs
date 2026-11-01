@@ -9,9 +9,11 @@ namespace GravewardSpiral.Game.UI;
 /// <summary>
 /// 一覧の1行。Enabled が false の行は選べるが決定できない(灰色で出す)。
 /// Icon は名前の左に、Badge(マルチクラスの呪文のクラスなど)は名前の右に出す。Badge の画像が無ければ BadgeText を出す。
+/// DetailMark は Detail の右下に小さく添える字(名簿の「↑」の LV・ST など)。
+/// Dim は、選べるが灰色で出す行(遊べない世界を選んで消す、など)。
 /// </summary>
 public sealed record MenuItem(string Label, string? Detail = null, bool Enabled = true, object? Tag = null,
-    Texture2D? Icon = null, Texture2D? Badge = null, string? BadgeText = null);
+    Texture2D? Icon = null, Texture2D? Badge = null, string? BadgeText = null, string? DetailMark = null, bool Dim = false);
 
 /// <summary>
 /// 上下で選んで決定する一覧。キーボード・ゲームパッド・マウス(載せると選ぶ、クリックで決定、ホイールで送る)で動く。
@@ -119,7 +121,7 @@ public sealed class MenuList
                 d.FillRect(r, Theme.SelectedFill);
                 d.Rect(r, Theme.SelectedFrame, 1.5f);
             }
-            var color = !item.Enabled ? Theme.Disabled : selected ? Color.White : Theme.Text;
+            var color = !item.Enabled || item.Dim ? Theme.Disabled : selected ? Color.White : Theme.Text;
             var tint = item.Enabled ? Color.White : Color.White * 0.4f;
             float ty = r.Y + (r.Height - FontSize) / 2 - 2;
             float x = r.X + 14;
@@ -131,7 +133,9 @@ public sealed class MenuList
                 x = r.X + 14 + icon;
             }
             // 欄に収まらない名前は縮める(英語の長い名前など)。右の詳しい文と、印の分は空けておく
-            float room = r.X + r.Width - x - 14 - (item.Detail != null ? d.Fonts.Measure(item.Detail, FontSize * 0.85f).X + 16 : 0)
+            float markSize = FontSize * 0.45f;
+            float markWidth = item.DetailMark != null ? d.Fonts.Measure(item.DetailMark, markSize).X + 1 : 0;
+            float room = r.X + r.Width - x - 14 - markWidth - (item.Detail != null ? d.Fonts.Measure(item.Detail, FontSize * 0.85f).X + 16 : 0)
                 - (item.Badge != null || item.BadgeText != null ? FontSize * 2 : 0);
             float labelSize = FontSize;
             float labelWidth = d.Fonts.Measure(item.Label, FontSize).X;
@@ -143,7 +147,8 @@ public sealed class MenuList
                 if (item.Badge != null) d.Image(item.Badge, new RectangleF(bx, r.Y + 3 + icon * 0.15f, icon * 0.7f, icon * 0.7f), tint);
                 else d.Text(item.BadgeText!, new Vector2(bx, ty + FontSize * 0.15f), FontSize * 0.7f, Theme.Dim);
             }
-            if (item.Detail != null) d.Text(item.Detail, new Vector2(r.X + r.Width - 14, ty), FontSize * 0.85f, color, TextAlign.Right);
+            if (item.Detail != null) d.Text(item.Detail, new Vector2(r.X + r.Width - 14 - markWidth, ty), FontSize * 0.85f, color, TextAlign.Right);
+            if (item.DetailMark != null) d.Text(item.DetailMark, new Vector2(r.X + r.Width - 14 - markWidth + 1, ty + FontSize * 0.85f - markSize * 0.95f), markSize, color);
         }
         if (_top > 0) d.Text("▲", new Vector2(Area.X + Area.Width / 2, Area.Y - 22), 16, Theme.Dim, TextAlign.Center);
         if (_top + VisibleRows < Items.Count) d.Text("▼", new Vector2(Area.X + Area.Width / 2, Area.Y + VisibleRows * RowHeight - 2), 16, Theme.Dim, TextAlign.Center);
@@ -163,6 +168,18 @@ public static class Theme
     public static readonly Color Title = new(235, 225, 205);
     public static readonly Color Warn = new(255, 170, 150);
     public static readonly Color Good = new(150, 230, 160);
+
+    /// <summary>HP の色: 半分以下(きけん)と、4分の1以下(危険が危ない)。満タンは Good、それより上はふつうの字の色。</summary>
+    public static readonly Color HpCaution = new(240, 215, 100);
+    public static readonly Color HpDanger = new(255, 105, 95);
+
+    /// <summary>戦闘の文で、行動した者の名前の色(味方は青、敵は赤。冷気の水色・火の赤の行でも見分けられる濃さ)。</summary>
+    public static readonly Color AllyName = new(105, 160, 255);
+    public static readonly Color EnemyName = new(255, 95, 95);
+
+    /// <summary>HP の割合の色(パーティの欄)。</summary>
+    public static Color Hp(int hp, int max) =>
+        hp >= max ? Good : hp * 4 <= max ? HpDanger : hp * 2 <= max ? HpCaution : Text;
     public static readonly Color Gold = new(230, 200, 120);
     /// <summary>注意してほしい品(習熟の無い武器など)。濃いめの黄色。</summary>
     public static readonly Color Caution = new(240, 200, 40);

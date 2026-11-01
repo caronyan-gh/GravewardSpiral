@@ -21,6 +21,9 @@ public sealed class MazeTab : IEditorTab
     private readonly EditorContext _context;
     private readonly Grid _view = new();
     private readonly ListBox _floors = new() { Margin = new Thickness(0, 0, 0, 6) };
+
+    /// <summary>階段とシュートの上下の座標をそろえる(迷宮全体の設定。入れると、階段を動かせば上下の階の階段も動く)。</summary>
+    private readonly CheckBox _align = new() { Margin = new Thickness(0, 2, 0, 6) };
     private readonly MapCanvas _map = new();
     private readonly StackPanel _cellPanel = new();
     private readonly StackPanel _floorPanel = new() { Margin = new Thickness(4, 0, 4, 4) };
@@ -52,6 +55,16 @@ public sealed class MazeTab : IEditorTab
             ShowFloor();
         };
         left.Children.Add(_floors);
+        _align.Content = T("上下の座標をそろえる", "Align floors");
+        _align.ToolTip = T("入れると、下り階段を動かせば下の階の上り階段も、上り階段を動かせば上の階の下り階段も同じ座標へ動く。シュートは真下へ落ちる。検査はずれを注意にする",
+            "When on, moving the down stairs also moves the up stairs on the floor below (and the other way round) to the same position. Chutes drop straight down. The check warns about mismatches");
+        _align.Click += (_, _) =>
+        {
+            if (_loading || _context.Pack is not { } pack) return;
+            pack.AlignStairs = _align.IsChecked == true;
+            _context.MarkEdited();
+        };
+        left.Children.Add(_align);
         left.Children.Add(Stack(Ui.Button(T("自動で足す", "Add (generated)"), () => AddFloor(blank: false)), Ui.Button(T("空で足す", "Add (blank)"), () => AddFloor(blank: true))));
         left.Children.Add(Stack(Ui.Button(T("上へ", "Up"), () => MoveFloor(-1)), Ui.Button(T("下へ", "Down"), () => MoveFloor(1)), Ui.Button(T("消す", "Delete"), RemoveFloor)));
         left.Children.Add(Ui.Button(T("仕掛けのセットを配置…", "Place set parts…"), () => CreateSetsWindow().Show()));
@@ -182,6 +195,8 @@ public sealed class MazeTab : IEditorTab
             for (int i = 0; i < p.Floors.Count; i++)
                 _floors.Items.Add($"B{i + 1}  {(En ? p.Floors[i].NameEn : p.Floors[i].NameJa) ?? Loc.Name(p.Text.Floor(i)?.Name) ?? p.Floors[i].NameJa ?? p.Floors[i].NameEn ?? ""}  {p.Floors[i].Width}×{p.Floors[i].Height}");
         _floors.SelectedIndex = Current != null ? Floor : -1;
+        _align.IsChecked = _context.Pack?.AlignStairs == true;
+        _align.IsEnabled = _context.Pack != null;
         _loading = false;
         _map.Floor = Current;
         _map.Lairs = _context.Pack?.Named?.Where(n => n.Lair && n.Floor == Floor).Select(n => new GridPos(n.X, n.Y)).ToList() ?? [];
@@ -257,8 +272,8 @@ public sealed class MazeTab : IEditorTab
         c.Mark = null;
         switch (thing)
         {
-            case "up": MazeEdit.SetFeature(f, p, CellFeature.StairsUp); break;
-            case "down": MazeEdit.SetFeature(f, p, CellFeature.StairsDown); break;
+            case "up": PlaceStairs(f, p, CellFeature.StairsUp); break;
+            case "down": PlaceStairs(f, p, CellFeature.StairsDown); break;
             case "spinner": MazeEdit.SetFeature(f, p, CellFeature.Spinner); break;
             case "pit": MazeEdit.SetFeature(f, p, CellFeature.Pit); break;
             case "teleport": MazeEdit.SetFeature(f, p, CellFeature.Teleporter, new WarpTarget(null, p)); break;
@@ -744,6 +759,18 @@ public sealed class MazeTab : IEditorTab
         Floor = to;
         _context.MarkEdited();
         ShowFloor();
+    }
+
+    /// <summary>
+    /// 階段を置く。上下の座標をそろえる迷宮では、この階の前の同じ階段は消し(動かしたことになる)、
+    /// 上下の階の相手の階段も同じ座標へ動かす。
+    /// </summary>
+    private void PlaceStairs(MazeFloor f, GridPos p, CellFeature stairs)
+    {
+        MazeEdit.SetFeature(f, p, stairs);
+        if (_context.Pack is not { AlignStairs: true } pack) return;
+        foreach (var old in f.AllCells().Where(x => x != p && f[x].Feature == stairs).ToList()) MazeEdit.SetFeature(f, old, CellFeature.None);
+        StairAlignment.MovePartner(pack.Floors, Floor, p, stairs);
     }
 
     private void Regenerate()

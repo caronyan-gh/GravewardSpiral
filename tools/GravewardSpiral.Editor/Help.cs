@@ -48,6 +48,7 @@ public static class Help
             ・文言: 文言のタブの文を出す(張り紙など)。
             ・門: イベントの手順「門を開ける」で開く扉。「門を閉める」でまた閉まる。
             ・着地点: イベントの手順「別のマスへ移す」で、パーティを移す先(ほかの階からも)。
+            ・階段: 左の「上下の座標をそろえる」を入れていると、下り階段を置けば下の階の上り階段も、上り階段を置けば上の階の下り階段も同じ座標へ動く(下りた真下に出る)。シュートは真下へ落ちる。外すと、階ごとに別々の場所に置ける。新しく作るシナリオは入っている。
             ・エレベーター: 縦穴を1本通す。全部の階で同じ場所で、下の欄の「通す階」の範囲のうち、このマスが空いている階に自動で止まる(岩や壁、ほかの仕掛けのある階は素通りで、地図に薄い e が出る)。ほかの階に置き直す必要はない。「なし」にすると縦穴ごと消える。「スイッチを入れるまで動かない」にすると、フラグが立つまで動かない。標準のイベント「エレベーターのスイッチ」を、どこかのマス(下の階がおすすめ)に置く。
             ■ 見え方と魔法禁止
             見え方は、ふつう・暗闇(前が見えず、地図は触れた壁だけ)・霧(見えるが地図に残らない)のどれか。魔法禁止は呪文が唱えられない(見え方と重ねられる)。
@@ -72,6 +73,7 @@ public static class Help
             ・Text: shows text from the Text tab (notices, etc.).
             ・Gate: a door opened by the event step "Open gate"; "Close gate" locks it again.
             ・Landing point: where the event step "Move the party" sends the party (also from other floors).
+            ・Stairs: with "Align floors" (left) on, placing the down stairs also moves the up stairs on the floor below to the same position, and placing the up stairs moves the down stairs above (you arrive straight below). Chutes drop straight down. Turn it off to place stairs freely on each floor. New scenarios have it on.
             ■ Visibility and anti-magic
             Visibility is normal, darkness (can't see ahead; the map keeps only touched walls) or fog (visible, but not recorded on the map). Anti-magic blocks spells (can be combined).
             ■ Walls and doors
@@ -200,7 +202,7 @@ public static class Help
             ■ ボットの通し
             「ボットに通しで遊ばせる」は、選んだ編成のボットに最初から最後まで遊ばせて、何回クリアできるか、どこで詰まるかを見る(何分かかかる)。編成を替えると、術者だけや3人でも試せる。
             ■ 書き出し
-            zip に書き出すと、ほかの人に渡せる(シナリオの置き場所に置くか、ゲームのタイトル画面に落とすと、ゲームで選べる)。
+            「シナリオファイルに書き出す」で1つのファイル(.gssnro)にすると、ほかの人に渡せる(ダブルクリックするか、ゲームのタイトル画面に落とすと、ゲームで選べる)。
             """, """
             ■ Check
             Saves, then checks loading, maze consistency, reachability from town, whether a bot can walk to the boss, events, marks pointing at events, text keys, and music and art files.
@@ -210,7 +212,7 @@ public static class Help
             ■ Bot play-through
             "Play through with bots" has a bot party of the chosen makeup play from start to finish, to see how often it clears and where it gets stuck (takes a few minutes). Change the party to try casters only or a party of 3.
             ■ Export
-            Export to zip to share it (put it in Documents\GravewardSpiral\Scenarios to pick it in the game).
+            "Export scenario file" makes one file (.gssnro) to share (double-click it or drop it on the game's title screen to pick it in the game).
             """),
         _ => "",
     };

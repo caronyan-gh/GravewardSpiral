@@ -104,6 +104,8 @@ public static class ScenarioExport
             new DungeonLoader.DungeonDef
             {
                 Id = id, Name = name, Floors = floors, Rosters = session.FloorRosters.Select(r => r.ToList()).ToList(), EventsPlaced = true,
+                // 上下の座標がそろって生成された世界なら、そろえる迷宮として書く(エディタで階段が連動する)
+                AlignStairs = !StairAlignment.Gaps(maps.Select((m, i) => MazeTextFormat.Parse(m, floors[i])).ToList()).Any(),
                 Named = session.Named.Select(n => new Monsters.NamedSpawn { Id = n.Id, Floor = n.Floor, Lair = n.Lair, X = n.X, Y = n.Y, Rumored = n.Rumored }).ToList(),
             },
         });

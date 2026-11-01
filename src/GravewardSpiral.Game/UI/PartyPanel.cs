@@ -48,7 +48,7 @@ public static class PartyPanel
                     hpMax = beast.HpAverage;
                 }
             }
-            var color = state == LifeState.Alive ? (hpNow <= hpMax / 4 ? Theme.Warn : Theme.Text) : Theme.Disabled;
+            var color = state == LifeState.Alive ? Theme.Text : Theme.Disabled;
             // 欄の幅に収まらない文字は縮める(戦闘の画面は幅が狭い)
             float w = colW - 24;
             Fit(d, $"{(fKeys ? "F" : "")}{i + 1} {c.Name}", new Vector2(x, y + 2), w * 0.33f, size, usable == null || usable(c) ? color : Theme.Disabled);
@@ -58,12 +58,10 @@ public static class PartyPanel
             // 状態のアイコン(毒など。死亡・灰も)。アイコンが無ければ、状態の名前を HP の前に出す
             string? condition = state == LifeState.Alive && c.Lasting.Count > 0 ? c.Lasting[0].Condition.ToString().ToLowerInvariant() : null;
             var icon = services.ConditionIcon(condition ?? state.ToString().ToLowerInvariant());
-            if (condition != null)
-            {
-                if (icon == null) hp = $"{s["condition." + condition]} {hp}";
-                color = Theme.Warn;
-            }
-            d.Text(hp, new Vector2(x + colW - 24, y + 2), size, color, TextAlign.Right);
+            if (condition != null && icon == null) hp = $"{s["condition." + condition]} {hp}";
+            // HP は、満タン・あんぜん・きけん(半分以下)・危険が危ない(4分の1以下)で色を分ける。状態異常はアイコンで分かる
+            var hpColor = state == LifeState.Alive ? Theme.Hp(hpNow, hpMax) : Theme.Disabled;
+            d.Text(hp, new Vector2(x + colW - 24, y + 2), size, hpColor, TextAlign.Right);
             if (icon != null && (condition != null || state != LifeState.Alive))
             {
                 float iw = size + 4;

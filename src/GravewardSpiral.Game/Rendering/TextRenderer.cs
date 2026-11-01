@@ -95,6 +95,21 @@ public sealed class TextRenderer
     /// <summary>1280x720 の座標での文字列の大きさ。</summary>
     public Vector2 Measure(string text, float size, FontStyle style = FontStyle.Ui) => System(style).GetFont(size).MeasureString(text);
 
+    /// <summary>
+    /// 1文字ずつ色を変えて描く(戦闘の文で、行動した者の名前だけ色を変える)。colors は text の文字と同じ数。左寄せ。
+    /// 測る大きさと描く大きさが違うので、区切って別々に描くとずれる。1回で描く。
+    /// </summary>
+    public void Draw(Draw2D d, string text, Vector2 position, float size, Color[] colors, FontStyle style = FontStyle.Ui)
+    {
+        var font = Font(size, d.Scale, style);
+        var screen = d.ToScreen(position);
+        var at = new Vector2(MathF.Round(screen.X), MathF.Round(screen.Y));
+        font.DrawText(d.Batch, text, at, colors);
+        if (style != FontStyle.Story || StoryFont == "gothic") return;
+        int extra = Math.Max(1, (int)MathF.Round(size * d.Scale / 28f));
+        for (int i = 1; i <= extra; i++) font.DrawText(d.Batch, text, at + new Vector2(i, 0), colors);
+    }
+
     public void Draw(Draw2D d, string text, Vector2 position, float size, Color color, TextAlign align = TextAlign.Left,
         FontStyle style = FontStyle.Ui)
     {

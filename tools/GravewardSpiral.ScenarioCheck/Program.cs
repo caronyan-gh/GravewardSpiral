@@ -67,34 +67,34 @@ static string Usage() => """
           worlds.json(文の雛形。TODO: を書き換える)・bosses.json(最下層の主の形)・text/ja.json・en.json(空の文言)も作る。
           Creates a new scenario skeleton with a generated maze (id = folder name). The knobs shape the maze for your theme.
 
-      map <folder|zip> [--floor N]
+      map <folder|.gssnro> [--floor N]
           地図を座標つきで出す(列の上に x、行の左に y。印のあるマスは *、下に印・階段や仕掛けのマス・start・部屋の一覧)。座標を数えずに済む。
           Prints the maps with coordinates (x across the top, y down the left; * marks cells with a mark, listed below).
 
-      finish <folder|zip>
+      finish <folder|.gssnro>
           仕上げの点検。できたものの一覧と、このシナリオで確かめること(レベル帯、階の名前と入ったときの文、ボスの文、門、
           標準の部屋の印を組ごとに、使っていない地図、文の英日)を出す。最後に流して、出力を報告に貼る。
           finish を流しただけでは、ゲームで確かめたことにならない(報告では、データの照合・ゲームで確かめた・まだ、を分ける)。
           Final review: a summary of what was made and scenario-specific things to confirm. Run it last and paste the output.
 
-      list monsters|items|conditions|skills|abilities|damage|classes|races|sounds [--scenario <folder|zip>] [--cr 1-5] [--type undead,construct]
+      list monsters|items|conditions|skills|abilities|damage|classes|races|sounds [--scenario <folder|.gssnro>] [--cr 1-5] [--type undead,construct]
           使える id の一覧(モンスターは CR と種類、品は種類も。sounds はイベントの手順 sound の効果音)。モンスターは --cr(1/4-2 の形も)と --type(種類。カンマで区切る)で絞れる。
           Lists usable ids (monsters with CR and type, items with kind).
 
-      check <folder|zip> [--bots N] [--party fighter,cleric,...] [--level L] [--lang ja|en]
+      check <folder|.gssnro> [--bots N] [--party fighter,cleric,...] [--level L] [--lang ja|en]
           エディタの「検査」と同じ検査(読み込み・迷宮・行けるか・歩くボット・イベント・印・品・整合性)。
           --bots N を付けると、ボットに N 回通しで遊ばせる(時間がかかる)。
           The same checks as the editor's Check tab. --bots N lets bots play the scenario N times.
 
-      spells <class> [--scenario <folder|zip>] [--race human] [--max 20]
+      spells <class> [--scenario <folder|.gssnro>] [--race human] [--max 20]
           そのクラスのレベルごとのスロット・初級呪文と覚える数・新しく使える呪文。
           Per level: spell slots, cantrips/spells known, and newly available spells.
 
-      uses <id> [--scenario <folder|zip>]
+      uses <id> [--scenario <folder|.gssnro>]
           その id を指しているデータ(このクラスや能力を消すと何が壊れるか)。
           Everything that refers to the id (what breaks if you remove it).
 
-      art [--scenario <folder|zip>]
+      art [--scenario <folder|.gssnro>]
           モンスターの id・名前・使う絵の一覧(絵の借り先の間違いを見つける)。
           Monsters with id, names and the picture they use.
 
@@ -125,7 +125,7 @@ static string UsageFor(string command)
 
 static int Check(Options o)
 {
-    string dir = o.ScenarioDir ?? throw new UsageException("check にはシナリオのフォルダか zip を渡す / check needs a scenario folder or zip");
+    string dir = o.ScenarioDir ?? throw new UsageException("check にはシナリオのフォルダか .gssnro を渡す / check needs a scenario folder or .gssnro");
     var problems = new List<string>();
     var pack = ScenarioPack.Load(dir, problems);
     string T(string ja, string en) => o.Lang == "en" ? en : ja;
@@ -243,7 +243,7 @@ static void Shape(GravewardSpiral.Core.MazeGen.MazeGenSettings s, Options o)
 
 static int Map(Options o)
 {
-    string dir = o.ScenarioDir ?? throw new UsageException("map にはシナリオのフォルダか zip を渡す / map needs a scenario folder or zip");
+    string dir = o.ScenarioDir ?? throw new UsageException("map にはシナリオのフォルダか .gssnro を渡す / map needs a scenario folder or .gssnro");
     var pack = ScenarioPack.Load(dir, []);
     for (int i = 0; i < pack.Floors.Count; i++)
     {
@@ -282,7 +282,7 @@ static void PrintMap(MazeFloor f, int index, string file)
 
 static int Finish(Options o)
 {
-    string dir = o.ScenarioDir ?? throw new UsageException("finish にはシナリオのフォルダか zip を渡す / finish needs a scenario folder or zip");
+    string dir = o.ScenarioDir ?? throw new UsageException("finish にはシナリオのフォルダか .gssnro を渡す / finish needs a scenario folder or .gssnro");
     var problems = new List<string>();
     var pack = ScenarioPack.Load(dir, problems);
     var (content, data, baseContent) = LoadWith(dir);
@@ -391,7 +391,7 @@ static int Finish(Options o)
     var mapsDir = Path.Combine(dir, "maps");
     var unused = Directory.Exists(mapsDir) ? Directory.EnumerateFiles(mapsDir, "*.txt").Where(f => !used.Contains(Path.GetFullPath(f))).Select(Path.GetFileName).ToList() : [];
     if (unused.Count > 0)
-        Item($"dungeons.json が指していない地図のファイル: {string.Join("、", unused)}。控えなら残してよいが、zip に入る。", $"Map files not used by dungeons.json: {string.Join(", ", unused)}. Fine to keep as backups, but they go into the zip.");
+        Item($"dungeons.json が指していない地図のファイル: {string.Join("、", unused)}。控えなら残してよいが、.gssnro に入る。", $"Map files not used by dungeons.json: {string.Join(", ", unused)}. Fine to keep as backups, but they go into the .gssnro.");
 
     // 文の英日
     var oneLang = pack.Events.SelectMany(e => All(e.Steps).Where(s => s.Text != null && (string.IsNullOrWhiteSpace(s.Text.Get("ja")) || string.IsNullOrWhiteSpace(s.Text.Get("en")) || s.Text.Get("ja") == s.Text.Get("en"))).Select(_ => e.Id)).Distinct().ToList();
@@ -518,7 +518,7 @@ static int Fill(Options o)
 {
     string dir = o.ScenarioDir ?? throw new UsageException("fill にはシナリオのフォルダを渡す / fill needs a scenario folder");
     if (dir.StartsWith(Path.Combine(Path.GetTempPath(), "ScenarioCheck"), StringComparison.OrdinalIgnoreCase))
-        throw new UsageException("fill は zip には使えない(フォルダを渡す) / fill needs a folder, not a zip");
+        throw new UsageException("fill は .gssnro には使えない(フォルダを渡す) / fill needs a folder, not a .gssnro");
     var problems = new List<string>();
     var pack = ScenarioPack.Load(dir, problems);
     foreach (var p in problems) Console.Error.WriteLine(p);
@@ -707,7 +707,7 @@ sealed class Options
     {
         var o = new Options();
         int i = 0;
-        // コマンドを省いてフォルダか zip を渡したら check
+        // コマンドを省いてフォルダか .gssnro を渡したら check
         if (args[0] is "check" or "spells" or "uses" or "art" or "reference" or "fill" or "new" or "list" or "map" or "finish") o.Command = args[i++];
         for (; i < args.Length; i++)
         {
@@ -777,7 +777,7 @@ sealed class Options
             if (File.Exists(Path.Combine(path, "manifest.json"))) return Path.GetFullPath(path);
             throw new UsageException($"{path} に manifest.json が無い / no manifest.json in {path}");
         }
-        if (File.Exists(path) && path.EndsWith(".zip", StringComparison.OrdinalIgnoreCase))
+        if (File.Exists(path) && ScenarioCatalog.IsPackFile(path))
         {
             string to = Path.Combine(Path.GetTempPath(), "ScenarioCheck", Path.GetFileNameWithoutExtension(path) + "-" + Guid.NewGuid().ToString("N")[..8]);
             ZipFile.ExtractToDirectory(path, to);

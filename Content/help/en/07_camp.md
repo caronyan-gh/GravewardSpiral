@@ -34,7 +34,7 @@ Only short rests are available in the dungeon. Long rests are available at the i
 
 A long rest restores spell uses and class abilities, and removes lingering conditions. HP recovery depends on where you sleep. See Town Facilities for details.
 
-A long rest also restores half your total level in Hit Dice, rounded down, with a minimum of one. A level 5 character regains two, for example. One night's rest may not restore every Hit Die you spent.
+A long rest also restores all your Hit Dice, wherever you stay (the stable included).
 
 ## Lingering conditions
 

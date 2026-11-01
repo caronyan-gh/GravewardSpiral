@@ -10,6 +10,7 @@ The minimap in the upper-right corner shows your surroundings. Press M to open a
 
 - Visited squares and discovered walls and doors are recorded automatically.
 - The larger map shows only the area revealed by exploration. It does not reveal the full size of an unexplored floor.
+- On the larger map, Up/Down, the mouse wheel, or the ◀ ▶ arrows switch to any floor you have entered.
 - Secret doors appear as walls until discovered.
 - In Options, choose minimap and map, map only, or no map. You can also explore with your own graph-paper map.
 

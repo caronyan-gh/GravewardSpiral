@@ -4,7 +4,7 @@
 ; 管理者の権限は要らない(ユーザーのフォルダに入れる)。セーブと設定は %LOCALAPPDATA%\GravewardSpiral にあり、消しても残る。
 
 #ifndef AppVersion
-  #define AppVersion "0.3.3"
+  #define AppVersion "0.3.4"
 #endif
 
 [Setup]
@@ -28,6 +28,7 @@ ArchitecturesAllowed=x64compatible
 ArchitecturesInstallIn64BitMode=x64compatible
 WizardStyle=modern
 InfoBeforeFile={#RepoDir}\Content\CREDITS.txt
+ChangesAssociations=yes
 
 [Languages]
 Name: "japanese"; MessagesFile: "compiler:Languages\Japanese.isl"
@@ -36,6 +37,10 @@ Name: "english"; MessagesFile: "compiler:Default.isl"
 [CustomMessages]
 japanese.EditorName=GRAVEWARD SPIRAL シナリオエディタ
 english.EditorName=GRAVEWARD SPIRAL Scenario Editor
+japanese.ClanFile=GRAVEWARD SPIRAL のクラン
+english.ClanFile=GRAVEWARD SPIRAL clan
+japanese.ScenarioFile=GRAVEWARD SPIRAL のシナリオ
+english.ScenarioFile=GRAVEWARD SPIRAL scenario
 
 [Tasks]
 Name: "desktopicon"; Description: "{cm:CreateDesktopIcon}"; GroupDescription: "{cm:AdditionalIcons}"; Flags: unchecked
@@ -46,6 +51,18 @@ Type: filesandordirs; Name: "{app}\Content"
 
 [Files]
 Source: "{#SourceDir}\*"; DestDir: "{app}"; Excludes: "*.pdb"; Flags: ignoreversion recursesubdirs createallsubdirs
+
+[Registry]
+; .gsclan(書き出したクラン)と .gssnro(シナリオ)を、ダブルクリックでゲームに渡す(ゲームが動いていれば、そちらへ渡す)。
+; 管理者なしで入れたときはそのユーザーだけ(HKA は、権限に合わせて HKCU か HKLM)。アンインストールで消す
+Root: HKA; Subkey: "Software\Classes\.gsclan"; ValueType: string; ValueName: ""; ValueData: "GravewardSpiral.Clan"; Flags: uninsdeletevalue
+Root: HKA; Subkey: "Software\Classes\GravewardSpiral.Clan"; ValueType: string; ValueName: ""; ValueData: "{cm:ClanFile}"; Flags: uninsdeletekey
+Root: HKA; Subkey: "Software\Classes\GravewardSpiral.Clan\DefaultIcon"; ValueType: string; ValueName: ""; ValueData: "{app}\GravewardSpiral.exe,0"
+Root: HKA; Subkey: "Software\Classes\GravewardSpiral.Clan\shell\open\command"; ValueType: string; ValueName: ""; ValueData: """{app}\GravewardSpiral.exe"" ""%1"""
+Root: HKA; Subkey: "Software\Classes\.gssnro"; ValueType: string; ValueName: ""; ValueData: "GravewardSpiral.Scenario"; Flags: uninsdeletevalue
+Root: HKA; Subkey: "Software\Classes\GravewardSpiral.Scenario"; ValueType: string; ValueName: ""; ValueData: "{cm:ScenarioFile}"; Flags: uninsdeletekey
+Root: HKA; Subkey: "Software\Classes\GravewardSpiral.Scenario\DefaultIcon"; ValueType: string; ValueName: ""; ValueData: "{app}\GravewardSpiral.exe,0"
+Root: HKA; Subkey: "Software\Classes\GravewardSpiral.Scenario\shell\open\command"; ValueType: string; ValueName: ""; ValueData: """{app}\GravewardSpiral.exe"" ""%1"""
 
 [Icons]
 Name: "{group}\GRAVEWARD SPIRAL"; Filename: "{app}\GravewardSpiral.exe"

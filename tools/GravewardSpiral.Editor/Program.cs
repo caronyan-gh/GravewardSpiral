@@ -2,7 +2,7 @@
 //
 //   GravewardSpiralEditor [--open DIR] [--new ID] [--tab 名前] [--floor N] [--screenshot PNG] [--scenarios DIR]
 //
-//   --open DIR        シナリオのフォルダ(か zip)を開く
+//   --open DIR        シナリオのフォルダ(かシナリオファイル)を開く
 //   --new ID          新しいシナリオを自動生成で作る(--scenarios の下に。--seed S、--floors F も使える)
 //   --tab 名前        開くタブ(basic / maze / advice / events / data / music / text / story / check)
 //   --floor N         迷宮のタブで見せる階(1 から)
@@ -37,7 +37,7 @@ public static class Program
     private const string Help = """
         GravewardSpiralEditor(シナリオエディタ / Scenario Editor)
 
-          GravewardSpiralEditor [--open <フォルダか zip>] [--scenarios <フォルダ>] [--lang ja|en]
+          GravewardSpiralEditor [--open <フォルダかシナリオファイル>] [--scenarios <フォルダ>] [--lang ja|en]
 
           --open <DIR|ZIP>     シナリオを開く / open a scenario
           --scenarios <DIR>    新しく作るシナリオの置き場所(省くと本物の %LOCALAPPDATA%\GravewardSpiral\Scenarios)

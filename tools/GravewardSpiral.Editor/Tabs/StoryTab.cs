@@ -131,8 +131,8 @@ public sealed class StoryTab : IEditorTab
     private void Rumors(StackPanel panel, ScenarioPack pack)
     {
         panel.Children.Add(Ui.Heading(T("酒場の噂", "Tavern rumors")));
-        panel.Children.Add(Ui.Note(T("酒場の「噂を聞く」で、聞くたびに1つ出す(条件に合う噂と、名のある敵・伝説の噂から、出やすさの重みで選ぶ)。物語が進んだら変わるように、フラグや済んだイベントで出し分けられる。文はかぎ括弧なしで書く(酒場で付ける)。",
-            "Each time you \"Hear rumors\" in the tavern, one is told (picked by weight from rumors whose conditions hold, rumors of named monsters and legends). Use flags or finished events to change them as the story goes on. Write them without quotation marks (the tavern adds them).")));
+        panel.Children.Add(Ui.Note(T("酒場では、誰に聞くかで聞ける噂が違う(噂を聞く ただ・給仕 1G・冒険者 10G・情報屋 50G・旅商人 100G。役に立つ話ほど上に置く。名のある敵は冒険者と情報屋、伝説は旅商人で、ゲームが足す。情報屋と旅商人はいないこともある)。聞くたびに、その相手の噂から出やすさの重みで1つ選ぶ(たまに1つ上か下の噂になる)。物語が進んだら変わるように、フラグや済んだイベントで出し分けられる。文はかぎ括弧なしで書く(酒場で付ける)。",
+            "In the tavern, who you ask decides what you hear (hear rumors free, server 1G, adventurer 10G, informant 50G, merchant 100G; put more useful talk higher. The game adds named monsters for the adventurer and informant and legends for the merchant; the informant and merchant are sometimes away). Each time, one of that person's rumors is picked by weight (now and then one from the level above or below). Use flags or finished events to change them as the story goes on. Write them without quotation marks (the tavern adds them).")));
         for (int i = 0; i < pack.Rumors.Count; i++)
         {
             var rumor = pack.Rumors[i];
@@ -155,6 +155,15 @@ public sealed class StoryTab : IEditorTab
             weight.Width = 70;
             weight.HorizontalAlignment = HorizontalAlignment.Left;
             inner.Children.Add(Ui.Row(T("出やすさ", "Weight"), weight));
+            var drinks = TierNames();
+            var tier = new ComboBox { ItemsSource = drinks, Width = 260, HorizontalAlignment = HorizontalAlignment.Left, SelectedIndex = Math.Clamp(rumor.Tier, 0, drinks.Count - 1) };
+            tier.SelectionChanged += (_, _) =>
+            {
+                if (tier.SelectedIndex < 0 || tier.SelectedIndex == rumor.Tier) return;
+                rumor.Tier = tier.SelectedIndex;
+                _context.MarkEdited();
+            };
+            inner.Children.Add(Ui.Row(T("聞く相手", "Told by"), tier));
             var remove = new WrapPanel();
             remove.Children.Add(Ui.Button(T("この噂を消す", "Remove this rumor"), () =>
             {
@@ -176,6 +185,14 @@ public sealed class StoryTab : IEditorTab
             Reload();
         }));
         panel.Children.Add(add);
+    }
+
+    /// <summary>噂の格(誰に聞くか)の名前と値段。</summary>
+    private List<string> TierNames()
+    {
+        string[] ja = ["噂を聞く(ただ。世間話)", "給仕 1G(ちょっとした心得)", "冒険者 10G", "情報屋 50G(いないこともある)", "旅商人 100G(いないことが多い)"];
+        string[] en = ["Hear rumors (free; small talk)", "Server 1G (handy tips)", "Adventurer 10G", "Informant 50G (sometimes away)", "Merchant 100G (often away)"];
+        return Enumerable.Range(0, TavernRumors.Prices.Length).Select(i => T(ja[i], en[i])).ToList();
     }
 
     /// <summary>

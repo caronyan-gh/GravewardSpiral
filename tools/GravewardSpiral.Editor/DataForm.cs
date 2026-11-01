@@ -117,6 +117,7 @@ public sealed class DataForm(EditorContext context, JsonObject o, JsonObject? ba
         yield return Ui.Heading(T("基本", "Basics"));
         yield return Field(T("正体が分かる前", "Before identified"), "unknown_name", Text2("unknown_name"));
         yield return Field(T("種類", "Type"), "creature_type", Pick("creature_type", CreatureTypes()));
+        yield return Field(T("正体が分かる前の絵", "Art before identified"), "unknown_art", Pick("unknown_art", PartNames.UnknownArts));
         yield return Field(T("大きさ", "Size"), "size", Pick("size", Sizes));
         yield return Field(T("脅威度(CR)", "Challenge (CR)"), "cr", Num("cr"));
         yield return Field(T("経験値", "XP"), "xp", Int("xp"));

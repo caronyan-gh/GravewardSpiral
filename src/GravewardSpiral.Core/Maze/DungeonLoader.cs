@@ -34,6 +34,13 @@ public static class DungeonLoader
         /// </summary>
         public bool EventsPlaced { get; set; }
 
+        /// <summary>
+        /// 階段とシュートの上下の座標をそろえる(Wizardry のように、下りた真下に出る)。true なら、上の階の下り階段と下の階の上り階段を同じ座標に置き、
+        /// シュートは真下の同じ座標へ落とす。エディタでは階段を動かすと上下の階の階段も一緒に動き、検査はずれを注意にする。
+        /// false(省いたとき)は、階ごとに別々の場所でよい。エレベーターは縦穴なので、この設定と関係なくいつも同じ座標。
+        /// </summary>
+        public bool AlignStairs { get; set; }
+
         /// <summary>エレベーターの縦穴(座標と上下の階)。読むときに、範囲の空いている階へ止まるマスを入れる。</summary>
         public List<ElevatorShaft> Elevators { get; set; } = [];
 

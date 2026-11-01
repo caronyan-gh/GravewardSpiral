@@ -137,6 +137,11 @@ public static class PartNames
         ("elemental", "精霊", "Elementals"), ("giant", "巨人", "Giants"), ("dragon", "竜", "Dragons"), ("plant", "植物", "Plants"),
         ("fey", "妖精", "Fey"), ("celestial", "天上の者", "Celestials"), ("aberration", "異形", "Aberrations"));
 
+    /// <summary>正体が分かる前の絵(unknown_art)。空は種類(creature_type)の絵。亜人はゴブリン・オークなどの影。種類の名前は今の言語で作る。</summary>
+    public static IReadOnlyDictionary<string, string> UnknownArts => new PartTable<string>(
+        [("", "種類の絵のまま", "Same as the type"), ("demi_humanoid", "亜人(ゴブリン・オークなど)", "Demi-humanoid (goblins, orcs...)"),
+         .. CreatureTypes.Keys.Select(k => (k, CreatureTypes[k], CreatureTypes[k]))]);
+
     public static readonly IReadOnlyDictionary<CellFeature, string> Features = new PartTable<CellFeature>(
         (CellFeature.None, "なし", "None"), (CellFeature.StairsUp, "上り階段", "Stairs up"), (CellFeature.StairsDown, "下り階段", "Stairs down"), (CellFeature.Spinner, "回転床", "Spinner"),
         (CellFeature.Teleporter, "テレポーター", "Teleporter"), (CellFeature.Pit, "落とし穴", "Pit"), (CellFeature.Chute, "シュート", "Chute"), (CellFeature.Solid, "岩盤", "Solid rock"),

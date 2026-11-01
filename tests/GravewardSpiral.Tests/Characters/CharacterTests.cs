@@ -144,7 +144,7 @@ public class CharacterTests
         c.HitDice = 0;
         c.LongRest();
         Assert.Equal(c.MaxHp, c.Hp);
-        Assert.Equal(2, c.HitDice);   // レベル 5 の半分
+        Assert.Equal(5, c.HitDice);   // 全部戻る
         c.Hp = 1;
         c.LongRest(0.5);
         Assert.Equal((int)Math.Ceiling(c.MaxHp * 0.5), c.Hp);

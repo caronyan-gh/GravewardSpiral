@@ -65,12 +65,15 @@ public class SaveTests
         Assert.Equal(1, s.ClearedScenarios["g-1"]);
         store.Save(s, Content);
 
-        // セーブのクランにも、書き出したクランファイルにも印が残る
+        // セーブのクランにも、書き出して読み込んだクランにも印が残る
         var part2 = new PackManifest { Id = "sunken", Kind = ScenarioCatalog.Kind, RequiresClear = [new RequiredClear { Guid = "g-1", Id = "gravekeeper" }] };
         var (_, saved) = Assert.Single(ClanFile.FromSaves(store, id => id));
         Assert.Empty(ScenarioClears.Missing(part2, saved.ClearedScenarios));
-        string file = ClanFile.From(s, "灰の手", s.Scenario).Save(Path.Combine(dir.Path, "export"));
-        Assert.Empty(ScenarioClears.Missing(part2, ClanFile.Load(file).ClearedScenarios));
+        string file = Path.Combine(dir.Path, "export", SaveStore.ClanFileNameFor("灰の手"));
+        store.ExportClan(s.ClanId, file);
+        var other = new SaveStore(Path.Combine(dir.Path, "other"));
+        other.ImportClan(file);
+        Assert.Empty(ScenarioClears.Missing(part2, Assert.Single(ClanFile.FromSaves(other, id => id)).Clan.ClearedScenarios));
 
         // 新しいクラン(連れていかない)とクリアしていないクランは入れない
         Assert.Single(ScenarioClears.Missing(part2, null));
@@ -97,13 +100,6 @@ public class SaveTests
         var required = new PackManifest { Id = "sunken", RequiresClear = [new RequiredClear { Guid = "g-1", Id = "gravekeeper" }] };
         Assert.Equal(1, store.LoadClan(s.ClanId)!.ClearedScenarios!["id:gravekeeper"]);
         Assert.Empty(ScenarioClears.Missing(required, store.Load(s.ClanId, s.WorldKey).ClearedScenarios));
-
-        // 書き出したクランファイルは、書き出したときのシナリオとクリアから拾う
-        string export = Path.Combine(dir.Path, "old" + ClanFile.Extension);
-        File.WriteAllText(export, """{ "version": 1, "name": "古いクラン", "scenario": "gravekeeper", "cleared": true, "clears": 1, "characters": [] }""");
-        Assert.Empty(ScenarioClears.Missing(required, ClanFile.Load(export).ClearedScenarios));
-        File.WriteAllText(export, """{ "version": 1, "name": "古いクラン", "scenario": "gravekeeper", "cleared": false, "characters": [] }""");
-        Assert.Single(ScenarioClears.Missing(required, ClanFile.Load(export).ClearedScenarios));
     }
 
     [Fact]
@@ -380,18 +376,56 @@ public class SaveTests
     }
 
     [Fact]
-    public void ClanFilesStillCarryTheClanId()
+    public void AClanMovesWithItsWorldsInOneFile()
     {
         using var dir = new TestPaths.TempDir();
-        var store = new SaveStore(dir.Path);
+        var store = new SaveStore(Path.Combine(dir.Path, "saves"));
         var s = NewSession(1);
-        s.ClanId = "clan_a";
+        s.Scenario = "gravekeeper";
+        s.ClanName = "灰の手";
+        s.Clears = 1;
         store.Save(s, Content);
-        var clan = ClanFile.From(store.Load("clan_a", s.WorldKey), "灰の手", null);
-        Assert.Equal("clan_a", clan.Id);
-        var next = NewSession(9);
-        clan.ApplyTo(next);
-        Assert.Equal("clan_a", next.ClanId);
+
+        // ゲームを始めずに、クランを世界ごと1つのファイルにする
+        string path = Path.Combine(dir.Path, "out", SaveStore.ClanFileNameFor("灰の手"));
+        Assert.EndsWith(SaveStore.ClanExtension, path);
+        store.ExportClan(s.ClanId, path);
+        Assert.Equal(s.ClanId, SaveStore.ReadClanArchive(path).Id);
+
+        // 手元に同じクランがあれば読み込まない
+        Assert.Throws<InvalidDataException>(() => store.ImportClan(path));
+
+        // 別の PC(手元から消したあと)なら、名簿も世界も元どおり
+        store.DeleteClan(s.ClanId);
+        Assert.Equal((s.ClanId, "灰の手"), store.ImportClan(path));
+        var back = Assert.Single(store.ListClans());
+        Assert.Single(back.Worlds);
+        var again = store.Load(s.ClanId, s.WorldKey);
+        Assert.Equal(1, again.Clears);
+        Assert.Equal(s.Roster.Characters.Count, again.Roster.Characters.Count);
+        Assert.Contains("gravekeeper", ClanFile.FromSaves(store, id => id).Single().Clan.Played);   // シリーズのシナリオへ連れて入れる
+
+        // 世界の無いクランも読み込める
+        var empty = new SaveStore(Path.Combine(dir.Path, "empty"));
+        using (var zip = System.IO.Compression.ZipFile.Open(Path.Combine(dir.Path, "empty" + SaveStore.ClanExtension), System.IO.Compression.ZipArchiveMode.Create))
+        using (var w = new StreamWriter(zip.CreateEntry("clan.json").Open())) w.Write("""{ "version": 1, "id": "c_empty", "name": "空", "characters": [] }""");
+        Assert.Equal(("c_empty", "空"), empty.ImportClan(Path.Combine(dir.Path, "empty" + SaveStore.ClanExtension)));
+        Assert.Single(empty.ListClans());
+        // 世界が無くても、前に遊んだシナリオ(played_before)はシリーズの判定に使う
+        using (var zip = System.IO.Compression.ZipFile.Open(Path.Combine(dir.Path, "before" + SaveStore.ClanExtension), System.IO.Compression.ZipArchiveMode.Create))
+        using (var w = new StreamWriter(zip.CreateEntry("clan.json").Open())) w.Write("""{ "version": 1, "id": "c_before", "characters": [], "played_before": ["amulet"] }""");
+        empty.ImportClan(Path.Combine(dir.Path, "before" + SaveStore.ClanExtension));
+        Assert.Equal(["amulet"], ClanFile.FromSaves(empty, id => id).Single(x => x.Clan.Id == "c_before").Clan.Played);
+
+        // 中に知らないもの(ほかの場所を指す名前など)があれば読み込まない
+        string evil = Path.Combine(dir.Path, "evil" + SaveStore.ClanExtension);
+        using (var zip = System.IO.Compression.ZipFile.Open(evil, System.IO.Compression.ZipArchiveMode.Create))
+        {
+            using (var w = new StreamWriter(zip.CreateEntry("clan.json").Open())) w.Write("""{ "version": 1, "id": "c_evil", "characters": [] }""");
+            zip.CreateEntry("worlds/../x/world.json");
+        }
+        Assert.Throws<InvalidDataException>(() => store.ImportClan(evil));
+        Assert.DoesNotContain(store.ListClans(), c => c.Id == "c_evil");
     }
 
     [Fact]

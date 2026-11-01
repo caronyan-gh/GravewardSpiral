@@ -119,7 +119,7 @@ public static class DebugStart
     }
 
     /// <summary>
-    /// 自動生成の見本: シードから迷宮を作り、floor 階(1 から)の地図を全部見えるようにして、地図の画面を開く。
+    /// 自動生成の見本: シードから迷宮を作り、全部の階の地図を見えるようにして、floor 階(1 から)の地図の画面を開く。
     /// spec は "シード[:階]"(省くとシード 2026 の B3)。
     /// </summary>
     public static void GenMap(GameServices services, string? spec)
@@ -135,11 +135,16 @@ public static class DebugStart
         var f = dungeon.Floors[floor];
         var start = f.FindFeature(CellFeature.StairsUp) ?? f.Start;
         state.Position = new PartyPosition(floor, start, Direction.North);
-        var map = state.AutoMap.For(floor);
-        foreach (var p in f.AllCells().Where(p => !f[p].IsSolid))
+        // どの階も全部開ける(地図の画面で、上下で階を切り替えて見られる)
+        for (int i = 0; i < dungeon.Floors.Count; i++)
         {
-            map.Visited.Add(p);
-            foreach (var d in DirectionExtensions.All) map.See(p, d, state.Apparent(floor, p, d));
+            var fi = dungeon.Floors[i];
+            var map = state.AutoMap.For(i);
+            foreach (var p in fi.AllCells().Where(p => !fi[p].IsSolid))
+            {
+                map.Visited.Add(p);
+                foreach (var d in DirectionExtensions.All) map.See(p, d, state.Apparent(i, p, d));
+            }
         }
         services.Scenes.Push(new MapScene(state, start, state.Position));
     }

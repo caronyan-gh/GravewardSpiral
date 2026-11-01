@@ -58,6 +58,8 @@ UNKNOWN_JA = {
     "elemental": "精霊", "fey": "妖精", "fiend": "魔物", "giant": "巨人", "humanoid": "人影", "monstrosity": "怪物",
     "ooze": "不定形の物", "plant": "植物", "undead": "不死の者", "swarm": "群れ",
 }
+# 人型のうち、正体が分かる前の絵を亜人の影(art/unknown/demi_humanoid.png)にする SRD の分類(subtype)
+DEMI_HUMANOID = {"goblinoid", "orc", "gnoll", "kobold", "lizardfolk", "sahuagin", "merfolk", "grimlock"}
 SIZE_JA = {"tiny": "ちいさな", "small": "小さな", "medium": "", "large": "大きな", "huge": "巨大な", "gargantuan": "途方もない"}
 
 
@@ -295,6 +297,8 @@ def convert(m, ja):
         mon["creature_type"] = "swarm"
     t = mon["creature_type"]
     mon["unknown_name"] = {"en": f"{m['size'].lower()} {t}", "ja": SIZE_JA[mon["size"]] + UNKNOWN_JA.get(t, "怪物")}
+    if t == "humanoid" and (m.get("subtype") or "").lower() in DEMI_HUMANOID:
+        mon["unknown_art"] = "demi_humanoid"
     saves, skills = {}, {}
     for p in m.get("proficiencies", []):
         idx = p["proficiency"]["index"]

@@ -30,6 +30,9 @@ public sealed record CombatLogEntry(string Key, params object[] Args)
 
     /// <summary>この行の時点の、グループごとの生きている数。</summary>
     public IReadOnlyList<int> GroupAlive { get; init; } = [];
+
+    /// <summary>この行の {0} が、手番で行動している者(した側)ならその陣営。画面はその名前を味方は青、敵は赤で出す。それ以外(受けた側が {0} の行など)は null。</summary>
+    public Side? ActorSide { get; init; }
 }
 
 /// <summary>勝ったときの取り分。</summary>
@@ -83,7 +86,23 @@ public sealed class CombatState
     {
         Party = Snapshot(),
         GroupAlive = Groups.Select(g => g.AliveCount).ToList(),
+        ActorSide = ActorSideOf(args),
     });
+
+    /// <summary>今、手番で行動している者(ログの行の、した側を見分ける)。手番の外では null。</summary>
+    public Combatant? Acting { get; set; }
+
+    /// <summary>行の {0} が、手番で行動している者(敵ならそのグループの名前でも)なら、その陣営。</summary>
+    private Side? ActorSideOf(object[] args)
+    {
+        if (Acting is not { } a || args.Length == 0 || args[0] is not LocalizedText t) return null;
+        if (SameName(t, a.Name)) return a.Side;
+        if (a is MonsterUnit m && Groups.FirstOrDefault(g => g.Units.Contains(m)) is { } g && SameName(t, g.DisplayName)) return a.Side;
+        return null;
+    }
+
+    private static bool SameName(LocalizedText x, LocalizedText y) =>
+        ReferenceEquals(x, y) || (x.Texts.Count == y.Texts.Count && x.Texts.All(kv => y.Texts.TryGetValue(kv.Key, out var v) && v == kv.Value));
 
     /// <summary>今のパーティの HP と状態と獣の姿と、そのときの AC(呪文などの上げ下げを含む)。</summary>
     public List<(string Id, int Hp, Characters.LifeState State, string? Shape, int Ac)> Snapshot() =>

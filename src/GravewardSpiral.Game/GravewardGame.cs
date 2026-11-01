@@ -53,6 +53,21 @@ public sealed class GravewardGame : Microsoft.Xna.Framework.Game, IDisplay
         Window.ClientSizeChanged += (_, _) => OnResize();
     }
 
+    /// <summary>
+    /// タイトルバーの文: 版。配布のビルドでないときは「開発版」とコミット、試しのセーブ(--saves)のときはそれも付ける
+    /// (遊んでいるのが本物のセーブか、どの版かが分かるように)。
+    /// </summary>
+    private string WindowTitle()
+    {
+        string info = typeof(GravewardGame).Assembly.GetCustomAttributes(typeof(System.Reflection.AssemblyInformationalVersionAttribute), false)
+            .OfType<System.Reflection.AssemblyInformationalVersionAttribute>().FirstOrDefault()?.InformationalVersion ?? "";
+        var parts = info.Split('+');
+        string title = $"GRAVEWARD SPIRAL v{parts[0]}";
+        if (parts.Length > 1) title += $"  {_services.Strings["window.dev"]} ({parts[1][..Math.Min(7, parts[1].Length)]})";
+        if (_options.SavesDir != null) title += $"  [{_services.Strings["window.test_saves"]}]";
+        return title;
+    }
+
     protected override void Initialize()
     {
         if (_display.Fullscreen) SetFullscreen(true);
@@ -98,6 +113,8 @@ public sealed class GravewardGame : Microsoft.Xna.Framework.Game, IDisplay
             UserScenarios = _options.SavesDir is { } savesDir ? Path.Combine(savesDir, "scenarios") : AppPaths.Scenarios,
         };
         _services.ApplyOptions();
+        Window.Title = WindowTitle();
+        Console.WriteLine($"window title: {Window.Title}");
         _services.Audio.NextBgmStart = _options.BgmStart;
         if (_options.Volume is float volume)
         {

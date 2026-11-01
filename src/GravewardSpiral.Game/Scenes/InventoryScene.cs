@@ -3,6 +3,7 @@ using GravewardSpiral.Core.Combat;
 using GravewardSpiral.Core.Items;
 using GravewardSpiral.Core.Magic;
 using GravewardSpiral.Core.Rng;
+using GravewardSpiral.Core.Save;
 using GravewardSpiral.Game.Audio;
 using GravewardSpiral.Game.Rendering;
 using GravewardSpiral.Game.Scenes.Town;
@@ -17,10 +18,24 @@ namespace GravewardSpiral.Game.Scenes;
 /// 装備: 部位を選ぶと、右の欄に「外す」と、袋の中のその部位に付けられる品を並べ、選んだものに替える。
 /// 袋: 品を選ぶと「装備する・使う・渡す・捨てる」を選べる。
 /// 町とキャンプから開く(戦闘の中のアイテムは、戦闘のコマンドで使う)。members を渡すと、その並びの仲間に切り替えられる(MemberSwitch)。
+/// storage を true にすると(クランハウスの荷物の整理)、人の次に倉庫のページが来る。倉庫の品は「渡す」で仲間へ(引き出す)、
+/// 人の品は「渡す」の相手の最後の「倉庫」で預ける。
 /// </summary>
-public sealed class InventoryScene(Character first, IReadOnlyList<Character>? members = null) : MenuScene
+public sealed class InventoryScene(Character first, IReadOnlyList<Character>? members = null, bool storage = false, bool atStorage = false) : MenuScene
 {
-    private readonly MemberSwitch _switch = new(members ?? [first], first) { PartyArea = PartyArea };
+    private readonly MemberSwitch _switch = new(members ?? [first], first) { PartyArea = PartyArea, Extra = storage, StartAtExtra = atStorage };
+
+    /// <summary>倉庫のページを見ている。</summary>
+    private bool AtStorage => _switch.AtExtra;
+
+    private ClanHouse House => Services.Session!.ClanHouse;
+    private List<ClanHouseLevel> _levels = [];
+
+    /// <summary>倉庫の並びの順(見出し)。</summary>
+    private static readonly ItemKind[] KindOrder =
+        [ItemKind.Weapon, ItemKind.Armor, ItemKind.Shield, ItemKind.Accessory, ItemKind.Backpack, ItemKind.Ammo, ItemKind.Consumable, ItemKind.Gear, ItemKind.Key];
+
+    private ItemKind KindOf(ItemInstance it) => Data.Items.TryGetValue(it.ItemId, out var d) ? d.Kind : ItemKind.Gear;
 
     protected override MemberSwitch? Switch => _switch;
 
@@ -43,12 +58,14 @@ public sealed class InventoryScene(Character first, IReadOnlyList<Character>? me
     private GameData Data => Services.Data;
     private List<Character> Party => Services.Session!.Roster.PartyMembers.ToList();
 
-    protected override string Title => Services.Strings.Format("inv.title", Owner.Name);
+    protected override string Title => AtStorage ? Services.Strings["house.storage"] : Services.Strings.Format("inv.title", Owner.Name);
 
-    protected override int? PartyHighlight => _mode is Mode.GiveTo or Mode.UseOn ? List.Cursor : Party.IndexOf(Owner) is >= 0 and var i ? i : null;
+    protected override int? PartyHighlight => _mode is Mode.GiveTo or Mode.UseOn ? (List.Cursor < Party.Count ? List.Cursor : null)
+        : AtStorage ? null : Party.IndexOf(Owner) is >= 0 and var i ? i : null;
 
     public override void Enter()
     {
+        if (storage) _levels = ClanHouseLevel.Load(Services.Content);
         Inv.MergeStacks(Data.Items);   // 重ねられるようになる前に別々に拾った品もまとめる
         base.Enter();
     }
@@ -58,6 +75,21 @@ public sealed class InventoryScene(Character first, IReadOnlyList<Character>? me
         var s = Services.Strings;
         switch (_mode)
         {
+            case Mode.List when AtStorage:
+                // 倉庫: 種類ごとに見出しを付けて並べる
+                foreach (var group in House.Storage.GroupBy(KindOf).OrderBy(g => Array.IndexOf(KindOrder, g.Key)))
+                {
+                    yield return new MenuItem($"― {s["house.kind." + group.Key.ToString().ToLowerInvariant()]} ―", Enabled: false);
+                    foreach (var it in group.OrderBy(i => ItemText.Name(Services, i), StringComparer.CurrentCulture))
+                        yield return new MenuItem("  " + ItemText.Name(Services, it), ItemText.Hands(Services, it), Tag: it);
+                }
+                if (House.Storage.Count == 0) yield return new MenuItem(s["inv.empty"], Enabled: false);
+                yield return new MenuItem(s["common.back"], Tag: "back");
+                break;
+            case Mode.Actions when AtStorage:
+                yield return new MenuItem(s["inv.give"], Tag: "give");   // 仲間へ引き出す
+                yield return new MenuItem(s["common.back"], Tag: "back");
+                break;
             case Mode.List when _tab == Tab.Bag:
                 foreach (var it in Inv.Items) yield return new MenuItem(ItemText.Name(Services, it), ItemText.Hands(Services, it), Tag: it);
                 if (Inv.Items.Count == 0) yield return new MenuItem(s["inv.empty"], Enabled: false);
@@ -100,11 +132,18 @@ public sealed class InventoryScene(Character first, IReadOnlyList<Character>? me
                         yield return new MenuItem(s["inv.equip"], wear ? null : s["inv.no_proficiency"], wear, "equip");   // 習熟の無い武器は、品の名前の色で知らせる
                     }
                     if (def.IsUsable) yield return new MenuItem(s["inv.use"], Tag: "use");
-                    yield return new MenuItem(s["inv.give"], Enabled: Party.Count > 1, Tag: "give");
+                    yield return new MenuItem(s["inv.give"], Enabled: Party.Count > 1 || storage, Tag: "give");
                     // 大事なもの(鍵・紋章など)は捨てられない
                     yield return new MenuItem(s["inv.drop"], def.Kind == ItemKind.Key ? s["inv.key_item"] : null, def.Kind != ItemKind.Key, "drop");
                 }
                 yield return new MenuItem(s["common.back"], Tag: "back");
+                break;
+            case Mode.GiveTo when AtStorage || storage:
+                // 渡す相手と袋の空き。人のページからは、最後に倉庫(預ける)
+                foreach (var c in Party)
+                    yield return new MenuItem(c.Name, s.Format("house.slots", c.Inventory.Items.Count, c.Inventory.Capacity(Data.Items)), AtStorage || c != Owner, c);
+                if (!AtStorage)
+                    yield return new MenuItem(s["house.storage"], s.Format("house.slots", House.Storage.Count, House.Capacity(_levels)), Tag: "storage");
                 break;
             case Mode.GiveTo:
             case Mode.UseOn:
@@ -193,16 +232,28 @@ public sealed class InventoryScene(Character first, IReadOnlyList<Character>? me
                 else Give(to, it, 1);
                 return;
             }
+            case (Mode.GiveTo, "storage"):
+            {
+                var it = (ItemInstance)_picked!;
+                if (it.Count > 1)
+                    Stack.Push(new CountScene(Services.Strings.Format("inv.give_count", ItemText.Name(Services, it, count: false), Services.Strings["house.storage"]), it.Count,
+                        n => Deposit(it, n)));
+                else Deposit(it, 1);
+                return;
+            }
             case (Mode.UseOn, Character target):
                 Use(target);
                 return;
         }
     }
 
-    /// <summary>n 個を渡す(追加効果なども、そのまま渡る)。相手の袋に入らなければ渡さない。</summary>
+    /// <summary>
+    /// n 個を渡す(追加効果なども、そのまま渡る)。相手の袋に入らなければ渡さない。倉庫のページなら、倉庫から出して渡す(引き出す)。
+    /// </summary>
     private void Give(Character to, ItemInstance it, int n)
     {
         var s = Services.Strings;
+        var from = AtStorage ? House.Storage : Inv.Items;
         var part = it.SplitOne();
         part.Count = n;
         // 相手の袋に入りきらなければ、入るぶんだけ渡す
@@ -213,9 +264,25 @@ public sealed class InventoryScene(Character first, IReadOnlyList<Character>? me
             Message = fit < n ? s.Format("inv.given_some", ItemText.Name(Services, part), to.Name, fit)
                 : s.Format("inv.given", ItemText.Name(Services, part), to.Name);
             it.Count -= fit;
-            if (it.Count <= 0) Inv.Items.Remove(it);
+            if (it.Count <= 0) from.Remove(it);
         }
         else Message = s.Format("inv.bag_full", to.Name);
+        Go(Mode.List);
+    }
+
+    /// <summary>n 個を倉庫に預ける(重ねられる品は倉庫の同じ品に重ねる)。倉庫がいっぱいなら預けない。</summary>
+    private void Deposit(ItemInstance it, int n)
+    {
+        var s = Services.Strings;
+        var part = it.SplitOne();
+        part.Count = n;
+        if (House.Deposit(part, Data.Items, _levels))
+        {
+            Message = s.Format("house.deposited", ItemText.Name(Services, part));
+            it.Count -= n;
+            if (it.Count <= 0) Inv.Items.Remove(it);
+        }
+        else Message = s["house.full"];
         Go(Mode.List);
     }
 
@@ -292,7 +359,7 @@ public sealed class InventoryScene(Character first, IReadOnlyList<Character>? me
             List.SetItems(items, Math.Max(0, items.FindIndex(i => i.Enabled)));
             return;
         }
-        if (_mode == Mode.List)
+        if (_mode == Mode.List && !AtStorage)
         {
             // 装備と袋の切り替え(左右キーか、上のボタンをクリック)
             if (input.Repeat(GameAction.Left)) SwitchTab(Tab.Equip);
@@ -326,6 +393,12 @@ public sealed class InventoryScene(Character first, IReadOnlyList<Character>? me
     {
         base.Draw(d);
         var s = Services.Strings;
+        if (AtStorage)
+        {
+            // 倉庫: タブの代わりに、使っている枠と全部の枠
+            d.Text(s.Format("house.storage_slots", House.Storage.Count, House.Capacity(_levels)), new Vector2(ListArea.X - 4, TabRect(Tab.Equip).Y + 4), 20, Theme.Dim);
+            return;
+        }
         foreach (var t in Enum.GetValues<Tab>())
         {
             var r = TabRect(t);
@@ -356,7 +429,7 @@ public sealed class InventoryScene(Character first, IReadOnlyList<Character>? me
         {
             y = Line(d, area, y, ItemText.Name(Services, it), Theme.Title, 24);
             foreach (var line in ItemText.Lines(Services, it)) y = Line(d, area, y, line, Theme.Text, 18);
-            if (ItemText.ProficiencyNote(Services, it, Owner) is { } pn) y = Line(d, area, y + 4, pn, Theme.Caution, 18);   // この人に習熟が無ければ
+            if (!AtStorage && ItemText.ProficiencyNote(Services, it, Owner) is { } pn) y = Line(d, area, y + 4, pn, Theme.Caution, 18);   // この人に習熟が無ければ
         }
     }
 }

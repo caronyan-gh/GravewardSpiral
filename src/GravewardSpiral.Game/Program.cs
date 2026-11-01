@@ -10,7 +10,9 @@ if (args.Any(a => a is "--help" or "-h" or "/?"))
     return 0;
 }
 
-using var game = new GravewardGame(LaunchOptions.Parse(args));
+var options = LaunchOptions.Parse(args);
+if (!SingleInstance.Claim(options)) return 0;   // 動いているゲームへファイルを渡した
+using var game = new GravewardGame(options);
 game.Run();
 return 0;
 

@@ -4,16 +4,11 @@ using GravewardSpiral.Core.Characters;
 namespace GravewardSpiral.Core.Save;
 
 /// <summary>
-/// クランファイル(名簿をまるごと書き出したもの。*.gwclan.json)。パーティと控えのキャラを、持ち物と金ごと持つ。
-/// 別のシナリオや新しいゲームを、このクランで始められる(三部作を同じキャラで続けて遊ぶ)。
-/// 迷宮に残っている人(全滅して回収していない人)は入れない。
+/// セーブにあるクランの見出し(新しく始めるの画面で、連れていくクランを選ぶのに使う)。名簿・クランハウス・クリアの印など。
+/// クランをファイルにして持ち出すのは SaveStore.ExportClan(.gsclan)。
 /// </summary>
 public sealed class ClanFile
 {
-    public const string Extension = ".gwclan.json";
-    public const int CurrentVersion = 1;
-
-    public int Version { get; set; } = CurrentVersion;
     public string Name { get; set; } = "";
 
     /// <summary>クランの id(GameSession.ClanId)。持ち込んだ世界のセーブも、このクランのものとして並ぶ。</summary>
@@ -21,14 +16,13 @@ public sealed class ClanFile
 
     public DateTime SavedAt { get; set; } = DateTime.Now;
 
-    /// <summary>書き出したときに遊んでいたシナリオ(標準なら null)と、クリアしていたか。</summary>
+    /// <summary>最近遊んだ世界のシナリオ(自由な迷宮なら null)。</summary>
     public string? Scenario { get; set; }
-    public bool Cleared { get; set; }
 
     /// <summary>このクランがクリアした世界の数(周回の数)。</summary>
     public int Clears { get; set; }
 
-    /// <summary>クリアの印(ScenarioClears)。null は印を持つ前のファイル(読むときに、書き出したときのシナリオとクリアから拾う)。</summary>
+    /// <summary>クリアの印(ScenarioClears)。</summary>
     public Dictionary<string, int>? ClearedScenarios { get; set; }
 
     /// <summary>このクランが見たイベント(新しい世界では出にくくする)。</summary>
@@ -39,8 +33,7 @@ public sealed class ClanFile
 
     public List<Character> Characters { get; set; } = [];
 
-    /// <summary>このクランで遊んだ世界のシナリオ(null は自由な迷宮。セーブのクランは世界の一覧から、書き出したクランファイルは Scenario から)。連れて入れるかを決める(ClanImport)。</summary>
-    [System.Text.Json.Serialization.JsonIgnore]
+    /// <summary>このクランで遊んだ世界のシナリオ(null は自由な迷宮)。連れて入れるかを決める(ClanImport)。</summary>
     public List<string?> Played { get; set; } = [];
 
     /// <summary>パーティの並び(キャラの Id)。</summary>
@@ -48,51 +41,6 @@ public sealed class ClanFile
 
     /// <summary>クランハウス(倉庫の中身と段階)。</summary>
     public ClanHouse House { get; set; } = new();
-
-    public static ClanFile From(GameSession session, string name, string? scenario)
-    {
-        var roster = session.Roster;
-        var chars = roster.Characters.Where(roster.Available).ToList();
-        return new ClanFile
-        {
-            Name = name,
-            Id = session.ClanId,
-            Scenario = scenario,
-            Cleared = session.Flags.Contains("cleared"),
-            Clears = session.Clears,
-            ClearedScenarios = new(session.ClearedScenarios, StringComparer.Ordinal),
-            EventsSeen = session.EventsSeen.Order(StringComparer.Ordinal).ToList(),
-            LegendsHeard = new(session.LegendsHeard, StringComparer.Ordinal),
-            Characters = chars,
-            Party = roster.Party.Where(id => chars.Any(c => c.Id == id)).ToList(),
-            House = session.ClanHouse,
-        };
-    }
-
-    /// <summary>名前をファイル名にして書き出す(同じ名前があれば上書き)。書いたパスを返す。</summary>
-    public string Save(string dir)
-    {
-        Directory.CreateDirectory(dir);
-        string safe = string.Concat(Name.Select(ch => Path.GetInvalidFileNameChars().Contains(ch) ? '_' : ch)).Trim();
-        if (safe.Length == 0) safe = "clan";
-        string path = Path.Combine(dir, safe + Extension);
-        File.WriteAllText(path, JsonSerializer.Serialize(this, SaveStore.Json));
-        return path;
-    }
-
-    public static ClanFile Load(string path)
-    {
-        var node = System.Text.Json.Nodes.JsonNode.Parse(File.ReadAllText(path)) ?? throw new InvalidDataException("クランファイルが空です");
-        var clan = node.Deserialize<ClanFile>(SaveStore.Json) ?? throw new InvalidDataException("クランファイルが空です");
-        if (clan.Version > CurrentVersion) throw new InvalidDataException($"このクランファイル(版 {clan.Version})は、今のゲームより新しいので読めません");
-        foreach (var c in clan.Characters) c.NormalizeClasses();
-        if (clan.Cleared && clan.Clears == 0) clan.Clears = 1;   // 数を持つ前のファイル
-        clan.ClearedScenarios ??= clan.Cleared && clan.Scenario is { } sc
-            ? new(StringComparer.Ordinal) { [ScenarioClears.IdPrefix + sc] = 1 }
-            : new(StringComparer.Ordinal);
-        clan.Played = [clan.Scenario];
-        return clan;
-    }
 
     /// <summary>
     /// セーブにあるクラン(新しい世界をそのクランで始める。名簿は写さずに、そのクランのものを使う)。Path は "clan:&lt;id&gt;"。
@@ -113,7 +61,7 @@ public sealed class ClanFile
                     Id = data.Id,
                     SavedAt = summary.SavedAt,
                     Scenario = summary.Latest?.Scenario,
-                    Played = summary.Worlds.Select(w => w.Scenario).ToList(),
+                    Played = summary.Worlds.Select(w => w.Scenario).Concat(data.PlayedBefore).Distinct().ToList(),
                     Clears = data.Clears,
                     ClearedScenarios = data.ClearedScenarios,
                     EventsSeen = data.EventsSeen,
@@ -125,42 +73,5 @@ public sealed class ClanFile
             catch (Exception ex) when (ex is JsonException or IOException or InvalidDataException) { }
         }
         return list;
-    }
-
-    /// <summary>フォルダのクランファイルを、新しい順に(読めないものは飛ばす)。</summary>
-    public static List<(string Path, ClanFile Clan)> List(string dir)
-    {
-        var list = new List<(string, ClanFile)>();
-        if (!Directory.Exists(dir)) return list;
-        foreach (var path in Directory.EnumerateFiles(dir, "*" + Extension))
-        {
-            try { list.Add((path, Load(path))); }
-            catch (Exception ex) when (ex is JsonException or IOException or InvalidDataException) { }
-        }
-        return list.OrderByDescending(x => x.Item2.SavedAt).ToList();
-    }
-
-    /// <summary>新しいゲームの名簿にする(クランのキャラを写し、パーティの並びも戻す。迷宮の状態は持ち込まない)。</summary>
-    public void ApplyTo(GameSession session)
-    {
-        // 写してから入れる(同じクランで何度始めても、元のファイルのキャラは変わらない)
-        var copy = JsonSerializer.Deserialize<List<Character>>(JsonSerializer.Serialize(Characters, SaveStore.Json), SaveStore.Json) ?? [];
-        foreach (var c in copy)
-        {
-            c.NormalizeClasses();
-            c.Lasting.Clear();
-            session.Roster.Characters.Add(c);
-        }
-        foreach (var id in Party)
-        {
-            if (session.Roster.Find(id) is { } c) session.Roster.AddToParty(c);
-        }
-        session.ClanHouse = JsonSerializer.Deserialize<ClanHouse>(JsonSerializer.Serialize(House, SaveStore.Json), SaveStore.Json) ?? new();
-        session.ClanName ??= Name;
-        if (Id != null) session.ClanId = Id;
-        session.Clears = Clears;
-        session.ClearedScenarios = new(ClearedScenarios ?? [], StringComparer.Ordinal);
-        session.EventsSeen = EventsSeen.ToHashSet(StringComparer.Ordinal);
-        session.LegendsHeard = new(LegendsHeard, StringComparer.Ordinal);
     }
 }

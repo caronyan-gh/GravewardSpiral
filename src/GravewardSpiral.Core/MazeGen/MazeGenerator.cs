@@ -59,25 +59,18 @@ public sealed class MazeGenerator
             }).ToList();
             if (eligible.Count > 0) onceFloor[rule] = eligible[onceRng.Next(0, eligible.Count)];
         }
+        // 階の大きさは先に全部決める(上下の座標をそろえるとき、下り階段を下の階に入る所に置くため)
+        var sizes = new List<(int W, int H)>();
+        for (int i = 0; i < floors; i++)
+            sizes.Add((Math.Clamp(Pick(sizeRng, req.SizeMode.MinWidth, req.SizeMode.MaxWidth), _s.MinSize, _s.MaxSize),
+                Math.Clamp(Pick(sizeRng, req.SizeMode.MinHeight, req.SizeMode.MaxHeight), _s.MinSize, _s.MaxSize)));
         for (int i = 0; i < floors; i++)
         {
-            int w = Math.Clamp(Pick(sizeRng, req.SizeMode.MinWidth, req.SizeMode.MaxWidth), _s.MinSize, _s.MaxSize);
-            int h = Math.Clamp(Pick(sizeRng, req.SizeMode.MinHeight, req.SizeMode.MaxHeight), _s.MinSize, _s.MaxSize);
-            double depth = floors == 1 ? 1.0 : i / (double)(floors - 1);
-            MazeFloor? floor = null;
-            for (int attempt = 0; attempt < _s.MaxAttempts && floor == null; attempt++)
-            {
-                var rng = RngStreams.Create(req.Seed, $"mazegen/floor{i}/try{attempt}");
-                var candidate = new FloorBuilder(_s, rng, i, w, h, depth, isLast: i == floors - 1,
-                    onceHere: onceFloor.Where(kv => kv.Value == i).Select(kv => kv.Key).ToHashSet()).Build();
-                var check = ReachabilityValidator.Validate(new Dungeon("check", [candidate]), includeChutes: false);
-                // 1階だけで調べるときは、下り階段の先が無いので、町へ戻れるかだけを見る
-                if (check.Ok) floor = candidate;
-                else log.Add($"B{i + 1} 作り直し({attempt + 1}回目): {string.Join(" / ", check.Problems)}");
-            }
-            if (floor == null)
-                throw new InvalidOperationException($"B{i + 1} を {_s.MaxAttempts} 回作っても検査を通りませんでした(最後: {log.LastOrDefault()})");
-            list.Add(floor);
+            var (w, h) = sizes[i];
+            // そろえるときは、上の階の下り階段と同じ座標に上り階段を置く
+            GridPos? upAt = _s.AlignStairs && i > 0 ? list[i - 1].FindFeature(CellFeature.StairsDown) : null;
+            (int W, int H)? below = _s.AlignStairs && i + 1 < floors ? sizes[i + 1] : null;
+            list.Add(BuildFloor(req.Seed, i, floors, w, h, onceFloor.Where(kv => kv.Value == i).Select(kv => kv.Key).ToHashSet(), upAt, null, below, log));
         }
 
         // シュート: 下の階ができてから、行き先を決める
@@ -89,8 +82,12 @@ public sealed class MazeGenerator
             int count = _s.Chutes.Count.Pick(rng);
             for (int k = 0; k < count; k++)
             {
-                var from = FloorBuilder.PickPlainCell(list[i], rng, corridorOnly: true);
-                var to = FloorBuilder.PickPlainCell(list[i + 1], rng, corridorOnly: false);
+                // そろえるときは、真下の同じ座標が空いているマスにだけ置き、そこへ落とす
+                var lower = list[i + 1];
+                var from = _s.AlignStairs
+                    ? FloorBuilder.PickPlainCell(list[i], rng, corridorOnly: true, exclude: p => !lower.InBounds(p.X, p.Y) || !FloorBuilder.IsPlain(lower, p))
+                    : FloorBuilder.PickPlainCell(list[i], rng, corridorOnly: true);
+                var to = _s.AlignStairs ? from : FloorBuilder.PickPlainCell(lower, rng, corridorOnly: false);
                 if (from == null || to == null) continue;
                 list[i][from.Value].Feature = CellFeature.Chute;
                 list[i][from.Value].Target = new WarpTarget(null, to.Value);
@@ -125,6 +122,30 @@ public sealed class MazeGenerator
         return new Output(dungeon, log);
     }
 
+    /// <summary>
+    /// 1階だけ作り直す(エディタの「この階を自動で作り直す」)。upAt・downAt を渡すと、上り・下り階段をその座標に置く
+    /// (上下の座標をそろえる迷宮で、上下の階の階段に合わせる)。
+    /// </summary>
+    public MazeFloor Floor(ulong seed, int index, int floors, int width, int height, GridPos? upAt = null, GridPos? downAt = null) =>
+        BuildFloor(seed, index, floors, width, height, [], upAt, downAt, null, []);
+
+    /// <summary>1階を作り、階の中で行けるかを調べる(通らなければ乱数を変えて作り直す)。</summary>
+    private MazeFloor BuildFloor(ulong seed, int i, int floors, int w, int h, HashSet<PrefabRule> onceHere,
+        GridPos? upAt, GridPos? downAt, (int W, int H)? below, List<string> log)
+    {
+        double depth = floors == 1 ? 1.0 : i / (double)(floors - 1);
+        for (int attempt = 0; attempt < _s.MaxAttempts; attempt++)
+        {
+            var rng = RngStreams.Create(seed, $"mazegen/floor{i}/try{attempt}");
+            var candidate = new FloorBuilder(_s, rng, i, w, h, depth, isLast: i == floors - 1, onceHere: onceHere, upAt: upAt, downAt: downAt, below: below).Build();
+            var check = ReachabilityValidator.Validate(new Dungeon("check", [candidate]), includeChutes: false);
+            // 1階だけで調べるときは、下り階段の先が無いので、町へ戻れるかだけを見る
+            if (check.Ok) return candidate;
+            log.Add($"B{i + 1} 作り直し({attempt + 1}回目): {string.Join(" / ", check.Problems)}");
+        }
+        throw new InvalidOperationException($"B{i + 1} を {_s.MaxAttempts} 回作っても検査を通りませんでした(最後: {log.LastOrDefault()})");
+    }
+
     private static int Pick(IRandom rng, int min, int max) => max <= min ? min : rng.Next(min, max + 1);
 }
 
@@ -149,9 +170,22 @@ internal sealed class FloorBuilder
 
     private readonly HashSet<PrefabRule> _onceHere;
 
-    public FloorBuilder(MazeGenSettings s, IRandom rng, int index, int w, int h, double depth, bool isLast, HashSet<PrefabRule>? onceHere = null)
+    /// <summary>上り階段を置く座標(上の階の下り階段とそろえるとき)。null なら自由に選ぶ。</summary>
+    private readonly GridPos? _upAt;
+
+    /// <summary>下り階段を置く座標(1階だけ作り直すとき、下の階の上り階段に合わせる)。null なら上り階段から遠い所。</summary>
+    private readonly GridPos? _downAt;
+
+    /// <summary>下の階の大きさ(そろえるとき、下り階段をこの中に置く)。null なら気にしない。</summary>
+    private readonly (int W, int H)? _below;
+
+    public FloorBuilder(MazeGenSettings s, IRandom rng, int index, int w, int h, double depth, bool isLast, HashSet<PrefabRule>? onceHere = null,
+        GridPos? upAt = null, GridPos? downAt = null, (int W, int H)? below = null)
     {
         _onceHere = onceHere ?? [];
+        _upAt = upAt is { } u && u.X < w && u.Y < h ? u : null;
+        _downAt = downAt is { } dn && dn.X < w && dn.Y < h && dn != _upAt && !isLast ? dn : null;
+        _below = below;
         _s = s;
         _rng = rng;
         _index = index;
@@ -255,7 +289,7 @@ internal sealed class FloorBuilder
                 bool free = true;
                 for (int x = ox - 1; x <= ox + prefab.Width && free; x++)
                 for (int y = oy - 1; y <= oy + prefab.Height && free; y++)
-                    free = !_locked[x, y];
+                    free = !_locked[x, y] && !Reserved(new GridPos(x, y));
                 if (!free) continue;
                 foreach (var p in prefab.AllCells())
                 {
@@ -380,7 +414,7 @@ internal sealed class FloorBuilder
             bool changed = false;
             foreach (var p in _f.AllCells())
             {
-                if (_room[p.X, p.Y] != 0 || _locked[p.X, p.Y] || _f[p].IsSolid) continue;
+                if (_room[p.X, p.Y] != 0 || _locked[p.X, p.Y] || _f[p].IsSolid || Reserved(p)) continue;
                 var open = OpenDirs(p);
                 if (open.Count != 1 || _rng.NextDouble() >= _s.DeadEndFill) continue;
                 SetWall(p, open[0]);
@@ -395,16 +429,23 @@ internal sealed class FloorBuilder
 
     private void PlaceStairs()
     {
-        var up = PickPlainCell(_f, _rng, corridorOnly: false, exclude: Locked) ?? throw new InvalidOperationException("階段を置くマスがありません");
+        var up = _upAt ?? PickPlainCell(_f, _rng, corridorOnly: false, exclude: Locked) ?? throw new InvalidOperationException("階段を置くマスがありません");
         _f[up].Feature = CellFeature.StairsUp;
         _f.Start = up;
         _f.StartFacing = OpenDirs(up).FirstOrDefault();
         if (_isLast) return;
 
+        if (_downAt is { } fixedDown)
+        {
+            _f[fixedDown].Feature = CellFeature.StairsDown;
+            return;
+        }
         // 下り階段は、上り階段から遠いマス(遠い方から 1 割のうちのどれか)
         var dist = Distances(up);
         var far = dist.Where(kv => kv.Value > 0 && Plain(kv.Key) && !_locked[kv.Key.X, kv.Key.Y])
             .OrderByDescending(kv => kv.Value).ThenBy(kv => kv.Key.Y).ThenBy(kv => kv.Key.X).ToList();
+        // そろえるときは、下の階に入る座標だけ(下の階が小さいとき)
+        if (_below is { } b && far.Where(kv => kv.Key.X < b.W && kv.Key.Y < b.H).ToList() is { Count: > 0 } inside) far = inside;
         if (far.Count == 0) throw new InvalidOperationException("下り階段を置くマスがありません");
         int top = Math.Max(1, far.Count / 10);
         _f[far[_rng.Next(0, top)].Key].Feature = CellFeature.StairsDown;
@@ -604,6 +645,13 @@ internal sealed class FloorBuilder
     private bool Plain(GridPos p) => _f[p].Feature == CellFeature.None;
 
     /// <summary>仕掛けの無い、入れるマスを選ぶ。corridorOnly なら部屋の中を除く。</summary>
+    /// <summary>階段の座標が決まっているマス(プレハブをかぶせず、行き止まりでも埋めない)。</summary>
+    private bool Reserved(GridPos p) => p == _upAt || p == _downAt;
+
+    /// <summary>仕掛けが無く、どこかへ通じているマス(シュートの落ちる先にできる)。</summary>
+    internal static bool IsPlain(MazeFloor f, GridPos p) =>
+        f[p] is { Feature: CellFeature.None } c && DirectionExtensions.All.Any(d => c[d] != EdgeType.Wall);
+
     internal static GridPos? PickPlainCell(MazeFloor f, IRandom rng, bool corridorOnly, Func<GridPos, bool>? exclude = null)
     {
         var list = f.AllCells().Where(p =>

@@ -19,6 +19,13 @@ public sealed record ScenarioInfo(PackManifest Manifest, string Source, string D
 /// </summary>
 public static class ScenarioCatalog
 {
+    /// <summary>シナリオを1つのファイルに固めたときの拡張子(中は zip)。</summary>
+    public const string PackExtension = ".gssnro";
+
+    /// <summary>1つのファイルに固めたシナリオか(.gssnro。ふつうの .zip も同じ形なら読む)。</summary>
+    public static bool IsPackFile(string path) =>
+        path.EndsWith(PackExtension, StringComparison.OrdinalIgnoreCase) || path.EndsWith(".zip", StringComparison.OrdinalIgnoreCase);
+
     public const string Kind = "scenario";
 
     /// <summary>第1部(墓守の螺旋)のシナリオの id。前は標準のパックに入っていたので、シナリオの無い古いセーブはこれで読む。</summary>
@@ -42,7 +49,7 @@ public static class ScenarioCatalog
         {
             if (Read(sub, sub, problems) is { } info) yield return info;
         }
-        foreach (var zip in System.IO.Directory.EnumerateFiles(dir, "*.zip").Where(f => !Path.GetFileName(f).StartsWith('.')).Order(StringComparer.Ordinal))
+        foreach (var zip in System.IO.Directory.EnumerateFiles(dir).Where(f => IsPackFile(f) && !Path.GetFileName(f).StartsWith('.')).Order(StringComparer.Ordinal))
         {
             string folder;
             try

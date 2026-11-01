@@ -1,6 +1,6 @@
 """配布用のビルドをして、Inno Setup でインストーラーを作る。
 
-使い方: python tools/make_installer.py [--version 0.3.3] [--skip-publish]
+使い方: python tools/make_installer.py [--version 0.3.4] [--skip-publish]
   1. dotnet publish で、.NET を入れていない PC でも動く形(win-x64、self-contained)を out/publish に作る。
      ゲームとシナリオエディタと検査の道具(ScenarioCheck)を同じフォルダに入れる(エディタと道具は横の Content を使う。.NET の部品は同じ版なので共用する)。
      シナリオを作る人とエージェント向けの scenario-kit(手引きと、ソースから書き出した形式の一覧)も入れる(tools/make_scenario_kit.py)。
@@ -33,7 +33,7 @@ def find_iscc():
 
 def main():
     ap = argparse.ArgumentParser()
-    ap.add_argument("--version", default="0.3.3", help="インストーラーに付ける版")
+    ap.add_argument("--version", default="0.3.4", help="インストーラーに付ける版")
     ap.add_argument("--skip-publish", action="store_true", help="out/publish をそのまま使う")
     args = ap.parse_args()
 
@@ -47,7 +47,7 @@ def main():
             shutil.rmtree(PUBLISH)
         for project in (PROJECT, EDITOR, CHECK):
             subprocess.run(["dotnet", "publish", str(project), "-c", "Release", "-r", "win-x64", "--self-contained", "true",
-                            f"-p:Version={args.version}", "-o", str(PUBLISH)], check=True)
+                            f"-p:Version={args.version}", "-p:IncludeSourceRevisionInInformationalVersion=false", "-o", str(PUBLISH)], check=True)
 
     subprocess.run([sys.executable, str(ROOT / "tools" / "make_scenario_kit.py"), str(PUBLISH / "scenario-kit")], check=True)
 

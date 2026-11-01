@@ -52,8 +52,8 @@ public sealed class CheckTab : IEditorTab
         bar.Children.Add(_party);
         DockPanel.SetDock(bar, Dock.Top);
         _view.Children.Add(bar);
-        var note = Ui.Note(T("書き出し: 上の「ファイル」の「zip に書き出す」で zip にする。シナリオの置き場所(「ファイル」の「置き場所を開く」で開く)に置くか、ゲームのタイトル画面に落とすと、ゲームの「新しく始める」のシナリオに出る(エディタで作ったフォルダは、もうそこにある)。",
-            "Export: use File > \"Export zip\" above to make a zip. Put it in the scenario folder (File > \"Open scenario folder\" opens it) or drop it on the game's title screen, and it appears in the New Game scenario list (folders made in the editor are already there)."));
+        var note = Ui.Note(T("書き出し: 上の「ファイル」の「シナリオファイルに書き出す」で1つのファイル(.gssnro)にする。ダブルクリックするか、ゲームのタイトル画面に落とすと、ゲームの「新しく始める」のシナリオに出る(エディタで作ったフォルダは、もうそこにある)。",
+            "Export: use File > \"Export scenario file\" above to make one file (.gssnro). Double-click it or drop it on the game's title screen, and it appears in the New Game scenario list (folders made in the editor are already there)."));
         DockPanel.SetDock(note, Dock.Bottom);
         _view.Children.Add(note);
         _view.Children.Add(_results);

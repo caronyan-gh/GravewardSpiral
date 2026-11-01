@@ -13,13 +13,13 @@ namespace GravewardSpiral.Game.Scenes;
 /// </summary>
 public sealed class OptionsScene : Scene
 {
-    private enum Row { Language, Bgm, Se, Screen, WindowSize, StoryFont, Wireframe, LogSpeed, RepeatSpeed, Map, BackKey, MazeMouse, MazeOverlay, SpellTab, Ai, Scenarios, Back }
+    private enum Row { Language, Bgm, Se, Screen, WindowSize, StoryFont, Wireframe, LogSpeed, CursorRepeat, MoveRepeat, Map, BackKey, MazeMouse, MazeOverlay, SpellTab, Ai, Scenarios, Back }
 
     /// <summary>タブごとの項目(どのタブにも、最後に「戻る」)。</summary>
     private static readonly (string Key, Row[] Rows)[] Tabs =
     [
         ("options.tab.basic", [Row.Language, Row.Bgm, Row.Se, Row.Screen, Row.WindowSize, Row.StoryFont, Row.Wireframe, Row.Back]),
-        ("options.tab.play", [Row.LogSpeed, Row.RepeatSpeed, Row.Map, Row.BackKey, Row.MazeMouse, Row.MazeOverlay, Row.SpellTab, Row.Back]),
+        ("options.tab.play", [Row.LogSpeed, Row.CursorRepeat, Row.MoveRepeat, Row.Map, Row.BackKey, Row.MazeMouse, Row.MazeOverlay, Row.SpellTab, Row.Back]),
         ("options.tab.other", [Row.Ai, Row.Scenarios, Row.Back]),
     ];
 
@@ -44,11 +44,26 @@ public sealed class OptionsScene : Scene
 
     private RectangleF RowRect(int i) => new(Area.X + 24, Area.Y + 118 + i * RowHeight, Area.Width - 48, RowHeight - 8);
 
-    /// <summary>音量のバー(クリックか引きずりで、その位置の音量にする)。</summary>
+    /// <summary>音量と繰り返しの間隔のバーを持つ行。</summary>
+    private static bool HasBar(Row row) => row is Row.Bgm or Row.Se or Row.CursorRepeat or Row.MoveRepeat;
+
+    /// <summary>繰り返しの間隔のバーの位置(0〜1)。10〜1500ms を対数で並べる。</summary>
+    private static float RepeatFraction(int ms) =>
+        (float)(Math.Log((double)ms / GameOptions.RepeatMinMs) / Math.Log((double)GameOptions.RepeatMaxMs / GameOptions.RepeatMinMs));
+
+    /// <summary>バーの位置(0〜1)の間隔。◀ ▶ の一段の刻みにそろえる。</summary>
+    private static int RepeatAt(float fraction)
+    {
+        double ms = GameOptions.RepeatMinMs * Math.Pow((double)GameOptions.RepeatMaxMs / GameOptions.RepeatMinMs, Math.Clamp(fraction, 0, 1));
+        int unit = ms < 100 ? 5 : ms < 300 ? 10 : ms < 1000 ? 50 : 100;
+        return Math.Clamp((int)Math.Round(ms / unit) * unit, GameOptions.RepeatMinMs, GameOptions.RepeatMaxMs);
+    }
+
+    /// <summary>音量・繰り返しの間隔のバー(クリックか引きずりで、その位置の値にする)。</summary>
     private RectangleF BarRect(int i)
     {
         var r = RowRect(i);
-        return new RectangleF(r.X + 300, r.Y + 22, 220, 12);
+        return new RectangleF(r.X + 300, r.Y + 22, 190, 12);
     }
 
     private int? _dragging;   // 引きずっているバーの行
@@ -102,7 +117,7 @@ public sealed class OptionsScene : Scene
         }
         if (_cursor != before) Services.Audio.PlaySe(Sounds.Cursor);
 
-        // 音量のバー: クリックした位置にし、押したまま動かせば追いかける
+        // 音量・繰り返しのバー: クリックした位置にし、押したまま動かせば追いかける
         if (!input.LeftHeld) _dragging = null;
         if (input.Mouse is { } mp)
         {
@@ -111,15 +126,18 @@ public sealed class OptionsScene : Scene
                 for (int i = 0; i < Rows.Length; i++)
                 {
                     var b = BarRect(i);
-                    if (Rows[i] is Row.Bgm or Row.Se && new RectangleF(b.X - 8, b.Y - 14, b.Width + 16, b.Height + 28).Contains(mp)) _dragging = i;
+                    if (HasBar(Rows[i]) && new RectangleF(b.X - 8, b.Y - 14, b.Width + 16, b.Height + 28).Contains(mp)) _dragging = i;
                 }
             }
             if (_dragging is int di)
             {
                 _cursor = di;
                 var b = BarRect(di);
-                int vol = (int)Math.Round(Math.Clamp((mp.X - b.X) / b.Width, 0, 1) * 10) * 10;
-                if (SetVolume(Rows[di], vol)) Services.Audio.PlaySe(Rows[di] == Row.Se ? Sounds.Hit : Sounds.Cursor);
+                float at = Math.Clamp((mp.X - b.X) / b.Width, 0, 1);
+                bool changed = Rows[di] is Row.CursorRepeat or Row.MoveRepeat
+                    ? SetRepeat(Rows[di], RepeatAt(at))
+                    : SetVolume(Rows[di], (int)Math.Round(at * 10) * 10);
+                if (changed) Services.Audio.PlaySe(Rows[di] == Row.Se ? Sounds.Hit : Sounds.Cursor);
                 return;
             }
         }
@@ -201,12 +219,12 @@ public sealed class OptionsScene : Scene
             case Row.SpellTab:
                 O.SpellTabHover = !O.SpellTabHover;
                 break;
-            case Row.RepeatSpeed:
-            {
-                int i = Math.Max(0, Array.IndexOf(GameOptions.RepeatSpeeds, O.RepeatSpeed));
-                O.RepeatSpeed = GameOptions.RepeatSpeeds[(i + step + GameOptions.RepeatSpeeds.Length) % GameOptions.RepeatSpeeds.Length];
+            case Row.CursorRepeat:
+                O.CursorRepeatMs = GameOptions.RepeatStep(O.CursorRepeatMs, step);
                 break;
-            }
+            case Row.MoveRepeat:
+                O.MoveRepeatMs = GameOptions.RepeatStep(O.MoveRepeatMs, step);
+                break;
             case Row.MazeMouse:
                 O.MazeMouse = !O.MazeMouse;
                 break;
@@ -251,6 +269,17 @@ public sealed class OptionsScene : Scene
         return true;
     }
 
+    /// <summary>繰り返しの間隔を直接決める。変わったら true。</summary>
+    private bool SetRepeat(Row row, int ms)
+    {
+        int old = row == Row.CursorRepeat ? O.CursorRepeatMs : O.MoveRepeatMs;
+        if (old == ms) return false;
+        if (row == Row.CursorRepeat) O.CursorRepeatMs = ms;
+        else O.MoveRepeatMs = ms;
+        Services.ApplyOptions();
+        return true;
+    }
+
     /// <summary>シナリオの置き場所を開く(無ければ作る)。確かめの起動(--screenshot)では開かない。</summary>
     private void OpenScenarios()
     {
@@ -286,7 +315,8 @@ public sealed class OptionsScene : Scene
             Row.Bgm => $"{O.BgmVolume}%",
             Row.Se => $"{O.SeVolume}%",
             Row.LogSpeed => s["options.log." + O.LogSpeed],
-            Row.RepeatSpeed => s["options.repeat." + O.RepeatSpeed],
+            Row.CursorRepeat => s.Format("options.repeat.ms", O.CursorRepeatMs),
+            Row.MoveRepeat => s.Format("options.repeat.ms", O.MoveRepeatMs),
             Row.Wireframe => s[O.MonoWireframe ? "options.wire.mono" : "options.wire.color"],
             Row.StoryFont => s["options.storyfont." + O.StoryFont],
             Row.Map => s["options.map." + O.MapMode],
@@ -348,19 +378,26 @@ public sealed class OptionsScene : Scene
             float room = ra.X - (la.X + la.Width) - 8;
             float valueSize = Math.Min(24f, 24f * room / Math.Max(1f, d.Fonts.Measure(v, 24, valueStyle).X));
             d.Text(v, new Vector2((la.X + la.Width + ra.X) / 2, r.Y + 12 + (24 - valueSize) / 2), valueSize, color, TextAlign.Center, valueStyle);
-            if (Rows[i] is Row.Bgm or Row.Se)
+            if (HasBar(Rows[i]))
             {
-                int vol = Rows[i] == Row.Bgm ? O.BgmVolume : O.SeVolume;
+                float fill = Rows[i] switch
+                {
+                    Row.Bgm => O.BgmVolume / 100f,
+                    Row.Se => O.SeVolume / 100f,
+                    Row.CursorRepeat => RepeatFraction(O.CursorRepeatMs),
+                    _ => RepeatFraction(O.MoveRepeatMs),
+                };
                 var bar = BarRect(i);
                 d.Rect(bar, Theme.Frame, 1f);
-                d.FillRect(new RectangleF(bar.X, bar.Y, bar.Width * vol / 100f, bar.Height), selected ? Theme.SelectedFrame : Theme.Dim);
+                d.FillRect(new RectangleF(bar.X, bar.Y, bar.Width * fill, bar.Height), selected ? Theme.SelectedFrame : Theme.Dim);
             }
         }
         string hint = Rows[_cursor] switch
         {
             Row.BackKey => s["options.backkey.hint"],
             Row.SpellTab => s["options.spelltab.hint"],
-            Row.RepeatSpeed => s["options.repeatspeed.hint"],
+            Row.CursorRepeat => s["options.cursorrepeat.hint"],
+            Row.MoveRepeat => s["options.moverepeat.hint"],
             Row.MazeMouse => s["options.mazemouse.hint"],
             Row.MazeOverlay => s["options.mazeoverlay.hint"],
             Row.WindowSize when Services.Display?.Fullscreen == true => s["options.windowsize.hint_full"],

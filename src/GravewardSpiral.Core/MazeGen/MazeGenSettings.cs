@@ -59,6 +59,12 @@ public sealed class MazeGenSettings
     public FeatureRule Pits { get; set; } = new() { MinDepth = 0.1, Count = new(0, 3) };
     public FeatureRule Chutes { get; set; } = new() { MinDepth = 0.3, Count = new(0, 1) };
 
+    /// <summary>
+    /// 階段とシュートの上下の座標をそろえる。true なら、下の階の上り階段は上の階の下り階段と同じ座標に置き、
+    /// シュートは真下の同じ座標へ落とす(Wizardry のように、下りた真下に出る)。false なら、階ごとに別々の場所に置く。
+    /// </summary>
+    public bool AlignStairs { get; set; } = true;
+
     /// <summary>錠のある扉(その階の鍵で開く。鍵は錠より手前に置く)。</summary>
     public FeatureRule Locks { get; set; } = new() { MinDepth = 0.15, Count = new(0, 1) };
 

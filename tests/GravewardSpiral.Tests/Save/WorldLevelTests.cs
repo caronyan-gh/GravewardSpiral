@@ -73,10 +73,6 @@ public class WorldLevelTests
         var request = GenerationRequest.Default(gen, 3);
         var session = GameSession.New(0, request, new MazeGenerator(gen).Generate(request).Dungeon);
         session.Clears = 2;
-        var clan = ClanFile.From(session, "X", null);
-        Assert.Equal(2, clan.Clears);
-        var next = GameSession.New(1, request, new MazeGenerator(gen).Generate(request).Dungeon);
-        clan.ApplyTo(next);
-        Assert.Equal(2, next.Clears);
+        Assert.Equal(2, ClanData.From(session).Clears);   // クランのセーブに入り、次の世界はそこから始める
     }
 }

@@ -113,7 +113,7 @@ public sealed class TownScene : MenuScene
     }
 }
 
-/// <summary>酒場: 客の噂を聞く。パーティを組むのはクランハウスの「仲間の管理」(前は酒場だった)。</summary>
+/// <summary>酒場: 客の噂を聞く(払うほど役に立つ話になる。TavernRumors)。パーティを組むのはクランハウスの「仲間の管理」(前は酒場だった)。</summary>
 public sealed class TavernScene : MenuScene
 {
     private readonly Action _onLeave;
@@ -125,26 +125,45 @@ public sealed class TavernScene : MenuScene
     protected override IEnumerable<MenuItem> Items()
     {
         var s = Services.Strings;
-        yield return new MenuItem(s["tavern.rumor"], Tag: "rumor");
+        var session = Services.Session!;
+        long gold = Core.Items.PartyGold.Total(session.Roster.PartyMembers.ToList());
+        for (int tier = 0; tier <= Core.Events.TavernRumors.MaxTier; tier++)
+        {
+            int price = Core.Events.TavernRumors.Prices[tier];
+            string label = s["tavern.ask." + Core.Events.TavernRumors.Sources[tier]];
+            if (!Core.Events.TavernRumors.Present(tier, session.Request.Seed, session.Exploration?.Steps ?? 0))
+                yield return new MenuItem(label, s["tavern.away"], false, tier);   // 今日はいない
+            else
+                yield return new MenuItem(label, price > 0 ? $"{price} G" : null, gold >= price, tier);
+        }
         yield return new MenuItem(s["common.back"], Tag: "back");
     }
 
     protected override void Choose(MenuItem item, int index)
     {
-        if (item.Tag is "rumor") Message = Rumors();
+        if (item.Tag is int tier)
+        {
+            Message = Rumors(tier);
+            Refresh();   // 払えるかが変わる
+        }
         else Cancel();
     }
 
     /// <summary>
-    /// 酒場の噂を1つ聞く。候補は、この世界にいる名のある敵のうち噂に乗っていてまだ倒されていないもの(階は「あたり」でぼかす。
-    /// 本当の階か、1つ上か下)、シナリオの噂(条件に合うもの。出やすさの重み)、伝説の噂。聞くたびに重みで1つ選び、
-    /// 候補が2つ以上あれば、すぐ前と同じものは選ばない。候補が無ければ、ありふれた話。
+    /// 噂を1つ聞く(tier は誰に聞くか)。候補は、噂の文(パックの rumors.json。条件に合うもの。格は tier)、この世界にいる名のある敵のうち
+    /// 噂に乗っていてまだ倒されていないもの(冒険者は階を「あたり」でぼかし、情報屋は本当の階)、伝説の噂(旅商人)。
+    /// その格に話が無ければ、お金を取らない。
     /// </summary>
-    private string Rumors()
+    private string Rumors(int tier)
     {
         var s = Services.Strings;
         var session = Services.Session!;
-        var lines = new List<(string Text, double Weight, Action? Heard)>();
+        var all = new List<Core.Events.TavernRumors.Candidate>();
+        // 噂の文(条件に合うもの。文はかぎ括弧なしで書く)
+        var rng = session.Rng[Core.Rng.RngStreams.Names.Loot];
+        var ctx = new Core.Events.EventContext { Data = Services.Data, Session = session, Rng = rng };
+        foreach (var said in Core.Events.RumorDef.Available(Services.Data, ctx))
+            all.Add(new(Math.Clamp(said.Tier, 0, Core.Events.TavernRumors.MaxTier), s.Format("tavern.rumor_said", Services.Name(said.Text)), said.Weight));
         foreach (var n in session.Named.Where(n => n.Rumored && !n.Defeated))
         {
             if (!Services.Data.NamedMonsters.TryGetValue(n.Id, out var def)) continue;
@@ -152,22 +171,22 @@ public sealed class TavernScene : MenuScene
             int floors = session.Dungeon.Floors.Count;
             int shift = (n.Id.Sum(ch => ch) + n.Floor) % 3 - 1;
             int shown = Math.Clamp(n.Floor + shift, 0, floors - 1) + 1;
-            lines.Add((s.Format(n.Lair ? "tavern.rumor_lair" : "tavern.rumor_wander", shown, Services.Name(def.Name)), 1, null));
+            all.Add(new(2, s.Format(n.Lair ? "tavern.rumor_lair" : "tavern.rumor_wander", shown, Services.Name(def.Name)), 1));
+            all.Add(new(3, s.Format(n.Lair ? "tavern.rumor_lair_exact" : "tavern.rumor_wander_exact", n.Floor + 1, Services.Name(def.Name)), 1));
         }
-        // シナリオの噂(条件に合うもの。文はかぎ括弧なしで書く)
-        var rng = session.Rng[Core.Rng.RngStreams.Names.Loot];
-        var ctx = new Core.Events.EventContext { Data = Services.Data, Session = session, Rng = rng };
-        foreach (var said in Core.Events.RumorDef.Available(Services.Data, ctx)) lines.Add((s.Format("tavern.rumor_said", Services.Name(said.Text)), said.Weight, null));
         // 伝説の噂(ほかの世界の話)。聞くと、クランが覚えて、次に作る世界で出やすくなる
         if (session.LegendRumor(Services.Data) is { Rumor: { } rumor } legend)
-            lines.Add((s.Format("tavern.rumor_legend", Services.Name(rumor)), 1, () => session.HearLegend(legend.Id)));
-        if (lines.Count > 1) lines.RemoveAll(l => l.Text == _lastRumor);
-        if (lines.Count == 0) return s["tavern.rumor_none"];
-        double x = rng.NextDouble() * lines.Sum(l => l.Weight);
-        int i = 0;
-        while (i < lines.Count - 1 && (x -= lines[i].Weight) >= 0) i++;
-        lines[i].Heard?.Invoke();
-        return _lastRumor = lines[i].Text;
+            all.Add(new(4, s.Format("tavern.rumor_legend", Services.Name(rumor)), 1, () => session.HearLegend(legend.Id)));
+        var picked = Core.Events.TavernRumors.Pick(all, tier, _lastRumor, rng);
+        if (picked == null) return s[tier == 0 ? "tavern.rumor_none" : "tavern.no_story." + Core.Events.TavernRumors.Sources[tier]];
+        int price = Core.Events.TavernRumors.Prices[tier];
+        if (price > 0)
+        {
+            if (!Core.Items.PartyGold.Pay(Services.Session!.Roster.PartyMembers.ToList(), price)) return s["tavern.no_money"];
+            Services.Audio.PlaySe(Audio.Sounds.Coins);
+        }
+        picked.Heard?.Invoke();
+        return _lastRumor = picked.Text;
     }
 
     /// <summary>すぐ前に聞いた噂(続けて同じ話をしない)。</summary>
@@ -313,9 +332,12 @@ public sealed class TrainingScene : MenuScene
             if (Roster.Away.TryGetValue(ch.Id, out var where))
                 yield return new MenuItem(ch.Name, s.Format("roster.away", Services.ScenarioDisplayName(where.StartsWith("free-") ? null : where)), Enabled: false, Tag: ch);
             else
-                yield return new MenuItem(ch.Name, $"{Services.Name(Services.Data.Classes[ch.ClassId].Name)} Lv{ch.Level}{(ch.CanLevelUp || ch.AbilityPoints(Services.Data) > 0 ? " ↑" : "")}", Tag: ch);
+            {
+                // 「↑」の右下に小さく、レベルを上げられるなら LV、振っていない能力値上昇の点があれば ST(両方なら LV)
+                string? mark = ch.CanLevelUp ? s["training.mark_level"] : ch.AbilityPoints(Services.Data) > 0 ? s["training.mark_asi"] : null;
+                yield return new MenuItem(ch.Name, $"{Services.Name(Services.Data.Classes[ch.ClassId].Name)} Lv{ch.Level}{(mark != null ? " ↑" : "")}", Tag: ch, DetailMark: mark);
+            }
         }
-        yield return new MenuItem(s["training.export_clan"], Enabled: Roster.Characters.Count > 0, Tag: "export");
         yield return new MenuItem(s["common.back"], Tag: "back");
     }
 
@@ -338,24 +360,6 @@ public sealed class TrainingScene : MenuScene
         var s = Services.Strings;
         switch (item.Tag)
         {
-            case "export":
-                // 名簿をまるごとクランファイルに書き出す(別のシナリオや新しいゲームに連れていける)
-                Stack.Push(new TextEntryScene(s["training.clan_name"], Services.Session!.ClanName ?? "", NewGameScene.ClanNameLength, name =>
-                {
-                    Services.Session!.ClanName ??= name;   // 名前の無いクランなら、書き出した名前をクランの名前にする
-                    Core.Save.OriginalItems.Snapshot(Services.Data, Core.Save.OriginalItems.All(Services.Session!));   // オリジナルの品は中身も書く
-                    var clan = ClanFile.From(Services.Session!, name, Services.Content.Scenario?.Id);
-                    try
-                    {
-                        clan.Save(AppPaths.Clans);
-                        Message = s.Format("training.clan_saved", name, clan.Characters.Count);
-                    }
-                    catch (Exception ex) when (ex is IOException or UnauthorizedAccessException)
-                    {
-                        Message = ex.Message;
-                    }
-                }, suggest: Services.ClanNameSuggester()));
-                break;
             case "create":
                 Stack.Push(new CharacterCreateScene(c =>
                 {
@@ -456,27 +460,22 @@ public sealed class TrainingScene : MenuScene
         _onLeave();
     }
 
-    /// <summary>そのクラスを1つ上げると増えるもの(クラスの技、勝手に効く能力、能力値上昇の点、攻撃の回数、使える呪文のレベル)。</summary>
-    private List<string> LevelGains(Character who, ClassDef cls)
+    /// <summary>成長表のボタン(クラスを選んでいるときに説明の欄に出す。Draw で決める)。</summary>
+    private RectangleF? _growthButton;
+    private Vector2? _mouse;   // ボタンを光らせる
+
+    public override void Update(GameTime time, Input.InputState input)
     {
-        var s = Services.Strings;
-        var data = Services.Data;
-        var next = Core.Save.EventAuthoring.Copy(who);
-        next.NormalizeClasses();
-        if (next.Classes.FirstOrDefault(x => x.ClassId == cls.Id) is { } entry) entry.Level++;
-        else next.Classes.Add(new ClassLevel { ClassId = cls.Id, Level = 1 });
-        next.Level++;
-        var gains = new List<string>();
-        var had = ClassFeatures.ActiveFor(Services.Data, who).Select(f => f.Id).ToHashSet();
-        gains.AddRange(ClassFeatures.ActiveFor(Services.Data, next).Where(f => !had.Contains(f.Id)).Select(f => s["feature." + f.Id]));
-        var hadPassive = ClassFeatures.Passives(Services.Data, who).ToHashSet();
-        gains.AddRange(ClassFeatures.Passives(Services.Data, next).Where(p => !hadPassive.Contains(p)).Select(p => s["passive." + p]));
-        if (next.AbilityPoints(Services.Data) > who.AbilityPoints(Services.Data)) gains.Add(s.Format("training.gain_asi", next.AbilityPoints(Services.Data) - who.AbilityPoints(Services.Data)));
-        if (Core.Combat.CombatEngine.AttacksPerAction(Services.Data, next) > Core.Combat.CombatEngine.AttacksPerAction(Services.Data, who)) gains.Add(s.Format("training.gain_attacks", Core.Combat.CombatEngine.AttacksPerAction(Services.Data, next)));
-        // そのクラスで覚えられる呪文のレベル(マルチクラスの合算のスロットのレベルではない)
-        if (cls.Spellcasting != null && Spellcasting.ClassMaxSpellLevel(Services.Data, cls, next) is var lv and > 0 && lv > Spellcasting.ClassMaxSpellLevel(Services.Data, cls, who))
-            gains.Add(s.Format("training.gain_spell_level", lv));
-        return gains;
+        _mouse = input.Mouse;
+        // クラスを選んでいるときは、地図のキーかボタンで、カーソルのクラスの成長表を開く
+        if (_pickingClass && _selected is { } who && List.Current?.Tag is ClassDef cls
+            && (input.Pressed(Input.GameAction.Map) || input.LeftClicked && _growthButton is { } b && input.Mouse is { } m && b.Contains(m)))
+        {
+            Services.Audio.PlaySe(Audio.Sounds.Confirm);
+            Stack.Push(new ClassGrowthScene(cls, who.LevelIn(cls.Id)));
+            return;
+        }
+        base.Update(time, input);
     }
 
     protected override void DrawInfo(Draw2D d, RectangleF area)
@@ -492,8 +491,18 @@ public sealed class TrainingScene : MenuScene
             y = Line(d, area, y, s.Format("create.saves", s.List(cls.Saves.Select(x => s[$"ability.{x}"]))), Theme.Text, 19);
             if (now == 0 && who.ClassIds.Any()) y = Line(d, area, y, s["training.no_multiclass_saves"], Theme.Dim, 16);   // マルチクラスでは、セーヴの習熟は得ない(5版)
             y = Line(d, area, y, s.Format("create.primary", s.List(cls.PrimaryAbilities.Take(2).Select(a => s[$"ability.{a.Code()}"]))), Theme.Text, 19);
-            var gains = LevelGains(who, cls);
+            var gains = ClassGrowth.Gains(Services, who, cls);
             y = Line(d, area, y + 6, gains.Count > 0 ? s.Format("training.gains", s.List(gains)) : s["training.gains_none"], Theme.Good, 18);
+            // 成長表のボタン(地図のキーでも開く)
+            string label = s["training.growth"];
+            float w = d.Fonts.Measure(label, 17).X + 28;
+            var button = new RectangleF(area.X + 20, y + 8, w, 32);
+            bool hover = _mouse is { } hm && button.Contains(hm);
+            if (hover) d.FillRect(button, Theme.SelectedFill);
+            d.Rect(button, hover ? Theme.SelectedFrame : Theme.Frame, 1f);
+            d.Text(label, new Vector2(button.X + 14, button.Y + 6), 17, Theme.Text);
+            _growthButton = button;
+            y = button.Y + button.Height;
             // クラスの説明は、欄に収まる大きさで(英語は長い)
             string desc = Services.Name(cls.Description);
             float room = area.Y + area.Height - 12 - (y + 6), size = 17;
@@ -501,6 +510,7 @@ public sealed class TrainingScene : MenuScene
             Line(d, area, y + 6, desc, Theme.Dim, size);
             return;
         }
+        _growthButton = null;
         var c = _selected ?? List.Current?.Tag as Character;
         if (c != null) StatusScene.DrawSummary(d, Services, c, new Vector2(area.X + 20, area.Y + 20));
         else Line(d, area, area.Y + 20, Services.Strings["training.about"], Theme.Text, 19);

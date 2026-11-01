@@ -99,7 +99,9 @@ Press Confirm at the up stairs on B1 to return to town. The game saves automatic
 
 ### Clan House
 
-Your clan's shared base. Manage equipment, and under Party, form your party (add or remove companions and change their order) and use "View Status". A party holds up to six members: the first three are the front row and the rest are the back row. You can also deposit or withdraw items.
+Your clan's shared base. Manage equipment, and under Party, form your party (add or remove companions and change their order) and use "View Status". A party holds up to six members: the first three are the front row and the rest are the back row. You can also deposit or withdraw items. While choosing items to deposit, Left/Right (or < > and L2/R2, as on the item screen) switch members.
+
+"Sort Items" works like the item screen, with a Storehouse page after the six members (F7); you can also open it from "Storehouse" in the member list. Give an item to "Storehouse" to deposit it, or give an item on the Storehouse page to a member to take it out.
 
 Upgrades require gold and sometimes materials. They increase storage and add facilities. Once you have beds, you can take a long rest for free. Basic beds restore HP up to 70% of maximum; better beds restore it fully. HP above the recovery limit is not reduced.
 
@@ -107,7 +109,7 @@ Other facilities offer benefits such as cheaper identification with a library. T
 
 ### Tavern
 
-Hear rumors from patrons, such as where named foes lurk in the maze or news from town. Party forming is done under Party at the Clan House.
+Hear rumors from patrons. Small talk is free; tipping the server (1G), buying an adventurer a drink (10G), paying an informant (50G) or buying a merchant's tale (100G) gets you more useful talk. Adventurers know roughly which floor a named foe is on, informants know the exact floor, and merchants tell legends of far lands. Now and then the talk is better, or duller, than you paid for. The informant and the merchant come and go each time you return from the maze. If they have nothing to tell, you pay nothing. Party forming is done under Party at the Clan House.
 
 ### Inn
 
@@ -128,7 +130,7 @@ Resurrect dead companions and treat conditions such as poison and paralysis. You
 
 ### Training Grounds
 
-Create characters, inspect their status, level up, rename them, or delete them. You can also change spell selections here. "Export Clan" saves the roster to a file.
+Create characters, inspect their status, level up, rename them, or delete them. You can also change spell selections here. Clans are exported and imported from the clan list under Continue on the title screen.
 
 ### Enter the Maze
 
@@ -323,6 +325,7 @@ The minimap in the upper-right corner shows your surroundings. Press M to open a
 
 - Visited squares and discovered walls and doors are recorded automatically.
 - The larger map shows only the area revealed by exploration. It does not reveal the full size of an unexplored floor.
+- On the larger map, Up/Down, the mouse wheel, or the ◀ ▶ arrows switch to any floor you have entered.
 - Secret doors appear as walls until discovered.
 - In Options, choose minimap and map, map only, or no map. You can also explore with your own graph-paper map.
 
@@ -401,7 +404,7 @@ Only short rests are available in the dungeon. Long rests are available at the i
 
 A long rest restores spell uses and class abilities, and removes lingering conditions. HP recovery depends on where you sleep. See Town Facilities for details.
 
-A long rest also restores half your total level in Hit Dice, rounded down, with a minimum of one. A level 5 character regains two, for example. One night's rest may not restore every Hit Die you spent.
+A long rest also restores all your Hit Dice, wherever you stay (the stable included).
 
 ### Lingering conditions
 
@@ -670,7 +673,7 @@ Basic tab:
 Gameplay tab:
 
 - Battle log speed: Change how quickly battle messages appear.
-- Hold repeat: Choose slow, normal, fast, or fastest for how quickly the cursor moves and the party keeps walking while you hold a key or button.
+- Cursor repeat / Walk repeat: Set the time between cursor steps and between steps in the maze while you hold a key or button, from 10 to 1500 ms (smaller is faster). The wait before repeating starts follows from it: the shorter the time, the relatively longer the wait (3x at 10 ms, 1x at 1000 ms and above).
 - Dungeon map: Choose minimap and map, map only, or no map.
 - Back key: Choose whether Down steps backward or turns around. Hold Shift to use the opposite behavior.
 - Maze mouse movement: Choose whether clicking the maze view moves the party (see "Moving in the maze" under Controls).
@@ -702,11 +705,11 @@ See Death and Rescue for details about rescue and resurrection.
 
 A clan is your group of developed characters. A world is the setting in which you play the chosen scenario. Members of the same clan can begin another adventure.
 
-Choose a clan when starting a new game. Export Clan at the training grounds saves the character roster to a file.
+Choose a clan when starting a new game. The buttons under the clan list (Continue on the title screen) export a clan, import one, or disband one. An exported clan leaves the list, and importing the file brings it back as it was (to move to another PC, for example). When disbanding, you choose between the Recycle Bin and permanent deletion. A world whose scenario data is missing appears grayed out in that clan's scenario list; choose it to delete it. Exporting and importing use the Windows file window to choose the place. For export and disband, press the button first, then choose the clan. With a keyboard or pad, the Menu key moves to the buttons. You can import an exported clan even with no saves.
 
 ### Adding scenarios
 
-Drag a scenario folder or zip file onto the title screen to install it. Installed scenarios are available when starting a new game.
+Double-click a scenario file (.gssnro) or drag it onto the title screen to import it. Imported scenarios are available when starting a new game. An exported clan (.gsclan) can be imported the same way.
 
 Open their storage location with Scenario Folder in Options. A separate scenario editor is also available for creating your own scenarios.
 

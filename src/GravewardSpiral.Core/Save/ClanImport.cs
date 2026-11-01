@@ -22,16 +22,30 @@ public static class ClanImport
     }
 
     /// <summary>連れていく人のうち、入る先のデータに無いもの(「名前: クラス 'samurai'」の形)。全部あれば空。</summary>
-    public static List<string> Missing(GameData data, IEnumerable<Character> characters)
+    public static List<string> Missing(GameData data, IEnumerable<Character> characters) =>
+        Missing(new ScenarioIds(data.Classes.Keys.ToHashSet(), data.Races.Keys.ToHashSet(), data.Spells.Keys.ToHashSet()), characters);
+
+    /// <summary>連れていく人のうち、入る先(ScenarioIds。シナリオの差から読んだもの)に無いもの。</summary>
+    public static List<string> Missing(ScenarioIds target, IEnumerable<Character> characters)
     {
         var missing = new List<string>();
         foreach (var c in characters)
         {
-            foreach (var id in c.ClassIds.Distinct().Where(id => !data.Classes.ContainsKey(id))) missing.Add($"{c.Name}: class '{id}'");
-            if (!data.Races.ContainsKey(c.RaceId)) missing.Add($"{c.Name}: race '{c.RaceId}'");
+            foreach (var id in c.ClassIds.Distinct().Where(id => !target.Classes.Contains(id))) missing.Add($"{c.Name}: class '{id}'");
+            if (!target.Races.Contains(c.RaceId)) missing.Add($"{c.Name}: race '{c.RaceId}'");
             var spells = c.Books.Values.SelectMany(b => b.Cantrips.Concat(b.Known).Concat(b.Prepared)).Distinct();
-            foreach (var id in spells.Where(id => !data.Spells.ContainsKey(id))) missing.Add($"{c.Name}: spell '{id}'");
+            foreach (var id in spells.Where(id => !target.Spells.Contains(id))) missing.Add($"{c.Name}: spell '{id}'");
         }
         return missing;
     }
+
+    /// <summary>
+    /// そのクランを、まだ行っていないシナリオへ連れて入れるか(連れて入れる決まり・クリアの条件・クラス・種族・呪文)。
+    /// 続きからの一覧で、入れないシナリオを出さないのに使う。
+    /// </summary>
+    public static bool CanEnter(ScenarioInfo scenario, ScenarioIds ids, IReadOnlyCollection<string?> played, IReadOnlyDictionary<string, int>? clears,
+        IEnumerable<Character> characters, Func<string, string?> seriesOf) =>
+        Allows(scenario.Manifest, played, seriesOf)
+        && ScenarioClears.Missing(scenario.Manifest, clears).Count == 0
+        && Missing(ids, characters).Count == 0;
 }

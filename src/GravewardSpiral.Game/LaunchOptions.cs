@@ -20,8 +20,9 @@ namespace GravewardSpiral.Game;
 /// --saves DIR: セーブの置き場所を変える(確認用。いつものセーブを汚さない)。
 /// --bgm-start S: 最初の BGM を S 秒目から流す(ループのつなぎ目を確かめる用)。
 /// --actions "U U R C M": 動作を順に押す(U 上 / D 下 / L 左 / R 右 / C 決定 / X 取消 / M 地図 / T メニュー / Q E 横歩き / . 何もしない)。
+/// ファイルのパス(-- で始まらない引数): ダブルクリックで開かれた .gsclan か .gssnro。タイトル画面で読み込む(SingleInstance)。
 /// </summary>
-public sealed record LaunchOptions(string? ScreenshotPath, int? ScreenshotFrame, int? Width, int? Height, string? Start, IReadOnlyList<GameAction?> Actions, float? Volume, double? BgmStart, string? SavesDir, bool Debug = false, string? Language = null, string? Drop = null)
+public sealed record LaunchOptions(string? ScreenshotPath, int? ScreenshotFrame, int? Width, int? Height, string? Start, IReadOnlyList<GameAction?> Actions, float? Volume, double? BgmStart, string? SavesDir, bool Debug = false, string? Language = null, string? Drop = null, string? Open = null)
 {
     /// <summary>自動操作で、1つの動作ごとに待つ Update の回数。</summary>
     public const int FramesPerAction = 8;
@@ -30,7 +31,7 @@ public sealed record LaunchOptions(string? ScreenshotPath, int? ScreenshotFrame,
 
     public static LaunchOptions Parse(string[] args)
     {
-        string? shot = null, start = null, saves = null, lang = null, drop = null;
+        string? shot = null, start = null, saves = null, lang = null, drop = null, open = null;
         bool debug = false;
         int? frame = null, w = null, h = null;
         float? volume = null;
@@ -111,8 +112,11 @@ public sealed record LaunchOptions(string? ScreenshotPath, int? ScreenshotFrame,
                     }
                     i++;
                     break;
+                case var path when !path.StartsWith("--") && File.Exists(path):
+                    open = path;
+                    break;
             }
         }
-        return new LaunchOptions(shot, frame, w, h, start, actions, volume, bgmStart, saves, debug, lang, drop);
+        return new LaunchOptions(shot, frame, w, h, start, actions, volume, bgmStart, saves, debug, lang, drop, open);
     }
 }

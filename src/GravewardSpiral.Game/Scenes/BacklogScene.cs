@@ -16,10 +16,10 @@ public sealed class BacklogScene : Scene
     private const float LineHeight = 30f;
     private const int Visible = 17;
 
-    private readonly IReadOnlyList<(string Text, Color? Color)> _lines;
+    private readonly IReadOnlyList<LogLine> _lines;
     private int _top;
 
-    public BacklogScene(IReadOnlyList<(string Text, Color? Color)> lines)
+    public BacklogScene(IReadOnlyList<LogLine> lines)
     {
         _lines = lines;
         _top = MaxTop;
@@ -59,11 +59,11 @@ public sealed class BacklogScene : Scene
             d.Text(s["backlog.empty"], new Vector2(Area.X + 40, Area.Y + 80), 22, Theme.Dim, style: FontStyle.Story);
         for (int i = _top; i < Math.Min(_lines.Count, _top + Visible); i++)
         {
-            var (text, color) = _lines[i];
+            var line = _lines[i];
             var at = new Vector2(Area.X + 40, Area.Y + 70 + (i - _top) * LineHeight);
-            // 長い行は、枠に収まるまで字を小さくする
-            float size = Math.Min(22f, 22f * (Area.Width - 80) / Math.Max(1f, d.Fonts.Measure(text, 22, FontStyle.Story).X));
-            d.Text(text, at + new Vector2(0, (22 - size) / 2), size, color ?? Color.White, style: FontStyle.Story);
+            // 長い行は、枠に収まるまで字を小さくする。行動した者の名前は、味方は青・敵は赤
+            float size = Math.Min(22f, 22f * (Area.Width - 80) / Math.Max(1f, d.Fonts.Measure(line.Text, 22, FontStyle.Story).X));
+            CombatText.Draw(d, line, at + new Vector2(0, (22 - size) / 2), size, line.Color ?? Color.White, 0, FontStyle.Story);
         }
         // まだ上や下に行があることを矢印で見せる
         if (_top > 0) d.Text("▲", new Vector2(Area.X + Area.Width / 2, Area.Y + 48), 16, Theme.Dim, TextAlign.Center);

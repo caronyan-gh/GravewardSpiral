@@ -3,7 +3,9 @@ using GravewardSpiral.Core.Items;
 using GravewardSpiral.Core.Save;
 using GravewardSpiral.Game.Audio;
 using GravewardSpiral.Game.Rendering;
+using GravewardSpiral.Game.Input;
 using GravewardSpiral.Game.UI;
+using Microsoft.Xna.Framework;
 
 namespace GravewardSpiral.Game.Scenes.Town;
 
@@ -24,9 +26,39 @@ public sealed class ClanHouseScene(Action? onLeave = null) : MenuScene
     private GameData Data => Services.Data;
     private List<Character> Party => Services.Session!.Roster.PartyMembers.ToList();
 
-    protected override string Title => House.Def(_levels) is { } def ? Services.Name(def.Name) : Services.Strings["town.house"];
+    protected override string Title => _mode == Mode.Deposit && _who != null ? Services.Strings.Format("inv.title", _who.Name)   // 誰の品を預けるか(左右で切り替わる)
+        : House.Def(_levels) is { } def ? Services.Name(def.Name) : Services.Strings["town.house"];
 
-    protected override int? PartyHighlight => _mode is Mode.DepositWho or Mode.WithdrawTo ? List.Cursor : null;
+    protected override int? PartyHighlight => _mode is Mode.DepositWho or Mode.WithdrawTo ? List.Cursor
+        : _mode == Mode.Deposit && _who != null && Party.IndexOf(_who) is >= 0 and var i ? i : null;
+
+    /// <summary>預ける品を選ぶあいだの、人の切り替え(持ち物のある人だけ。左右キーでも回す)。</summary>
+    private MemberSwitch? _depositSwitch;
+
+    protected override MemberSwitch? Switch => _mode == Mode.Deposit ? _depositSwitch : null;
+
+    /// <summary>上に重ねた画面(荷物の整理など)から戻ったか見るための、画面の重なりの版。</summary>
+    private int _version = -1;
+
+    public override void Update(GameTime time, InputState input)
+    {
+        // 荷物の整理などから戻ったら、倉庫の数や選べるかを作り直す
+        if (_version != Stack.Version)
+        {
+            if (_version >= 0 && _mode == Mode.Main) Refresh();
+            _version = Stack.Version;
+        }
+        if (_mode == Mode.Deposit && _depositSwitch is { } sw
+            && (sw.Update(input, Services.Audio) || input.Repeat(GameAction.Left) && sw.Step(-1, Services.Audio) || input.Repeat(GameAction.Right) && sw.Step(1, Services.Audio)))
+        {
+            // 人を切り替えた: その人の品の頭から
+            Message = null;
+            _who = sw.Current;
+            Go(Mode.Deposit);
+            return;
+        }
+        base.Update(time, input);
+    }
 
     public override void Enter()
     {
@@ -42,7 +74,7 @@ public sealed class ClanHouseScene(Action? onLeave = null) : MenuScene
             case Mode.Main:
             {
                 yield return new MenuItem(s["house.party"], Tag: "party");
-                yield return new MenuItem(s["town.items"], Enabled: Party.Count > 0, Tag: "items");
+                yield return new MenuItem(s["house.items"], Enabled: Party.Count > 0, Tag: "items");
                 if (House.Has(_levels, ClanHouseLevel.Bed))
                     yield return new MenuItem(s["house.sleep"], s[House.Has(_levels, ClanHouseLevel.BedFull) ? "house.sleep_full" : "house.sleep_half"], Tag: "sleep");
                 yield return new MenuItem(s["house.deposit"], Enabled: Party.Any(c => c.Inventory.Items.Count > 0), Tag: Mode.DepositWho);
@@ -101,8 +133,13 @@ public sealed class ClanHouseScene(Action? onLeave = null) : MenuScene
         {
             case (Mode.Main, "back"): Cancel(); return;
             case (Mode.Main, "items"):
-                // 持ち物の整理(装備の付け替え、仲間に渡す)
-                Stack.Push(new MemberPickScene(s["town.items"], _ => true, c => Stack.Push(new InventoryScene(c, Services.Session!.Roster.PartyMembers.ToList()))));
+                // 荷物の整理(装備の付け替え、仲間に渡す)。人の次に倉庫のページがあり、渡すで預ける・引き出す
+                Stack.Push(new MemberPickScene(s["house.items"], _ => true, c => Stack.Push(new InventoryScene(c, Party, storage: true)))
+                {
+                    // 戻るの前に倉庫(選ぶと倉庫のページから開く)
+                    Extra = (s["house.storage"], () => s.Format("house.slots_info", House.Storage.Count, House.Capacity(_levels)),
+                        () => Stack.Push(new InventoryScene(Party[0], Party, storage: true, atStorage: true))),
+                });
                 return;
             case (Mode.Main, "party"):
                 // 仲間の管理(パーティを組む・状態)
@@ -137,6 +174,7 @@ public sealed class ClanHouseScene(Action? onLeave = null) : MenuScene
                 return;
             case (Mode.DepositWho, Character c):
                 _who = c;
+                _depositSwitch = new MemberSwitch(Party, c, x => x.Inventory.Items.Count > 0) { PartyArea = PartyArea };
                 Go(Mode.Deposit);
                 return;
             case (Mode.Deposit, ItemInstance it):

@@ -8,9 +8,36 @@ using GravewardSpiral.Core.Rules;
 
 namespace GravewardSpiral.Game.UI;
 
+/// <summary>
+/// 戦闘の文の1行。Color は行の色(呪文の属性。無ければ白)、Actor は行動した者の名前(行の中で最初に出る所を ActorColor で描く)。
+/// </summary>
+public sealed record LogLine(string Text, Color? Color = null, string? Actor = null, Color? ActorColor = null);
+
 /// <summary>戦闘のログの1行を、画面の文言にする(戦闘とキャンプで使う)。</summary>
 public static class CombatText
 {
+    /// <summary>ログの1行を、色と、行動した者の名前(味方は青、敵は赤)つきの行にする。</summary>
+    public static LogLine Line(GameServices sv, CombatLogEntry e) => new(Format(sv, e), ColorOf(sv.Data, e),
+        e.ActorSide != null && e.Args.Length > 0 && e.Args[0] is LocalizedText who ? sv.Name(who) : null,
+        e.ActorSide switch { Side.Party => Theme.AllyName, Side.Enemy => Theme.EnemyName, _ => null });
+
+    /// <summary>
+    /// 1行を描く。行動した者の名前だけ、その色で描く(ほかは color)。dim は古い行を暗くする割合(名前の色も同じだけ)。
+    /// </summary>
+    public static void Draw(Rendering.Draw2D d, LogLine line, Vector2 at, float size, Color color, float dim, Rendering.FontStyle style)
+    {
+        int i = line.Actor is { Length: > 0 } name && line.ActorColor != null ? line.Text.IndexOf(name, StringComparison.Ordinal) : -1;
+        if (i < 0)
+        {
+            d.Text(line.Text, at, size, color, style: style);
+            return;
+        }
+        var nameColor = dim > 0 ? Color.Lerp(line.ActorColor!.Value, Theme.Dim, dim) : line.ActorColor!.Value;
+        var colors = new Color[line.Text.Length];
+        for (int k = 0; k < colors.Length; k++) colors[k] = k >= i && k < i + line.Actor!.Length ? nameColor : color;
+        d.Fonts.Draw(d, line.Text, at, size, colors, style);
+    }
+
     public static string Format(GameServices sv, CombatLogEntry e)
     {
         var s = sv.Strings;

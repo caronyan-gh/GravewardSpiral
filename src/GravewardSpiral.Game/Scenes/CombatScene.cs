@@ -61,9 +61,13 @@ public sealed class CombatScene : Scene
     private double _shake;         // 絵の揺れの残り時間(秒)と強さ。絵の敵にダメージが入ると揺れる
     private float _shakePower;
     private const double ShakeSeconds = 0.3;
-    private readonly List<string> _lines = [];
-    private readonly List<Color?> _lineColors = [];   // 呪文の属性の色(無ければ白)
-    private readonly List<(string Text, Color? Color)> _backlog = [];   // この戦闘のログの全部(メニューのキーで読み返す)
+    private EnemyGroup? _artGroup;   // 絵に出しているグループと、正体がまだ分かっていないか
+    private bool _artHidden;
+    private double _reveal;          // 正体が分かって、影(か種類の絵)から本物の絵へ移る残り時間(秒)
+    private const double RevealSeconds = 0.8;
+    private static readonly Color Silhouette = new(14, 16, 22);
+    private readonly List<LogLine> _lines = [];
+    private readonly List<LogLine> _backlog = [];   // この戦闘のログの全部(メニューのキーで読み返す)
 
     /// <param name="onEnd">終わったときに呼ぶ(迷宮が、次の遭遇までの歩数を戻すなど)。</param>
     /// <param name="noMagic">魔法禁止区域での戦闘(呪文と、呪文のアイテムが使えない)。</param>
@@ -549,6 +553,7 @@ public sealed class CombatScene : Scene
     public override void Update(GameTime time, InputState input)
     {
         _shake = Math.Max(0, _shake - time.ElapsedGameTime.TotalSeconds);
+        _reveal = Math.Max(0, _reveal - time.ElapsedGameTime.TotalSeconds);
         // メニューのキーで、この戦闘のログを読み返す(読んでいるあいだ戦闘は止まる)
         if (input.Pressed(GameAction.Menu))
         {
@@ -640,7 +645,7 @@ public sealed class CombatScene : Scene
         {
             if (_wait > 0 && !skip) return;
             var entry = _state.Log[_shown++];
-            AddLine(Format(entry), CombatText.ColorOf(Services.Data, entry));
+            AddLine(CombatText.Line(Services, entry));
             PlayFor(entry);
             _wait = fast ? FastSeconds : LineSeconds;
             return;
@@ -651,16 +656,13 @@ public sealed class CombatScene : Scene
         else Finish();
     }
 
-    private void AddLine(string text, Color? color = null)
+    private void AddLine(string text) => AddLine(new LogLine(text));
+
+    private void AddLine(LogLine line)
     {
-        _lines.Add(text);
-        _lineColors.Add(color);
-        _backlog.Add((text, color));
-        if (_lines.Count > 40)
-        {
-            _lines.RemoveAt(0);
-            _lineColors.RemoveAt(0);
-        }
+        _lines.Add(line);
+        _backlog.Add(line);
+        if (_lines.Count > 40) _lines.RemoveAt(0);
     }
 
     private void PlayFor(CombatLogEntry e)
@@ -761,10 +763,13 @@ public sealed class CombatScene : Scene
         for (int i = start; i < _lines.Count; i++)
         {
             bool latest = i == _lines.Count - 1;
-            // 呪文の行は属性の色。古い行は暗くする
-            var color = _lineColors[i] ?? Color.White;
-            if (!latest) color = Color.Lerp(color, Theme.Dim, _lineColors[i] == null ? 1f : 0.45f);
-            Fit(d, _lines[i], new Vector2(LogArea.X + 16, LogArea.Y + 10 + (i - start) * 32), LogArea.Width - 32, 24, color, FontStyle.Story);
+            // 呪文の行は属性の色。行動した者の名前は、味方は青・敵は赤。古い行は暗くする
+            var line = _lines[i];
+            var color = line.Color ?? Color.White;
+            if (!latest) color = Color.Lerp(color, Theme.Dim, line.Color == null ? 1f : 0.45f);
+            float size = 24, w = d.Fonts.Measure(line.Text, size, FontStyle.Story).X;
+            if (w > LogArea.Width - 32) size *= (LogArea.Width - 32) / w;
+            CombatText.Draw(d, line, new Vector2(LogArea.X + 16, LogArea.Y + 10 + (i - start) * 32), size, color, latest ? 0 : 0.45f, FontStyle.Story);
         }
 
         Theme.Panel(d, CommandArea);
@@ -917,16 +922,24 @@ public sealed class CombatScene : Scene
         d.Rect(ArtArea, Theme.Frame, 1.5f);
         var group = ArtGroup();
         if (group == null) return;
+        // 正体が分かるまでは、種類の絵(art/unknown/<種類>.png)を出す。無ければ本物の絵を影にする。分かった瞬間に本物の絵へ移す
+        bool hidden = !group.Identified && group.Def.UnknownName != null;
+        if (group != _artGroup) (_artGroup, _artHidden, _reveal) = (group, hidden, 0);
+        else if (_artHidden && !hidden) (_artHidden, _reveal) = (false, RevealSeconds);
         var tex = Services.MonsterArt(group.Def);
-        if (tex != null)
+        var unknown = hidden || _reveal > 0 ? Services.UnknownArt(group.Def) : null;
+        if (tex != null || unknown != null)
         {
-            float scale = Math.Min((ArtArea.Width - 40) / tex.Width, (ArtArea.Height - 30) / tex.Height);
-            float w = tex.Width * scale, h = tex.Height * scale;
             // 揺れ: 左右に細かく震わせ、だんだん弱める。当たった瞬間は少し赤く
             float t = (float)(_shake / ShakeSeconds);
             float dx = t > 0 ? MathF.Sin((float)_shake * 90f) * _shakePower * t : 0;
-            var tint = Color.Lerp(Color.White, new Color(255, 120, 120), t * 0.8f);
-            d.Image(tex, new RectangleF(ArtArea.X + (ArtArea.Width - w) / 2 + dx, ArtArea.Y + (ArtArea.Height - h) / 2, w, h), tint);
+            var hit = new Color(255, 120, 120);
+            var tint = Color.Lerp(Color.White, hit, t * 0.8f);
+            var dark = Color.Lerp(Silhouette, new Color(90, 30, 30), t * 0.8f);
+            float shown = hidden ? 1 : (float)(_reveal / RevealSeconds);   // 種類の絵か影の濃さ(1 で全部、0 で本物の絵)
+            if (unknown != null && shown > 0) ArtImage(d, unknown, 1, dx, tint * shown);   // 本物の絵と同じ大きさ(分かった瞬間に大きさが変わらないように)
+            if (tex != null && (unknown == null || shown < 1))
+                ArtImage(d, tex, 1, dx, unknown != null ? tint * (1 - shown) : Color.Lerp(tint, dark, shown));
             return;
         }
         // 画像が無い敵は、影絵の代わりの枠と名前
@@ -936,6 +949,15 @@ public sealed class CombatScene : Scene
         d.FillRect(new RectangleF(c.X - r * 0.45f, c.Y - r * 0.55f, r * 0.9f, r * 1.4f), shadow);
         d.FillRect(new RectangleF(c.X - r * 0.25f, c.Y - r * 0.95f, r * 0.5f, r * 0.45f), shadow);
         d.Text(Services.Name(group.DisplayName), new Vector2(c.X, ArtArea.Y + ArtArea.Height - 48), 26, Theme.Title, TextAlign.Center, FontStyle.Story);
+    }
+
+    /// <summary>絵を、絵の枠に収まる大きさ × size で、枠の真ん中(下寄せ)に描く。</summary>
+    private static void ArtImage(Draw2D d, Microsoft.Xna.Framework.Graphics.Texture2D tex, float size, float dx, Color tint)
+    {
+        float scale = Math.Min((ArtArea.Width - 40) / tex.Width, (ArtArea.Height - 30) / tex.Height) * size;
+        float w = tex.Width * scale, h = tex.Height * scale;
+        float top = ArtArea.Y + (ArtArea.Height - h) / 2 + (1 - size) * (ArtArea.Height - 30) / 2;   // 小さい敵は足もとをそろえる
+        d.Image(tex, new RectangleF(ArtArea.X + (ArtArea.Width - w) / 2 + dx, top, w, h), tint);
     }
 
     private void DrawGroups(Draw2D d)

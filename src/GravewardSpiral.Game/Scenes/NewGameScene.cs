@@ -63,9 +63,8 @@ public sealed class NewGameScene : Scene
     public override void Enter()
     {
         _scenarios = Services.FindScenarios();
-        // セーブにあるクラン(写さずに、その名簿で始める)と、書き出したクランファイル(写しの新しいクランになる)
-        _clans = [.. ClanFile.FromSaves(Services.Saves, id => Services.ClanDisplayName(null, id)),
-                  .. ClanFile.List(AppPaths.Clans)];
+        // セーブにあるクラン(写さずに、その名簿で始める)。書き出したクランファイルは、続きからの「クランを読み込む」でセーブのクランにしてから使う
+        _clans = [.. ClanFile.FromSaves(Services.Saves, id => Services.ClanDisplayName(null, id))];
         _aiAvailable = Services.AiClient() != null;
         if (_startClan != null) _clan = _clans.FindIndex(x => x.Path == "clan:" + _startClan);
         // セーブにクランがあれば、最後に遊んだクランを最初から選んでおく(気づかずに空の新しいクランで始めないように。新しく作るには左右で選ぶ)
@@ -143,8 +142,8 @@ public sealed class NewGameScene : Scene
         }
         rows.Add(Row.Difficulty);
         rows.AddRange([Row.Bodies, Row.Revive, Row.Save]);   // プリセットでも中身を見せる(変えられるのはカスタムだけ)
-        // 文の決まったシナリオ(自由な迷宮から作ったもの)では、AI に書かせないので出さない
-        if (_aiAvailable && Core.Save.WorldPackDef.Of(Services.Content)?.Text == null) rows.Add(Row.UseAi);
+        // AI を使うかは、シナリオなしの自由な迷宮のときだけ出す
+        if (_aiAvailable && Services.Content.Scenario == null) rows.Add(Row.UseAi);
         rows.AddRange([Row.Create, Row.Back]);
         return rows;
     }
@@ -397,12 +396,6 @@ public sealed class NewGameScene : Scene
                 }
                 session.SetWorldLevel(enc, ClanPower(_clans[_clan].Clan));   // 世界のレベル帯を、クランの強さに合わせる(周回)
             }
-            else if (_clan >= 0 && Rows().Contains(Row.Clan))
-            {
-                // クランファイル: 写して、新しいクランにする
-                _clans[_clan].Clan.ApplyTo(Services.Session);
-                Services.Session.SetWorldLevel(enc, ClanPower(_clans[_clan].Clan));
-            }
             Services.Session.ClanId = clanId;
             Services.Session.ClanName ??= Services.ClanDisplayName(null, clanId);
             Services.AttachItems();   // 連れてきたクランの品(よそのシナリオのオリジナルの品など)を、このシナリオのデータで使える形に   // 名前が無ければ、決まった名前を付ける
@@ -421,8 +414,8 @@ public sealed class NewGameScene : Scene
             // AI の手伝いがあれば、この世界の文を書いてもらってから町へ(無ければパックの決まった文)
             // シナリオに決まった序文(文言の scenario.prologue)があれば、それを序文にする(AI が書けば置き換わる)
             Services.GiveScenarioPrologue(Services.Session);
-            // 文の決まったシナリオ(自由な迷宮から作ったもの)は、AI に書き直させない
-            if (_useAi && pack?.Text == null && Services.AiClient() is { } ai) Stack.Replace(new WorldWritingScene(ai));
+            // AI に世界の文を書かせるのは、シナリオなしの自由な迷宮だけ(シナリオは文も作者が決めたもの。ユーザーが決めた)
+            if (_useAi && Services.Content.Scenario == null && Services.AiClient() is { } ai) Stack.Replace(new WorldWritingScene(ai));
             else if (Services.Session.World?.Prologue != null) Stack.Replace(new WorldWritingScene(null));   // 部品で作った序文を見せる
             else
             {
@@ -523,12 +516,7 @@ public sealed class NewGameScene : Scene
     }
 
     /// <summary>「名前(6 人)・墓守の螺旋」(セーブのクランは、遊んでいる世界も出す)。</summary>
-    private string ClanLabel(ClanFile clan)
-    {
-        string label = Services.Strings.Format("newgame.clan_value", clan.Name, clan.Characters.Count);
-        string path = _clans[_clan].Path;
-        return path.StartsWith("clan:") ? label : label + Services.Strings["newgame.clan_from_file"];
-    }
+    private string ClanLabel(ClanFile clan) => Services.Strings.Format("newgame.clan_value", clan.Name, clan.Characters.Count);
 
     /// <summary>「クリア 2 回・強さ L8.5。世界は L7〜11 で作る」。</summary>
     private string ClanHint(ClanFile clan)

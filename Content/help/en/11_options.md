@@ -16,7 +16,7 @@ Basic tab:
 Gameplay tab:
 
 - Battle log speed: Change how quickly battle messages appear.
-- Hold repeat: Choose slow, normal, fast, or fastest for how quickly the cursor moves and the party keeps walking while you hold a key or button.
+- Cursor repeat / Walk repeat: Set the time between cursor steps and between steps in the maze while you hold a key or button, from 10 to 1500 ms (smaller is faster). The wait before repeating starts follows from it: the shorter the time, the relatively longer the wait (3x at 10 ms, 1x at 1000 ms and above).
 - Dungeon map: Choose minimap and map, map only, or no map.
 - Back key: Choose whether Down steps backward or turns around. Hold Shift to use the opposite behavior.
 - Maze mouse movement: Choose whether clicking the maze view moves the party (see "Moving in the maze" under Controls).
@@ -48,11 +48,11 @@ See Death and Rescue for details about rescue and resurrection.
 
 A clan is your group of developed characters. A world is the setting in which you play the chosen scenario. Members of the same clan can begin another adventure.
 
-Choose a clan when starting a new game. Export Clan at the training grounds saves the character roster to a file.
+Choose a clan when starting a new game. The buttons under the clan list (Continue on the title screen) export a clan, import one, or disband one. An exported clan leaves the list, and importing the file brings it back as it was (to move to another PC, for example). When disbanding, you choose between the Recycle Bin and permanent deletion. A world whose scenario data is missing appears grayed out in that clan's scenario list; choose it to delete it. Exporting and importing use the Windows file window to choose the place. For export and disband, press the button first, then choose the clan. With a keyboard or pad, the Menu key moves to the buttons. You can import an exported clan even with no saves.
 
 ## Adding scenarios
 
-Drag a scenario folder or zip file onto the title screen to install it. Installed scenarios are available when starting a new game.
+Double-click a scenario file (.gssnro) or drag it onto the title screen to import it. Imported scenarios are available when starting a new game. An exported clan (.gsclan) can be imported the same way.
 
 Open their storage location with Scenario Folder in Options. A separate scenario editor is also available for creating your own scenarios.
 

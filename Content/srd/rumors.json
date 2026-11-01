@@ -1,0 +1,297 @@
+[
+  {
+    "id": "srd_gossip_01",
+    "text": {
+      "en": "The ones who come back from the maze all wear the same face. Nobody asks what it means.",
+      "ja": "迷宮から戻ってくる連中は、みんな同じ顔をしてるよ。"
+    }
+  },
+  {
+    "id": "srd_gossip_02",
+    "text": {
+      "en": "Guests upstairs always line their boots up neatly before bed, like soldiers who've been told to.",
+      "ja": "二階の客は、寝る前に必ず靴をきちんと揃えるんだ。"
+    }
+  },
+  {
+    "id": "srd_gossip_03",
+    "text": {
+      "en": "The temple's donation box keeps getting lighter, and nobody will say why.",
+      "ja": "寺院の寄付箱が、このところ軽くなる一方でね。"
+    }
+  },
+  {
+    "id": "srd_gossip_04",
+    "text": {
+      "en": "The shopkeeper gives a long lecture to anyone buying a sword, and only to them.",
+      "ja": "店の親父は、剣を買う客にだけ長々と説教するんだ。"
+    }
+  },
+  {
+    "id": "srd_gossip_05",
+    "text": {
+      "en": "Newcomers dying within three days has been a rule for as long as anyone can remember.",
+      "ja": "新顔が三日で死ぬのは、昔からの決まりみたいなもんさ。"
+    }
+  },
+  {
+    "id": "srd_gossip_06",
+    "text": {
+      "en": "The corner table in here is always empty. Nobody sits there, and nobody says why.",
+      "ja": "酒場の隅の席は、いつも空いてる。座る奴がいないんだ。"
+    }
+  },
+  {
+    "id": "srd_gossip_07",
+    "text": {
+      "en": "The men back from the maze buy candles like they're going out of style. Turns out they like the light.",
+      "ja": "迷宮帰りの連中は、やたら蝋燭を買い込むね。明るいのが好きらしい。"
+    }
+  },
+  {
+    "id": "srd_gossip_08",
+    "text": {
+      "en": "Someone leaves the same wilted flowers at the maze entrance every morning. Nobody claims them.",
+      "ja": "迷宮の入口に、誰かが毎朝同じ花を供えてるんだ。"
+    }
+  },
+  {
+    "id": "srd_gossip_09",
+    "text": {
+      "en": "Dead men always come home wearing their Sunday best, or so the widow tells anyone who'll listen.",
+      "ja": "死んだ男は、みんな一番いい服を着て帰ってくるらしいよ。"
+    }
+  },
+  {
+    "id": "srd_gossip_10",
+    "text": {
+      "en": "A peddler's cart creaked outside the town all night, and by morning the peddler was gone.",
+      "ja": "行商の荷車が、町の外で一晩中きしんでたって話だ。"
+    }
+  },
+  {
+    "id": "srd_gossip_11",
+    "text": {
+      "en": "The apprentice has been sighing all week. Love, the barkeep says. Or the dungeon. Same thing, mostly.",
+      "ja": "修行中の見習いが、最近ため息ばかりついてる。恋でもしたかね。"
+    }
+  },
+  {
+    "id": "srd_gossip_12",
+    "text": {
+      "en": "Anyone who buys a new shield comes crying back within a week. Mostly they want it refitted.",
+      "ja": "盾を新品で買うやつは、たいてい一週間で泣きついてくるよ。"
+    }
+  },
+  {
+    "id": "srd_gossip_13",
+    "text": {
+      "en": "The shop that sells adventurers' leftovers is doing well, which tells you something about the town.",
+      "ja": "冒険者の遺品を売る店は、なぜか儲かってるんだ。"
+    }
+  },
+  {
+    "id": "srd_gossip_14",
+    "text": {
+      "en": "The temple's sexton counts something every night, muttering under his breath. Nobody has asked what.",
+      "ja": "寺院の寺男は、毎晩ぶつぶつ数を数えてるよ。"
+    }
+  },
+  {
+    "id": "srd_gossip_15",
+    "text": {
+      "en": "The maze door is found a little open most mornings. Everyone says it's the wind. Nobody believes it.",
+      "ja": "迷宮の扉が、朝になると少し開いてるんだと。風のせいだとさ。"
+    }
+  },
+  {
+    "id": "srd_gossip_16",
+    "text": {
+      "en": "The best adventurer in town finally skipped out on her inn bill. The barkeep is taking it personally.",
+      "ja": "一番腕のいい冒険者が、とうとう宿代を踏み倒したってさ。"
+    }
+  },
+  {
+    "id": "srd_gossip_17",
+    "text": {
+      "en": "Nobody pays the town bell any mind anymore. They only get loud when it fails to ring.",
+      "ja": "町の鐘なんて、もう誰も気にしないよ。鳴り損ねた時だけ騒ぐ。"
+    }
+  },
+  {
+    "id": "srd_gossip_18",
+    "text": {
+      "en": "The temple priest grumbles that prayers aren't working as well lately. He blames the candles.",
+      "ja": "祈りの効きが悪いって、寺院の坊主が愚痴ってたよ。"
+    }
+  },
+  {
+    "id": "srd_gossip_19",
+    "text": {
+      "en": "The price of ale only goes up, and the customers' faces only go down. Business is business.",
+      "ja": "酒の値は上がる一方なのに、客の顔色は下がる一方だ。"
+    }
+  },
+  {
+    "id": "srd_gossip_20",
+    "text": {
+      "en": "The travelling bard came through but refused to sing anything about the maze. Said it doesn't pay.",
+      "ja": "旅の詩人が来たが、迷宮の歌だけは絶対歌わないんだ。"
+    }
+  },
+  {
+    "id": "srd_gossip_21",
+    "text": {
+      "en": "The laundress has been burning the clothes of returning adventurers. She won't say why, and nobody asks.",
+      "ja": "洗濯女が、帰ってきた冒険者の服を焼いてるのを見たって。"
+    }
+  },
+  {
+    "id": "srd_gossip_22",
+    "text": {
+      "en": "Writing a will before going into the maze is the fashionable thing now. The notary is doing a brisk trade.",
+      "ja": "迷宮に入る前に遺言を書くのは、もう流行りの作法らしい。"
+    }
+  },
+  {
+    "id": "srd_gossip_23",
+    "text": {
+      "en": "Local kids play at the maze and all say the same line. Nobody taught it to them. That's the creepy part.",
+      "ja": "子どもが迷宮ごっこで、みんな同じ台詞を言うんだ。気味が悪い。"
+    }
+  },
+  {
+    "id": "srd_gossip_24",
+    "text": {
+      "en": "The innkeeper's wife insists smokers live longer. She has been insisting for forty years.",
+      "ja": "煙草を吸う奴は長生きするって、宿の婆さんが言い張るんだよ。"
+    }
+  },
+  {
+    "id": "srd_gossip_25",
+    "text": {
+      "en": "The well water tastes of iron this season. The barkeep says that's just what the town tastes like.",
+      "ja": "井戸の水が鉄くさいのは今年だけだと、酒場の親父が言い張る。"
+    }
+  },
+  {
+    "id": "srd_tip_01",
+    "text": {
+      "en": "Inspect a chest before you open it. Once you know the trap's name, disarming it is far easier.",
+      "ja": "宝箱は、開ける前に調べておけ。罠の名前が分かれば、外すのもずっと楽になる。"
+    },
+    "tier": 1
+  },
+  {
+    "id": "srd_tip_02",
+    "text": {
+      "en": "Leave the disarming to someone with thieves' tools. Bare hands are a poor bet.",
+      "ja": "罠を外すなら、盗賊道具を持った奴にやらせるんだな。素手じゃ分が悪い。"
+    },
+    "tier": 1
+  },
+  {
+    "id": "srd_tip_03",
+    "text": {
+      "en": "Kill one of an unknown creature and you'll know what they are. A sharp-witted friend may see through them at a glance.",
+      "ja": "正体の分からん化け物も、一匹倒せば何者か分かる。頭のいい仲間なら、見ただけで見抜くこともある。"
+    },
+    "tier": 1
+  },
+  {
+    "id": "srd_tip_04",
+    "text": {
+      "en": "A short rest in the maze isn't only for wounds. Rest in peace and someone may work out what that unknown find really is.",
+      "ja": "迷宮で一休みするなら、手当てだけじゃない。無事に休めた奴は、拾った品の正体を見極めることがある。"
+    },
+    "tier": 1
+  },
+  {
+    "id": "srd_tip_05",
+    "text": {
+      "en": "Don't wander around poisoned. Every step wears you down.",
+      "ja": "毒をもらったまま歩き回るな。一歩ごとに体が削れていく。"
+    },
+    "tier": 1
+  },
+  {
+    "id": "srd_tip_06",
+    "text": {
+      "en": "Short of coin? Sleep in the stable. You only get half your strength back, but your spells and skills return by morning.",
+      "ja": "懐が寂しいなら馬小屋で寝な。体は半分しか戻らんが、呪文も技も朝には戻ってる。"
+    },
+    "tier": 1
+  },
+  {
+    "id": "srd_tip_07",
+    "text": {
+      "en": "One night at the inn restores all your Hit Dice, wherever you sleep. Don't fret about spending them on short rests below.",
+      "ja": "宿で一晩寝れば、休むための力(ヒットダイス)はどこで寝ても全部戻る。迷宮での小休憩で使い切っても気にするな。"
+    },
+    "tier": 1
+  },
+  {
+    "id": "srd_tip_08",
+    "text": {
+      "en": "The first three in line stand in front. Keep your spellcasters at the back.",
+      "ja": "並びの前の三人が前に立つ。呪文使いは後ろに下げときな。"
+    },
+    "tier": 1
+  },
+  {
+    "id": "srd_tip_09",
+    "text": {
+      "en": "Named monsters either keep a lair or roam. Beat one and they say it drops something fine.",
+      "ja": "名のある化け物は、ねぐらを構えるか、うろつくかだ。倒せば、いい品を落とすって話さ。"
+    },
+    "tier": 1
+  },
+  {
+    "id": "srd_tip_10",
+    "text": {
+      "en": "Friends left down in the maze can be brought back by another party. Don't give up on them yet.",
+      "ja": "迷宮に置いてきた仲間は、別の一行を組めば連れ戻せる。見捨てるのはまだ早い。"
+    },
+    "tier": 1
+  },
+  {
+    "id": "srd_tip_11",
+    "text": {
+      "en": "Even a plain wall can be worth searching. That's where hidden doors tend to be.",
+      "ja": "壁に見えても、調べてみる価値はある。隠し扉ってのは、そういう所にあるもんだ。"
+    },
+    "tier": 1
+  },
+  {
+    "id": "srd_tip_12",
+    "text": {
+      "en": "Some floors turn you around without you noticing. If your map looks wrong, suspect one of those.",
+      "ja": "気づかんうちに向きを変えられる床がある。地図がおかしいと思ったら、そいつを疑え。"
+    },
+    "tier": 1
+  },
+  {
+    "id": "srd_tip_13",
+    "text": {
+      "en": "They say there are places where no spell will work. Parties that lean on magic, take care.",
+      "ja": "呪文が一切使えん場所もあるそうだ。呪文頼みの一行は気をつけな。"
+    },
+    "tier": 1
+  },
+  {
+    "id": "srd_tip_14",
+    "text": {
+      "en": "Get unfamiliar finds identified at the shop. Once you've put on something cursed, it's too late.",
+      "ja": "見たことのない品は、店で鑑定してもらえ。呪われた物を身につけてからじゃ遅い。"
+    },
+    "tier": 1
+  },
+  {
+    "id": "srd_tip_15",
+    "text": {
+      "en": "Running from a fight you can't win is a fair choice. Much cheaper than the temple bringing you back.",
+      "ja": "勝てん相手からは逃げるのも手だ。死んで寺院の世話になるより、ずっと安くつく。"
+    },
+    "tier": 1
+  }
+]

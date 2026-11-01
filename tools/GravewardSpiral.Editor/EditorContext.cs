@@ -86,8 +86,12 @@ public sealed class EditorContext
     {
         var settings = MazeGenSettings.Load(BaseContent);
         var f = pack.Floors[floor];
-        var request = new GenerationRequest(seed, pack.Floors.Count, FloorSizeMode.Fixed(f.Width, f.Height));
-        return new MazeGenerator(settings).Generate(request).Dungeon.Floors[floor];
+        // 上下の座標をそろえる迷宮なら、上の階の下り階段・下の階の上り階段と同じ座標に階段を置く
+        GridPos? upAt = pack.AlignStairs && floor > 0 ? pack.Floors[floor - 1].FindFeature(CellFeature.StairsDown) : null;
+        GridPos? downAt = pack.AlignStairs && floor + 1 < pack.Floors.Count ? pack.Floors[floor + 1].FindFeature(CellFeature.StairsUp) : null;
+        if (!pack.AlignStairs)
+            return new MazeGenerator(settings).Generate(new GenerationRequest(seed, pack.Floors.Count, FloorSizeMode.Fixed(f.Width, f.Height))).Dungeon.Floors[floor];
+        return new MazeGenerator(settings).Floor(seed, floor, pack.Floors.Count, f.Width, f.Height, upAt, downAt);
     }
 
     /// <summary>

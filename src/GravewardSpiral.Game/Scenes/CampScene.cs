@@ -92,18 +92,22 @@ public sealed class CampScene : MenuScene
                 break;
             case Mode.CastWho:
                 foreach (var c in Party) yield return new MenuItem(c.Name, Enabled: c.CanAct && CampSpells(c).Any(), Tag: c);
+                yield return new MenuItem(s["common.back"], Tag: "back");
                 break;
             case Mode.PrepareWho:
                 foreach (var c in Party) yield return new MenuItem(c.Name, Enabled: Prepares(data, c), Tag: c);
+                yield return new MenuItem(s["common.back"], Tag: "back");
                 break;
             case Mode.StatusWho:
             case Mode.ItemsWho:
                 foreach (var c in Party) yield return new MenuItem(c.Name, Tag: c);
+                yield return new MenuItem(s["common.back"], Tag: "back");
                 break;
             case Mode.Reorder:
                 // まだ選んでいない人だけ(選んだ並びは文で見せる)
                 foreach (var c in Party.Where(c => !_newOrder.Contains(c)))
                     yield return new MenuItem(c.Name, c.IsAlive ? $"{c.Hp}/{c.MaxHp}" : s[$"state.{c.State.ToString().ToLowerInvariant()}"], Tag: c);
+                yield return new MenuItem(s["common.back"], Tag: "back");   // 並びを変えずにやめる
                 break;
             case Mode.CastSpell:
             {
@@ -192,6 +196,12 @@ public sealed class CampScene : MenuScene
             case (Mode.Main, "items"): Go(Mode.ItemsWho); break;
             case (Mode.ItemsWho, Character c): Stack.Push(new InventoryScene(c, Services.Session!.Roster.PartyMembers.ToList())); break;
             case (Mode.Main, "back"): Stack.Pop(); break;
+            case (Mode.CastWho or Mode.PrepareWho or Mode.StatusWho or Mode.ItemsWho, "back"): Go(Mode.Main); break;
+            case (Mode.Reorder, "back"):
+                _newOrder.Clear();
+                Message = null;
+                Go(Mode.Main);
+                break;
             case (Mode.StatusWho, Character c): Stack.Push(new StatusScene(c, Services.Session!.Roster.PartyMembers.ToList())); break;
             case (Mode.PrepareWho, Character c): Stack.Push(new SpellPickScene(c, SpellPickScene.Kind.Prepared, Services.Session!.Roster.PartyMembers.ToList())); break;
             case (Mode.CastWho, Character c):
@@ -380,7 +390,7 @@ public sealed class CampScene : MenuScene
             SpellTabs.Draw(d, SpellTabArea, Services.Data, _caster!, _spellTab, SpellTabs.Tabs(Services.Data, _caster!, CampSpells(_caster!)), Services.Strings["combat.tab_cantrip"], 22);
     }
 
-    protected override int? PartyHighlight => _mode is Mode.CastWho or Mode.PrepareWho or Mode.StatusWho or Mode.ItemsWho or Mode.CastTarget ? List.Cursor
+    protected override int? PartyHighlight => _mode is Mode.CastWho or Mode.PrepareWho or Mode.StatusWho or Mode.ItemsWho or Mode.CastTarget && List.Current?.Tag is Character ? List.Cursor
         : _mode == Mode.Reorder && List.Current?.Tag is Character c ? Roster.Party.IndexOf(c.Id) : null;
 
     protected override void DrawInfo(Draw2D d, RectangleF area)

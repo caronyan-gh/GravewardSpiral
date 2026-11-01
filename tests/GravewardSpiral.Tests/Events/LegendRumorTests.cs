@@ -57,8 +57,7 @@ public class LegendRumorTests
         store.Save(s, Content);
         Assert.Equal(1, store.LoadClan("clanA")!.LegendsHeard["ev6_dead_court"]);
         Assert.Equal(1, store.Load("clanA", s.WorldKey).LegendsHeard["ev6_dead_court"]);
-        // 書き出したクランのファイルにも入る
-        var file = ClanFile.From(s, "A", null);
-        Assert.Equal(1, file.LegendsHeard["ev6_dead_court"]);
+        // 新しく始めるで選ぶクランにも入る
+        Assert.Equal(1, Assert.Single(ClanFile.FromSaves(store, id => id)).Clan.LegendsHeard["ev6_dead_court"]);
     }
 }

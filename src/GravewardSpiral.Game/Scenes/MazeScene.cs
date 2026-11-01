@@ -150,7 +150,7 @@ public sealed class MazeScene : Scene
         }
         else if (mouse == MouseMove.TurnAround) Turned(_nav.TurnAround());
         else if (mouse == MouseMove.Search) UseOrSearch();
-        else if (walk && (input.Repeat(GameAction.Up) || mouse == MouseMove.Forward))
+        else if (walk && (input.RepeatMove(GameAction.Up) || mouse == MouseMove.Forward))
         {
             bool door = ThroughDoor(State.Position.Facing);   // 動く前に、これから通る辺を見る
             _moveDir = State.Position.Facing;
@@ -159,7 +159,7 @@ public sealed class MazeScene : Scene
             Report(_nav.Forward(), door);
         }
         else if (backTurns && input.Pressed(GameAction.Down)) Turned(_nav.TurnAround());
-        else if (!backTurns && walk && input.Repeat(GameAction.Down))
+        else if (!backTurns && walk && input.RepeatMove(GameAction.Down))
         {
             bool door = ThroughDoor(State.Position.Facing.Opposite());
             _moveDir = State.Position.Facing.Opposite();
@@ -167,9 +167,9 @@ public sealed class MazeScene : Scene
             _entered = "back";
             Report(_nav.Backward(), door);
         }
-        else if (walk && (input.Repeat(GameAction.StrafeLeft) || input.Repeat(GameAction.StrafeRight) || mouse is MouseMove.StrafeLeft or MouseMove.StrafeRight))
+        else if (walk && (input.RepeatMove(GameAction.StrafeLeft) || input.RepeatMove(GameAction.StrafeRight) || mouse is MouseMove.StrafeLeft or MouseMove.StrafeRight))
         {
-            var dir = input.Repeat(GameAction.StrafeLeft) || mouse == MouseMove.StrafeLeft ? State.Position.Facing.Left() : State.Position.Facing.Right();
+            var dir = input.RepeatMove(GameAction.StrafeLeft) || mouse == MouseMove.StrafeLeft ? State.Position.Facing.Left() : State.Position.Facing.Right();
             bool door = ThroughDoor(dir);
             _moveDir = dir;
             _stepFrom = State.Position.Cell;
@@ -183,7 +183,7 @@ public sealed class MazeScene : Scene
         else if (input.Pressed(GameAction.Map))
         {
             Services.Audio.PlaySe(Sounds.MapOpen);
-            Stack.Push(new MapScene(State, _lastKnown, InFog ? null : State.Position));
+            Stack.Push(new MapScene(State, _lastKnown, InFog ? null : State.Position, FloorLabel));
         }
         else if (input.Pressed(GameAction.Menu) && Services.Session != null)
         {
@@ -232,8 +232,7 @@ public sealed class MazeScene : Scene
         }
         double before = _mouseHeldTime;
         _mouseHeldTime += time.ElapsedGameTime.TotalSeconds;
-        double delay = InputState.RepeatDelay, interval = InputState.RepeatInterval;
-        return _mouseHeldTime >= delay && Math.Floor((_mouseHeldTime - delay) / interval) != Math.Floor((before - delay) / interval) ? zone : MouseMove.None;
+        return InputState.RepeatTick(before, _mouseHeldTime, InputState.MoveRepeatDelay, InputState.MoveRepeatInterval) ? zone : MouseMove.None;
     }
 
     /// <summary>マウスの領域を、絵の上に薄く重ねる(設定でオンのとき): 区切りの線、各領域の矢印、右上の調べる円(点線)。</summary>
@@ -859,13 +858,18 @@ public sealed class MazeScene : Scene
     /// <summary>AI がこの世界のために書いた、今の階の文(無ければ null)。</summary>
     private Core.Ai.WorldFloorText? WorldFloor => Services.Session?.World?.Floor(State.Position.Floor);
 
-    private string FloorLabel()
+    private string FloorLabel() => FloorLabel(State.Position.Floor);
+
+    /// <summary>階の見出し(B3 と名前)。全体の地図で、ほかの階を見るときにも使う。</summary>
+    private string FloorLabel(int floor)
     {
         // 名前は物語(worlds.json の階)を先に、無ければ地図の名前(画面の言語のほう)、無ければ階のテーマ
-        var f = State.Floor;
+        var f = State.Dungeon.Floors[floor];
+        int floors = State.Dungeon.Floors.Count;
         string? mapName = GameServices.Language == "en" ? f.NameEn ?? f.NameJa : f.NameJa ?? f.NameEn;
-        string? name = WorldFloor?.Name is { } wn ? Services.Name(wn) : mapName ?? (CurrentTheme?.Name is { } tn ? Services.Name(tn) : null);
-        return name == null ? $"B{State.Position.Floor + 1}" : $"B{State.Position.Floor + 1} {name}";
+        var theme = Services.Data == null ? null : FloorAdvisor.ThemeFor(Services.Data, floors <= 1 ? 0 : (double)floor / (floors - 1));
+        string? name = Services.Session?.World?.Floor(floor)?.Name is { } wn ? Services.Name(wn) : mapName ?? (theme?.Name is { } tn ? Services.Name(tn) : null);
+        return name == null ? $"B{floor + 1}" : $"B{floor + 1} {name}";
     }
 
     /// <summary>テーマのある階に着いたら、その階の様子を一文で知らせる。</summary>

@@ -95,6 +95,12 @@ public sealed class MonsterDef
     /// <summary>正体が分かる前の名前(「小さな人影」など)。</summary>
     public LocalizedText? UnknownName { get; set; }
 
+    /// <summary>
+    /// 正体が分かる前の絵の種類(art/unknown/&lt;これ&gt;.png)。省くと creature_type の絵。
+    /// 人型のうち亜人(ゴブリン・オーク・ノール・コボルド・リザードフォークなど)は demi_humanoid。その絵が無ければ creature_type の絵で代わりに出す。
+    /// </summary>
+    public string? UnknownArt { get; set; }
+
     /// <summary>大きさ: tiny / small / medium / large / huge / gargantuan。</summary>
     public string Size { get; set; } = "medium";
 

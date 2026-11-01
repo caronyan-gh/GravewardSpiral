@@ -34,7 +34,7 @@ public class ScenarioTests
         string search = Path.Combine(tmp.Path, "Scenarios");
         MakeScenario(Path.Combine(search, "b_folder"), "b_folder");
         string src = MakeScenario(Path.Combine(tmp.Path, "src", "b_zip"), "b_zip", "2.0");
-        ZipFile.CreateFromDirectory(src, Path.Combine(search, "b_zip.zip"), CompressionLevel.Fastest, includeBaseDirectory: true);
+        ZipFile.CreateFromDirectory(src, Path.Combine(search, "b_zip" + ScenarioCatalog.PackExtension), CompressionLevel.Fastest, includeBaseDirectory: true);
         Directory.CreateDirectory(Path.Combine(search, "not_a_pack"));
 
         var problems = new List<string>();
@@ -114,12 +114,28 @@ public class ScenarioTests
     }
 
     [Fact]
+    public void PlainZipsAreReadTooAndPlacedAsPackFiles()
+    {
+        using var tmp = new TestPaths.TempDir();
+        string user = Path.Combine(tmp.Path, "Scenarios"), cache = Path.Combine(tmp.Path, "cache");
+        string plain = Path.Combine(tmp.Path, "downloads", "c_plain.zip");
+        Directory.CreateDirectory(Path.GetDirectoryName(plain)!);
+        ZipFile.CreateFromDirectory(MakeScenario(Path.Combine(tmp.Path, "src", "c_plain"), "c_plain"), plain, CompressionLevel.Fastest, includeBaseDirectory: true);
+        // 落とした .zip は .gssnro にして置く
+        Assert.Equal(Path.Combine(user, "c_plain" + ScenarioCatalog.PackExtension),
+            ScenarioInstall.Install(ScenarioInstall.Check(plain, user, [Path.Combine(tmp.Path, "bundled")], cache), user, move: false));
+        // 置き場所に直に置いた .zip も一覧に出る
+        ZipFile.CreateFromDirectory(MakeScenario(Path.Combine(tmp.Path, "src", "d_left"), "d_left"), Path.Combine(user, "d_left.zip"), CompressionLevel.Fastest, includeBaseDirectory: true);
+        Assert.Equal(["c_plain", "d_left"], ScenarioCatalog.Find([user], cache).Select(s => s.Id).Order());
+    }
+
+    [Fact]
     public void ADroppedZipIsCopiedOrMovedIntoTheScenarios()
     {
         using var tmp = new TestPaths.TempDir();
         string user = Path.Combine(tmp.Path, "Scenarios"), bundled = Path.Combine(tmp.Path, "bundled"), cache = Path.Combine(tmp.Path, "cache");
         string src = MakeScenario(Path.Combine(tmp.Path, "src", "b_drop"), "b_drop");
-        string zip = Path.Combine(tmp.Path, "downloads", "some name.zip");
+        string zip = Path.Combine(tmp.Path, "downloads", "some name" + ScenarioCatalog.PackExtension);
         Directory.CreateDirectory(Path.GetDirectoryName(zip)!);
         ZipFile.CreateFromDirectory(src, zip, CompressionLevel.Fastest, includeBaseDirectory: true);
 
@@ -127,7 +143,7 @@ public class ScenarioTests
         Assert.Equal(DropProblem.None, check.Problem);
         Assert.Empty(check.Existing);
         string dest = ScenarioInstall.Install(check, user, move: false);
-        Assert.Equal(Path.Combine(user, "b_drop.zip"), dest);
+        Assert.Equal(Path.Combine(user, "b_drop" + ScenarioCatalog.PackExtension), dest);
         Assert.True(File.Exists(zip));
         Assert.Equal(["b_drop"], ScenarioCatalog.Find([user], cache).Select(s => s.Id));
 
@@ -150,7 +166,7 @@ public class ScenarioTests
         using var tmp = new TestPaths.TempDir();
         string user = Path.Combine(tmp.Path, "Scenarios"), bundled = Path.Combine(tmp.Path, "bundled"), cache = Path.Combine(tmp.Path, "cache");
         string placed = MakeScenario(Path.Combine(user, "b_drop"), "b_drop");
-        string zip = Path.Combine(tmp.Path, "downloads", "b_drop.zip");
+        string zip = Path.Combine(tmp.Path, "downloads", "b_drop" + ScenarioCatalog.PackExtension);
         Directory.CreateDirectory(Path.GetDirectoryName(zip)!);
         ZipFile.CreateFromDirectory(MakeScenario(Path.Combine(tmp.Path, "src", "b_drop"), "b_drop", "2.0"), zip, CompressionLevel.Fastest, includeBaseDirectory: true);
         string[] Entries() => Directory.EnumerateFileSystemEntries(user).Select(Path.GetFileName).Order().ToArray()!;
@@ -165,14 +181,14 @@ public class ScenarioTests
         Assert.True(File.Exists(zip));
 
         // 使い終われば入れ替わる
-        Assert.Equal(Path.Combine(user, "b_drop.zip"), ScenarioInstall.Install(ScenarioInstall.Check(zip, user, [bundled], cache), user, move: false));
-        Assert.Equal(["b_drop.zip"], Entries());
+        Assert.Equal(Path.Combine(user, "b_drop" + ScenarioCatalog.PackExtension), ScenarioInstall.Install(ScenarioInstall.Check(zip, user, [bundled], cache), user, move: false));
+        Assert.Equal(["b_drop" + ScenarioCatalog.PackExtension], Entries());
 
         // 前に置きかけて残ったもの(仮の名前のもの、ファイルの無い id のフォルダ)は、次に置くときに片付ける
         Directory.CreateDirectory(Path.Combine(user, "b_drop", "maps"));
-        File.WriteAllText(Path.Combine(user, ".b_drop.zip.0123.new"), "x");
-        Assert.Equal(Path.Combine(user, "b_drop.zip"), ScenarioInstall.Install(ScenarioInstall.Check(zip, user, [bundled], cache), user, move: false));
-        Assert.Equal(["b_drop.zip"], Entries());
+        File.WriteAllText(Path.Combine(user, ".b_drop" + ScenarioCatalog.PackExtension + ".0123.new"), "x");
+        Assert.Equal(Path.Combine(user, "b_drop" + ScenarioCatalog.PackExtension), ScenarioInstall.Install(ScenarioInstall.Check(zip, user, [bundled], cache), user, move: false));
+        Assert.Equal(["b_drop" + ScenarioCatalog.PackExtension], Entries());
     }
 
     [Fact]
@@ -202,7 +218,7 @@ public class ScenarioTests
     public void ZipsCannotWriteOutsideTheCache()
     {
         using var tmp = new TestPaths.TempDir();
-        string zip = Path.Combine(tmp.Path, "evil.zip");
+        string zip = Path.Combine(tmp.Path, "evil" + ScenarioCatalog.PackExtension);
         using (var archive = ZipFile.Open(zip, ZipArchiveMode.Create))
         {
             using var w = new StreamWriter(archive.CreateEntry("../escaped.txt").Open());
@@ -225,45 +241,6 @@ public class ScenarioTests
         Assert.Contains("b_sunken", data.FloorThemes.Keys);
         Assert.Contains("goblin", data.Monsters.Keys);   // 標準のパックのデータも使える
         Assert.Null(Base.Scenario);
-    }
-
-    [Fact]
-    public void ClansCarryTheRosterIntoANewGame()
-    {
-        using var tmp = new TestPaths.TempDir();
-        var settings = MazeGenSettings.Load(Base);
-        var request = new GenerationRequest(3, 2, FloorSizeMode.Fixed(10, 10));
-        var first = GameSession.New(1, request, new MazeGenerator(settings).Generate(request).Dungeon);
-        foreach (var cls in new[] { "fighter", "cleric", "wizard", "rogue" })
-        {
-            var c = CharacterFactory.QuickCreate(Data, cls, "human", cls, 5);
-            c.Gold = 777;
-            first.Roster.Characters.Add(c);
-            if (cls != "rogue") first.Roster.AddToParty(c);   // ローグは控え
-        }
-        first.Roster.PartyMembers.First().Inventory.TryAdd(ItemInstance.Of("mithral_arrows", 20), Data.Items);
-        var lost = CharacterFactory.QuickCreate(Data, "lost", "human", "fighter");
-        first.Roster.Characters.Add(lost);
-        first.Roster.LeftInMaze[lost.Id] = first.EnterMaze().Position;   // 迷宮に残った人は持ち出さない
-        first.Flags.Add("cleared");
-
-        string path = ClanFile.From(first, "灰の鐘団", "srd").Save(tmp.Path);
-        Assert.EndsWith(ClanFile.Extension, path);
-        var listed = ClanFile.List(tmp.Path);
-        Assert.Single(listed);
-        Assert.True(listed[0].Clan.Cleared);
-
-        var second = GameSession.New(2, request, new MazeGenerator(settings).Generate(request).Dungeon);
-        listed[0].Clan.ApplyTo(second);
-        Assert.Equal(4, second.Roster.Characters.Count);
-        Assert.Equal(3, second.Roster.Party.Count);
-        Assert.All(second.Roster.Characters, c => Assert.Equal(5, c.Level));
-        Assert.All(second.Roster.Characters, c => Assert.Equal(777, c.Gold));
-        Assert.Contains(second.Roster.PartyMembers.First().Inventory.Items, i => i.ItemId == "mithral_arrows" && i.Count == 20);
-        Assert.DoesNotContain(second.Roster.Characters, c => c.Name == "lost");
-        // 写しなので、新しいゲームで変えても元のクランは変わらない
-        second.Roster.Characters[0].Gold = 0;
-        Assert.Equal(777, ClanFile.Load(path).Characters[0].Gold);
     }
 
     [Fact]
@@ -323,7 +300,7 @@ public class ScenarioTests
         Assert.True(house.Has(more, "inn"));
         Assert.True(house.Deposit(ItemInstance.Of("longsword"), Data.Items, more));
 
-        // クランファイルと一緒に持ち歩く
+        // クランを書き出して読み込んでも、クランハウスは一緒に持ち歩く
         using var tmp = new TestPaths.TempDir();
         var settings = MazeGenSettings.Load(Base);
         var request = new GenerationRequest(4, 2, FloorSizeMode.Fixed(10, 10));
@@ -331,11 +308,15 @@ public class ScenarioTests
         s1.Roster.Characters.Add(c);
         s1.ClanHouse = house;
         s1.ClanName = "倉庫番";
-        ClanFile.From(s1, "倉庫番", null).Save(tmp.Path);
-        var s2 = GameSession.New(2, request, new MazeGenerator(settings).Generate(request).Dungeon);
-        ClanFile.List(tmp.Path)[0].Clan.ApplyTo(s2);
-        Assert.Equal(2, s2.ClanHouse.Level);
-        Assert.Equal(house.Storage.Count, s2.ClanHouse.Storage.Count);
-        Assert.Equal("倉庫番", s2.ClanName);
+        var store = new SaveStore(Path.Combine(tmp.Path, "a"));
+        store.Save(s1, Base);
+        string file = Path.Combine(tmp.Path, SaveStore.ClanFileNameFor("倉庫番"));
+        store.ExportClan(s1.ClanId, file);
+        var other = new SaveStore(Path.Combine(tmp.Path, "b"));
+        other.ImportClan(file);
+        var clan = other.LoadClan(s1.ClanId)!;
+        Assert.Equal(2, clan.House.Level);
+        Assert.Equal(house.Storage.Count, clan.House.Storage.Count);
+        Assert.Equal("倉庫番", clan.Name);
     }
 }

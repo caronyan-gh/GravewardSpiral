@@ -110,7 +110,7 @@ public class ScenarioPackTests
         // zip にすると、置いたシナリオとして見つかる
         string scenarios = Path.Combine(dir.Path, "Scenarios");
         Directory.CreateDirectory(scenarios);
-        back.ExportZip(Path.Combine(scenarios, "my_tale.zip"));
+        back.ExportZip(Path.Combine(scenarios, "my_tale" + ScenarioCatalog.PackExtension));
         var found = ScenarioCatalog.Find([scenarios], Path.Combine(dir.Path, "cache"));
         Assert.Equal("my_tale", Assert.Single(found).Id);
     }
@@ -199,9 +199,9 @@ public class ScenarioPackTests
         var loaded = DungeonLoader.ScenarioDungeon(content)!;
         var s = GameSession.New(0, DungeonLoader.RequestFor(loaded, 2), loaded);
         var ctx = new EventContext { Data = data, Session = s, Rng = new Core.Rng.Pcg32(1, 1) };
-        Assert.Equal(["always"], RumorDef.Available(data, ctx).Select(r => r.Id));
+        Assert.Equal(["always"], RumorDef.Available(data, ctx).Select(r => r.Id).Where(id => !id.StartsWith("srd_")));   // 土台の世間話と心得は除く
         s.Flags.Add("gate_open");
-        Assert.Equal(["after", "always"], RumorDef.Available(data, ctx).Select(r => r.Id));
+        Assert.Equal(["after", "always"], RumorDef.Available(data, ctx).Select(r => r.Id).Where(id => !id.StartsWith("srd_")));
 
         // 文が片方の言語で空なら、読み込みの問題
         pack.Rumors.Add(new RumorDef { Id = "bad", Text = LocalizedText.Of("Only English.") });
