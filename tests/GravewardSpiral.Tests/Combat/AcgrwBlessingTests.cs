@@ -3,26 +3,27 @@ using GravewardSpiral.Core.Combat;
 using GravewardSpiral.Core.Content;
 using GravewardSpiral.Core.Effects;
 using GravewardSpiral.Core.Rng;
+using GravewardSpiral.Core.Rules;
 
 namespace GravewardSpiral.Tests.Combat;
 
-/// <summary>ACGRW の祝福: 勝った戦闘の終わりに、倒した1体につき、生き残った人がそれぞれのレベルで HP を戻す。</summary>
+/// <summary>ACGRW の祝福: 勝った戦闘の終わりに、倒した1体につき、生き残った人がそれぞれのレベルと耐久力で HP を戻す。</summary>
 public class AcgrwBlessingTests
 {
     private static readonly ContentLibrary Content = ContentLibrary.Load(TestPaths.Content);
     private static readonly GameData Data = GameData.Load(Content);
 
+    /// <summary>耐久力 ÷ 25 × レベルを切り上げる。</summary>
     [Theory]
-    [InlineData(1, 1)]
-    [InlineData(4, 1)]
-    [InlineData(5, 2)]
-    [InlineData(10, 2)]
-    [InlineData(11, 3)]
-    [InlineData(16, 3)]
-    [InlineData(17, 4)]
-    [InlineData(22, 4)]
-    [InlineData(23, 5)]
-    public void ThePerFoeHealGrowsEverySixLevels(int level, int per) => Assert.Equal(per, CombatEngine.BlessingPerFoe(level));
+    [InlineData(1, 8, 1)]
+    [InlineData(1, 14, 1)]
+    [InlineData(1, 30, 2)]
+    [InlineData(5, 14, 3)]
+    [InlineData(5, 10, 2)]
+    [InlineData(13, 14, 8)]
+    [InlineData(13, 20, 11)]
+    [InlineData(25, 25, 25)]
+    public void ThePerFoeHealIsConOver25TimesLevel(int level, int con, int per) => Assert.Equal(per, CombatEngine.BlessingPerFoe(level, con));
 
     /// <summary>levels のファイターで、動けないゴブリン count 体を倒すまで戦う。HP は 1 から。</summary>
     private static (CombatState State, List<Character> Party) Win(int count, params int[] levels) => Win(Data, count, levels);
@@ -45,9 +46,12 @@ public class AcgrwBlessingTests
     {
         var (s, party) = Win(4, 3, 5, 11);
         Assert.Equal(CombatOutcome.Victory, s.Outcome);
-        Assert.Equal(1 + 4 * 1, party[0].Hp);
-        Assert.Equal(1 + 4 * 2, party[1].Hp);
-        Assert.Equal(1 + 4 * 3, party[2].Hp);
+        foreach (var c in party)
+            Assert.Equal(Math.Min(c.MaxHp, 1 + 4 * CombatEngine.BlessingPerFoe(c.Level, c.Scores[Ability.Con])), c.Hp);
+        Assert.True(party[2].Hp > party[0].Hp);   // レベルが高いほど多く戻る
+        // 誰がどれだけ戻ったかの行(実際に戻った量)
+        var healed = Assert.IsType<List<(string Name, int Amount)>>(Assert.Single(s.Log, l => l.Key == "combat.acgrw_healed").Args[0]);
+        Assert.Equal(party.Select(c => (c.Name, c.Hp - 1)), healed);
         Assert.Contains(s.Log, l => l.Key == "combat.acgrw_blessing");
     }
 
@@ -66,8 +70,11 @@ public class AcgrwBlessingTests
     [Fact]
     public void TheHealStopsAtMaxHp()
     {
-        var (_, party) = Win(8, 1);
-        Assert.Equal(Math.Min(party[0].MaxHp, 1 + 8), party[0].Hp);
+        var (s, party) = Win(8, 1);
+        Assert.Equal(Math.Min(party[0].MaxHp, 1 + 8 * CombatEngine.BlessingPerFoe(1, party[0].Scores[Ability.Con])), party[0].Hp);
+        // 頭打ちになった分は数えない
+        var healed = (List<(string Name, int Amount)>)s.Log.Single(l => l.Key == "combat.acgrw_healed").Args[0];
+        Assert.Equal(party[0].Hp - 1, healed[0].Amount);
     }
 
     [Fact]

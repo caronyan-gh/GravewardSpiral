@@ -20,8 +20,20 @@ public sealed class AutoMap
     public IEnumerable<GridPos> ArrivalsOn(int floor) =>
         _floors.SelectMany(kv => kv.Value.Teleports.Values.Where(t => (t.Floor ?? kv.Key) == floor).Select(t => t.Cell));
 
+    /// <summary>霧を抜けて、地図に書き足したマスの数(TakeRecalled で読むと 0 に戻る)。</summary>
+    private int _recalled;
+
+    /// <summary>霧を抜けて書き足したマスの数を読み、0 に戻す(知らせを1回だけ出すため)。</summary>
+    public int TakeRecalled()
+    {
+        int n = _recalled;
+        _recalled = 0;
+        return n;
+    }
+
     /// <summary>
-    /// 今の場所から見えるものを記録する。霧の中では何も記録しない。
+    /// 今の場所から見えるものを記録する。霧の中では地図に書かず、歩いたマスだけを覚えておき、
+    /// 霧を抜けたら、そのマスと周りの辺をまとめて書き足す(霧のマスとして)。
     /// 暗闇の中では、今のマスの周りの辺(手で触れたもの)だけを記録する。
     /// </summary>
     public void Record(ExplorationState state)
@@ -29,9 +41,24 @@ public sealed class AutoMap
         var pos = state.Position;
         var floor = state.Floor;
         var here = floor[pos.Cell];
-        if (here.Zone.HasFlag(Zone.Fog)) return;
-
         var map = For(pos.Floor);
+        if (here.Zone.HasFlag(Zone.Fog))
+        {
+            map.FogWalk.Add(pos.Cell);
+            return;
+        }
+        foreach (var (f, m) in _floors.Where(kv => kv.Value.FogWalk.Count > 0))
+        {
+            foreach (var c in m.FogWalk)
+            {
+                m.Visited.Add(c);
+                m.Fog.Add(c);
+                foreach (var d in DirectionExtensions.All) m.See(c, d, state.Apparent(f, c, d));
+            }
+            _recalled += m.FogWalk.Count;
+            m.FogWalk.Clear();
+        }
+
         map.Visited.Add(pos.Cell);
         foreach (var d in DirectionExtensions.All) map.See(pos.Cell, d, state.Apparent(pos.Floor, pos.Cell, d));
         if (state.InDark) return;
@@ -49,10 +76,16 @@ public sealed class FloorMap
 {
     public HashSet<GridPos> Visited { get; } = [];
 
+    /// <summary>霧を抜けて書き足したマス(地図で霧の色に塗る)。</summary>
+    public HashSet<GridPos> Fog { get; } = [];
+
+    /// <summary>霧の中で歩いて、まだ地図に書いていないマス(霧を抜けたら書き足す)。</summary>
+    public HashSet<GridPos> FogWalk { get; } = [];
+
     /// <summary>見えた辺(マスと向き → 見えた種類)。</summary>
     public Dictionary<EdgeKey, EdgeType> Edges { get; } = [];
 
-    /// <summary>踏んで気づいた仕掛けの印(テレポーター・落とし穴・シュート)。回転床には付けない。</summary>
+    /// <summary>踏んで気づいた仕掛けの印(テレポーター・落とし穴・シュート・回転床)。</summary>
     public Dictionary<GridPos, CellFeature> Marks { get; } = [];
 
     /// <summary>一度飛ばされて分かったテレポーターの行き先(Floor は別の階のときだけ。同じ階なら null)。</summary>

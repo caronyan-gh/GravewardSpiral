@@ -41,7 +41,7 @@ public sealed class CombatScene : Scene
     private readonly Action<CombatOutcome>? _onEnd;
     private CombatEngine _engine = null!;
     private CombatState _state = null!;
-    private readonly MenuList _menu = new(new RectangleF(CommandArea.X + 16, CommandArea.Y + 50, CommandArea.Width - 32, CommandArea.Height - 64), 34f, 21f);
+    private readonly MenuList _menu = new(new RectangleF(CommandArea.X + 16, CommandArea.Y + 50, CommandArea.Width - 32, CommandArea.Height - 64), 34f, 21f) { Loop = true };
     private readonly Dictionary<string, PlayerCommand> _commands = [];
     private Phase _phase;
     private int _member;          // 行動を選んでいる人(_state.Party の添え字)

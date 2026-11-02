@@ -2,7 +2,7 @@
 
 ## Clan House
 
-Your clan's shared base. Manage equipment, and under Party, form your party (add or remove companions and change their order) and use "View Status". A party holds up to six members: the first three are the front row and the rest are the back row. You can also deposit or withdraw items. While choosing items to deposit, Left/Right (or < > and L2/R2, as on the item screen) switch members.
+Your clan's shared base. Manage equipment, and under Party, form your party (add or remove companions and change their order) and use "View Status". A party holds up to six members: the first three are the front row and the rest are the back row. Under "Storehouse" you can store and take out items, and store or take out key items separately (key items take no storehouse slots). While choosing items to store, Left/Right (or < > and L2/R2, as on the item screen) switch members.
 
 "Sort Items" works like the item screen, with a Storehouse page after the six members (F7); you can also open it from "Storehouse" in the member list. Give an item to "Storehouse" to deposit it, or give an item on the Storehouse page to a member to take it out.
 

@@ -12,6 +12,7 @@ public static class AutoMapRenderer
     private static readonly Color Panel = new(10, 14, 20, 235);
     private static readonly Color Frame = new(70, 90, 110);
     private static readonly Color Visited = new(30, 44, 60);
+    private static readonly Color FogCell = new(52, 60, 72);   // 霧を抜けて書き足したマス
     private static readonly Color Wall = new(150, 200, 240);
     private static readonly Color Door = new(230, 180, 90);
     private static readonly Color Locked = new(235, 90, 80);
@@ -23,7 +24,7 @@ public static class AutoMapRenderer
     /// <param name="party">パーティの印を出す場所と向き。霧の中では null。</param>
     /// <param name="radius">中心から何マスまで出すか。null なら階の全体を出す。</param>
     /// <param name="fitKnown">階の全体を出すとき、分かっているところ(通ったマス・見えた辺・印・パーティ)の周りだけにする。まだ行っていない広さを見せない。</param>
-    /// <summary>地図の印の文字(text の automap.*。上り・下り階段、昇降機、テレポーター、落とし穴、シュート)。</summary>
+    /// <summary>地図の印の文字(text の automap.*。上り・下り階段、昇降機、テレポーター、落とし穴、シュート。回転床は輪の矢印)。</summary>
     public static Text.Strings? Strings { get; set; }
 
     private static string Label(string key) => Strings?["automap." + key] ?? key[..1];
@@ -35,16 +36,7 @@ public static class AutoMapRenderer
         d.FillRect(area, Panel);
         d.Rect(area, Frame, 1f);
 
-        int cols = radius is int r ? 2 * r + 1 : floor.Width;
-        int rows = radius is int r2 ? 2 * r2 + 1 : floor.Height;
-        int left = 0, top = 0;
-        if (radius == null && fitKnown) (left, top, cols, rows) = KnownBounds(floor, map, party?.Cell ?? center);
-        float pad = 8f;
-        float cell = MathF.Floor(MathF.Min((area.Width - 2 * pad) / cols, (area.Height - 2 * pad) / rows));
-        // 少ししか分かっていなくても、階の全体を出すときと同じ大きさのまま(広さは隠し、縮尺は変えない)
-        if (radius == null && fitKnown) cell = MathF.Min(cell, MathF.Floor(MathF.Min((area.Width - 2 * pad) / floor.Width, (area.Height - 2 * pad) / floor.Height)));
-        float ox = area.X + (area.Width - cell * cols) / 2f;
-        float oy = area.Y + (area.Height - cell * rows) / 2f;
+        var (left, top, cols, rows, cell, ox, oy) = Layout(floor, map, area, center, party?.Cell, radius, fitKnown);
         float thick = Math.Clamp(cell / 12f, 1.5f, 3f);
 
         for (int row = 0; row < rows; row++)
@@ -55,7 +47,7 @@ public static class AutoMapRenderer
             d.Rect(new RectangleF(x, y, cell + 1, cell + 1), Grid, 1f);
             if (at is not { } p) continue;
 
-            if (map.Visited.Contains(p)) d.FillRect(new RectangleF(x + 1, y + 1, cell - 1, cell - 1), Visited);
+            if (map.Visited.Contains(p)) d.FillRect(new RectangleF(x + 1, y + 1, cell - 1, cell - 1), map.Fog.Contains(p) ? FogCell : Visited);
             foreach (var dir in DirectionExtensions.All)
             {
                 if (map.Seen(p, dir) is not { } edge) continue;
@@ -97,9 +89,11 @@ public static class AutoMapRenderer
             if (notes != null && notes.Contains(p))
                 d.Text(Label("memo"), new Vector2(x + cell * 0.52f, y + cell * 0.04f), cell * 0.42f, new Color(230, 210, 140));   // 書き留めたメモ
 
-            if (map.Marks.TryGetValue(p, out var mark))
+            if (map.Marks.TryGetValue(p, out var mark) && mark == CellFeature.Spinner)
+                DrawSpinner(d, x, y, cell);
+            else if (map.Marks.TryGetValue(p, out mark))
             {
-                // 踏んで気づいた仕掛けの印(回転床には付けない)
+                // 踏んで気づいた仕掛けの印
                 string label = mark switch { CellFeature.Teleporter => Label("teleporter"), CellFeature.Pit => Label("pit"), _ => Label("chute") };
                 d.Text(label, new Vector2(x + cell * 0.08f, y + cell * 0.48f), cell * 0.42f, Warp);
                 // 別の階へ飛ぶテレポーターは、分かった行き先の階を横に書く
@@ -127,6 +121,33 @@ public static class AutoMapRenderer
     private static bool Inside(GridPos g, int left, int top, int cols, int rows) => g.X >= left && g.X < left + cols && g.Y >= top && g.Y < top + rows;
 
     /// <summary>分かっているところを囲む範囲(周りに1マスの余白。端がつながっている向きは、階の幅いっぱい)。</summary>
+    /// <summary>マスの並べ方(左上のマス、出す列と行、1マスの大きさ、左上の点)。描くのとクリックの場所を調べるので同じものを使う。</summary>
+    private static (int Left, int Top, int Cols, int Rows, float Cell, float Ox, float Oy) Layout(
+        MazeFloor floor, FloorMap map, RectangleF area, GridPos center, GridPos? partyCell, int? radius, bool fitKnown)
+    {
+        int cols = radius is int r ? 2 * r + 1 : floor.Width;
+        int rows = radius is int r2 ? 2 * r2 + 1 : floor.Height;
+        int left = 0, top = 0;
+        if (radius == null && fitKnown) (left, top, cols, rows) = KnownBounds(floor, map, partyCell ?? center);
+        float pad = 8f;
+        float cell = MathF.Floor(MathF.Min((area.Width - 2 * pad) / cols, (area.Height - 2 * pad) / rows));
+        // 少ししか分かっていなくても、階の全体を出すときと同じ大きさのまま(広さは隠し、縮尺は変えない)
+        if (radius == null && fitKnown) cell = MathF.Min(cell, MathF.Floor(MathF.Min((area.Width - 2 * pad) / floor.Width, (area.Height - 2 * pad) / floor.Height)));
+        float ox = area.X + (area.Width - cell * cols) / 2f;
+        float oy = area.Y + (area.Height - cell * rows) / 2f;
+        return (left, top, cols, rows, cell, ox, oy);
+    }
+
+    /// <summary>地図の上の点が指すマス(Draw と同じ引数で。マスの外なら null)。</summary>
+    public static GridPos? CellAt(MazeFloor floor, FloorMap map, RectangleF area, GridPos center, GridPos? partyCell, int? radius, bool fitKnown, Vector2 point)
+    {
+        var (left, top, cols, rows, cell, ox, oy) = Layout(floor, map, area, center, partyCell, radius, fitKnown);
+        if (cell <= 0) return null;
+        int col = (int)MathF.Floor((point.X - ox) / cell), row = (int)MathF.Floor((point.Y - oy) / cell);
+        if (col < 0 || row < 0 || col >= cols || row >= rows) return null;
+        return radius is int rr ? Wrap(floor, center.X - rr + col, center.Y - rr + row) : new GridPos(left + col, top + row);
+    }
+
     private static (int Left, int Top, int Cols, int Rows) KnownBounds(MazeFloor floor, FloorMap map, GridPos here)
     {
         var cells = map.Visited.Concat(map.Edges.Keys.Select(e => e.Cell)).Concat(map.Marks.Keys).Append(here).ToList();
@@ -155,6 +176,26 @@ public static class AutoMapRenderer
         Direction.West => (new Vector2(x, y), new Vector2(x, y + s)),
         _ => (new Vector2(x + s, y), new Vector2(x + s, y + s)),
     };
+
+    /// <summary>回転床の印: マスの真ん中に、ぐるりと回る輪の矢印。</summary>
+    private static void DrawSpinner(Draw2D d, float x, float y, float s)
+    {
+        var c = new Vector2(x + s / 2f, y + s / 2f);
+        float r = s * 0.26f, t = Math.Clamp(s / 14f, 1.2f, 2.5f);
+        const int segments = 14;
+        const float start = 0.75f * MathF.PI, sweep = 1.5f * MathF.PI;   // 3/4 周(右下で終わる)
+        Vector2 At(float a) => c + new Vector2(MathF.Cos(a), MathF.Sin(a)) * r;
+        for (int i = 0; i < segments; i++)
+            d.Line(At(start + sweep * i / segments), At(start + sweep * (i + 1) / segments), Warp, t);
+        // 輪の終わりに矢じり(回る向きへ)
+        float end = start + sweep;
+        var tip = At(end);
+        var along = new Vector2(-MathF.Sin(end), MathF.Cos(end));
+        var outward = new Vector2(MathF.Cos(end), MathF.Sin(end));
+        float h = s * 0.16f;
+        d.Line(tip, tip - along * h + outward * h * 0.8f, Warp, t);
+        d.Line(tip, tip - along * h - outward * h * 0.8f, Warp, t);
+    }
 
     private static void DrawArrow(Draw2D d, float x, float y, float s, Direction facing)
     {

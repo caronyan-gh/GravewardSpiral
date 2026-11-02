@@ -550,6 +550,9 @@ public sealed class SaveData
         public List<int[]> Visited { get; set; } = [];
         public List<SeenEdge> Edges { get; set; } = [];
         public List<MarkData> Marks { get; set; } = [];
+        /// <summary>霧を抜けて書き足したマスと、霧の中で歩いてまだ書いていないマス(前のセーブには無い)。</summary>
+        public List<int[]> Fog { get; set; } = [];
+        public List<int[]> FogWalk { get; set; } = [];
     }
 
     public sealed record SeenEdge(int X, int Y, Direction Dir, EdgeType Type);
@@ -630,6 +633,8 @@ public sealed class SaveData
                     Edges = kv.Value.Edges.Select(x => new SeenEdge(x.Key.Cell.X, x.Key.Cell.Y, x.Key.Dir, x.Value)).ToList(),
                     Marks = kv.Value.Marks.Select(m => kv.Value.Teleports.TryGetValue(m.Key, out var to)
                         ? new MarkData(m.Key.X, m.Key.Y, m.Value, to.Floor, to.Cell.X, to.Cell.Y) : new MarkData(m.Key.X, m.Key.Y, m.Value)).ToList(),
+                    Fog = kv.Value.Fog.Select(p => new[] { p.X, p.Y }).ToList(),
+                    FogWalk = kv.Value.FogWalk.Select(p => new[] { p.X, p.Y }).ToList(),
                 }).ToList(),
             };
         }
@@ -692,6 +697,8 @@ public sealed class SaveData
                 var map = state.AutoMap.For(m.Floor);
                 foreach (var v in m.Visited) map.Visited.Add(new GridPos(v[0], v[1]));
                 foreach (var x in m.Edges) map.See(new GridPos(x.X, x.Y), x.Dir, x.Type);
+                foreach (var v in m.Fog ?? []) map.Fog.Add(new GridPos(v[0], v[1]));
+                foreach (var v in m.FogWalk ?? []) map.FogWalk.Add(new GridPos(v[0], v[1]));
                 foreach (var k in m.Marks)
                 {
                     map.Marks[new GridPos(k.X, k.Y)] = k.Feature;

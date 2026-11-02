@@ -1,4 +1,4 @@
-using GravewardSpiral.Core.Characters;
+﻿using GravewardSpiral.Core.Characters;
 using GravewardSpiral.Core.Items;
 using GravewardSpiral.Core.Save;
 using GravewardSpiral.Game.Audio;
@@ -15,7 +15,7 @@ namespace GravewardSpiral.Game.Scenes.Town;
 /// </summary>
 public sealed class ClanHouseScene(Action? onLeave = null) : MenuScene
 {
-    private enum Mode { Main, DepositWho, Deposit, Withdraw, WithdrawTo }
+    private enum Mode { Main, Storage, DepositWho, Deposit, Withdraw, WithdrawTo }
 
     private Mode _mode;
     private Character? _who;
@@ -29,7 +29,7 @@ public sealed class ClanHouseScene(Action? onLeave = null) : MenuScene
     protected override string Title => _mode == Mode.Deposit && _who != null ? Services.Strings.Format("inv.title", _who.Name)   // 誰の品を預けるか(左右で切り替わる)
         : House.Def(_levels) is { } def ? Services.Name(def.Name) : Services.Strings["town.house"];
 
-    protected override int? PartyHighlight => _mode is Mode.DepositWho or Mode.WithdrawTo ? List.Cursor
+    protected override int? PartyHighlight => _mode is Mode.DepositWho or Mode.WithdrawTo ? (List.Cursor < Party.Count ? List.Cursor : null)
         : _mode == Mode.Deposit && _who != null && Party.IndexOf(_who) is >= 0 and var i ? i : null;
 
     /// <summary>預ける品を選ぶあいだの、人の切り替え(持ち物のある人だけ。左右キーでも回す)。</summary>
@@ -76,10 +76,10 @@ public sealed class ClanHouseScene(Action? onLeave = null) : MenuScene
                 yield return new MenuItem(s["house.party"], Tag: "party");
                 yield return new MenuItem(s["house.items"], Enabled: Party.Count > 0, Tag: "items");
                 if (House.Has(_levels, ClanHouseLevel.Bed))
-                    yield return new MenuItem(s["house.sleep"], s[House.Has(_levels, ClanHouseLevel.BedFull) ? "house.sleep_full" : "house.sleep_half"], Tag: "sleep");
-                yield return new MenuItem(s["house.deposit"], Enabled: Party.Any(c => c.Inventory.Items.Count > 0), Tag: Mode.DepositWho);
-                yield return new MenuItem(s["house.withdraw"], s.Format("house.slots", House.Storage.Count, House.Capacity(_levels)),
-                    House.Storage.Count > 0, Mode.Withdraw);
+                    yield return House.Has(_levels, ClanHouseLevel.BedFull)
+                        ? new MenuItem(s["house.sleep_good"], s["house.sleep_full"], Tag: "sleep")
+                        : new MenuItem(s["house.sleep"], s["house.sleep_half"], Tag: "sleep");
+                yield return new MenuItem(s["house.storage"], s.Format("house.slots", House.Used(Data.Items), House.Capacity(_levels)), Tag: Mode.Storage);
                 var next = House.Next(_levels);
                 if (House.ExpandCost(_levels) is long expand)
                     yield return new MenuItem(s["house.expand"], s.Format("shop.price", expand), PartyGold.Total(Party) >= expand, "expand");
@@ -89,29 +89,56 @@ public sealed class ClanHouseScene(Action? onLeave = null) : MenuScene
                 yield return new MenuItem(s["common.back"], Tag: "back");
                 break;
             }
+            case Mode.Storage:
+                // 倉庫: ふつうの品と大事なもの(枠を使わない)を分けて、しまう・取り出す
+                yield return new MenuItem(s["house.deposit"], Enabled: Party.Any(c => Depositable(c, false).Any()), Tag: (Mode.DepositWho, false));
+                yield return new MenuItem(s["house.withdraw"], s.Format("house.slots", House.Used(Data.Items), House.Capacity(_levels)),
+                    Stored(false).Any(), (Mode.Withdraw, false));
+                yield return new MenuItem(s["house.deposit_key"], Enabled: Party.Any(c => Depositable(c, true).Any()), Tag: (Mode.DepositWho, true));
+                yield return new MenuItem(s["house.withdraw_key"], Enabled: Stored(true).Any(), Tag: (Mode.Withdraw, true));
+                yield return new MenuItem(s["common.back"], Tag: "back");
+                break;
             case Mode.DepositWho:
             case Mode.WithdrawTo:
                 foreach (var c in Party)
                 {
-                    bool ok = _mode == Mode.DepositWho ? c.Inventory.Items.Count > 0 : c.Inventory.FreeSlots(Data.Items) > 0
+                    bool ok = _mode == Mode.DepositWho ? Depositable(c).Any() : c.Inventory.FreeSlots(Data.Items) > 0
                         || _taking != null && Data.Items[_taking.ItemId].Stack > 1 && c.Inventory.Items.Any(i => i.SameKind(_taking));
                     yield return new MenuItem(c.Name, s.Format("shop.slots", c.Inventory.Items.Count, c.Inventory.Capacity(Data.Items)), ok, c);
                 }
+                yield return new MenuItem(s["common.back"], Tag: "back");
                 break;
             case Mode.Deposit:
-                foreach (var it in _who!.Inventory.Items) yield return new MenuItem(ItemText.Name(Services, it), Tag: it);
+                foreach (var it in Depositable(_who!)) yield return new MenuItem(ItemText.Name(Services, it), Tag: it);
+                yield return new MenuItem(s["common.back"], Tag: "back");
+                break;
+            case Mode.Withdraw when _keys:
+                foreach (var it in Stored(true).OrderBy(i => ItemText.Name(Services, i), StringComparer.CurrentCulture))
+                    yield return new MenuItem(ItemText.Name(Services, it), Tag: it);
+                yield return new MenuItem(s["common.back"], Tag: "back");
                 break;
             case Mode.Withdraw:
                 // 種類ごとに見出しを付けて並べる
-                foreach (var group in House.Storage.GroupBy(KindOf).OrderBy(g => Array.IndexOf(KindOrder, g.Key)))
+                foreach (var group in Stored(false).GroupBy(KindOf).OrderBy(g => Array.IndexOf(KindOrder, g.Key)))
                 {
                     yield return new MenuItem($"― {s["house.kind." + group.Key.ToString().ToLowerInvariant()]} ―", Enabled: false);
                     foreach (var it in group.OrderBy(i => ItemText.Name(Services, i), StringComparer.CurrentCulture))
                         yield return new MenuItem("  " + ItemText.Name(Services, it), ItemText.Hands(Services, it), Tag: it);
                 }
+                yield return new MenuItem(s["common.back"], Tag: "back");
                 break;
         }
     }
+
+    /// <summary>大事なものを扱っているか(倉庫の「大事なものをしまう・取り出す」)。</summary>
+    private bool _keys;
+
+    /// <summary>その人の袋の品のうち、今しまえるもの(大事なものか、ふつうの品か)。</summary>
+    private IEnumerable<ItemInstance> Depositable(Character c) => Depositable(c, _keys);
+
+    private IEnumerable<ItemInstance> Depositable(Character c, bool keys) => c.Inventory.Items.Where(i => ClanHouse.IsKey(i, Data.Items) == keys);
+
+    private IEnumerable<ItemInstance> Stored(bool keys) => House.Storage.Where(i => ClanHouse.IsKey(i, Data.Items) == keys);
 
     /// <summary>倉庫の並びの順(見出し)。</summary>
     private static readonly ItemKind[] KindOrder =
@@ -131,13 +158,13 @@ public sealed class ClanHouseScene(Action? onLeave = null) : MenuScene
         var s = Services.Strings;
         switch (_mode, item.Tag)
         {
-            case (Mode.Main, "back"): Cancel(); return;
+            case (_, "back"): Cancel(); return;   // どの一覧でも、戻るは取消と同じ
             case (Mode.Main, "items"):
                 // 荷物の整理(装備の付け替え、仲間に渡す)。人の次に倉庫のページがあり、渡すで預ける・引き出す
                 Stack.Push(new MemberPickScene(s["house.items"], _ => true, c => Stack.Push(new InventoryScene(c, Party, storage: true)))
                 {
                     // 戻るの前に倉庫(選ぶと倉庫のページから開く)
-                    Extra = (s["house.storage"], () => s.Format("house.slots_info", House.Storage.Count, House.Capacity(_levels)),
+                    Extra = (s["house.storage"], () => s.Format("house.slots_info", House.Used(Data.Items), House.Capacity(_levels)),
                         () => Stack.Push(new InventoryScene(Party[0], Party, storage: true, atStorage: true))),
                 });
                 return;
@@ -146,6 +173,10 @@ public sealed class ClanHouseScene(Action? onLeave = null) : MenuScene
                 Stack.Push(new PartyScene(Refresh));
                 return;
             case (Mode.Main, Mode m): Go(m); return;
+            case (Mode.Storage, (Mode m, bool keys)):
+                _keys = keys;
+                Go(m);
+                return;
             case (Mode.Main, "sleep"):
             {
                 // 寝床: ただで大休憩(段階で戻る HP が違う)
@@ -174,7 +205,7 @@ public sealed class ClanHouseScene(Action? onLeave = null) : MenuScene
                 return;
             case (Mode.DepositWho, Character c):
                 _who = c;
-                _depositSwitch = new MemberSwitch(Party, c, x => x.Inventory.Items.Count > 0) { PartyArea = PartyArea };
+                _depositSwitch = new MemberSwitch(Party, c, x => Depositable(x).Any()) { PartyArea = PartyArea };
                 Go(Mode.Deposit);
                 return;
             case (Mode.Deposit, ItemInstance it):
@@ -184,8 +215,8 @@ public sealed class ClanHouseScene(Action? onLeave = null) : MenuScene
                     Message = s.Format("house.deposited", ItemText.Name(Services, it));
                 }
                 else Message = s["house.full"];
-                if (_who!.Inventory.Items.Count > 0) Go(Mode.Deposit);
-                else Go(Mode.Main);
+                if (Depositable(_who!).Any()) Go(Mode.Deposit);
+                else Go(Mode.Storage);
                 return;
             case (Mode.Withdraw, ItemInstance it):
                 _taking = it;
@@ -199,7 +230,7 @@ public sealed class ClanHouseScene(Action? onLeave = null) : MenuScene
                     Message = s.Format("house.withdrawn", ItemText.Name(Services, taking), c.Name);
                 }
                 else Message = s.Format("inv.bag_full", c.Name);
-                Go(House.Storage.Count > 0 ? Mode.Withdraw : Mode.Main);
+                Go(Stored(_keys).Any() ? Mode.Withdraw : Mode.Storage);
                 return;
         }
     }
@@ -214,6 +245,7 @@ public sealed class ClanHouseScene(Action? onLeave = null) : MenuScene
                 break;
             case Mode.Deposit: Go(Mode.DepositWho); break;
             case Mode.WithdrawTo: Go(Mode.Withdraw); break;
+            case Mode.DepositWho or Mode.Withdraw: Go(Mode.Storage); break;
             default: Go(Mode.Main); break;
         }
     }
@@ -233,7 +265,9 @@ public sealed class ClanHouseScene(Action? onLeave = null) : MenuScene
             y = Line(d, area, y, Services.Name(def.Name), Theme.Title, 24);
             if (def.Description != null) y = Line(d, area, y, Services.Name(def.Description), Theme.Text, 18);
             // 使える設備と、次の段階で増えるもの
-            var have = def.Facilities.Select(f => s["house.facility." + f]).ToList();
+            // 良い寝床があれば、ふつうの寝床は選べないので並べない
+            var have = def.Facilities.Where(f => f != ClanHouseLevel.Bed || !def.Facilities.Contains(ClanHouseLevel.BedFull))
+                .Select(f => s["house.facility." + f]).ToList();
             if (have.Count > 0) y = Line(d, area, y + 6, s.Format("house.facilities", s.List(have)), Theme.Gold, 17);
             if (List.Current?.Tag is "upgrade" && House.Next(_levels) is { } next)
             {
@@ -251,6 +285,6 @@ public sealed class ClanHouseScene(Action? onLeave = null) : MenuScene
             if (List.Current?.Tag is "expand" && def.ExpandSlots > 0)
                 y = Line(d, area, y + 6, s.Format("house.expand_info", def.ExpandSlots), Theme.Text, 17);
         }
-        Line(d, area, y + 10, s.Format("house.slots_info", House.Storage.Count, House.Capacity(_levels)), Theme.Dim, 17);
+        Line(d, area, y + 10, s.Format("house.slots_info", House.Used(Data.Items), House.Capacity(_levels)), Theme.Dim, 17);
     }
 }

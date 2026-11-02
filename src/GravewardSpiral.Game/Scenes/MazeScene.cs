@@ -125,6 +125,7 @@ public sealed class MazeScene : Scene
             AutoSave();
             _waitMoveRelease = true;
             _mouseHeld = MouseMove.None;   // マウスの押しっぱなしでも、戻ってきたら歩き続けない
+            _route = null;                 // 自動移動も、戦闘やイベントの画面が開いたら止まる
         }
         // 戻ってきたあとは、移動のキーを全部放すか、新しく押すまで、押しっぱなしでは歩かない
         if (_waitMoveRelease && (!MoveActions.Any(input.Held) || MoveActions.Any(input.Pressed))) _waitMoveRelease = false;
@@ -136,6 +137,23 @@ public sealed class MazeScene : Scene
             return;
         }
         if (Services.Debug && DebugKeys()) return;
+        if (_pendingRoute is { } to)
+        {
+            _pendingRoute = null;
+            StartRoute(to);
+        }
+        // 歩いているあいだは何か押すと止まる(そのクリックで歩き直さない)。歩いていなければ、小窓のマスで歩き出す
+        if (_route != null)
+        {
+            WalkRoute(time, input);
+            UpdateLastKnown();
+            return;
+        }
+        if (MiniMapClicked(input))
+        {
+            UpdateLastKnown();
+            return;
+        }
         bool walk = !_waitMoveRelease;   // 押しっぱなしのまま戻ってきたあいだは、歩かない(回転やメニューはできる)
         bool backTurns = BackTurns(input);
         var mouse = MouseAction(time, input);
@@ -183,7 +201,7 @@ public sealed class MazeScene : Scene
         else if (input.Pressed(GameAction.Map))
         {
             Services.Audio.PlaySe(Sounds.MapOpen);
-            Stack.Push(new MapScene(State, _lastKnown, InFog ? null : State.Position, FloorLabel));
+            Stack.Push(new MapScene(State, _lastKnown, InFog ? null : State.Position, FloorLabel, CanAutoWalk ? to => _pendingRoute = to : null));
         }
         else if (input.Pressed(GameAction.Menu) && Services.Session != null)
         {
@@ -201,6 +219,81 @@ public sealed class MazeScene : Scene
     }
 
     private bool InFog => State.Cell.Zone.HasFlag(Zone.Fog);
+
+    /// <summary>自動移動の残りの向き(歩いていなければ null)と、次の1歩までの時間。</summary>
+    private Queue<Direction>? _route;
+    private double _routeWait;
+
+    /// <summary>全体の地図で選んだ行き先(地図が閉じてから歩き出す)。</summary>
+    private GridPos? _pendingRoute;
+
+    /// <summary>地図のマスを押して歩けるか(設定で使う・地図を使える・霧の中でない)。</summary>
+    private bool CanAutoWalk => Services.Options.AutoWalk && Services.Options.AllowMap && !InFog;
+
+    /// <summary>小窓の地図のマスを押した: 通ったマスなら、そこへ歩き出す。小窓の中を押したら true(下の迷宮の操作に渡さない)。</summary>
+    private bool MiniMapClicked(InputState input)
+    {
+        if (!CanAutoWalk || !Services.Options.ShowMiniMap || !input.LeftClicked || input.Mouse is not { } m || !MiniMapArea.Contains(m)) return false;
+        var map = State.AutoMap.For(State.Position.Floor);
+        if (AutoMapRenderer.CellAt(State.Floor, map, MiniMapArea, _lastKnown, State.Position.Cell, MiniMapRadius, fitKnown: false, m) is { } to
+            && map.Visited.Contains(to)) StartRoute(to);
+        return true;
+    }
+
+    /// <summary>通ったマスだけを通る、一番短い道で歩き出す(同じ階の中だけ)。道が無ければ知らせる。</summary>
+    private void StartRoute(GridPos to)
+    {
+        if (!CanAutoWalk) return;
+        var route = AutoRoute.Find(State.Floor, State.AutoMap.For(State.Position.Floor), State.Position.Cell, to);
+        if (route == null)
+        {
+            Services.Audio.PlaySe(Sounds.Bump);
+            Say(Services.Strings["maze.no_route"]);
+            return;
+        }
+        if (route.Count == 0) return;
+        _route = new Queue<Direction>(route);
+        _routeWait = 0;
+    }
+
+    /// <summary>
+    /// 自動移動の1歩: 移動の繰り返しの間隔で、向きを変えて前へ進む(遭遇やイベントは手で歩くのと同じ)。
+    /// 何か押した・着いた・別の画面が開いた・思った所に着かなかった・新しく暗闇に入った・霧に入ったら止まる。
+    /// </summary>
+    private void WalkRoute(GameTime time, InputState input)
+    {
+        if (input.AnyPressed || input.LeftClicked || input.RightClicked)
+        {
+            _route = null;
+            return;
+        }
+        _routeWait -= time.ElapsedGameTime.TotalSeconds;
+        if (_routeWait > 0) return;
+        _routeWait = InputState.MoveRepeatInterval;
+        var dir = _route!.Dequeue();
+        var facing = State.Position.Facing;
+        if (dir == facing.Left()) Turned(_nav.TurnLeft());
+        else if (dir == facing.Right()) Turned(_nav.TurnRight());
+        else if (dir == facing.Opposite()) Turned(_nav.TurnAround());
+        if (Stack.Version != _version)
+        {
+            _route = null;   // 向きを変えて起こるイベント
+            return;
+        }
+        var from = State.Position;
+        var expected = State.Floor.Neighbor(from.Cell, dir);
+        bool wasDark = State.Cell.Zone.HasFlag(Zone.Dark);
+        bool door = ThroughDoor(dir);
+        _moveDir = dir;
+        _stepFrom = from.Cell;
+        _entered = "forward";
+        var result = _nav.Forward();
+        Report(result, door);
+        var now = State.Position;
+        if (result != MoveResult.Moved || now.Floor != from.Floor || now.Cell != expected || now.Facing != dir
+            || Stack.Version != _version || !wasDark && State.Cell.Zone.HasFlag(Zone.Dark) || InFog || _route.Count == 0)
+            _route = null;
+    }
 
     /// <summary>マウスで押し続けている歩く動き(押したままなら、キーと同じ間隔で繰り返す)と、押している時間。</summary>
     private MouseMove _mouseHeld;
@@ -462,6 +555,7 @@ public sealed class MazeScene : Scene
             if (zone.HasFlag(Zone.Fog) && !_lastZone.HasFlag(Zone.Fog)) Say(s["maze.enter_fog"]);
             _lastZone = zone;
         }
+        if (State.AutoMap.TakeRecalled() > 0) Say(s["maze.fog_recalled"]);
         CheckMark();
         if (Services.Session?.NamedLairAt(State.Position.Floor, State.Position.Cell) is { } lair) NamedFight(lair);
         if (Services.Session?.BodiesAt(State.Position) is { Count: > 0 } bodies)

@@ -82,7 +82,14 @@ public sealed class ClanHouse
     public bool Has(IReadOnlyList<ClanHouseLevel> levels, string facility) =>
         Def(levels)?.Facilities.Contains(facility) == true;
 
-    /// <summary>倉庫に入れる。重ねられる品は同じものに重ねる(本数の上限は品の stack)。入らなければ false。</summary>
+    /// <summary>大事なもの(kind が key)か。大事なものは倉庫の枠を使わない(袋の枠は使う)。</summary>
+    public static bool IsKey(ItemInstance item, IReadOnlyDictionary<string, ItemDef> defs) =>
+        defs.TryGetValue(item.ItemId, out var d) && d.Kind == ItemKind.Key;
+
+    /// <summary>倉庫の使っている枠の数(大事なものは数えない)。</summary>
+    public int Used(IReadOnlyDictionary<string, ItemDef> defs) => Storage.Count(i => !IsKey(i, defs));
+
+    /// <summary>倉庫に入れる。重ねられる品は同じものに重ねる(本数の上限は品の stack)。入らなければ false。大事なものは枠に関係なく入る。</summary>
     public bool Deposit(ItemInstance item, IReadOnlyDictionary<string, ItemDef> defs, IReadOnlyList<ClanHouseLevel> levels)
     {
         if (!defs.TryGetValue(item.ItemId, out var def)) return false;
@@ -95,7 +102,7 @@ public sealed class ClanHouse
                 return true;
             }
         }
-        if (Storage.Count >= Capacity(levels)) return false;
+        if (def.Kind != ItemKind.Key && Used(defs) >= Capacity(levels)) return false;
         Storage.Add(item);
         return true;
     }

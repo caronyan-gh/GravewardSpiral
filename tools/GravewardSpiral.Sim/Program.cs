@@ -6,6 +6,7 @@
 //   --level    パーティのレベル(省略すると 1)
 //   --party    クラスを並べる(省略すると ファイター2・パラディン・ローグ・レンジャー・クレリック)
 //   --monster  決まった敵と戦う(goblinx3 のように数も書ける。何度でも書ける)
+//   --strength N  --monster の敵の HP とダメージを N 倍にする(ボスの強化の倍率と同じ)
 //   --depth    深さの割合(0〜1)の遭遇表で戦う。--floors F なら全階(B1〜BF)を順に試す
 //   --boss ID  bosses.json のボスと戦う(強化の倍率つき)
 //   --at-level パーティのレベルを、その階の目安のレベル(切り捨て、最低 1)にする(--level より優先)
@@ -52,6 +53,7 @@ string? bossId = null;
 string scenarioId = ScenarioCatalog.Gravekeeper;
 ulong seed = 1;
 double? depth = null;
+double strength = 1;
 string[] classes = ["fighter", "fighter", "paladin", "rogue", "ranger", "cleric"];
 var fixedGroups = new List<(string Id, int Count)>();
 
@@ -90,6 +92,7 @@ for (int i = 0; i < args.Length; i++)
         case "--parties": partiesArg = next; i++; break;
         case "--verbose": verbose = true; break;
         case "--simple": simple = true; break;
+        case "--strength": strength = double.Parse(next, System.Globalization.CultureInfo.InvariantCulture); i++; break;
         case "--monster":
         {
             var parts = next.Split('x');
@@ -382,8 +385,8 @@ if (bossId != null)
 else if (fixedGroups.Count > 0)
 {
     var groups = fixedGroups.Select(g => (data.Monsters[g.Id], g.Count)).ToList();
-    Report(string.Join(" + ", fixedGroups.Select(g => $"{g.Id}x{g.Count}")),
-        CombatSimulator.Run(data, fights, seed, Party, _ => groups));
+    Report(string.Join(" + ", fixedGroups.Select(g => $"{g.Id}x{g.Count}")) + (strength != 1 ? $"(強さ ×{strength})" : ""),
+        CombatSimulator.Run(data, fights, seed, Party, _ => groups, strength != 1 ? new MonsterScale(strength, strength, 0, 0) : null));
 }
 else if (floors > 0)
 {

@@ -19,10 +19,11 @@ namespace GravewardSpiral.Game;
 /// --volume V: BGM と効果音の音量(0〜1)。--screenshot と一緒に渡すと、確認用の起動でも音の処理を動かす(0 なら無音で動かす)。
 /// --saves DIR: セーブの置き場所を変える(確認用。いつものセーブを汚さない)。
 /// --bgm-start S: 最初の BGM を S 秒目から流す(ループのつなぎ目を確かめる用)。
-/// --actions "U U R C M": 動作を順に押す(U 上 / D 下 / L 左 / R 右 / C 決定 / X 取消 / M 地図 / T メニュー / Q E 横歩き / . 何もしない)。
+/// --actions "U U R C M": 動作を順に押す(U 上 / D 下 / L 左 / R 右 / C 決定 / X 取消 / M 地図 / T メニュー / Q E 横歩き / . 何もしない / @x:y 1280x720 の座標の点を左クリック)。
 /// ファイルのパス(-- で始まらない引数): ダブルクリックで開かれた .gsclan か .gssnro。タイトル画面で読み込む(SingleInstance)。
 /// </summary>
-public sealed record LaunchOptions(string? ScreenshotPath, int? ScreenshotFrame, int? Width, int? Height, string? Start, IReadOnlyList<GameAction?> Actions, float? Volume, double? BgmStart, string? SavesDir, bool Debug = false, string? Language = null, string? Drop = null, string? Open = null)
+public sealed record LaunchOptions(string? ScreenshotPath, int? ScreenshotFrame, int? Width, int? Height, string? Start, IReadOnlyList<GameAction?> Actions, float? Volume, double? BgmStart, string? SavesDir, bool Debug = false, string? Language = null, string? Drop = null, string? Open = null,
+    IReadOnlyDictionary<int, Microsoft.Xna.Framework.Vector2>? Clicks = null)
 {
     /// <summary>自動操作で、1つの動作ごとに待つ Update の回数。</summary>
     public const int FramesPerAction = 8;
@@ -37,6 +38,7 @@ public sealed record LaunchOptions(string? ScreenshotPath, int? ScreenshotFrame,
         float? volume = null;
         double? bgmStart = null;
         var actions = new List<GameAction?>();
+        var clicks = new Dictionary<int, Microsoft.Xna.Framework.Vector2>();
         for (int i = 0; i < args.Length; i++)
         {
             string next = i + 1 < args.Length ? args[i + 1] : "";
@@ -89,6 +91,15 @@ public sealed record LaunchOptions(string? ScreenshotPath, int? ScreenshotFrame,
                 case "--actions":
                     foreach (var token in next.Split(' ', ',').Where(t => t.Length > 0))
                     {
+                        // @x:y はその点の左クリック(動作は押さない)
+                        if (token.StartsWith('@') && token[1..].Split(':') is [var cx, var cy]
+                            && float.TryParse(cx, System.Globalization.CultureInfo.InvariantCulture, out var px)
+                            && float.TryParse(cy, System.Globalization.CultureInfo.InvariantCulture, out var py))
+                        {
+                            clicks[actions.Count] = new Microsoft.Xna.Framework.Vector2(px, py);
+                            actions.Add(null);
+                            continue;
+                        }
                         actions.Add(token.ToUpperInvariant() switch
                         {
                             "U" => GameAction.Up,
@@ -117,6 +128,6 @@ public sealed record LaunchOptions(string? ScreenshotPath, int? ScreenshotFrame,
                     break;
             }
         }
-        return new LaunchOptions(shot, frame, w, h, start, actions, volume, bgmStart, saves, debug, lang, drop, open);
+        return new LaunchOptions(shot, frame, w, h, start, actions, volume, bgmStart, saves, debug, lang, drop, open, clicks);
     }
 }

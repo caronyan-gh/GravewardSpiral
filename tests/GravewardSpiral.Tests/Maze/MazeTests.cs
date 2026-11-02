@@ -34,6 +34,36 @@ public class MazeTests
     private static MazeFloor Parse(string text) => MazeTextFormat.Parse(text.Replace("\n        ", "\n").TrimStart());
 
     [Fact]
+    public void FogPathIsAddedToTheMapAfterLeavingAndSpinnersAreMarked()
+    {
+        var state = State("""
+            floor fogwalk
+            size 5 1
+            wrap none
+            start 0 0 E
+            walls
+            +-+-+-+-+-+
+            |        s|
+            +-+-+-+-+-+
+            zones
+            .ff..
+            """, out var nav);
+        var map = state.AutoMap.For(0);
+        nav.Forward();
+        nav.Forward();
+        Assert.DoesNotContain(new GridPos(1, 0), map.Visited);   // 霧の中では書かない
+        Assert.Equal(0, state.AutoMap.TakeRecalled());
+        nav.Forward();
+        Assert.Contains(new GridPos(1, 0), map.Visited);         // 霧を抜けたら、歩いた道を書き足す
+        Assert.Equal([new GridPos(1, 0), new GridPos(2, 0)], map.Fog.OrderBy(p => p.X));
+        Assert.Equal(EdgeType.Wall, map.Seen(new GridPos(2, 0), Direction.North));
+        Assert.Equal(2, state.AutoMap.TakeRecalled());
+        Assert.Equal(0, state.AutoMap.TakeRecalled());
+        nav.Forward();
+        Assert.Equal(CellFeature.Spinner, map.Marks[new GridPos(4, 0)]);
+    }
+
+    [Fact]
     public void StrafingMovesSidewaysWithoutTurning()
     {
         var state = State(Small, out var nav);

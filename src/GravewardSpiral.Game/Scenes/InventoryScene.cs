@@ -143,7 +143,7 @@ public sealed class InventoryScene(Character first, IReadOnlyList<Character>? me
                 foreach (var c in Party)
                     yield return new MenuItem(c.Name, s.Format("house.slots", c.Inventory.Items.Count, c.Inventory.Capacity(Data.Items)), AtStorage || c != Owner, c);
                 if (!AtStorage)
-                    yield return new MenuItem(s["house.storage"], s.Format("house.slots", House.Storage.Count, House.Capacity(_levels)), Tag: "storage");
+                    yield return new MenuItem(s["house.storage"], s.Format("house.slots", House.Used(Data.Items), House.Capacity(_levels)), Tag: "storage");
                 break;
             case Mode.GiveTo:
             case Mode.UseOn:
@@ -396,7 +396,7 @@ public sealed class InventoryScene(Character first, IReadOnlyList<Character>? me
         if (AtStorage)
         {
             // 倉庫: タブの代わりに、使っている枠と全部の枠
-            d.Text(s.Format("house.storage_slots", House.Storage.Count, House.Capacity(_levels)), new Vector2(ListArea.X - 4, TabRect(Tab.Equip).Y + 4), 20, Theme.Dim);
+            d.Text(s.Format("house.storage_slots", House.Used(Data.Items), House.Capacity(_levels)), new Vector2(ListArea.X - 4, TabRect(Tab.Equip).Y + 4), 20, Theme.Dim);
             return;
         }
         foreach (var t in Enum.GetValues<Tab>())

@@ -10,14 +10,14 @@ The minimap in the upper-right corner shows your surroundings. Press M to open a
 
 - Visited squares and discovered walls and doors are recorded automatically.
 - The larger map shows only the area revealed by exploration. It does not reveal the full size of an unexplored floor.
-- On the larger map, Up/Down, the mouse wheel, or the ◀ ▶ arrows switch to any floor you have entered.
+- On the minimap, or the larger map of your current floor, click a square you have visited to walk there automatically. The route only uses squares you have visited and never changes floors. You can still meet monsters and trigger events on the way. Press any key or click to stop. Turn it off with Walk from the map in Options.
 - Secret doors appear as walls until discovered.
 - In Options, choose minimap and map, map only, or no map. You can also explore with your own graph-paper map.
 
 ## Darkness and fog
 
 - Darkness hides the view ahead, but exploration is still recorded on the map. A light spell or similar effect restores visibility while it lasts.
-- Fog leaves the view ahead visible, but stops mapping and hides your current position on the map.
+- Fog leaves the view ahead visible, but stops mapping and hides your current position on the map. When you leave the fog, the path you walked inside is added to the map (shaded in fog color).
 
 ## Doors and keys
 
@@ -30,7 +30,7 @@ Press Confirm while facing a wall or door to investigate it.
 
 ## Dungeon hazards
 
-Spinners change your facing, and teleporters move you elsewhere. Pits damage the whole party, while chutes drop you onto another floor. You cannot cast spells in an anti-magic area.
+Spinners change your facing (once stepped on, they get a circular-arrow mark on the map), and teleporters move you elsewhere. Pits damage the whole party, while chutes drop you onto another floor. You cannot cast spells in an anti-magic area.
 
 Some floors wrap around: moving past one edge brings you to the opposite edge. If you lose your bearings, check the map and your surroundings.
 

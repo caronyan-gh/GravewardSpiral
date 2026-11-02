@@ -99,7 +99,7 @@ Press Confirm at the up stairs on B1 to return to town. The game saves automatic
 
 ### Clan House
 
-Your clan's shared base. Manage equipment, and under Party, form your party (add or remove companions and change their order) and use "View Status". A party holds up to six members: the first three are the front row and the rest are the back row. You can also deposit or withdraw items. While choosing items to deposit, Left/Right (or < > and L2/R2, as on the item screen) switch members.
+Your clan's shared base. Manage equipment, and under Party, form your party (add or remove companions and change their order) and use "View Status". A party holds up to six members: the first three are the front row and the rest are the back row. Under "Storehouse" you can store and take out items, and store or take out key items separately (key items take no storehouse slots). While choosing items to store, Left/Right (or < > and L2/R2, as on the item screen) switch members.
 
 "Sort Items" works like the item screen, with a Storehouse page after the six members (F7); you can also open it from "Storehouse" in the member list. Give an item to "Storehouse" to deposit it, or give an item on the Storehouse page to a member to take it out.
 
@@ -325,14 +325,14 @@ The minimap in the upper-right corner shows your surroundings. Press M to open a
 
 - Visited squares and discovered walls and doors are recorded automatically.
 - The larger map shows only the area revealed by exploration. It does not reveal the full size of an unexplored floor.
-- On the larger map, Up/Down, the mouse wheel, or the ◀ ▶ arrows switch to any floor you have entered.
+- On the minimap, or the larger map of your current floor, click a square you have visited to walk there automatically. The route only uses squares you have visited and never changes floors. You can still meet monsters and trigger events on the way. Press any key or click to stop. Turn it off with Walk from the map in Options.
 - Secret doors appear as walls until discovered.
 - In Options, choose minimap and map, map only, or no map. You can also explore with your own graph-paper map.
 
 ### Darkness and fog
 
 - Darkness hides the view ahead, but exploration is still recorded on the map. A light spell or similar effect restores visibility while it lasts.
-- Fog leaves the view ahead visible, but stops mapping and hides your current position on the map.
+- Fog leaves the view ahead visible, but stops mapping and hides your current position on the map. When you leave the fog, the path you walked inside is added to the map (shaded in fog color).
 
 ### Doors and keys
 
@@ -345,7 +345,7 @@ Press Confirm while facing a wall or door to investigate it.
 
 ### Dungeon hazards
 
-Spinners change your facing, and teleporters move you elsewhere. Pits damage the whole party, while chutes drop you onto another floor. You cannot cast spells in an anti-magic area.
+Spinners change your facing (once stepped on, they get a circular-arrow mark on the map), and teleporters move you elsewhere. Pits damage the whole party, while chutes drop you onto another floor. You cannot cast spells in an anti-magic area.
 
 Some floors wrap around: moving past one edge brings you to the opposite edge. If you lose your bearings, check the map and your surroundings.
 
@@ -482,7 +482,7 @@ Poisoned, Blinded, Deafened, Frightened, and Paralyzed may linger after combat. 
 
 Victory divides experience equally among party members and awards gold. A treasure chest may also appear. See Exploring the Dungeon for chest handling.
 
-Adventuring clans also carry the Blessing of ACGRW. When you win a battle, every surviving member recovers HP for each foe defeated. The amount depends on that member's level: 1 at levels 1-4, 2 at 5-10, 3 at 11-16 and 4 at 17-22 (and 1 more every 6 levels after that). Fleeing gives nothing. It helps most after clearing a horde of weak foes and very little after a single strong one.
+Adventuring clans also carry the Blessing of ACGRW. When you win a battle, every surviving member recovers HP for each foe defeated. Each foe restores that member's Constitution ÷ 25 × level, rounded up. With Constitution 14 that is 1 at level 1, 3 at level 5 and 8 at level 13, so hardier members recover more. Fleeing gives nothing. It helps most after clearing a horde of weak foes and very little after a single strong one.
 
 ### Reviewing the log
 
@@ -556,7 +556,7 @@ These abilities work without selecting a combat command. Levels below refer to l
 
 In this game, items are limited by backpack slots rather than weight. The starting bag has six slots. Larger bags can be bought in town or found in the dungeon. Some identical consumables can share a stack.
 
-Keys and other important items are shared by the party and do not occupy individual bag slots.
+Keys and other key items also take a bag slot. The clan house storehouse holds any number of them without using slots ("Store Key Items" under "Storehouse").
 
 A full bag can prevent you from collecting loot or removing equipment. Before exploring, sell unwanted items or store them in the clan house warehouse to free space.
 
@@ -755,7 +755,7 @@ This game adapts the D&D 5th edition SRD 5.1 for dungeon exploration. These are 
 ### Resting and death
 
 - Short rests: Hit Dice are spent automatically until HP is full or no dice remain. If the rest ends without an ambush, each member able to act identifies one unidentified item.
-- Blessing of ACGRW: Winning a battle restores HP based on the number of foes defeated and each member's level (a rule of this game, to soften attrition from long strings of weak foes).
+- Blessing of ACGRW: Winning a battle restores HP based on the number of foes defeated and each member's level and Constitution (a rule of this game, to soften attrition from long strings of weak foes).
 - Long rests: Available only at the town inn or a clan house with beds. The HP recovery limit depends on where you sleep; the stables restore HP up to 50% of maximum.
 - Chest traps: Reaching 0 HP from a chest trap causes death without death saves.
 - Resurrection and wipes: Depending on settings, failed resurrection can turn a character to ash or cause permanent loss. A wipe may require a rescue party to retrieve bodies from the dungeon.

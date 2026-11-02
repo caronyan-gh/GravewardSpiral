@@ -10,6 +10,7 @@ namespace GravewardSpiral.Game.Scenes;
 /// <summary>
 /// 全体の地図。迷宮の画面に重ねて出し、地図か取消で閉じる。今の階から開き、
 /// 上下・ページのキー・ホイール・見出しの ◀ ▶ で、足を踏み入れたことのある階を切り替えて見られる。
+/// walkTo があれば、今の階の通ったマスを押すと地図を閉じて、そのマスへ自動で歩く。
 /// </summary>
 public sealed class MapScene : Scene
 {
@@ -20,14 +21,17 @@ public sealed class MapScene : Scene
     private readonly GridPos _center;
     private readonly PartyPosition? _party;
     private readonly Func<int, string>? _label;
+    private readonly Action<GridPos>? _walkTo;
     private readonly int _here;
     /// <summary>見られる階(足を踏み入れた階と今の階。上から順)。</summary>
     private readonly List<int> _floors;
     private int _shown;
 
     /// <param name="label">階の見出し(B3 と名前)。null なら B3 だけ。</param>
-    public MapScene(ExplorationState state, GridPos center, PartyPosition? party, Func<int, string>? label = null)
+    /// <param name="walkTo">マスを押したときに、そこへ歩かせる(自動移動を使わないときは null)。</param>
+    public MapScene(ExplorationState state, GridPos center, PartyPosition? party, Func<int, string>? label = null, Action<GridPos>? walkTo = null)
     {
+        _walkTo = walkTo;
         _state = state;
         _center = center;
         _party = party;
@@ -52,6 +56,13 @@ public sealed class MapScene : Scene
         {
             if (PrevArrow.Contains(m)) step = -1;
             else if (NextArrow.Contains(m)) step = 1;
+            else if (CanWalk && WalkTarget(m) is { } to)
+            {
+                // 今の階の通ったマス: 地図を閉じて、そこまで歩く
+                Stack.Pop();
+                _walkTo!(to);
+                return;
+            }
         }
         if (step != 0)
         {
@@ -70,6 +81,17 @@ public sealed class MapScene : Scene
             return;
         }
         if (input.Pressed(GameAction.Map) || input.Pressed(GameAction.Cancel) || input.Pressed(GameAction.Confirm)) Stack.Pop();
+    }
+
+    /// <summary>今の階を見ていて、自動で歩けるか。</summary>
+    private bool CanWalk => _walkTo != null && Floor == _here && _party != null;
+
+    /// <summary>押した点の、通ったマス(ほかは null)。</summary>
+    private GridPos? WalkTarget(Vector2 point)
+    {
+        var map = _state.AutoMap.For(Floor);
+        var cell = AutoMapRenderer.CellAt(_state.Dungeon.Floors[Floor], map, Area, _center, _party?.Cell, radius: null, fitKnown: true, point);
+        return cell is { } c && map.Visited.Contains(c) ? c : null;
     }
 
     public override void Draw(Draw2D d)
@@ -96,6 +118,7 @@ public sealed class MapScene : Scene
         bool hasNotes = _state.Notes.Any(n => n.Floor == floor);
         string help = s[hasNotes ? "map.close_memo" : "map.close"];
         if (_floors.Count > 1) help = s["map.floors"] + "   " + help;
+        if (CanWalk) help = s["map.walk"] + "   " + help;
         d.Text(help, new Vector2(640, 672), 16, new Color(150, 160, 170), TextAlign.Center);
     }
 }

@@ -171,6 +171,11 @@ public class ClassFeatureTests
         Round(e, s, s.Party[0], new PlayerCommand(CommandKind.Feature, FeatureId: "wild_shape", Option: "wolf"));
         Assert.Equal("wolf", s.Party[0].Shape?.Id);
         Assert.Equal("wolf", s.Snapshot()[0].Shape);
+        // 写しには、かかっている状態異常も入る(重ねない。パーティの欄のアイコンに使う)
+        s.Party[0].Conditions.Add(new ActiveCondition { Condition = Condition.Poisoned });
+        s.Party[0].Conditions.Add(new ActiveCondition { Condition = Condition.Poisoned });
+        s.Party[0].Conditions.Add(new ActiveCondition { Condition = Condition.Prone });
+        Assert.Equal([Condition.Poisoned, Condition.Prone], s.Snapshot()[0].Conditions);
     }
 
     [Fact]

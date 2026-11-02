@@ -228,6 +228,7 @@ public sealed class GravewardGame : Microsoft.Xna.Framework.Game, IDisplay
         if (_updates % LaunchOptions.FramesPerAction == 0 && _nextAction < _options.Actions.Count)
         {
             if (_options.Actions[_nextAction] is { } action) _input.Inject(action);
+            if (_options.Clicks?.TryGetValue(_nextAction, out var click) == true) _input.InjectClick(click);
             _nextAction++;
         }
         // 確認用の起動では、手元のキーやマウスの入力を受けない(自動操作だけにする)

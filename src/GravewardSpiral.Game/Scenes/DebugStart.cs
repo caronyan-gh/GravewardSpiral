@@ -215,6 +215,8 @@ public static class DebugStart
         }
         // 重ねた品(売る個数や渡す個数を試せるように)
         session.Roster.PartyMembers.First().Inventory.TryAdd(new Core.Items.ItemInstance { ItemId = "potion_of_healing", Count = 10, Identified = true }, services.Data.Items);
+        // 大事なもの(倉庫の「大事なものをしまう」を試せるように)
+        _ = session.Roster.PartyMembers.FirstOrDefault(c => c.Inventory.TryAdd(new Core.Items.ItemInstance { ItemId = "sigil_moon", Identified = true }, services.Data.Items));
         services.Scenes.Replace(new Town.TownScene());
     }
 

@@ -101,7 +101,8 @@ public sealed class MazeNavigator
         switch (cell.Feature)
         {
             case CellFeature.Spinner:
-                // 回転床: 向きがでたらめに変わる。気づかせないので、地図にも印を付けない
+                // 回転床: 向きがでたらめに変わる。踏んだら地図に印を付ける(霧の中では付けない)
+                if (!fog) map.Marks[pos.Cell] = CellFeature.Spinner;
                 State.Position = pos with { Facing = (Direction)_random.Next(0, 4) };
                 State.AutoMap.Record(State);
                 return MoveResult.Moved;

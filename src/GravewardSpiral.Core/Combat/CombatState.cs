@@ -25,8 +25,8 @@ public sealed record PlayerCommand(CommandKind Kind, int TargetGroup = -1, int T
 /// </summary>
 public sealed record CombatLogEntry(string Key, params object[] Args)
 {
-    /// <summary>この行の時点のパーティの HP と状態と、変身している獣の id(並びは CombatState.Party の順)。画面はログを見せた行の値を出す。</summary>
-    public IReadOnlyList<(string Id, int Hp, Characters.LifeState State, string? Shape, int Ac)> Party { get; init; } = [];
+    /// <summary>この行の時点のパーティの HP と状態と、変身している獣の id と、かかっている状態異常(並びは CombatState.Party の順)。画面はログを見せた行の値を出す。</summary>
+    public IReadOnlyList<(string Id, int Hp, Characters.LifeState State, string? Shape, int Ac, Effects.Condition[] Conditions)> Party { get; init; } = [];
 
     /// <summary>この行の時点の、グループごとの生きている数。</summary>
     public IReadOnlyList<int> GroupAlive { get; init; } = [];
@@ -104,9 +104,9 @@ public sealed class CombatState
     private static bool SameName(LocalizedText x, LocalizedText y) =>
         ReferenceEquals(x, y) || (x.Texts.Count == y.Texts.Count && x.Texts.All(kv => y.Texts.TryGetValue(kv.Key, out var v) && v == kv.Value));
 
-    /// <summary>今のパーティの HP と状態と獣の姿と、そのときの AC(呪文などの上げ下げを含む)。</summary>
-    public List<(string Id, int Hp, Characters.LifeState State, string? Shape, int Ac)> Snapshot() =>
-        Party.Select(p => (p.Id, p.Hp, p.Character.State, p.Shape?.Id, p.Ac)).ToList();
+    /// <summary>今のパーティの HP と状態と獣の姿と、そのときの AC(呪文などの上げ下げを含む)と、かかっている状態異常(重ねない)。</summary>
+    public List<(string Id, int Hp, Characters.LifeState State, string? Shape, int Ac, Effects.Condition[] Conditions)> Snapshot() =>
+        Party.Select(p => (p.Id, p.Hp, p.Character.State, p.Shape?.Id, p.Ac, p.Conditions.Select(x => x.Condition).Distinct().ToArray())).ToList();
 
     /// <summary>そのラウンドで、パーティの1人が狙えるグループの番号(Groups の添え字)。</summary>
     public IEnumerable<int> AttackableGroups(PartyMember p)

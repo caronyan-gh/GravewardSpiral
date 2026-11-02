@@ -82,6 +82,9 @@ public sealed class GameOptions
     /// <summary>迷宮の絵をマウスで押して動く(真ん中は調べる。まわりの8つの領域で、進む・横歩き・向きを変える・振り向く・下がる)。</summary>
     public bool MazeMouse { get; set; } = true;
 
+    /// <summary>地図(小窓と全体の地図)のマスを押して、そのマスまで自動で歩く。</summary>
+    public bool AutoWalk { get; set; } = true;
+
     /// <summary>迷宮のマウスの領域(区切りの線と矢印)を、絵の上に薄く重ねて見せる。</summary>
     public bool MazeMouseOverlay { get; set; }
 

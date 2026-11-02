@@ -4,7 +4,7 @@
 
 In this game, items are limited by backpack slots rather than weight. The starting bag has six slots. Larger bags can be bought in town or found in the dungeon. Some identical consumables can share a stack.
 
-Keys and other important items are shared by the party and do not occupy individual bag slots.
+Keys and other key items also take a bag slot. The clan house storehouse holds any number of them without using slots ("Store Key Items" under "Storehouse").
 
 A full bag can prevent you from collecting loot or removing equipment. Before exploring, sell unwanted items or store them in the clan house warehouse to free space.
 

@@ -148,7 +148,8 @@ public static class WireframeRenderer
         pb.Line(c, d, style.Door, LineWidth);
     }
 
-    /// <summary>階段の印。下りは床の穴、上りは床から上がる段々。</summary>
+    /// <summary>階段とエレベーターの印。下りは床の穴、上りは床から上がる段々、エレベーターは籠。
+    /// 回転床・テレポーター・落とし穴・シュートは気づかせないので描かない。</summary>
     private static void DrawFeature(PrimitiveBatch pb, Camera cam, Style style, CellFeature feature, int lateral, float zNear, float zFar)
     {
         if (feature == CellFeature.None) return;
@@ -165,7 +166,24 @@ public static class WireframeRenderer
                 pb.Line(cam.Bottom(x1 + 0.06f * i, z), cam.Bottom(x2 - 0.06f * i, z), style.Stairs, LineWidth * 0.8f);
             }
         }
-        else
+        else if (feature == CellFeature.Elevator)
+        {
+            // エレベーター: 床の台と、四隅の柱・上の枠・中ほどの手すりの籠、上の枠から天井へ伸びる綱
+            const float roof = 0.85f, rail = 0.42f;
+            Vector2 P(float x, float zz, float hh) => cam.At(x, zz, hh);
+            float[] hs = [0f, rail, roof];
+            foreach (float h in hs)
+            {
+                float w = h == rail ? LineWidth * 0.8f : LineWidth;
+                pb.Outline(P(x1, z1, h), P(x2, z1, h), P(x2, z2, h), P(x1, z2, h), style.Stairs, w);
+            }
+            foreach (float x in new[] { x1, x2 })
+                foreach (float z in new[] { z1, z2 })
+                    pb.Line(P(x, z, 0), P(x, z, roof), style.Stairs, LineWidth);
+            float cx = (x1 + x2) / 2f, cz = (z1 + z2) / 2f;
+            pb.Line(P(cx, cz, roof), P(cx, cz, 1f), style.Stairs, LineWidth * 0.8f);
+        }
+        else if (feature == CellFeature.StairsUp)
         {
             // 上り: 床から上がる低い段々(天井まで描くと、奥の壁より背が高くはみ出して見えるため)。
             // 段は重ならない柱(1段ぶんの奥行きで、床から段の高さまで)に分け、奥の柱から順に面を背景の色で塗る(後ろの線を隠す)。

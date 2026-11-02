@@ -2149,19 +2149,26 @@ public sealed class CombatEngine(GameData data, IRandom rng)
             c.Modifiers.Clear();
             c.Concentration = null;
         }
-        // ACGRW の祝福(冒険者のクランが授かる): 倒した1体につき、生き残った人がそれぞれのレベルで HP を戻す(Lord B の呪いの迷宮では効かない)
+        // ACGRW の祝福(冒険者のクランが授かる): 倒した1体につき、生き残った人がそれぞれのレベルと耐久力で HP を戻す(Lord B の呪いの迷宮では効かない)
         if (s.Defeated.Count > 0 && alive.Count > 0 && !_data.CurseOfLordB)
         {
-            foreach (var p in alive) p.Character.Hp = Math.Min(p.Character.MaxHp, p.Character.Hp + s.Defeated.Count * BlessingPerFoe(p.Character.Level));
+            var healed = new List<(string Name, int Amount)>();   // 実際に戻った量(最大 HP で頭打ちになった分は数えない)
+            foreach (var p in alive)
+            {
+                int before = p.Character.Hp;
+                p.Character.Hp = Math.Min(p.Character.MaxHp, p.Character.Hp + s.Defeated.Count * BlessingPerFoe(p.Character.Level, p.Character.Scores[Ability.Con]));
+                if (p.Character.Hp > before) healed.Add((p.Character.Name, p.Character.Hp - before));
+            }
             s.Add("combat.acgrw_blessing", s.Defeated.Count);
+            if (healed.Count > 0) s.Add("combat.acgrw_healed", healed);
         }
         if (alive.Count > 0) PartyGold.Share(alive.Select(p => p.Character).ToList(), gold);   // 金は生き残った人で分ける(宝箱やイベントと同じ)
         s.Reward = new CombatReward(each, gold, alive.Count);
         s.Add("combat.victory", each, gold);
     }
 
-    /// <summary>ACGRW の祝福で、倒した1体あたりに戻る HP(L1〜4 は 1、L5 から 2、L11 から 3、L17 から 4、そのあとも 6 レベルごとに 1 増える)。</summary>
-    public static int BlessingPerFoe(int level) => 1 + (Math.Max(1, level) + 1) / 6;
+    /// <summary>ACGRW の祝福で、倒した1体あたりに戻る HP(耐久力 ÷ 25 × レベル、切り上げ。耐久力 14 なら L1 で 1、L5 で 3、L13 で 8)。</summary>
+    public static int BlessingPerFoe(int level, int con) => (Math.Max(1, level) * Math.Max(1, con) + 24) / 25;
 
     /// <summary>金を持っている種類か(獣・不定形・植物は持たない)。</summary>
     public static bool CarriesTreasure(MonsterDef m) => m.CreatureType is not ("beast" or "ooze" or "plant" or "swarm");

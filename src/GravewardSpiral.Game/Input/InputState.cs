@@ -85,10 +85,18 @@ public sealed class InputState
 
     private bool _reverseNext;
 
+    /// <summary>次の Update で、この点(1280x720 の座標)を左クリックしたことにする(起動引数の自動操作用)。</summary>
+    public void InjectClick(Vector2 point) => _injectedClick = point;
+
+    private Vector2? _injectedClick;
+
     private readonly HashSet<GameAction> _injected = [];
 
     public bool Held(GameAction action) => _held.Contains(action);
     public bool Pressed(GameAction action) => _pressed.Contains(action);
+
+    /// <summary>このフレームで、どれかの動作が押されたか(自動移動を止める)。</summary>
+    public bool AnyPressed => _pressed.Count > 0;
 
     /// <summary>押した瞬間と、押し続けたときの繰り返し(メニューのカーソル用)。</summary>
     public bool Repeat(GameAction action) => _repeated.Contains(action);
@@ -181,6 +189,12 @@ public sealed class InputState
             _reverseNext = false;
         }
         _injected.Clear();
+        if (_injectedClick is { } click)
+        {
+            Mouse = click;
+            LeftClicked = true;
+            _injectedClick = null;
+        }
 
         _prevKeys = keys;
         _prevMouse = mouse;

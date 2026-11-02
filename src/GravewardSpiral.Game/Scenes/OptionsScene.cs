@@ -13,13 +13,13 @@ namespace GravewardSpiral.Game.Scenes;
 /// </summary>
 public sealed class OptionsScene : Scene
 {
-    private enum Row { Language, Bgm, Se, Screen, WindowSize, StoryFont, Wireframe, LogSpeed, CursorRepeat, MoveRepeat, Map, BackKey, MazeMouse, MazeOverlay, SpellTab, Ai, Scenarios, Back }
+    private enum Row { Language, Bgm, Se, Screen, WindowSize, StoryFont, Wireframe, LogSpeed, CursorRepeat, MoveRepeat, Map, BackKey, MazeMouse, MazeOverlay, AutoWalk, SpellTab, Ai, Scenarios, Back }
 
     /// <summary>タブごとの項目(どのタブにも、最後に「戻る」)。</summary>
     private static readonly (string Key, Row[] Rows)[] Tabs =
     [
         ("options.tab.basic", [Row.Language, Row.Bgm, Row.Se, Row.Screen, Row.WindowSize, Row.StoryFont, Row.Wireframe, Row.Back]),
-        ("options.tab.play", [Row.LogSpeed, Row.CursorRepeat, Row.MoveRepeat, Row.Map, Row.BackKey, Row.MazeMouse, Row.MazeOverlay, Row.SpellTab, Row.Back]),
+        ("options.tab.play", [Row.LogSpeed, Row.CursorRepeat, Row.MoveRepeat, Row.Map, Row.BackKey, Row.MazeMouse, Row.MazeOverlay, Row.AutoWalk, Row.SpellTab, Row.Back]),
         ("options.tab.other", [Row.Ai, Row.Scenarios, Row.Back]),
     ];
 
@@ -232,6 +232,9 @@ public sealed class OptionsScene : Scene
                 if (!O.MazeMouse) return;   // マウスで動かないときは変えられない(灰色)
                 O.MazeMouseOverlay = !O.MazeMouseOverlay;
                 break;
+            case Row.AutoWalk:
+                O.AutoWalk = !O.AutoWalk;
+                break;
             case Row.Screen:
                 if (Services.Display is not { } display) return;
                 display.SetFullscreen(!display.Fullscreen);
@@ -324,6 +327,7 @@ public sealed class OptionsScene : Scene
             Row.SpellTab => s[O.SpellTabHover ? "options.spelltab.hover" : "options.spelltab.click"],
             Row.MazeMouse => s[O.MazeMouse ? "options.on_use" : "options.off_use"],
             Row.MazeOverlay => s[O.MazeMouseOverlay ? "options.ai.on" : "options.ai.off"],
+            Row.AutoWalk => s[O.AutoWalk ? "options.on_use" : "options.off_use"],
             Row.Screen => s[Services.Display?.Fullscreen == true ? "options.screen.full" : "options.screen.window"],
             Row.WindowSize => Services.Display is { } screen ? $"{screen.WindowSize.Width} × {screen.WindowSize.Height}" : "",
             Row.Scenarios => s["options.scenarios.open"],
@@ -400,6 +404,7 @@ public sealed class OptionsScene : Scene
             Row.MoveRepeat => s["options.moverepeat.hint"],
             Row.MazeMouse => s["options.mazemouse.hint"],
             Row.MazeOverlay => s["options.mazeoverlay.hint"],
+            Row.AutoWalk => s["options.autowalk.hint"],
             Row.WindowSize when Services.Display?.Fullscreen == true => s["options.windowsize.hint_full"],
             Row.Scenarios => s.Format("options.scenarios.hint", Services.UserScenarios),
             _ => s["options.hint"],

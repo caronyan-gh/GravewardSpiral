@@ -44,6 +44,7 @@ public static class CombatText
         var args = e.Args.Select((a, i) => a switch
         {
             LocalizedText t => sv.Name(t),
+            List<(string Name, int Amount)> healed => s.List(healed.Select(h => s.Format("combat.acgrw_each", h.Name, h.Amount))),   // 祝福で戻った人と量
             Condition c => s["condition." + c.ToString().ToLowerInvariant()],
             Ability ab => s["ability." + ab.Code()],
             string str when e.Key == "combat.damage" && i == 2 => s["damage." + str],
@@ -65,7 +66,7 @@ public static class CombatText
     {
         "combat.damage" when e.Args.Length > 2 && e.Args[2] is string type => Element(type),
         "combat.dot" or "combat.dot_on" when e.Args.Length > 1 && e.Args[1] is string dt => Element(dt),
-        "combat.heal" or "combat.revive" or "combat.temp_hp" or "combat.drain" => Heal,
+        "combat.heal" or "combat.revive" or "combat.temp_hp" or "combat.drain" or "combat.acgrw_healed" => Heal,
         "combat.cast" when e.Args.Length > 1 && e.Args[1] is LocalizedText name => SpellColor(data, name),
         _ => null,
     };

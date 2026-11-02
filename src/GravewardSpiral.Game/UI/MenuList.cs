@@ -35,9 +35,24 @@ public sealed class MenuList
     public int Cursor { get; set; }
     private int _top;
 
+    /// <summary>行が見えている数より多いとき、一覧を輪にする(一番下の次に一番上が続き、端で飛ばずに帯のように回る)。
+    /// つなぎ目に線は引かない。</summary>
+    public bool Loop { get; set; }
+
     public MenuItem? Current => Cursor >= 0 && Cursor < Items.Count ? Items[Cursor] : null;
 
     public int VisibleRows => Math.Max(1, (int)(Area.Height / RowHeight));
+
+    private bool Ring => Loop && Items.Count > VisibleRows;
+
+    /// <summary>見えている i 行目に出す項目の番号(見えている分を越えれば null)。</summary>
+    private int? IndexAt(int visibleIndex)
+    {
+        if (visibleIndex >= VisibleRows) return null;
+        if (Ring) return (_top + visibleIndex) % Items.Count;
+        int index = _top + visibleIndex;
+        return index < Items.Count ? index : null;
+    }
 
     public void SetItems(IEnumerable<MenuItem> items, int? cursor = null)
     {
@@ -55,8 +70,8 @@ public sealed class MenuList
         int before = Cursor;
         if (input.Repeat(GameAction.Up)) Cursor = (Cursor + Items.Count - 1) % Items.Count;
         if (input.Repeat(GameAction.Down)) Cursor = (Cursor + 1) % Items.Count;
-        if (input.Repeat(GameAction.PageUp)) Cursor = Math.Max(0, Cursor - VisibleRows);
-        if (input.Repeat(GameAction.PageDown)) Cursor = Math.Min(Items.Count - 1, Cursor + VisibleRows);
+        if (input.Repeat(GameAction.PageUp)) Cursor = Ring ? (Cursor - VisibleRows % Items.Count + Items.Count) % Items.Count : Math.Max(0, Cursor - VisibleRows);
+        if (input.Repeat(GameAction.PageDown)) Cursor = Ring ? (Cursor + VisibleRows) % Items.Count : Math.Min(Items.Count - 1, Cursor + VisibleRows);
         // ホイール: 全部見えている一覧ではカーソルを動かす(端で回る)。
         // スクロールする一覧では一覧をスクロールし、端でさらに回すと反対の端へ。選ぶのは、マウスが指している行
         bool scrolled = false;
@@ -64,6 +79,11 @@ public sealed class MenuList
         {
             int maxTop = Math.Max(0, Items.Count - VisibleRows);
             if (maxTop == 0) Cursor = ((Cursor - input.WheelDelta) % Items.Count + Items.Count) % Items.Count;
+            else if (Ring)
+            {
+                _top = ((_top - input.WheelDelta) % Items.Count + Items.Count) % Items.Count;
+                scrolled = true;
+            }
             else
             {
                 int top = _top - input.WheelDelta;
@@ -76,13 +96,19 @@ public sealed class MenuList
         int? hovered = null;
         if (input.Mouse is { } m)
         {
-            for (int i = 0; i < VisibleRows && _top + i < Items.Count; i++)
+            for (int i = 0; IndexAt(i) is int index; i++)
             {
-                if (RowRect(i).Contains(m)) hovered = _top + i;
+                if (RowRect(i).Contains(m)) hovered = index;
             }
             if (hovered is int h && (input.MouseMoved || scrolled)) Cursor = h;
         }
-        if (scrolled) Cursor = Math.Clamp(Cursor, _top, Math.Min(Items.Count - 1, _top + VisibleRows - 1));   // 見えている行に収める
+        // 見えている行に収める
+        if (scrolled && Ring)
+        {
+            int offset = (Cursor - _top + Items.Count) % Items.Count;
+            if (offset >= VisibleRows) Cursor = offset - VisibleRows < Items.Count - offset ? (_top + VisibleRows - 1) % Items.Count : _top;
+        }
+        else if (scrolled) Cursor = Math.Clamp(Cursor, _top, Math.Min(Items.Count - 1, _top + VisibleRows - 1));
         KeepVisible();
         if (Cursor != before) audio.PlaySe(Sounds.Cursor);
 
@@ -102,6 +128,16 @@ public sealed class MenuList
 
     private void KeepVisible()
     {
+        if (Ring)
+        {
+            // 輪の上で、カーソルが窓の外なら、近い側から窓を寄せる(上へ外れたら一番上の行に、下へ外れたら一番下の行に)
+            _top = (_top % Items.Count + Items.Count) % Items.Count;
+            int offset = (Cursor - _top + Items.Count) % Items.Count;
+            if (offset < VisibleRows) return;
+            int below = offset - (VisibleRows - 1), above = Items.Count - offset;
+            _top = above <= below ? Cursor : (Cursor - VisibleRows + 1 + Items.Count) % Items.Count;
+            return;
+        }
         if (Cursor < _top) _top = Cursor;
         if (Cursor >= _top + VisibleRows) _top = Cursor - VisibleRows + 1;
         _top = Math.Clamp(_top, 0, Math.Max(0, Items.Count - VisibleRows));
@@ -110,9 +146,8 @@ public sealed class MenuList
     public void Draw(Draw2D d, bool focused = true)
     {
         bool hasIcons = Items.Any(i => i.Icon != null);
-        for (int i = 0; i < VisibleRows && _top + i < Items.Count; i++)
+        for (int i = 0; IndexAt(i) is int index; i++)
         {
-            int index = _top + i;
             var item = Items[index];
             var r = RowRect(i);
             bool selected = index == Cursor && focused;
@@ -150,8 +185,8 @@ public sealed class MenuList
             if (item.Detail != null) d.Text(item.Detail, new Vector2(r.X + r.Width - 14 - markWidth, ty), FontSize * 0.85f, color, TextAlign.Right);
             if (item.DetailMark != null) d.Text(item.DetailMark, new Vector2(r.X + r.Width - 14 - markWidth + 1, ty + FontSize * 0.85f - markSize * 0.95f), markSize, color);
         }
-        if (_top > 0) d.Text("▲", new Vector2(Area.X + Area.Width / 2, Area.Y - 22), 16, Theme.Dim, TextAlign.Center);
-        if (_top + VisibleRows < Items.Count) d.Text("▼", new Vector2(Area.X + Area.Width / 2, Area.Y + VisibleRows * RowHeight - 2), 16, Theme.Dim, TextAlign.Center);
+        if (_top > 0 || Ring) d.Text("▲", new Vector2(Area.X + Area.Width / 2, Area.Y - 22), 16, Theme.Dim, TextAlign.Center);
+        if (_top + VisibleRows < Items.Count || Ring) d.Text("▼", new Vector2(Area.X + Area.Width / 2, Area.Y + VisibleRows * RowHeight - 2), 16, Theme.Dim, TextAlign.Center);
     }
 }
 

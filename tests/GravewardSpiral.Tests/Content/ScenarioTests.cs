@@ -287,6 +287,10 @@ public class ScenarioTests
         Assert.Single(house.Storage);   // 重ねられる品は1枠
         for (int i = 1; i < cap; i++) Assert.True(house.Deposit(ItemInstance.Of("longsword"), Data.Items, levels));
         Assert.False(house.Deposit(ItemInstance.Of("longsword"), Data.Items, levels));   // いっぱい
+        // 大事なものは、いっぱいでも枠を使わずに入る
+        Assert.True(house.Deposit(ItemInstance.Of("sigil_moon"), Data.Items, levels));
+        Assert.Equal(cap, house.Used(Data.Items));
+        Assert.Equal(cap + 1, house.Storage.Count);
         Assert.Null(house.Next(levels));
 
         // 次の段階があれば、金を払って建て直す
