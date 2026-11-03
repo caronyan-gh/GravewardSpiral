@@ -152,7 +152,7 @@ public abstract class MenuScene : Scene
         float bottom = area.Y + area.Height - 10 - reserve;
         for (; size > 13; size--)
         {
-            float h = list.Sum(t => d.WrapLines(t, area.Width - 70, size).Count * (size + 8) + 2);
+            float h = list.Sum(t => d.WrapLines(LinkText.Plain(t), area.Width - 70, size).Count * (size + 8) + 2);
             if (y + h <= bottom) break;
         }
         foreach (var line in list) y = Line(d, area, y, line, color, size);
@@ -160,6 +160,6 @@ public abstract class MenuScene : Scene
     }
 
     protected static float Line(Draw2D d, RectangleF area, float y, string text, Color color, float size = 20f) =>
-        (color == Theme.Title ? d.TextWrapped(text, new Vector2(area.X + 20, y), area.Width - 70, size, color)
+        (color == Theme.Title ? d.TextWrapped(LinkText.Plain(text), new Vector2(area.X + 20, y), area.Width - 70, size, color)
             : LinkText.Draw(d, text, new Vector2(area.X + 20, y), area.Width - 70, size, color)) + 2;   // 測った幅より少し広く描かれることがあるので、枠に余裕を持たせる
 }

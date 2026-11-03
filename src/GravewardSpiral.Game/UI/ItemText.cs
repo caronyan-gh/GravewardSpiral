@@ -66,14 +66,20 @@ public static class ItemText
         return sv.Strings.Format("item.rare_name", first[h % (uint)first.Length], second[h / (uint)first.Length % (uint)second.Length], baseName);
     }
 
-    /// <summary>ダメージの倍率の印(マジックの 2/3 など。×1 なら空)。</summary>
-    private static string Scaled(double? scale) => scale switch
+    /// <summary>
+    /// 段階の通しの番号(T1 は L1、T5 は L13。どの追加効果も同じ段の並びから段階を作るので、出始めるレベルの並びの何番目か)。
+    /// </summary>
+    private static int TierNumber(Core.Characters.GameData data, int minLevel)
     {
-        null => "",
-        double f when Math.Abs(f - 2.0 / 3) < 1e-6 => " ×2/3",
-        double f when Math.Abs(f - 1.0 / 3) < 1e-6 => " ×1/3",
-        double f => $" ×{f:0.##}",
-    };
+        if (_tierLevels is not { } c || !ReferenceEquals(c.Data, data))
+            _tierLevels = c = (data, data.Affixes.Values.SelectMany(a => a.Tiers).Select(t => t.MinLevel).Distinct().Order().ToList());
+        return c.Levels.IndexOf(minLevel) + 1;
+    }
+
+    private static (Core.Characters.GameData Data, List<int> Levels)? _tierLevels;
+
+    /// <summary>効果の文の中の数字(「+2」「1d6」「15%」など。続くラウンドの数は弱まらないので除く)。弱まった数字に色を付けるのに使う。</summary>
+    private static readonly System.Text.RegularExpressions.Regex Numbers = new(@"[+\-−]?\d+(d\d+)?%?(?!\d|\s*(ラウンド|round))");
 
     /// <summary>武器の持ち方の短い印(片手・両手・片手か両手)。武器でなければ null。</summary>
     public static string? Hands(GameServices sv, ItemInstance item)
@@ -129,19 +135,38 @@ public static class ItemText
         if (WhoCanUse(sv, def) is { } who) yield return who;
         // マジックとレアの、追加効果の効き方(下の行の数字は、今の効き方で弱めたもの)。レアは同調の行と1行にまとめる
         bool affixed = !def.NoRandom && item.Affixes.Count > 0;
-        if (affixed) yield return s[!item.Rare ? "item.magic_affixes" : item.Attuned ? "item.rare_attuned" : "item.rare_affixes"];
+        // 弱まった数字の色(マジックの 2/3 は黄、同調していないレアの 1/3 は橙)。1行目の「2/3」「1/3」も同じ色にして、色の見方にする
+        char? weak = affixed ? item.AffixFactor(def) switch { < 0.5 => LinkText.OneThirdColor, < 0.99 => LinkText.TwoThirdsColor, _ => null } : null;
+        if (affixed) yield return s[!item.Rare ? "item.magic_affixes" : item.Attuned ? "item.rare_attuned" : "item.rare_affixes"]
+            .Replace("2/3", LinkText.Colored("2/3", LinkText.TwoThirdsColor)).Replace("1/3", LinkText.Colored("1/3", LinkText.OneThirdColor));
         else if (item.NeedsAttunement(def)) yield return s[item.Attuned ? "item.attuned" : "item.needs_attunement"];
         if (def.Cursed) yield return s["item.cursed"];
         foreach (var p in def.Passive) yield return Passive(sv, p);
         foreach (var p in def.OnHit) if (OnHit(sv, p) is { } line) yield return line;
-        // 追加効果(どの語で、何が付いたか)
+        // 追加効果(どの語で、何が付いたか)。持っている仲間がいれば、その人のレベルで届く段階に抑えた数字
+        int? level = sv.Session?.Roster.PartyMembers.FirstOrDefault(c => c.Inventory.Items.Contains(item) || c.Inventory.Equipped.ContainsValue(item))?.Level;
         foreach (var roll in item.Affixes)
         {
             if (!sv.Data.Affixes.TryGetValue(roll.Id, out var affix) || roll.Get(sv.Data) is null) continue;
-            var parts = item.AffixParts(sv.Data, roll, t => t.Passive).Select(p => Passive(sv, p))
-                .Concat(item.AffixParts(sv.Data, roll, t => t.OnHit).Select(p => OnHit(sv, p)).OfType<string>()).ToList();
-            yield return s.Format("item.affix", sv.Name(affix.Name).Trim(),
-                parts.Count > 0 ? string.Join(s["item.affix_sep"], parts) : s["item.affix_off"]);
+            var parts = item.AffixParts(sv.Data, roll, t => t.Passive, level).Select(p => Passive(sv, p))
+                .Concat(item.AffixParts(sv.Data, roll, t => t.OnHit, level).Select(p => OnHit(sv, p)).OfType<string>()).ToList();
+            // 段階は「T3」。着ている人のレベルで抑えたときは「T1/T3」(付いた段階の「/T3」は暗く)。まだどの段階も届かなければ「T0/T3」
+            int usable = ItemInstance.UsableTier(sv.Data, roll, level);
+            string full = "T" + TierNumber(sv.Data, affix.Tiers[roll.Tier].MinLevel);
+            string tier = usable >= roll.Tier ? full
+                : $"T{(usable < 0 ? 0 : TierNumber(sv.Data, affix.Tiers[usable].MinLevel))}{LinkText.Colored("/" + full, LinkText.DimColor)}";
+            if (weak is char w) parts = parts.Select(x => Numbers.Replace(x, m => LinkText.Colored(m.Value, w))).ToList();
+            string text;
+            if (parts.Count > 0) text = string.Join(s["item.affix_sep"], parts);
+            else
+            {
+                // 効かない(同調していない・弱めて 0・まだどの段階にも届かない)ときは、本来の効果をグレーで(届かないなら一番下の段階の効果)
+                int? at = usable < 0 ? affix.Tiers[0].MinLevel : level;
+                var whole = item.AffixParts(sv.Data, roll, t => t.Passive, at, full: true).Select(p => Passive(sv, p))
+                    .Concat(item.AffixParts(sv.Data, roll, t => t.OnHit, at, full: true).Select(p => OnHit(sv, p)).OfType<string>()).ToList();
+                text = whole.Count > 0 ? LinkText.Colored(string.Join(s["item.affix_sep"], whole), LinkText.DimColor) : s["item.affix_none"];
+            }
+            yield return s.Format("item.affix", sv.Name(affix.Name).Trim(), tier, text);
         }
         // 使える回数(残り/最大と戻り方)
         if (def.Charges is int max) yield return s.Format("item.charges", item.Charges ?? max, max);
@@ -184,7 +209,7 @@ public static class ItemText
     {
         var s = sv.Strings;
         if (p.Type == EffectPart.Damage)
-            return s.Format(p.Only != null ? "item.on_hit_only" : "item.on_hit", (p.Dice ?? "") + Scaled(p.Scale), s["damage." + p.DamageType], p.Only != null ? s["creature." + p.Only] : "");
+            return s.Format(p.Only != null ? "item.on_hit_only" : "item.on_hit", p.Dice ?? "", s["damage." + p.DamageType], p.Only != null ? s["creature." + p.Only] : "");
         if (p.Type == EffectPart.Drain) return s.Format("item.on_hit_drain", p.Value ?? 100);
         if (p.Type == EffectPart.Kill && p.Chance is int chance) return s.Format("item.kill_chance", chance);   // 首はねの武器
         if (p.Type == EffectPart.Dot) return s.Format("item.on_hit_dot", p.Dice ?? "", s["damage." + p.DamageType], p.Rounds ?? 10);

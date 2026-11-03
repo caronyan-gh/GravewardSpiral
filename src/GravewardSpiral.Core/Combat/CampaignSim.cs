@@ -369,7 +369,7 @@ public sealed class CampaignSim
         if (c.Inventory[slot] is not { } w || !_data.Items.TryGetValue(w.ItemId, out var def) || def.Damage == null) return 0;
         double dmg = Rules.DiceExpression.Parse(def.Damage).Average + w.TotalBonus(def);
         if (w.ElementDice(def) is { } e) dmg += Rules.DiceExpression.Parse(e).Average;
-        dmg += Loot.OnHitAverage(_data, w);
+        dmg += Loot.OnHitAverage(_data, w, c.Level);
         return dmg + w.HitAcBonus(def) * 1.5;
     }
 

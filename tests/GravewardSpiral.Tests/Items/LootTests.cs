@@ -25,8 +25,11 @@ public class LootTests
     {
         var s = TreasureSettings.Load(Content);
         int Bags(double level) => Enumerable.Range(0, 3000).Count(i => Treasure.Roll(Data, s, "common", new Pcg32((ulong)i, 2), level).ItemId == "dimension_bag");
-        Assert.Equal(0, Bags(3));   // 第1部なら B4 くらい(目安 L4)までは出ない
-        Assert.True(Bags(4) > 0);
+        Assert.Equal(0, Bags(7));   // 魔法の袋は第3部(目安 L8)に入ってから。店の背負い袋(10 個)の出番を残す
+        Assert.True(Bags(8) > 0);
+        int Holding(double level) => Enumerable.Range(0, 3000).Count(i => Treasure.Roll(Data, s, "uncommon", new Pcg32((ulong)i, 2), level).ItemId == "bag_of_holding");
+        Assert.Equal(0, Holding(13));
+        Assert.True(Holding(14) > 0);
     }
 
     [Fact]
@@ -117,7 +120,7 @@ public class LootTests
     [Fact]
     public void MagicWorksAtTwoThirdsAndUnattunedRareAtOneThird()
     {
-        var c = CharacterFactory.QuickCreate(Data, "A", "human", "fighter");
+        var c = CharacterFactory.QuickCreate(Data, "A", "human", "fighter", 21);
         int before = c.ArmorClass(Data);
         var armor = c.Inventory[EquipSlot.Armor]!;
         armor.Affixes.Add(new AffixRoll { Id = "warding", Tier = 6 });   // T7: AC +3
@@ -144,7 +147,7 @@ public class LootTests
     public void ConditionWardsRaiseTheSaveInsteadOfImmunity()
     {
         // 「自由の」は麻痺と拘束にならない、ではなく、そのセーヴに上乗せ(マジックなら 2/3)
-        var c = CharacterFactory.QuickCreate(Data, "A", "human", "fighter");
+        var c = CharacterFactory.QuickCreate(Data, "A", "human", "fighter", 7);
         var boots = ItemInstance.Of("leather_boots");
         boots.Affixes.Add(new AffixRoll { Id = "immune_free_action", Tier = 0 });   // T3(L7 から): +3
         c.Inventory.Equipped[EquipSlot.Feet] = boots;
@@ -225,7 +228,7 @@ public class LootTests
     [Fact]
     public void ArmorAffixWorksWhileEquipped()
     {
-        var c = CharacterFactory.QuickCreate(Data, "A", "human", "fighter");
+        var c = CharacterFactory.QuickCreate(Data, "A", "human", "fighter", 10);
         int before = c.ArmorClass(Data);
         var armor = c.Inventory[EquipSlot.Armor]!;
         armor.Rare = armor.Attuned = true;   // 同調したレアなら、そのまま効く

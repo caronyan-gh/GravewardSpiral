@@ -48,6 +48,10 @@ public sealed class ActiveDot
     /// <summary>重ならないかの見分け(呪文の id か、敵の行動の id)。</summary>
     public string Key { get; init; } = "";
     public string Dice { get; set; } = "1";
+
+    /// <summary>振った目に掛ける倍率(マジックの品などの追加効果の出血は弱まる)。null なら ×1。</summary>
+    public double? Scale { get; set; }
+
     public string DamageType { get; init; } = "necrotic";
     public int RoundsLeft { get; set; }
 
@@ -177,7 +181,8 @@ public sealed class PartyMember(Character character, GameData data) : Combatant
     public override int MaxHp => Shape?.HpAverage ?? Character.MaxHp;
     /// <summary>修正値の前の AC。ac_unarmored(メイジ・アーマー)は、鎧を着ていないときの基本の値(13 + 敏捷力)にする。</summary>
     public override int BaseAc => Shape?.Ac ?? Character.ArmorClass(_data,
-        Modifiers.Where(m => m.Stat == "ac_unarmored").Select(m => (int?)m.Value).Max(), Now);
+        Modifiers.Where(m => m.Stat == "ac_unarmored").Select(m => (int?)m.Value).Max(), Now)
+        + (Hp > 0 && Hp * 3 <= MaxHp ? Character.PassiveBonus(_data, "ac_desperate") : 0);   // 窮地の(装備): HP が 1/3 以下のあいだ
 
     /// <summary>同じパーティの仲間(パラディンのオーラを見る)。戦闘を始めるときに入れる。</summary>
     public IReadOnlyList<PartyMember> Allies { get; set; } = [];

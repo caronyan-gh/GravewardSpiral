@@ -615,7 +615,9 @@ Magic weapons, armor, shields, rings, and other gear may come with random extra 
 - Magic items: one or two extra effects. No attunement is needed, but the extra effects work at only 2/3.
 - Rare items: four to six extra effects and a name of their own. They require attunement; without it, the extra effects work at only 1/3, and on-or-off effects such as resistances do not work.
 
-Enhancement bonuses such as +1 on weapons and armor always work in full, attuned or not. Item descriptions show the numbers as they currently apply.
+Enhancement bonuses such as +1 on weapons and armor always work in full, attuned or not. Item descriptions show the numbers as they currently apply (the multiplier is stated once, at the top; reduced numbers are shown in yellow at 2/3 and orange at 1/3; an effect that does not apply is shown in gray as it would normally work).
+
+An extra effect is only as strong as its wearer's level allows. If a low-level ally wears a strong effect from a deep floor, it works at the strongest tier found at that level and grows as they level up. Descriptions show each effect's tier, such as "T3"; while it is held back by level, it reads "T1/T3" (the tier in effect / the tier on the item).
 
 ## Death and Rescue
 

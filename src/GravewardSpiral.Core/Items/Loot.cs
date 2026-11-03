@@ -42,7 +42,7 @@ public sealed class AffixDef
     public bool Support { get; set; }
 
     /// <summary>武器のその1本で殴ったときだけ効く修正値(二刀流や弓と剣の持ち替えで重ならないように、全部の攻撃には足さない)。</summary>
-    public static readonly string[] WeaponLocalStats = ["attack", "damage", "cleave", "cleave_targets"];
+    public static readonly string[] WeaponLocalStats = ["attack", "damage", "cleave", "cleave_targets", "damage_vs_full", "damage_vs_low"];
 
     /// <summary>強さの段階(min_level の小さい順)。宝の目安のレベルが min_level 以上の、一番上の段階が出る。</summary>
     public List<AffixTier> Tiers { get; set; } = [];
@@ -292,8 +292,8 @@ public static class Loot
         return entries[^1];
     }
 
-    /// <summary>当たったときの追加のダメージの平均(装備の見比べに使う。決まった種類の相手にだけ効くものは数えない)。</summary>
-    public static double OnHitAverage(GameData data, ItemInstance item) =>
-        item.AffixOnHit(data).Where(p => p.Type == EffectPart.Damage && p.Only == null && p.Dice != null)
+    /// <summary>当たったときの追加のダメージの平均(装備の見比べに使う。決まった種類の相手にだけ効くものは数えない)。level は使う人のレベル(届く段階に抑える)。</summary>
+    public static double OnHitAverage(GameData data, ItemInstance item, int? level = null) =>
+        item.AffixOnHit(data, level).Where(p => p.Type == EffectPart.Damage && p.Only == null && p.Dice != null)
             .Sum(p => DiceExpression.Parse(p.Dice!).Average * (p.Scale ?? 1));
 }

@@ -228,6 +228,20 @@ add("potent", "秘力の", "of Power", "suffix", ["weapon", "ring", "neck", "hea
 add("blocking", "盾受けの", "of Blocking", "suffix", ["shield"], group="block", weight=8, tiers=tiers(
     1, lambda t: {"passive": [{"type": "modifier", "stat": "block", "value": t, "value_max": t + 4}]}, 600))
 
+# ---- 付く場所で当たりにもゴミにもなるもの(候補の水増し。条件つきや、使う人を選ぶ効果) ----
+add("remedies", "薬効の", "of Remedies", "suffix", ["waist", "neck", "ring", "armor"], group="potion_heal", weight=6, tiers=tiers(
+    1, lambda t: {"passive": [{"type": "modifier", "stat": "potion_heal", "value": t + 1, "value_max": 2 * t + 2}]}, 200))
+add("mending", "手当ての", "of Mending", "suffix", ["armor", "waist", "neck", "head"], group="hit_die_heal", weight=6, tiers=tiers(
+    1, lambda t: {"passive": [{"type": "modifier", "stat": "hit_die_heal", "value": (t + 1) // 2, "value_max": t + 1}]}, 200))
+add("ambushing", "先制の", "Ambushing", "prefix", WEAPON + ["ring", "hands"], group="damage_vs_full", weight=6, tiers=tiers(
+    1, lambda t: {"passive": [{"type": "modifier", "stat": "damage_vs_full", "value": t, "value_max": t + 2}]}, 400))
+add("executing", "とどめの", "Executing", "prefix", WEAPON + ["ring", "hands"], group="damage_vs_low", weight=6, tiers=tiers(
+    1, lambda t: {"passive": [{"type": "modifier", "stat": "damage_vs_low", "value": t, "value_max": t + 2}]}, 400))
+add("cornered", "窮地の", "of the Cornered", "suffix", ["armor", "shield", "cloak", "neck"], group="ac_desperate", weight=6, tiers=tiers(
+    1, lambda t: {"passive": [{"type": "modifier", "stat": "ac_desperate", "value": 1 + t // 3}]}, 400))
+add("mercy", "慈愛の", "of Mercy", "suffix", ["weapon", "ring", "neck", "head"], group="heal_spell", weight=6, tiers=tiers(
+    1, lambda t: {"passive": [{"type": "modifier", "stat": "heal_spell", "value": t + 1}]}, 300))
+
 # ---- 武器だけ: 呪文スロット(レベルごとに別の追加効果なので、違うレベルなら複数付く。同じレベルは付かない)。
 # レベル k のスロットは段 Tk から付く(段で一番上のレベルを絞る)。数は +1、そこから5段ごとに +1。もともとそのレベルのスロットがある人だけに効く
 CIRCLES = ["一", "二", "三", "四", "五", "六", "七", "八", "九"]
@@ -261,7 +275,7 @@ for a in affixes:
         a["kinds"] = a["kinds"] + ["weapon"]
 
 # ---- 補助の追加効果(軍用でない近接武器には、これだけが付く。強い攻めの効果は軍用の武器に) ----
-SUPPORT = {"swift", "golden", "trapper", "escape", "commanding", "unerring", "potent"}
+SUPPORT = {"swift", "golden", "trapper", "escape", "commanding", "unerring", "potent", "mercy"}
 for a in affixes:
     if a["id"] in SUPPORT or a["id"].startswith(("skill_", "spell_", "slot_")):
         a["support"] = True

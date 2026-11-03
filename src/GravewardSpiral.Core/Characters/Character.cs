@@ -233,7 +233,7 @@ public sealed class Character
             // 武器の追加効果: 逆手の武器は、その武器で殴ったときだけ(全部の効果を数えない)。利き手と遠隔の武器も、命中・ダメージ・薙ぎは
             // その武器で殴ったときだけ(CombatEngine の攻撃で足す)。二刀流で重ならないように
             if (def.Kind == ItemKind.Weapon && slot == EquipSlot.OffHand) { }
-            else foreach (var p in item.AffixPassive(data))
+            else foreach (var p in item.AffixPassive(data, Level))
                 if (def.Kind != ItemKind.Weapon || p.Type != Effects.EffectPart.Modifier || !AffixDef.WeaponLocalStats.Contains(p.Stat)) yield return p;
             if (def.Kind is ItemKind.Armor or ItemKind.Shield && item.Element != null && item.TotalBonus(def) >= ItemInstance.ElementFrom)
                 yield return new Effects.EffectPart { Type = Effects.EffectPart.Resist, DamageType = item.Element };
@@ -383,12 +383,12 @@ public sealed class Character
     {
         if (!IsAlive) return 0;
         var cls = data.Classes[ClassId];   // ヒットダイスの大きさは最初のクラス(マルチクラスの混ざったヒットダイスは M8)
-        int used = 0;
+        int used = 0, mending = Math.Max(0, PassiveBonus(data, "hit_die_heal"));   // 手当ての(装備): ヒットダイス1つごとに +N
         while (HitDice > 0 && Hp < MaxHp)
         {
             HitDice--;
             used++;
-            Hp = Math.Min(MaxHp, Hp + Math.Max(1, rng.Roll(cls.HitDie) + Scores.Mod(Ability.Con)));
+            Hp = Math.Min(MaxHp, Hp + Math.Max(1, rng.Roll(cls.HitDie) + Scores.Mod(Ability.Con)) + mending);
         }
         PactSlotsUsed = 0;   // 協約魔術のスロットが戻る(ふつうのスロットは戻らない)
         LastSlotsRecovered = ClassFeatures.ShortRest(data, this);   // 小休憩で戻る技の回数と、ウィザードの秘術の回復

@@ -31,7 +31,7 @@ public sealed class LockScene(ExplorationState state, Direction dir, int tier, A
 
     protected override string Title => Services.Strings["lock.title"];
 
-    protected override int? PartyHighlight => _mode != Mode.Main ? List.Cursor : null;
+    protected override int? PartyHighlight => _mode != Mode.Main && List.Current?.Tag is Character c ? Party.IndexOf(c) : null;
 
     public override void Enter()
     {
@@ -63,8 +63,15 @@ public sealed class LockScene(ExplorationState state, Direction dir, int tier, A
                 yield return new MenuItem(s["lock.leave"], Tag: "leave");
                 break;
             default:
-                // 担当を選ぶ: 解錠は判定の値と本人の盗賊道具、ノックは使うスロット、蹴破りは判定の値
-                foreach (var c in Party)
+                // 担当を選ぶ: 解錠は判定の値と本人の盗賊道具、ノックは使うスロット、蹴破りは判定の値。
+                // 解錠と蹴破りは得意な順(同じ値なら隊列の順)
+                var who = _mode switch
+                {
+                    Mode.PickWho => Party.OrderByDescending(c => Core.Items.Chest.DisarmBonus(Data, c).Bonus),
+                    Mode.KickWho => Party.OrderByDescending(KickBonus),
+                    _ => Party.AsEnumerable(),
+                };
+                foreach (var c in who)
                 {
                     string? detail = _mode switch
                     {

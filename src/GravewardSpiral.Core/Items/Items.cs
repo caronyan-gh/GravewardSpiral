@@ -252,36 +252,54 @@ public sealed class ItemInstance
     public double AffixFactor(ItemDef? def) =>
         def is { NoRandom: true } ? 1 : Rare ? (Attuned ? 1 : 1.0 / 3) : 2.0 / 3;
 
-    /// <summary>追加効果の、装備しているあいだの効果(マジックとレアの効き方で弱めたもの)。</summary>
-    public IEnumerable<Effects.EffectPart> AffixPassive(Characters.GameData data) => AffixParts(data, t => t.Passive);
+    /// <summary>追加効果の、装備しているあいだの効果(マジックとレアの効き方で弱めたもの)。level は着ている人のレベル(段階をそこまでに抑える)。</summary>
+    public IEnumerable<Effects.EffectPart> AffixPassive(Characters.GameData data, int? level = null) => AffixParts(data, t => t.Passive, level);
 
-    /// <summary>追加効果の、当たったときの効果(マジックとレアの効き方で弱めたもの)。</summary>
-    public IEnumerable<Effects.EffectPart> AffixOnHit(Characters.GameData data) => AffixParts(data, t => t.OnHit);
+    /// <summary>追加効果の、当たったときの効果(マジックとレアの効き方で弱めたもの)。level は着ている人のレベル。</summary>
+    public IEnumerable<Effects.EffectPart> AffixOnHit(Characters.GameData data, int? level = null) => AffixParts(data, t => t.OnHit, level);
+
+    /// <summary>
+    /// 着ている人のレベルで効く段階(付いた段階より上がらない。そのレベルで出る一番上の段階まで。まだどの段階も届かなければ -1)。
+    /// level が null なら付いた段階のまま。強い品を新人に持たせても、届く段階までしか効かない(育つと全部効く)。
+    /// </summary>
+    public static int UsableTier(Characters.GameData data, AffixRoll roll, int? level) =>
+        level is int l && data.Affixes.TryGetValue(roll.Id, out var a) ? Math.Min(roll.Tier, a.TierFor(l)) : roll.Tier;
 
     /// <summary>追加効果1つの部品(弱めたもの)。説明の窓で、効いている数字を見せるのに使う。</summary>
-    public IEnumerable<Effects.EffectPart> AffixParts(Characters.GameData data, AffixRoll roll, Func<AffixTier, List<Effects.EffectPart>> parts)
+    /// <param name="full">true なら、マジックとレアの効き方で弱めない(効かないときに、本来の効果を見せる)。</param>
+    public IEnumerable<Effects.EffectPart> AffixParts(Characters.GameData data, AffixRoll roll, Func<AffixTier, List<Effects.EffectPart>> parts, int? level = null, bool full = false)
     {
-        if (roll.Get(data) is not { } tier) yield break;
-        double f = AffixFactor(data.Items.GetValueOrDefault(ItemId));
-        foreach (var part in parts(tier))
+        if (roll.Get(data) is not { } tier || !data.Affixes.TryGetValue(roll.Id, out var affix)) yield break;
+        int usable = UsableTier(data, roll, level);
+        if (usable < 0) yield break;
+        var use = affix.Tiers[usable];
+        double f = full ? 1 : AffixFactor(data.Items.GetValueOrDefault(ItemId));
+        foreach (var part in parts(use))
         {
             var p = part;
-            // 幅のある修正値は、この品で振った数字(振っていない前のセーブの品は、幅の下)
-            if (p is { Type: Effects.EffectPart.Modifier, ValueMax: not null })
+            // 幅のある修正値は、この品で振った数字(振っていない前のセーブの品は、幅の下)。
+            // 下の段階に抑えたときは、振った数字の幅の中の位置を、その段階の幅に写す
+            if (p is { Type: Effects.EffectPart.Modifier, ValueMax: int hi })
             {
                 p = p.WithLabel(p.Label!);
-                p.Value = roll.Values?.GetValueOrDefault(p.Stat ?? "", p.Value ?? 0) ?? p.Value;
+                int lo = p.Value ?? 0;
+                if (roll.Values?.TryGetValue(p.Stat ?? "", out int v) != true) p.Value = lo;
+                else if (usable == roll.Tier) p.Value = v;
+                else if (parts(tier).FirstOrDefault(x => x is { Type: Effects.EffectPart.Modifier, ValueMax: not null } && x.Stat == p.Stat) is { } orig
+                    && orig.ValueMax!.Value > (orig.Value ?? 0))
+                    p.Value = lo + (int)Math.Round((double)(v - (orig.Value ?? 0)) / (orig.ValueMax.Value - (orig.Value ?? 0)) * (hi - lo), MidpointRounding.AwayFromZero);
+                else p.Value = hi;
                 p.ValueMax = null;
             }
             if (Weaken(p, f) is { } w) yield return w;
         }
     }
 
-    private IEnumerable<Effects.EffectPart> AffixParts(Characters.GameData data, Func<AffixTier, List<Effects.EffectPart>> parts) =>
-        Affixes.SelectMany(a => AffixParts(data, a, parts));
+    private IEnumerable<Effects.EffectPart> AffixParts(Characters.GameData data, Func<AffixTier, List<Effects.EffectPart>> parts, int? level) =>
+        Affixes.SelectMany(a => AffixParts(data, a, parts, level));
 
     /// <summary>
-    /// 部品を倍率で弱める。修正値と吸う割合は四捨五入(0 になれば効かない)、ダメージは振った目に掛ける。
+    /// 部品を倍率で弱める。修正値と吸う割合は四捨五入(0 になれば効かない)、ダメージと続くダメージ(出血)は振った目に掛ける。
     /// 抵抗や状態のような有る無しの効果は、1/3(同調していないレア)では効かず、2/3(マジック)ではそのまま効く。
     /// </summary>
     public static Effects.EffectPart? Weaken(Effects.EffectPart p, double f)
@@ -293,7 +311,7 @@ public sealed class ItemInstance
             case Effects.EffectPart.Modifier or Effects.EffectPart.Drain when p.Value is int v:
                 copy.Value = (int)Math.Round(v * f, MidpointRounding.AwayFromZero);
                 return copy.Value == 0 ? null : copy;
-            case Effects.EffectPart.Damage:
+            case Effects.EffectPart.Damage or Effects.EffectPart.Dot:
                 copy.Scale = (p.Scale ?? 1) * f;
                 return copy;
             default:

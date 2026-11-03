@@ -77,41 +77,96 @@ public static class Glossary
 /// </summary>
 public static class LinkText
 {
+    /// <summary>
+    /// 文の中で色を変える所の印: Mark・色の字・文・MarkEnd(Colored で作る)。色の字は d(暗く。追加効果の「T1/T3」の「/T3」)、
+    /// y(2/3 に弱まった数字)、r(1/3 に弱まった数字)。1行にいくつでも書ける。
+    /// </summary>
+    public const char Mark = '', MarkEnd = '';
+
+    public const char DimColor = 'd', TwoThirdsColor = 'y', OneThirdColor = 'r';
+
+    public static string Colored(string text, char code) => $"{Mark}{code}{text}{MarkEnd}";
+
+    private static Color? CodeColor(char code) => code switch
+    {
+        DimColor => Theme.Dim,
+        TwoThirdsColor => Theme.HpCaution,
+        OneThirdColor => Theme.Warn,
+        _ => null,
+    };
+
+    /// <summary>印を取り除いた文と、色を変える所(印を取り除いた文での始め・終わりと色)。</summary>
+    private static (string Plain, List<(int Start, int End, Color Color)> Spans) Parse(string text)
+    {
+        var spans = new List<(int, int, Color)>();
+        if (text.IndexOf(Mark) < 0) return (text, spans);
+        var sb = new System.Text.StringBuilder();
+        for (int i = 0; i < text.Length; i++)
+        {
+            if (text[i] == Mark && i + 1 < text.Length)
+            {
+                int close = text.IndexOf(MarkEnd, i + 2);
+                if (close < 0) close = text.Length;
+                int from = sb.Length;
+                sb.Append(text, i + 2, close - i - 2);
+                if (CodeColor(text[i + 1]) is { } c) spans.Add((from, sb.Length, c));
+                i = close;
+                continue;
+            }
+            if (text[i] != MarkEnd) sb.Append(text[i]);
+        }
+        return (sb.ToString(), spans);
+    }
+
+    /// <summary>色の印を取り除いた文(幅を測るとき)。</summary>
+    public static string Plain(string text) => Parse(text).Plain;
+
     public static float Draw(Draw2D d, string text, Vector2 position, float width, float size, Color color, float lineGap = 8f)
     {
-        if (Glossary.Services is not { } sv) return d.TextWrapped(text, position, width, size, color, lineGap);
+        var (plain, spans) = Parse(text);
+        if (Glossary.Services is not { } sv) return d.TextWrapped(plain, position, width, size, color, lineGap);
         float y = position.Y;
-        foreach (var line in d.WrapLines(text, width, size))
+        int cursor = 0;
+        foreach (var line in d.WrapLines(plain, width, size))
         {
-            Line(d, sv, line, new Vector2(position.X, y), size, color);
+            // 折り返した行が元の文のどこからか(行の頭の空白は折り返しで落ちることがあるので、探して合わせる)
+            int at = line.Length > 0 ? Math.Max(cursor, plain.IndexOf(line, cursor, StringComparison.Ordinal)) : cursor;
+            var mine = spans.Where(sp => sp.End > at && sp.Start < at + line.Length)
+                .Select(sp => (Math.Max(0, sp.Start - at), Math.Min(line.Length, sp.End - at), sp.Color)).ToList();
+            Line(d, sv, line, new Vector2(position.X, y), size, color, mine);
+            cursor = at + line.Length;
             y += size + lineGap;
         }
         return y;
     }
 
-    /// <summary>1行を描く(折り返さない)。</summary>
-    public static void Line(Draw2D d, GameServices sv, string line, Vector2 at, float size, Color color)
+    /// <summary>1行を描く(折り返さない)。spans はその行の中の色を変える所(始め・終わりと色)。</summary>
+    public static void Line(Draw2D d, GameServices sv, string line, Vector2 at, float size, Color color, List<(int Start, int End, Color Color)>? spans = null)
     {
-        var hits = Glossary.Find(sv, line);
-        if (hits.Count == 0)
-        {
-            d.Text(line, at, size, color);
-            return;
-        }
         float x = at.X;
-        int pos = 0;
-        foreach (var (start, length, term) in hits)
+        // ふつうの文の一切れ(色を変える所に掛かれば、そこだけその色で)
+        void Plain(int from, int to)
         {
-            if (start > pos)
+            var cuts = new SortedSet<int> { from, to };
+            foreach (var r in spans ?? []) { if (r.Start > from && r.Start < to) cuts.Add(r.Start); if (r.End > from && r.End < to) cuts.Add(r.End); }
+            var at2 = cuts.ToList();
+            for (int i = 0; i + 1 < at2.Count; i++)
             {
-                string plain = line[pos..start];
-                d.Text(plain, new Vector2(x, at.Y), size, color);
-                x += d.Fonts.Measure(plain, size).X;
+                string piece = line[at2[i]..at2[i + 1]];
+                var c = (spans ?? []).Where(q => at2[i] >= q.Start && at2[i] < q.End).Select(q => (Color?)q.Color).FirstOrDefault() ?? color;
+                d.Text(piece, new Vector2(x, at.Y), size, c);
+                x += d.Fonts.Measure(piece, size).X;
             }
+        }
+        int pos = 0;
+        foreach (var (start, length, term) in Glossary.Find(sv, line))
+        {
+            if (start > pos) Plain(pos, start);
             var word = new LinkWord(line.Substring(start, length), sv.Name(term.Name), term.Description is { } desc ? sv.Name(desc) : null);
-            x += LinkFlow.Word(d, word, new Vector2(x, at.Y), size, color);
+            var wordColor = (spans ?? []).Where(q => start >= q.Start && start < q.End).Select(q => (Color?)q.Color).FirstOrDefault() ?? color;   // 色を変える所の中の言葉は、その色で
+            x += LinkFlow.Word(d, word, new Vector2(x, at.Y), size, wordColor);
             pos = start + length;
         }
-        if (pos < line.Length) d.Text(line[pos..], new Vector2(x, at.Y), size, color);
+        if (pos < line.Length) Plain(pos, line.Length);
     }
 }

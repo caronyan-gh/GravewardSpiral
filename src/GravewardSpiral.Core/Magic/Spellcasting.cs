@@ -96,7 +96,16 @@ public static class Spellcasting
     }
 
     private static int Pact(GameData data, Character c) => Math.Clamp(PactLevel(data, c), 1, 20);
-    public static int PactSlots(GameData data, Character c) => PactDef(data, c)?.Slots.Eval(c, Pact(data, c)) ?? 0;
+    /// <summary>
+    /// 協約魔術のスロットの数。武器の追加効果(slots:&lt;レベル&gt;)が協約のスロットと同じレベルなら、その分も足す
+    /// (そのレベルのふつうのスロットもあるマルチクラスでは、ふつうのスロットの方にだけ足す。二重にしない)。
+    /// </summary>
+    public static int PactSlots(GameData data, Character c)
+    {
+        int n = PactDef(data, c)?.Slots.Eval(c, Pact(data, c)) ?? 0;
+        int k = PactSlotLevel(data, c);
+        return n > 0 && k is >= 1 and <= 9 && TableRegular(data, c, k) == 0 ? n + Math.Max(0, c.PassiveBonus(data, $"slots:{k}")) : n;
+    }
     public static int PactSlotLevel(GameData data, Character c) => PactDef(data, c)?.Level.Eval(c, Pact(data, c)) ?? 0;
 
     /// <summary>今使えるスロットの数(ふつうのスロットの残りと、そのレベルなら協約魔術のスロットの残り)。</summary>
@@ -105,15 +114,18 @@ public static class Spellcasting
 
     /// <summary>
     /// ふつうの呪文スロットの数(術者のレベルの表から。協約魔術の分は入れない)。武器の追加効果(修正値 slots:&lt;レベル&gt;)の分も足すが、
-    /// もともとそのレベルのスロットがある人だけ(クラスの能力を与えず、強くするだけ)。
+    /// もともとそのレベルのスロットがある人だけ(クラスの能力を与えず、強くするだけ。ウォーロックの協約のスロットは PactSlots で足す)。
     /// </summary>
     public static int RegularSlots(GameData data, Character c, int spellLevel)
     {
         if (spellLevel < 1 || spellLevel > 9) return 0;
-        int lv = CasterLevel(data, c);
-        int n = lv > 0 ? TableSlots(data, lv, spellLevel) : 0;
+        int n = TableRegular(data, c, spellLevel);
         return n > 0 ? n + Math.Max(0, c.PassiveBonus(data, $"slots:{spellLevel}")) : 0;
     }
+
+    /// <summary>ふつうの呪文スロットの、術者のレベルの表の数(追加効果の分は入れない)。</summary>
+    private static int TableRegular(GameData data, Character c, int spellLevel) =>
+        CasterLevel(data, c) is int lv and > 0 ? TableSlots(data, lv, spellLevel) : 0;
 
     /// <summary>そのレベルの、協約魔術のスロットの残り(協約魔術のクラスがあって、協約のスロットのレベルのときだけ)。</summary>
     public static int PactLeft(GameData data, Character c, int spellLevel) =>

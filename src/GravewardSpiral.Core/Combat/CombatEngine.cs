@@ -188,7 +188,7 @@ public sealed class CombatEngine(GameData data, IRandom rng)
             if (!c.Standing) return;
             s.Add("combat.dot", c is MonsterUnit m ? s.GroupOf(m).DisplayName : c.Name, dot.DamageType);
             _damageLabel = "combat.src.dot";
-            Damage(s, c, Math.Max(0, RollDice(dot.Dice)), dot.DamageType, false, dot.Magical);
+            Damage(s, c, Math.Max(0, (int)(RollDice(dot.Dice) * (dot.Scale ?? 1))), dot.DamageType, false, dot.Magical);
             _damageLabel = null;
             CheckOutcome(s);
         }
@@ -366,8 +366,8 @@ public sealed class CombatEngine(GameData data, IRandom rng)
                 magical = weapon.IsMagic || held.Bonus != 0;
                 damageMod += enchant + p.Character.DamageBonus(_data);
                 // この武器の追加効果の命中とダメージ(その武器で殴ったときだけ)
-                bonus += WeaponLocal(held, "attack");
-                damageMod += WeaponLocal(held, "damage");
+                bonus += WeaponLocal(held, "attack", p);
+                damageMod += WeaponLocal(held, "damage", p);
             }
             // 弾の枠の弾(その飛び道具に合うものだけ。無ければふつうの弾で、上乗せなし)
             if (shoot && weapon?.UsesAmmo is { } kind && Ammo(kind) is var (ammo, adef))
@@ -386,7 +386,7 @@ public sealed class CombatEngine(GameData data, IRandom rng)
             int toHit = mod + bonus + (proficient ? p.Character.ProficiencyBonus : 0);
             return new StrikePlan(weapon, held, shoot, toHit, dice, damageMod, magical, finesse)
             {
-                AffixAverage = held != null && weapon != null && held.ItemId == weapon.Id ? Loot.OnHitAverage(_data, held) : 0,
+                AffixAverage = held != null && weapon != null && held.ItemId == weapon.Id ? Loot.OnHitAverage(_data, held, p.Character.Level) : 0,
                 RerollLow = !shoot && !offHand && weapon != null ? FeatureChecks.MainMeleeRerollLow(_data, p) : 0,   // 大型武器
             };
         }
@@ -396,7 +396,7 @@ public sealed class CombatEngine(GameData data, IRandom rng)
         {
             double hit = Math.Clamp((21 - (target.Ac - plan.ToHit)) / 20.0, 0.05, 0.95);
             if (plan.Shoot && adjacent) hit *= hit;
-            return hit * plan.Average(plan.Weapon);
+            return hit * (plan.Average(plan.Weapon) + HpDamageBonus(p, plan.Held, target));   // 先制の・とどめの も、その相手の HP で見込む
         }
 
         // 1回の攻撃。届く敵がいなければ false。unarmed は武術の素手の打撃(ボーナスアクション)。bonus はボーナスアクションの攻撃(ログに添える)
@@ -428,10 +428,9 @@ public sealed class CombatEngine(GameData data, IRandom rng)
             var weapon = plan.Weapon;
             bool melee = !plan.Shoot;
 
-            var parts = new List<EffectPart>
-            {
-                new() { Type = EffectPart.Damage, Dice = $"{plan.Dice}{Signed(plan.DamageMod)}", DamageType = weapon?.DamageType ?? "bludgeoning", Reroll = plan.RerollLow },
-            };
+            // 武器のダメージ(先制の・とどめの は相手の HP で付くので、薙ぎで当てる敵ごとに作り直す)
+            EffectPart Hit(Combatant on) => new() { Type = EffectPart.Damage, Dice = $"{plan.Dice}{Signed(plan.DamageMod + HpDamageBonus(p, plan.Held, on))}", DamageType = weapon?.DamageType ?? "bludgeoning", Reroll = plan.RerollLow };
+            var parts = new List<EffectPart> { Hit(target) };
             if (melee && weapon != null)
                 foreach (var (dice, type, from) in FeatureChecks.MeleeWeaponExtraDamageFrom(_data, p))
                     parts.Add(new EffectPart { Type = EffectPart.Damage, Dice = dice, DamageType = type, Label = "passive." + from });   // 向上したディヴァイン・スマイト
@@ -444,9 +443,9 @@ public sealed class CombatEngine(GameData data, IRandom rng)
                 // 武器の追加の分は、ログに出どころを添える(元の部品は武器の定義なので、写してから付ける)
                 if (!weapon.Attunement || held.Attuned) parts.AddRange(weapon.OnHit.Select(x => Labeled(x, weapon.Name)));
                 if (held.ElementDice(weapon) is { } ed) parts.Add(new EffectPart { Type = EffectPart.Damage, Dice = ed, DamageType = held.Element, Label = "combat.src.element" });
-                parts.AddRange(held.AffixOnHit(_data).Select(x => Labeled(x, "combat.src.affix")));
+                parts.AddRange(held.AffixOnHit(_data, p.Character.Level).Select(x => Labeled(x, "combat.src.affix")));
             }
-            var cleaveParts = parts.ToList();   // 薙ぎで2体目に当てる分(武器と追加効果だけ。急所攻撃やスマイトのような1回だけのものは乗せない)
+            var cleaveParts = parts.Skip(1).ToList();   // 薙ぎで2体目に当てる分(武器と追加効果だけ。急所攻撃やスマイトのような1回だけのものは乗せない。武器のダメージは当てる敵ごとに Hit で)
             var roll = AttackRoll(s, p, target, plan.ToHit, melee: !plan.Shoot, out bool advantage, extraDisadvantage: plan.Shoot && adjacent);
             int sneak = ClassFeatures.SneakAttackDice(_data, p.Character);
             if (p.SneakRound != s.Round && sneak > 0 && (plan.Finesse || weapon is { Ranged: true }) && roll.Hit   // 1ラウンドに1回(アクション・サージの2回目でも出ない)
@@ -482,9 +481,9 @@ public sealed class CombatEngine(GameData data, IRandom rng)
             if (!killTried && roll.Hit && _damageDealt > dealtBefore) killTried = TryInstantKill(s, p, target, unarmed: weapon == null, melee);
             // 薙ぎ(武器の cleave は % の確率、cleave_targets は何体まで): 当たったら、同じグループのほかの敵にも、確率に当たるあいだ続けて
             // 1体ずつ命中の判定をして当てる(外れる確率を引いたら止まる)
-            if (roll.Hit && plan.Held is { } sweeper && weapon != null && sweeper.ItemId == weapon.Id && WeaponLocal(sweeper, "cleave") is int cleave and > 0)
+            if (roll.Hit && plan.Held is { } sweeper && weapon != null && sweeper.ItemId == weapon.Id && WeaponLocal(sweeper, "cleave", p) is int cleave and > 0)
             {
-                int most = Math.Max(1, WeaponLocal(sweeper, "cleave_targets"));
+                int most = Math.Max(1, WeaponLocal(sweeper, "cleave_targets", p));
                 var others = group.Alive.Where(u => u != target).ToList();
                 for (int k = 0; k < most && others.Count > 0 && _rng.Next(0, 100) < cleave; k++)
                 {
@@ -492,7 +491,7 @@ public sealed class CombatEngine(GameData data, IRandom rng)
                     others.Remove(next);
                     s.Add("combat.cleave", p.Name);
                     var roll2 = AttackRoll(s, p, next, plan.ToHit, melee: !plan.Shoot, out _, extraDisadvantage: plan.Shoot && adjacent);
-                    ResolveAttack(s, p, next, weapon?.Name ?? LocalizedText.Of("unarmed strike", "素手"), roll2, cleaveParts, plan.Magical);
+                    ResolveAttack(s, p, next, weapon?.Name ?? LocalizedText.Of("unarmed strike", "素手"), roll2, [Hit(next), .. cleaveParts], plan.Magical);
                 }
             }
             // 残忍な一撃(バーバリアン L9)と獰猛な攻撃(ハーフオーク): 近接のクリティカルで武器のダイスを足す
@@ -802,7 +801,7 @@ public sealed class CombatEngine(GameData data, IRandom rng)
             {
                 foreach (var (a, count) in acts)
                 {
-                    for (int i = 0; i < count && s.Outcome == CombatOutcome.Ongoing && s.Party.Any(p => p.Standing); i++) UseAction(s, m, a);
+                    for (int i = 0; i < count && m.Standing && s.Outcome == CombatOutcome.Ongoing && s.Party.Any(p => p.Standing); i++) UseAction(s, m, a);   // 棘で倒れたら残りの攻撃はしない
                 }
                 return;
             }
@@ -1060,7 +1059,7 @@ public sealed class CombatEngine(GameData data, IRandom rng)
             && eater.Character.PassiveBonus(_data, "life_on_kill") is int gain and > 0)
             Heal(s, eater, Math.Min(gain, eater.MaxHp - eater.Hp));
         // 棘(装備の thorns): 近接で殴ってきた敵に、そのダメージを返す
-        if (!ranged && target is PartyMember { Standing: true } thorny && attacker is MonsterUnit && thorny.Character.PassiveBonus(_data, "thorns") is int thorns and > 0)
+        if (!ranged && target is PartyMember { Standing: true } thorny && attacker is MonsterUnit { Standing: true } && thorny.Character.PassiveBonus(_data, "thorns") is int thorns and > 0)
         {
             int back = Damage(s, attacker, thorns, "piercing", false, true);
             s.Add("combat.thorns", thorny.Name, who, back);
@@ -1089,11 +1088,12 @@ public sealed class CombatEngine(GameData data, IRandom rng)
         EffectPart? fromSave = null, CastContext? ctx = null)
     {
         var dealt = new Dictionary<string, int>();   // この並びで与えたダメージ(種類ごと。吸う部品が使う)
+        var drains = new List<EffectPart>();   // 吸う部品は、並びのほかの部品を全部起こしてから(追加効果の並び順で吸う量が変わらないように)
         foreach (var part in parts)
         {
             if (part.Type == EffectPart.Drain)
             {
-                Drain(s, source, part, dealt);
+                drains.Add(part);
                 continue;
             }
             if (part.Type == EffectPart.Dot)
@@ -1125,7 +1125,7 @@ public sealed class CombatEngine(GameData data, IRandom rng)
                     break;
                 }
                 case EffectPart.Heal:
-                    Heal(s, target, Math.Max(1, RollDice(DiceOf(part, ctx))));
+                    Heal(s, target, Math.Max(1, RollDice(DiceOf(part, ctx)) + HealBonus(source, target, ctx)));
                     break;
                 case EffectPart.TempHp:
                 {
@@ -1257,6 +1257,7 @@ public sealed class CombatEngine(GameData data, IRandom rng)
                 }
             }
         }
+        foreach (var drain in drains) Drain(s, source, drain, dealt);
     }
 
     /// <summary>
@@ -1272,14 +1273,18 @@ public sealed class CombatEngine(GameData data, IRandom rng)
         var old = target.Dots.FirstOrDefault(d => d.Key == key);
         if (old != null)
         {
-            if (DiceExpression.Parse(dice).Average > DiceExpression.Parse(old.Dice).Average) old.Dice = dice;
+            if (DiceExpression.Parse(dice).Average * (part.Scale ?? 1) > DiceExpression.Parse(old.Dice).Average * (old.Scale ?? 1))
+            {
+                old.Dice = dice;
+                old.Scale = part.Scale;
+            }
             old.RoundsLeft = Math.Max(old.RoundsLeft, rounds);
             return;
         }
         int dc = part.Dc != 0 ? part.Dc : fromSave?.Dc ?? ctx?.Dc ?? 10;
         target.Dots.Add(new ActiveDot
         {
-            Key = key, Dice = dice, DamageType = type, RoundsLeft = rounds, Magical = magical,
+            Key = key, Dice = dice, Scale = part.Scale, DamageType = type, RoundsLeft = rounds, Magical = magical,
             SaveAbility = part.Ability != null ? Abilities.Parse(part.Ability) : null, Dc = dc,
             SourceId = ctx?.Caster.Id, SpellId = ctx is { Spell.Concentration: true } ? ctx.Spell.Id : null,
         });
@@ -1884,9 +1889,29 @@ public sealed class CombatEngine(GameData data, IRandom rng)
     private bool SaveAdvantage(Combatant c, Condition condition) =>
         c.Modifiers.Any(m => m.Stat == "save_adv:" + condition.ToString().ToLowerInvariant()) || FeatureChecks.SaveAdvantageAgainst(_data, c, condition);
 
+    /// <summary>
+    /// 相手の HP で付くダメージ(装備の先制の: HP が満タンの敵に、とどめの: HP が半分以下の敵に)。指輪や手の分と、殴った武器の分。
+    /// </summary>
+    private int HpDamageBonus(PartyMember p, ItemInstance? held, Combatant target)
+    {
+        int Of(string stat) => p.Character.PassiveBonus(_data, stat) + (held != null ? WeaponLocal(held, stat, p) : 0);
+        return (target.Hp >= target.MaxHp ? Of("damage_vs_full") : 0) + (target.Hp > 0 && target.Hp * 2 <= target.MaxHp ? Of("damage_vs_low") : 0);
+    }
+
+    /// <summary>
+    /// 回復の上乗せ(装備の慈愛の: 唱えた回復呪文に、唱えた人の分。薬効の: 水薬などの道具で回復するとき、受ける人の分)。
+    /// </summary>
+    private int HealBonus(Combatant source, Combatant target, CastContext? ctx)
+    {
+        if (ctx == null) return 0;
+        bool item = ctx.Spell.Id.StartsWith("item:");
+        if (item) return target is PartyMember drinker ? Math.Max(0, drinker.Character.PassiveBonus(_data, "potion_heal")) : 0;
+        return source is PartyMember caster ? Math.Max(0, caster.Character.PassiveBonus(_data, "heal_spell")) : 0;
+    }
+
     /// <summary>その武器の追加効果の、その武器で殴ったときだけ効く修正値(命中・ダメージ・薙ぎ。マジックとレアの効き方で弱めたもの)。</summary>
-    private int WeaponLocal(ItemInstance held, string stat) =>
-        held.AffixPassive(_data).Where(x => x.Type == EffectPart.Modifier && x.Stat == stat).Sum(x => x.Value ?? 0);
+    private int WeaponLocal(ItemInstance held, string stat, PartyMember wearer) =>
+        held.AffixPassive(_data, wearer.Character.Level).Where(x => x.Type == EffectPart.Modifier && x.Stat == stat).Sum(x => x.Value ?? 0);
 
     /// <summary>その状態にする(か、その状態を解く)セーヴの上乗せ(装備の修正値 save_vs:&lt;状態&gt;。追加効果の「自由の」など)。</summary>
     private int ConditionSaveBonus(Combatant c, Condition condition) =>
@@ -2101,6 +2126,7 @@ public sealed class CombatEngine(GameData data, IRandom rng)
             return 0;
         }
         int before = target.Hp;
+        if (before <= 0 && target is MonsterUnit) return 0;   // もう倒れた敵(棘で倒れたあとの残りの攻撃など)。二度倒したことにしない
         target.Hp = before - dealt;
         taken = taken - dealt + (before - target.Hp);   // HP は 0 より下がらないので、吸えるのは実際に減った分まで
         s.Add("combat.damage", DamageArgs(target is MonsterUnit tu ? s.GroupOf(tu).DisplayName : target.Name, dealt, type));

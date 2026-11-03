@@ -3041,7 +3041,7 @@
   "price": 1000,
   "slots": 15,
   "note": "オリジナル(SRD に無い)。背負い袋とバッグ・オヴ・ホールディングのあいだ",
-  "min_level": 4
+  "min_level": 8
  },
  {
   "id": "bag_of_holding",
@@ -3056,7 +3056,8 @@
   },
   "rarity": "uncommon",
   "price": 2000,
-  "slots": 20
+  "slots": 20,
+  "min_level": 14
  },
  {
   "id": "handy_haversack",
@@ -3071,7 +3072,8 @@
   },
   "rarity": "rare",
   "price": 4000,
-  "slots": 25
+  "slots": 25,
+  "min_level": 20
  },
  {
   "id": "portable_hole",
@@ -3086,7 +3088,8 @@
   },
   "rarity": "rare",
   "price": 8000,
-  "slots": 30
+  "slots": 30,
+  "min_level": 30
  },
  {
   "id": "potion_of_healing_greater",

@@ -36,7 +36,8 @@ public sealed class ChestScene(Chest chest, Action onTeleport, Action onAlarm) :
 
     protected override string Title => Services.Strings["chest.title"];
 
-    protected override int? PartyHighlight => _mode is Mode.InspectWho or Mode.DisarmWho or Mode.OpenWho ? List.Cursor : null;
+    protected override int? PartyHighlight => _mode is Mode.InspectWho or Mode.DisarmWho or Mode.OpenWho && List.Current?.Tag is Character c
+        ? Party.IndexOf(c) : null;
 
     public override void Enter()
     {
@@ -68,8 +69,15 @@ public sealed class ChestScene(Chest chest, Action onTeleport, Action onAlarm) :
                 yield return new MenuItem(s["chest.close"], Tag: "leave");
                 break;
             default:
-                // 担当を選ぶ: 調べるなら調べる判定の値、外すなら外す判定の値と盗賊道具の有無
-                foreach (var c in Party)
+                // 担当を選ぶ: 調べるなら調べる判定の値、外すなら外す判定の値と盗賊道具の有無。
+                // 調べる・外すは得意な順(同じ値なら隊列の順)。開けるは罠を受ける人を選ぶので隊列の順
+                var who = _mode switch
+                {
+                    Mode.InspectWho => Party.OrderByDescending(c => Chest.InspectBonus(Data, c)),
+                    Mode.DisarmWho => Party.OrderByDescending(c => Chest.DisarmBonus(Data, c).Bonus),
+                    _ => Party.AsEnumerable(),
+                };
+                foreach (var c in who)
                 {
                     string? detail = _mode switch
                     {

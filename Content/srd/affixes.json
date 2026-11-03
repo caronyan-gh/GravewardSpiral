@@ -19696,6 +19696,1513 @@
   "group": "block"
  },
  {
+  "id": "remedies",
+  "name": {
+   "en": "of Remedies",
+   "ja": "薬効の"
+  },
+  "position": "suffix",
+  "kinds": [
+   "waist",
+   "neck",
+   "ring",
+   "armor"
+  ],
+  "weight": 6,
+  "tiers": [
+   {
+    "min_level": 1,
+    "passive": [
+     {
+      "type": "modifier",
+      "stat": "potion_heal",
+      "value": 2,
+      "value_max": 4
+     }
+    ],
+    "price": 200
+   },
+   {
+    "min_level": 4,
+    "passive": [
+     {
+      "type": "modifier",
+      "stat": "potion_heal",
+      "value": 3,
+      "value_max": 6
+     }
+    ],
+    "price": 700
+   },
+   {
+    "min_level": 7,
+    "passive": [
+     {
+      "type": "modifier",
+      "stat": "potion_heal",
+      "value": 4,
+      "value_max": 8
+     }
+    ],
+    "price": 1440
+   },
+   {
+    "min_level": 10,
+    "passive": [
+     {
+      "type": "modifier",
+      "stat": "potion_heal",
+      "value": 5,
+      "value_max": 10
+     }
+    ],
+    "price": 2430
+   },
+   {
+    "min_level": 13,
+    "passive": [
+     {
+      "type": "modifier",
+      "stat": "potion_heal",
+      "value": 6,
+      "value_max": 12
+     }
+    ],
+    "price": 3620
+   },
+   {
+    "min_level": 17,
+    "passive": [
+     {
+      "type": "modifier",
+      "stat": "potion_heal",
+      "value": 7,
+      "value_max": 14
+     }
+    ],
+    "price": 5030
+   },
+   {
+    "min_level": 21,
+    "passive": [
+     {
+      "type": "modifier",
+      "stat": "potion_heal",
+      "value": 8,
+      "value_max": 16
+     }
+    ],
+    "price": 6640
+   },
+   {
+    "min_level": 25,
+    "passive": [
+     {
+      "type": "modifier",
+      "stat": "potion_heal",
+      "value": 9,
+      "value_max": 18
+     }
+    ],
+    "price": 8440
+   },
+   {
+    "min_level": 29,
+    "passive": [
+     {
+      "type": "modifier",
+      "stat": "potion_heal",
+      "value": 10,
+      "value_max": 20
+     }
+    ],
+    "price": 10440
+   },
+   {
+    "min_level": 34,
+    "passive": [
+     {
+      "type": "modifier",
+      "stat": "potion_heal",
+      "value": 11,
+      "value_max": 22
+     }
+    ],
+    "price": 12620
+   },
+   {
+    "min_level": 39,
+    "passive": [
+     {
+      "type": "modifier",
+      "stat": "potion_heal",
+      "value": 12,
+      "value_max": 24
+     }
+    ],
+    "price": 14980
+   },
+   {
+    "min_level": 44,
+    "passive": [
+     {
+      "type": "modifier",
+      "stat": "potion_heal",
+      "value": 13,
+      "value_max": 26
+     }
+    ],
+    "price": 17520
+   },
+   {
+    "min_level": 49,
+    "passive": [
+     {
+      "type": "modifier",
+      "stat": "potion_heal",
+      "value": 14,
+      "value_max": 28
+     }
+    ],
+    "price": 20240
+   },
+   {
+    "min_level": 55,
+    "passive": [
+     {
+      "type": "modifier",
+      "stat": "potion_heal",
+      "value": 15,
+      "value_max": 30
+     }
+    ],
+    "price": 23120
+   },
+   {
+    "min_level": 61,
+    "passive": [
+     {
+      "type": "modifier",
+      "stat": "potion_heal",
+      "value": 16,
+      "value_max": 32
+     }
+    ],
+    "price": 26180
+   },
+   {
+    "min_level": 67,
+    "passive": [
+     {
+      "type": "modifier",
+      "stat": "potion_heal",
+      "value": 17,
+      "value_max": 34
+     }
+    ],
+    "price": 29410
+   },
+   {
+    "min_level": 73,
+    "passive": [
+     {
+      "type": "modifier",
+      "stat": "potion_heal",
+      "value": 18,
+      "value_max": 36
+     }
+    ],
+    "price": 32800
+   },
+   {
+    "min_level": 80,
+    "passive": [
+     {
+      "type": "modifier",
+      "stat": "potion_heal",
+      "value": 19,
+      "value_max": 38
+     }
+    ],
+    "price": 36350
+   },
+   {
+    "min_level": 87,
+    "passive": [
+     {
+      "type": "modifier",
+      "stat": "potion_heal",
+      "value": 20,
+      "value_max": 40
+     }
+    ],
+    "price": 40070
+   },
+   {
+    "min_level": 94,
+    "passive": [
+     {
+      "type": "modifier",
+      "stat": "potion_heal",
+      "value": 21,
+      "value_max": 42
+     }
+    ],
+    "price": 43940
+   }
+  ],
+  "group": "potion_heal"
+ },
+ {
+  "id": "mending",
+  "name": {
+   "en": "of Mending",
+   "ja": "手当ての"
+  },
+  "position": "suffix",
+  "kinds": [
+   "armor",
+   "waist",
+   "neck",
+   "head"
+  ],
+  "weight": 6,
+  "tiers": [
+   {
+    "min_level": 1,
+    "passive": [
+     {
+      "type": "modifier",
+      "stat": "hit_die_heal",
+      "value": 1,
+      "value_max": 2
+     }
+    ],
+    "price": 200
+   },
+   {
+    "min_level": 4,
+    "passive": [
+     {
+      "type": "modifier",
+      "stat": "hit_die_heal",
+      "value": 1,
+      "value_max": 3
+     }
+    ],
+    "price": 700
+   },
+   {
+    "min_level": 7,
+    "passive": [
+     {
+      "type": "modifier",
+      "stat": "hit_die_heal",
+      "value": 2,
+      "value_max": 4
+     }
+    ],
+    "price": 1440
+   },
+   {
+    "min_level": 10,
+    "passive": [
+     {
+      "type": "modifier",
+      "stat": "hit_die_heal",
+      "value": 2,
+      "value_max": 5
+     }
+    ],
+    "price": 2430
+   },
+   {
+    "min_level": 13,
+    "passive": [
+     {
+      "type": "modifier",
+      "stat": "hit_die_heal",
+      "value": 3,
+      "value_max": 6
+     }
+    ],
+    "price": 3620
+   },
+   {
+    "min_level": 17,
+    "passive": [
+     {
+      "type": "modifier",
+      "stat": "hit_die_heal",
+      "value": 3,
+      "value_max": 7
+     }
+    ],
+    "price": 5030
+   },
+   {
+    "min_level": 21,
+    "passive": [
+     {
+      "type": "modifier",
+      "stat": "hit_die_heal",
+      "value": 4,
+      "value_max": 8
+     }
+    ],
+    "price": 6640
+   },
+   {
+    "min_level": 25,
+    "passive": [
+     {
+      "type": "modifier",
+      "stat": "hit_die_heal",
+      "value": 4,
+      "value_max": 9
+     }
+    ],
+    "price": 8440
+   },
+   {
+    "min_level": 29,
+    "passive": [
+     {
+      "type": "modifier",
+      "stat": "hit_die_heal",
+      "value": 5,
+      "value_max": 10
+     }
+    ],
+    "price": 10440
+   },
+   {
+    "min_level": 34,
+    "passive": [
+     {
+      "type": "modifier",
+      "stat": "hit_die_heal",
+      "value": 5,
+      "value_max": 11
+     }
+    ],
+    "price": 12620
+   },
+   {
+    "min_level": 39,
+    "passive": [
+     {
+      "type": "modifier",
+      "stat": "hit_die_heal",
+      "value": 6,
+      "value_max": 12
+     }
+    ],
+    "price": 14980
+   },
+   {
+    "min_level": 44,
+    "passive": [
+     {
+      "type": "modifier",
+      "stat": "hit_die_heal",
+      "value": 6,
+      "value_max": 13
+     }
+    ],
+    "price": 17520
+   },
+   {
+    "min_level": 49,
+    "passive": [
+     {
+      "type": "modifier",
+      "stat": "hit_die_heal",
+      "value": 7,
+      "value_max": 14
+     }
+    ],
+    "price": 20240
+   },
+   {
+    "min_level": 55,
+    "passive": [
+     {
+      "type": "modifier",
+      "stat": "hit_die_heal",
+      "value": 7,
+      "value_max": 15
+     }
+    ],
+    "price": 23120
+   },
+   {
+    "min_level": 61,
+    "passive": [
+     {
+      "type": "modifier",
+      "stat": "hit_die_heal",
+      "value": 8,
+      "value_max": 16
+     }
+    ],
+    "price": 26180
+   },
+   {
+    "min_level": 67,
+    "passive": [
+     {
+      "type": "modifier",
+      "stat": "hit_die_heal",
+      "value": 8,
+      "value_max": 17
+     }
+    ],
+    "price": 29410
+   },
+   {
+    "min_level": 73,
+    "passive": [
+     {
+      "type": "modifier",
+      "stat": "hit_die_heal",
+      "value": 9,
+      "value_max": 18
+     }
+    ],
+    "price": 32800
+   },
+   {
+    "min_level": 80,
+    "passive": [
+     {
+      "type": "modifier",
+      "stat": "hit_die_heal",
+      "value": 9,
+      "value_max": 19
+     }
+    ],
+    "price": 36350
+   },
+   {
+    "min_level": 87,
+    "passive": [
+     {
+      "type": "modifier",
+      "stat": "hit_die_heal",
+      "value": 10,
+      "value_max": 20
+     }
+    ],
+    "price": 40070
+   },
+   {
+    "min_level": 94,
+    "passive": [
+     {
+      "type": "modifier",
+      "stat": "hit_die_heal",
+      "value": 10,
+      "value_max": 21
+     }
+    ],
+    "price": 43940
+   }
+  ],
+  "group": "hit_die_heal"
+ },
+ {
+  "id": "ambushing",
+  "name": {
+   "en": "Ambushing",
+   "ja": "先制の"
+  },
+  "position": "prefix",
+  "kinds": [
+   "weapon",
+   "ring",
+   "hands"
+  ],
+  "weight": 6,
+  "tiers": [
+   {
+    "min_level": 1,
+    "passive": [
+     {
+      "type": "modifier",
+      "stat": "damage_vs_full",
+      "value": 1,
+      "value_max": 3
+     }
+    ],
+    "price": 400
+   },
+   {
+    "min_level": 4,
+    "passive": [
+     {
+      "type": "modifier",
+      "stat": "damage_vs_full",
+      "value": 2,
+      "value_max": 4
+     }
+    ],
+    "price": 1390
+   },
+   {
+    "min_level": 7,
+    "passive": [
+     {
+      "type": "modifier",
+      "stat": "damage_vs_full",
+      "value": 3,
+      "value_max": 5
+     }
+    ],
+    "price": 2890
+   },
+   {
+    "min_level": 10,
+    "passive": [
+     {
+      "type": "modifier",
+      "stat": "damage_vs_full",
+      "value": 4,
+      "value_max": 6
+     }
+    ],
+    "price": 4850
+   },
+   {
+    "min_level": 13,
+    "passive": [
+     {
+      "type": "modifier",
+      "stat": "damage_vs_full",
+      "value": 5,
+      "value_max": 7
+     }
+    ],
+    "price": 7250
+   },
+   {
+    "min_level": 17,
+    "passive": [
+     {
+      "type": "modifier",
+      "stat": "damage_vs_full",
+      "value": 6,
+      "value_max": 8
+     }
+    ],
+    "price": 10060
+   },
+   {
+    "min_level": 21,
+    "passive": [
+     {
+      "type": "modifier",
+      "stat": "damage_vs_full",
+      "value": 7,
+      "value_max": 9
+     }
+    ],
+    "price": 13280
+   },
+   {
+    "min_level": 25,
+    "passive": [
+     {
+      "type": "modifier",
+      "stat": "damage_vs_full",
+      "value": 8,
+      "value_max": 10
+     }
+    ],
+    "price": 16890
+   },
+   {
+    "min_level": 29,
+    "passive": [
+     {
+      "type": "modifier",
+      "stat": "damage_vs_full",
+      "value": 9,
+      "value_max": 11
+     }
+    ],
+    "price": 20880
+   },
+   {
+    "min_level": 34,
+    "passive": [
+     {
+      "type": "modifier",
+      "stat": "damage_vs_full",
+      "value": 10,
+      "value_max": 12
+     }
+    ],
+    "price": 25240
+   },
+   {
+    "min_level": 39,
+    "passive": [
+     {
+      "type": "modifier",
+      "stat": "damage_vs_full",
+      "value": 11,
+      "value_max": 13
+     }
+    ],
+    "price": 29960
+   },
+   {
+    "min_level": 44,
+    "passive": [
+     {
+      "type": "modifier",
+      "stat": "damage_vs_full",
+      "value": 12,
+      "value_max": 14
+     }
+    ],
+    "price": 35040
+   },
+   {
+    "min_level": 49,
+    "passive": [
+     {
+      "type": "modifier",
+      "stat": "damage_vs_full",
+      "value": 13,
+      "value_max": 15
+     }
+    ],
+    "price": 40470
+   },
+   {
+    "min_level": 55,
+    "passive": [
+     {
+      "type": "modifier",
+      "stat": "damage_vs_full",
+      "value": 14,
+      "value_max": 16
+     }
+    ],
+    "price": 46250
+   },
+   {
+    "min_level": 61,
+    "passive": [
+     {
+      "type": "modifier",
+      "stat": "damage_vs_full",
+      "value": 15,
+      "value_max": 17
+     }
+    ],
+    "price": 52360
+   },
+   {
+    "min_level": 67,
+    "passive": [
+     {
+      "type": "modifier",
+      "stat": "damage_vs_full",
+      "value": 16,
+      "value_max": 18
+     }
+    ],
+    "price": 58810
+   },
+   {
+    "min_level": 73,
+    "passive": [
+     {
+      "type": "modifier",
+      "stat": "damage_vs_full",
+      "value": 17,
+      "value_max": 19
+     }
+    ],
+    "price": 65590
+   },
+   {
+    "min_level": 80,
+    "passive": [
+     {
+      "type": "modifier",
+      "stat": "damage_vs_full",
+      "value": 18,
+      "value_max": 20
+     }
+    ],
+    "price": 72700
+   },
+   {
+    "min_level": 87,
+    "passive": [
+     {
+      "type": "modifier",
+      "stat": "damage_vs_full",
+      "value": 19,
+      "value_max": 21
+     }
+    ],
+    "price": 80130
+   },
+   {
+    "min_level": 94,
+    "passive": [
+     {
+      "type": "modifier",
+      "stat": "damage_vs_full",
+      "value": 20,
+      "value_max": 22
+     }
+    ],
+    "price": 87880
+   }
+  ],
+  "group": "damage_vs_full"
+ },
+ {
+  "id": "executing",
+  "name": {
+   "en": "Executing",
+   "ja": "とどめの"
+  },
+  "position": "prefix",
+  "kinds": [
+   "weapon",
+   "ring",
+   "hands"
+  ],
+  "weight": 6,
+  "tiers": [
+   {
+    "min_level": 1,
+    "passive": [
+     {
+      "type": "modifier",
+      "stat": "damage_vs_low",
+      "value": 1,
+      "value_max": 3
+     }
+    ],
+    "price": 400
+   },
+   {
+    "min_level": 4,
+    "passive": [
+     {
+      "type": "modifier",
+      "stat": "damage_vs_low",
+      "value": 2,
+      "value_max": 4
+     }
+    ],
+    "price": 1390
+   },
+   {
+    "min_level": 7,
+    "passive": [
+     {
+      "type": "modifier",
+      "stat": "damage_vs_low",
+      "value": 3,
+      "value_max": 5
+     }
+    ],
+    "price": 2890
+   },
+   {
+    "min_level": 10,
+    "passive": [
+     {
+      "type": "modifier",
+      "stat": "damage_vs_low",
+      "value": 4,
+      "value_max": 6
+     }
+    ],
+    "price": 4850
+   },
+   {
+    "min_level": 13,
+    "passive": [
+     {
+      "type": "modifier",
+      "stat": "damage_vs_low",
+      "value": 5,
+      "value_max": 7
+     }
+    ],
+    "price": 7250
+   },
+   {
+    "min_level": 17,
+    "passive": [
+     {
+      "type": "modifier",
+      "stat": "damage_vs_low",
+      "value": 6,
+      "value_max": 8
+     }
+    ],
+    "price": 10060
+   },
+   {
+    "min_level": 21,
+    "passive": [
+     {
+      "type": "modifier",
+      "stat": "damage_vs_low",
+      "value": 7,
+      "value_max": 9
+     }
+    ],
+    "price": 13280
+   },
+   {
+    "min_level": 25,
+    "passive": [
+     {
+      "type": "modifier",
+      "stat": "damage_vs_low",
+      "value": 8,
+      "value_max": 10
+     }
+    ],
+    "price": 16890
+   },
+   {
+    "min_level": 29,
+    "passive": [
+     {
+      "type": "modifier",
+      "stat": "damage_vs_low",
+      "value": 9,
+      "value_max": 11
+     }
+    ],
+    "price": 20880
+   },
+   {
+    "min_level": 34,
+    "passive": [
+     {
+      "type": "modifier",
+      "stat": "damage_vs_low",
+      "value": 10,
+      "value_max": 12
+     }
+    ],
+    "price": 25240
+   },
+   {
+    "min_level": 39,
+    "passive": [
+     {
+      "type": "modifier",
+      "stat": "damage_vs_low",
+      "value": 11,
+      "value_max": 13
+     }
+    ],
+    "price": 29960
+   },
+   {
+    "min_level": 44,
+    "passive": [
+     {
+      "type": "modifier",
+      "stat": "damage_vs_low",
+      "value": 12,
+      "value_max": 14
+     }
+    ],
+    "price": 35040
+   },
+   {
+    "min_level": 49,
+    "passive": [
+     {
+      "type": "modifier",
+      "stat": "damage_vs_low",
+      "value": 13,
+      "value_max": 15
+     }
+    ],
+    "price": 40470
+   },
+   {
+    "min_level": 55,
+    "passive": [
+     {
+      "type": "modifier",
+      "stat": "damage_vs_low",
+      "value": 14,
+      "value_max": 16
+     }
+    ],
+    "price": 46250
+   },
+   {
+    "min_level": 61,
+    "passive": [
+     {
+      "type": "modifier",
+      "stat": "damage_vs_low",
+      "value": 15,
+      "value_max": 17
+     }
+    ],
+    "price": 52360
+   },
+   {
+    "min_level": 67,
+    "passive": [
+     {
+      "type": "modifier",
+      "stat": "damage_vs_low",
+      "value": 16,
+      "value_max": 18
+     }
+    ],
+    "price": 58810
+   },
+   {
+    "min_level": 73,
+    "passive": [
+     {
+      "type": "modifier",
+      "stat": "damage_vs_low",
+      "value": 17,
+      "value_max": 19
+     }
+    ],
+    "price": 65590
+   },
+   {
+    "min_level": 80,
+    "passive": [
+     {
+      "type": "modifier",
+      "stat": "damage_vs_low",
+      "value": 18,
+      "value_max": 20
+     }
+    ],
+    "price": 72700
+   },
+   {
+    "min_level": 87,
+    "passive": [
+     {
+      "type": "modifier",
+      "stat": "damage_vs_low",
+      "value": 19,
+      "value_max": 21
+     }
+    ],
+    "price": 80130
+   },
+   {
+    "min_level": 94,
+    "passive": [
+     {
+      "type": "modifier",
+      "stat": "damage_vs_low",
+      "value": 20,
+      "value_max": 22
+     }
+    ],
+    "price": 87880
+   }
+  ],
+  "group": "damage_vs_low"
+ },
+ {
+  "id": "cornered",
+  "name": {
+   "en": "of the Cornered",
+   "ja": "窮地の"
+  },
+  "position": "suffix",
+  "kinds": [
+   "armor",
+   "shield",
+   "cloak",
+   "neck"
+  ],
+  "weight": 6,
+  "tiers": [
+   {
+    "min_level": 1,
+    "passive": [
+     {
+      "type": "modifier",
+      "stat": "ac_desperate",
+      "value": 1
+     }
+    ],
+    "price": 400
+   },
+   {
+    "min_level": 4,
+    "passive": [
+     {
+      "type": "modifier",
+      "stat": "ac_desperate",
+      "value": 1
+     }
+    ],
+    "price": 1390
+   },
+   {
+    "min_level": 7,
+    "passive": [
+     {
+      "type": "modifier",
+      "stat": "ac_desperate",
+      "value": 2
+     }
+    ],
+    "price": 2890
+   },
+   {
+    "min_level": 10,
+    "passive": [
+     {
+      "type": "modifier",
+      "stat": "ac_desperate",
+      "value": 2
+     }
+    ],
+    "price": 4850
+   },
+   {
+    "min_level": 13,
+    "passive": [
+     {
+      "type": "modifier",
+      "stat": "ac_desperate",
+      "value": 2
+     }
+    ],
+    "price": 7250
+   },
+   {
+    "min_level": 17,
+    "passive": [
+     {
+      "type": "modifier",
+      "stat": "ac_desperate",
+      "value": 3
+     }
+    ],
+    "price": 10060
+   },
+   {
+    "min_level": 21,
+    "passive": [
+     {
+      "type": "modifier",
+      "stat": "ac_desperate",
+      "value": 3
+     }
+    ],
+    "price": 13280
+   },
+   {
+    "min_level": 25,
+    "passive": [
+     {
+      "type": "modifier",
+      "stat": "ac_desperate",
+      "value": 3
+     }
+    ],
+    "price": 16890
+   },
+   {
+    "min_level": 29,
+    "passive": [
+     {
+      "type": "modifier",
+      "stat": "ac_desperate",
+      "value": 4
+     }
+    ],
+    "price": 20880
+   },
+   {
+    "min_level": 34,
+    "passive": [
+     {
+      "type": "modifier",
+      "stat": "ac_desperate",
+      "value": 4
+     }
+    ],
+    "price": 25240
+   },
+   {
+    "min_level": 39,
+    "passive": [
+     {
+      "type": "modifier",
+      "stat": "ac_desperate",
+      "value": 4
+     }
+    ],
+    "price": 29960
+   },
+   {
+    "min_level": 44,
+    "passive": [
+     {
+      "type": "modifier",
+      "stat": "ac_desperate",
+      "value": 5
+     }
+    ],
+    "price": 35040
+   },
+   {
+    "min_level": 49,
+    "passive": [
+     {
+      "type": "modifier",
+      "stat": "ac_desperate",
+      "value": 5
+     }
+    ],
+    "price": 40470
+   },
+   {
+    "min_level": 55,
+    "passive": [
+     {
+      "type": "modifier",
+      "stat": "ac_desperate",
+      "value": 5
+     }
+    ],
+    "price": 46250
+   },
+   {
+    "min_level": 61,
+    "passive": [
+     {
+      "type": "modifier",
+      "stat": "ac_desperate",
+      "value": 6
+     }
+    ],
+    "price": 52360
+   },
+   {
+    "min_level": 67,
+    "passive": [
+     {
+      "type": "modifier",
+      "stat": "ac_desperate",
+      "value": 6
+     }
+    ],
+    "price": 58810
+   },
+   {
+    "min_level": 73,
+    "passive": [
+     {
+      "type": "modifier",
+      "stat": "ac_desperate",
+      "value": 6
+     }
+    ],
+    "price": 65590
+   },
+   {
+    "min_level": 80,
+    "passive": [
+     {
+      "type": "modifier",
+      "stat": "ac_desperate",
+      "value": 7
+     }
+    ],
+    "price": 72700
+   },
+   {
+    "min_level": 87,
+    "passive": [
+     {
+      "type": "modifier",
+      "stat": "ac_desperate",
+      "value": 7
+     }
+    ],
+    "price": 80130
+   },
+   {
+    "min_level": 94,
+    "passive": [
+     {
+      "type": "modifier",
+      "stat": "ac_desperate",
+      "value": 7
+     }
+    ],
+    "price": 87880
+   }
+  ],
+  "group": "ac_desperate"
+ },
+ {
+  "id": "mercy",
+  "name": {
+   "en": "of Mercy",
+   "ja": "慈愛の"
+  },
+  "position": "suffix",
+  "kinds": [
+   "weapon",
+   "ring",
+   "neck",
+   "head"
+  ],
+  "weight": 6,
+  "tiers": [
+   {
+    "min_level": 1,
+    "passive": [
+     {
+      "type": "modifier",
+      "stat": "heal_spell",
+      "value": 2
+     }
+    ],
+    "price": 300
+   },
+   {
+    "min_level": 4,
+    "passive": [
+     {
+      "type": "modifier",
+      "stat": "heal_spell",
+      "value": 3
+     }
+    ],
+    "price": 1040
+   },
+   {
+    "min_level": 7,
+    "passive": [
+     {
+      "type": "modifier",
+      "stat": "heal_spell",
+      "value": 4
+     }
+    ],
+    "price": 2170
+   },
+   {
+    "min_level": 10,
+    "passive": [
+     {
+      "type": "modifier",
+      "stat": "heal_spell",
+      "value": 5
+     }
+    ],
+    "price": 3640
+   },
+   {
+    "min_level": 13,
+    "passive": [
+     {
+      "type": "modifier",
+      "stat": "heal_spell",
+      "value": 6
+     }
+    ],
+    "price": 5440
+   },
+   {
+    "min_level": 17,
+    "passive": [
+     {
+      "type": "modifier",
+      "stat": "heal_spell",
+      "value": 7
+     }
+    ],
+    "price": 7550
+   },
+   {
+    "min_level": 21,
+    "passive": [
+     {
+      "type": "modifier",
+      "stat": "heal_spell",
+      "value": 8
+     }
+    ],
+    "price": 9960
+   },
+   {
+    "min_level": 25,
+    "passive": [
+     {
+      "type": "modifier",
+      "stat": "heal_spell",
+      "value": 9
+     }
+    ],
+    "price": 12670
+   },
+   {
+    "min_level": 29,
+    "passive": [
+     {
+      "type": "modifier",
+      "stat": "heal_spell",
+      "value": 10
+     }
+    ],
+    "price": 15660
+   },
+   {
+    "min_level": 34,
+    "passive": [
+     {
+      "type": "modifier",
+      "stat": "heal_spell",
+      "value": 11
+     }
+    ],
+    "price": 18930
+   },
+   {
+    "min_level": 39,
+    "passive": [
+     {
+      "type": "modifier",
+      "stat": "heal_spell",
+      "value": 12
+     }
+    ],
+    "price": 22470
+   },
+   {
+    "min_level": 44,
+    "passive": [
+     {
+      "type": "modifier",
+      "stat": "heal_spell",
+      "value": 13
+     }
+    ],
+    "price": 26280
+   },
+   {
+    "min_level": 49,
+    "passive": [
+     {
+      "type": "modifier",
+      "stat": "heal_spell",
+      "value": 14
+     }
+    ],
+    "price": 30350
+   },
+   {
+    "min_level": 55,
+    "passive": [
+     {
+      "type": "modifier",
+      "stat": "heal_spell",
+      "value": 15
+     }
+    ],
+    "price": 34690
+   },
+   {
+    "min_level": 61,
+    "passive": [
+     {
+      "type": "modifier",
+      "stat": "heal_spell",
+      "value": 16
+     }
+    ],
+    "price": 39270
+   },
+   {
+    "min_level": 67,
+    "passive": [
+     {
+      "type": "modifier",
+      "stat": "heal_spell",
+      "value": 17
+     }
+    ],
+    "price": 44110
+   },
+   {
+    "min_level": 73,
+    "passive": [
+     {
+      "type": "modifier",
+      "stat": "heal_spell",
+      "value": 18
+     }
+    ],
+    "price": 49200
+   },
+   {
+    "min_level": 80,
+    "passive": [
+     {
+      "type": "modifier",
+      "stat": "heal_spell",
+      "value": 19
+     }
+    ],
+    "price": 54530
+   },
+   {
+    "min_level": 87,
+    "passive": [
+     {
+      "type": "modifier",
+      "stat": "heal_spell",
+      "value": 20
+     }
+    ],
+    "price": 60100
+   },
+   {
+    "min_level": 94,
+    "passive": [
+     {
+      "type": "modifier",
+      "stat": "heal_spell",
+      "value": 21
+     }
+    ],
+    "price": 65910
+   }
+  ],
+  "group": "heal_spell",
+  "support": true
+ },
+ {
   "id": "slot_1",
   "name": {
    "en": "of the First Circle",
