@@ -138,6 +138,9 @@ public abstract class Combatant
 
     public bool Has(Condition c) => Conditions.Any(x => x.Condition == c);
 
+    /// <summary>other に魅了されているか(魅了した相手は、攻撃も害のある呪文や技も向けられない)。</summary>
+    public bool CharmedBy(Combatant other) => Conditions.Any(x => x.Condition == Condition.Charmed && x.SourceId == other.Id);
+
     /// <summary>行動できない状態(麻痺、朦朧、気絶、石化、無力化)。</summary>
     public bool Incapacitated => Conditions.Any(x => x.Condition is Condition.Paralyzed or Condition.Stunned
         or Condition.Unconscious or Condition.Petrified or Condition.Incapacitated);
@@ -148,7 +151,13 @@ public abstract class Combatant
 /// <summary>パーティの1人。HP と状態はキャラクターに直接書く。</summary>
 public sealed class PartyMember(Character character, GameData data) : Combatant
 {
-    public Character Character { get; } = character;
+    public Character Character { get; } = InitGear(character, data);
+
+    private static Character InitGear(Character c, GameData data)
+    {
+        c.RefreshGearHp(data);   // 装備の最大 HP の分(戦闘の始めにそろえる)
+        return c;
+    }
     private readonly GameData _data = data;
 
     public override Side Side => Side.Party;

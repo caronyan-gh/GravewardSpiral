@@ -85,7 +85,7 @@ public static class Shop
         Math.Max(1, Treasure.Price(def, item) / (item.Identified ? 2 : 4)) * item.Count;
 
     public static long IdentifyPrice(ItemDef def, ItemInstance item) =>
-        (item.Bonus > 0 ? Treasure.RarityOf(item.Bonus, def.Kind) : def.Rarity) switch
+        Treasure.GradeOf(def, item) switch
         {
             "common" => 25, "uncommon" => 100, "rare" => 400, "very_rare" => 1500, "legendary" => 5000, "artifact" => 10000, _ => 10,
         };

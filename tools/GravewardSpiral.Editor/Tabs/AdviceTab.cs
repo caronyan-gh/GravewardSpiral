@@ -53,7 +53,7 @@ public sealed class AdviceTab(EditorContext context) : IEditorTab
 
             card.Children.Add(Ui.Row(T("出る敵", "Monsters"), Enemies(pack, i, depth, enc, theme), 90));
             card.Children.Add(Ui.Row(T("名のある敵", "Named"), Named(pack, i, depth), 90));
-            var rarities = FloorAdvisor.ItemRarities(treasure, depth);
+            var rarities = FloorAdvisor.ItemRarities(treasure, enc.TargetLevel(depth));
             card.Children.Add(Ui.Row(T("宝", "Treasure"), new TextBlock
             {
                 TextWrapping = TextWrapping.Wrap, VerticalAlignment = VerticalAlignment.Center,

@@ -8,8 +8,9 @@ using GravewardSpiral.Core.Rules;
 namespace GravewardSpiral.Core.Items;
 
 /// <summary>
-/// 装備の追加効果(パックの affixes.json。5版からの改変)。宝の +N の武器・鎧・盾と、固有のレア品に、ランダムに付く。
-/// 同じ名前の品でも追加効果が違うものが出る(掘りの楽しみ)。強さは段階(tiers)で持ち、宝の目安のレベルで上の段階が出る。
+/// 装備の追加効果(パックの affixes.json。5版からの改変)。宝の武器・鎧・盾・装飾品と、固有のレア品に、ランダムに付く。
+/// マジックの品は接頭1・接尾1まで、レアの品は接頭3・接尾3まで。同じ名前の品でも追加効果が違うものが出る(掘りの楽しみ)。
+/// 強さは段階(tiers)で持ち、宝の目安のレベルで出る一番上の段から下へ幅(treasure.json の affix_tier_window)の中で均等に選ぶ。
 /// </summary>
 public sealed class AffixDef
 {
@@ -23,8 +24,10 @@ public sealed class AffixDef
     /// <summary>prefix(英語で名前の前)/ suffix(英語で「of ...」として後ろ)。日本語はどちらも前に付ける。</summary>
     public string Position { get; set; } = "prefix";
 
-    /// <summary>付く品の種類: weapon / armor / shield。</summary>
+    /// <summary>付く品の種類: weapon / armor / shield と、装飾品の枠(ring / neck / cloak / head / hands / feet / waist)。</summary>
     public List<string> Kinds { get; set; } = [];
+
+    public static readonly string[] KindNames = ["weapon", "armor", "shield", "ring", "neck", "cloak", "head", "hands", "feet", "waist"];
 
     /// <summary>同じ group の追加効果は、1つの品に1つまで(属性のダメージを2つ重ねない、など)。</summary>
     public string? Group { get; set; }
@@ -32,10 +35,21 @@ public sealed class AffixDef
     /// <summary>出やすさ。</summary>
     public double Weight { get; set; } = 10;
 
+    /// <summary>レアの品にだけ付く(マジックには付かない。状態にならない、のような強い有る無しの効果。同調していないと効かない)。</summary>
+    public bool RareOnly { get; set; }
+
+    /// <summary>補助の追加効果(技能・先手・呪文など)。軍用でない近接武器(ダガー・クラブなど)には、これだけが付く。</summary>
+    public bool Support { get; set; }
+
+    /// <summary>武器のその1本で殴ったときだけ効く修正値(二刀流や弓と剣の持ち替えで重ならないように、全部の攻撃には足さない)。</summary>
+    public static readonly string[] WeaponLocalStats = ["attack", "damage", "cleave", "cleave_targets"];
+
     /// <summary>強さの段階(min_level の小さい順)。宝の目安のレベルが min_level 以上の、一番上の段階が出る。</summary>
     public List<AffixTier> Tiers { get; set; } = [];
 
-    public bool Fits(ItemKind kind) => Kinds.Contains(kind.ToString().ToLowerInvariant());
+    public bool Fits(ItemDef def) =>
+        Kinds.Contains(def.Kind == ItemKind.Accessory ? def.Slot ?? "" : def.Kind.ToString().ToLowerInvariant())
+        && (Support || def.Kind != ItemKind.Weapon || def.Category != "simple" || def.Ranged);   // 軍用でない近接武器には補助だけ
 
     /// <summary>その目安のレベルで出る段階(まだ出ないなら -1)。</summary>
     public int TierFor(double level)
@@ -71,6 +85,9 @@ public sealed class AffixRoll
 
     /// <summary>値段の上乗せ(付いたときの段階の値段。データが後から変わっても、持っている品の値段は変わらない)。</summary>
     public double Price { get; set; }
+
+    /// <summary>幅のある修正値(value_max)を、付いたときに振った数字(修正値の stat → 数字)。幅が無ければ null。</summary>
+    public Dictionary<string, int>? Values { get; set; }
 
     public AffixTier? Get(GameData data) =>
         data.Affixes.TryGetValue(Id, out var a) && Tier >= 0 && Tier < a.Tiers.Count ? a.Tiers[Tier] : null;
@@ -151,20 +168,37 @@ public sealed class DropEntry
 /// <summary>追加効果と落とし物を決める。</summary>
 public static class Loot
 {
-    /// <summary>等級ごとの追加効果の数(最小と最大)。treasure.json の affix_count で変えられる。</summary>
-    public static (int Min, int Max) AffixCount(TreasureSettings s, string rarity) =>
-        s.AffixCount.TryGetValue(rarity, out var mm) && mm.Count >= 2 ? (mm[0], mm[1]) : (0, 0);
+    /// <summary>等級で決まる追加効果の数(treasure.json の affix_count の重みで選ぶ。書いていない等級は 0)。</summary>
+    public static int RollAffixCount(TreasureSettings s, string rarity, IRandom rng)
+    {
+        if (!s.AffixCount.TryGetValue(rarity, out var weights) || weights.Count == 0) return 0;
+        var list = weights.Where(kv => kv.Value > 0).OrderBy(kv => int.Parse(kv.Key)).ToList();
+        double r = rng.NextDouble() * list.Sum(kv => kv.Value);
+        foreach (var (k, w) in list)
+        {
+            if ((r -= w) < 0) return int.Parse(k);
+        }
+        return list.Count > 0 ? int.Parse(list[^1].Key) : 0;
+    }
 
-    /// <summary>品に追加効果を count 個付ける(同じ追加効果・同じ group は重ねない。合うものが無ければ少なくなる)。</summary>
-    public static void AddAffixes(GameData data, ItemInstance item, ItemDef def, int count, double level, IRandom rng)
+    /// <summary>レアの品になる等級か(rare 以上)。</summary>
+    public static bool IsRareGrade(string rarity) => Array.IndexOf(Treasure.Rarities, rarity) >= Array.IndexOf(Treasure.Rarities, "rare");
+
+    /// <summary>
+    /// 品に追加効果を count 個付ける(同じ追加効果・同じ group は重ねない。接頭と接尾はそれぞれ maxEach まで。合うものが無ければ少なくなる)。
+    /// 段階は、目安のレベルで出る一番上の段から下へ window 段の中で均等に選ぶ。
+    /// </summary>
+    public static void AddAffixes(GameData data, ItemInstance item, ItemDef def, int count, double level, IRandom rng, int maxEach = 3, int window = 5)
     {
         for (int n = 0; n < count; n++)
         {
             var taken = item.Affixes.Select(a => data.Affixes.GetValueOrDefault(a.Id)).OfType<AffixDef>().ToList();
+            int prefixes = taken.Count(a => a.Position == "prefix"), suffixes = taken.Count - prefixes;
             // 品がもともと持つ属性のダメージ(獄炎の剣の火など)と同じ属性の追加効果は付けない
             var own = def.OnHit.Where(p => p.Type == EffectPart.Damage && p.Only == null).Select(p => p.DamageType).ToHashSet();
             var pool = data.Affixes.Values.OrderBy(a => a.Id, StringComparer.Ordinal)
-                .Where(a => a.Fits(def.Kind) && a.TierFor(level) >= 0 && a.Weight > 0
+                .Where(a => a.Fits(def) && a.TierFor(level) >= 0 && a.Weight > 0
+                    && (a.Position == "prefix" ? prefixes : suffixes) < maxEach && (item.Rare || !a.RareOnly)
                     && !taken.Any(t => t.Id == a.Id || (t.Group != null && t.Group == a.Group))
                     && !a.Tiers.SelectMany(t => t.OnHit).Any(p => p.Type == EffectPart.Damage && p.Only == null && own.Contains(p.DamageType)))
                 .ToList();
@@ -179,10 +213,14 @@ public static class Loot
                     break;
                 }
             }
-            // 段階は目安のレベルで出る一番上か、1つ下(少しばらつかせる)
+            // 段階は目安のレベルで出る一番上から、下へ window 段の中で均等に
             int top = pick.TierFor(level);
-            int tier = top > 0 && rng.NextDouble() < 0.35 ? top - 1 : top;
-            item.Affixes.Add(new AffixRoll { Id = pick.Id, Tier = tier, Price = pick.Tiers[tier].Price });
+            int tier = rng.Next(Math.Max(0, top - Math.Max(1, window) + 1), top + 1);
+            var roll = new AffixRoll { Id = pick.Id, Tier = tier, Price = pick.Tiers[tier].Price };
+            // 幅のある修正値は、品ごとに振る
+            foreach (var p in pick.Tiers[tier].Passive.Concat(pick.Tiers[tier].OnHit).Where(p => p is { Type: EffectPart.Modifier, Stat: not null, Value: int, ValueMax: int }))
+                (roll.Values ??= [])[p.Stat!] = rng.Next(p.Value!.Value, Math.Max(p.Value.Value, p.ValueMax!.Value) + 1);
+            item.Affixes.Add(roll);
         }
     }
 
@@ -196,8 +234,10 @@ public static class Loot
     /// 倒した敵の落とし物。level は宝の目安のレベル(追加効果と +N の強さに使う)。boost は階の味付け(無ければ ×1)。
     /// </summary>
     public static List<ItemInstance> RollDrops(GameData data, TreasureSettings s, IEnumerable<(MonsterDef Def, int Count)> defeated,
-        double level, IRandom rng, string? boss = null, DropBoost? boost = null)
+        double level, IRandom rng, string? boss = null, DropBoost? boost = null, TreasureSource source = TreasureSource.Wander)
     {
+        if (boss != null) source = TreasureSource.Boss;
+        string? named = Treasure.Row(s, level, source)?.Named;
         double chanceMult = boost?.Chance ?? 1;
         var drops = new List<ItemInstance>();
         // ボスの表(戦い1回につき1回)
@@ -226,7 +266,8 @@ public static class Loot
         void Add(DropEntry entry)
         {
             if (entry.Item != null && data.Items.TryGetValue(entry.Item, out var item)) drops.Add(Make(data, s, item, level, rng));
-            else if (entry.Rarity != null) drops.Add(Treasure.Roll(data, s, entry.Rarity, rng, level));
+            // 表の等級は、その階の宝の表で出る一番上までにする(名前つきの品の上限も同じ表で決める)
+            else if (entry.Rarity != null) drops.Add(Treasure.Roll(data, s, Treasure.Clamp(s, entry.Rarity, level, source), rng, level, named));
         }
     }
 
@@ -234,7 +275,7 @@ public static class Loot
     public static ItemInstance Make(GameData data, TreasureSettings s, ItemDef def, double level, IRandom rng)
     {
         var item = new ItemInstance { ItemId = def.Id, Identified = !def.IsMagic, Charges = def.Charges, Count = Math.Max(1, def.Bundle) };
-        if (def.RandomAffixes > 0) AddAffixes(data, item, def, def.RandomAffixes, level, rng);
+        if (def.RandomAffixes > 0) AddAffixes(data, item, def, def.RandomAffixes, level, rng, window: s.AffixTierWindow);
         return item;
     }
 
@@ -254,5 +295,5 @@ public static class Loot
     /// <summary>当たったときの追加のダメージの平均(装備の見比べに使う。決まった種類の相手にだけ効くものは数えない)。</summary>
     public static double OnHitAverage(GameData data, ItemInstance item) =>
         item.AffixOnHit(data).Where(p => p.Type == EffectPart.Damage && p.Only == null && p.Dice != null)
-            .Sum(p => DiceExpression.Parse(p.Dice!).Average);
+            .Sum(p => DiceExpression.Parse(p.Dice!).Average * (p.Scale ?? 1));
 }

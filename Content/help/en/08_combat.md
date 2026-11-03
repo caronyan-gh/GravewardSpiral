@@ -61,6 +61,8 @@ A condition's name appears before HP in the party list.
 - Poisoned and Frightened give your attack rolls disadvantage.
 - Blinded gives your attacks disadvantage and makes attacks against you more likely to hit.
 - Paralyzed, Stunned, and Unconscious prevent you from acting.
+- While Charmed, you can't attack, or aim enemy-targeting spells or features at, the group with the foe who charmed you.
+- While Deafened, Bardic Inspiration can't reach you, and Perception checks in events have disadvantage.
 
 Poisoned, Blinded, Deafened, Frightened, and Paralyzed may linger after combat. Treat them with spells, at the temple, or with a long rest.
 

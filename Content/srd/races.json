@@ -43,7 +43,7 @@
     "ability_bonus": { "str": 2, "cha": 1 },
     "traits": ["breath_weapon", "damage_resistance"],
     "features": [{"id": "breath_weapon", "level": 1}, {"id": "draconic_resistance", "level": 1}],
-    "pools": [{"id": "breath_weapon", "max": 1, "recharge": "short"}],
+    "pools": [{"id": "breath_weapon", "name": {"en": "Breath Weapon", "ja": "竜の息"}, "max": 1, "recharge": "short"}],
     "description": { "en": "Draconic heritage. Can breathe fire on a nearby enemy group in battle (recharges on a short rest). Takes half fire damage.", "ja": "竜の血を引く。戦闘で近くの敵のグループに火を吐ける(小休憩で戻る)。火のダメージを半分にする。" }
   },
   {
@@ -75,7 +75,7 @@
     "skills": ["intimidation"],
     "traits": ["menacing", "relentless_endurance", "savage_attacks"],
     "features": [{"id": "relentless_endurance", "level": 1}, {"id": "savage_attacks", "level": 1}],
-    "pools": [{"id": "relentless_endurance", "max": 1, "recharge": "long"}],
+    "pools": [{"id": "relentless_endurance", "name": {"en": "Relentless Endurance", "ja": "不屈の耐久"}, "description": {"en": "Once per long rest, when you drop to 0 HP (and are not killed outright), you stay up with 1 HP.", "ja": "大休憩までに1回、HP が 0 になっても(即死でなければ)1 で踏みとどまる。"}, "max": 1, "recharge": "long"}],
     "description": { "en": "Fierce. Once per long rest, drops to 1 HP instead of 0 (unless killed outright). Rolls one extra weapon die on melee critical hits.", "ja": "猛々しい。大休憩までに1回、HP が 0 になっても 1 で踏みとどまる(即死のときは除く)。近接のクリティカルで武器のダイスを1つ多く振る。" }
   },
   {

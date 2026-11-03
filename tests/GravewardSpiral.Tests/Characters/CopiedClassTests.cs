@@ -160,6 +160,33 @@ public class CopiedClassTests
     /// 写しでない新しいクラスをパックで足す: 既にある技と能力・新しい能力(効果の部品だけで書く)・回数・3 分の 1 の術者・呪文の束・タグ・攻撃の回数。
     /// 作成・レベルの数・呪文・罠のタグが、データのとおりに動く。
     /// </summary>
+    /// <summary>決まりの言葉(glossary.json)は日英の名前と説明を持ち、足りなければ読み込みの検査で落とす。</summary>
+    [Fact]
+    public void GlossaryTermsNeedNamesAndDescriptionsInBothLanguages()
+    {
+        var srd = ContentLibrary.Load(TestPaths.Content);
+        var data = GameData.Load(srd);
+        Assert.Empty(srd.Problems);
+        Assert.Equal("小休憩", data.Glossary["short_rest"].Name.Get("ja"));
+        Assert.All(data.Glossary.Values, g => Assert.True(g.Description!.Has("ja") && g.Description.Has("en")));
+
+        using var dir = new TestPaths.TempDir();
+        dir.Write("p/manifest.json", """{"id": "p", "depends": ["srd"]}""");
+        dir.Write("p/glossary.json", """[{"id": "t_term", "name": {"en": "Term", "ja": "言葉"}, "description": {"ja": "説明。"}}]""");
+        var content = ContentLibrary.Load(TestPaths.Content, Path.Combine(dir.Path, "p"));
+        GameData.Load(content);
+        Assert.Contains(content.Problems, x => x.Contains("glossary 't_term'") && x.Contains("en"));
+
+        // 空や空白だけの名前は、無いのと同じ(技の名前も)
+        dir.Write("p/glossary.json", """[{"id": "t_term", "name": {"en": " ", "ja": "言葉"}, "description": {"en": "Text.", "ja": "説明。"}}]""");
+        dir.Write("p/features.json", """[{"id": "t_blank", "name": {"en": "", "ja": ""}, "description": {"en": "x", "ja": "x"}, "kind": "action", "part": "second_wind", "target": "self"}]""");
+        dir.Write("p/classes.json", """[{"id": "t_c", "name": {"en": "C", "ja": "C"}, "hit_die": 8, "features": [{"id": "t_blank", "level": 1}], "primary": ["str"], "saves": ["str"], "start_gold": "1d4"}]""");
+        var blank = ContentLibrary.Load(TestPaths.Content, Path.Combine(dir.Path, "p"));
+        GameData.Load(blank);
+        Assert.Contains(blank.Problems, x => x.Contains("glossary 't_term'"));
+        Assert.Contains(blank.Problems, x => x.Contains("'t_blank'") && x.Contains("name の ja"));
+    }
+
     [Fact]
     public void APackCanAddANewClass()
     {
@@ -184,11 +211,22 @@ public class CopiedClassTests
         dir.Write("p/text/ja.json", """{"passive.t_warding_steel": "守りの鋼"}""");
         var missing = ContentLibrary.Load(TestPaths.Content, Path.Combine(dir.Path, "p"));
         GameData.Load(missing);
-        Assert.Contains(missing.Problems, x => x.Contains("'passive.t_warding_steel' が en にありません"));
+        Assert.Contains(missing.Problems, x => x.Contains("'t_warding_steel'") && x.Contains("name の en がありません") && x.Contains("'passive.t_warding_steel'"));
         dir.Write("p/text/en.json", """{"passive.t_warding_steel": "Warding Steel"}""");
+        var byText = ContentLibrary.Load(TestPaths.Content, Path.Combine(dir.Path, "p"));
+        GameData.Load(byText);
+        Assert.Empty(byText.Problems);   // 前の形(文言のキー)でも足りる
+        // 今の形: 名前と説明は features.json に日英で書く(文言は要らない)
+        dir.Write("p/text/ja.json", "{}");
+        dir.Write("p/text/en.json", "{}");
+        dir.Write("p/features.json", """
+            [{"id": "t_warding_steel", "name": {"en": "Warding Steel", "ja": "守りの鋼"}, "description": {"en": "AC +1 in armor.", "ja": "鎧を着ていれば AC +1。"},
+              "kind": "passive", "when": "wearing_armor", "effects": [{"type": "ac_bonus", "value": 1}, {"type": "save_bonus", "ability": "int", "value": 2}]}]
+            """);
         var content = ContentLibrary.Load(TestPaths.Content, Path.Combine(dir.Path, "p"));
         var data = GameData.Load(content);
         Assert.Empty(content.Problems);
+        Assert.Equal("守りの鋼", data.Features["t_warding_steel"].Name!.Get("ja"));
         Assert.Contains("t_spellblade", data.ClassOrder);
 
         var c = CharacterFactory.QuickCreate(data, "S", "human", "t_spellblade", 7);

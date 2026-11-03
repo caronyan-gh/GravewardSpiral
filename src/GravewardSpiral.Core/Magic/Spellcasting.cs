@@ -103,12 +103,16 @@ public static class Spellcasting
     public static int SlotsLeft(GameData data, Character c, int spellLevel) =>
         Math.Max(0, RegularSlots(data, c, spellLevel) - c.SlotsUsed.GetValueOrDefault(spellLevel)) + PactLeft(data, c, spellLevel);
 
-    /// <summary>ふつうの呪文スロットの数(術者のレベルの表から。協約魔術の分は入れない)。</summary>
+    /// <summary>
+    /// ふつうの呪文スロットの数(術者のレベルの表から。協約魔術の分は入れない)。武器の追加効果(修正値 slots:&lt;レベル&gt;)の分も足すが、
+    /// もともとそのレベルのスロットがある人だけ(クラスの能力を与えず、強くするだけ)。
+    /// </summary>
     public static int RegularSlots(GameData data, Character c, int spellLevel)
     {
         if (spellLevel < 1 || spellLevel > 9) return 0;
         int lv = CasterLevel(data, c);
-        return lv > 0 ? TableSlots(data, lv, spellLevel) : 0;
+        int n = lv > 0 ? TableSlots(data, lv, spellLevel) : 0;
+        return n > 0 ? n + Math.Max(0, c.PassiveBonus(data, $"slots:{spellLevel}")) : 0;
     }
 
     /// <summary>そのレベルの、協約魔術のスロットの残り(協約魔術のクラスがあって、協約のスロットのレベルのときだけ)。</summary>
@@ -151,6 +155,15 @@ public static class Spellcasting
     public static int Mod(ClassDef cls, Character c) => SpellAbility(cls) is { } a ? c.Scores.Mod(a) : 0;
     public static int SaveDc(ClassDef cls, Character c) => 8 + c.ProficiencyBonus + Mod(cls, c);
     public static int AttackBonus(ClassDef cls, Character c) => c.ProficiencyBonus + Mod(cls, c);
+
+    /// <summary>装備で上がる呪文の難易度と命中の上限(5版は数字を上げすぎると壊れるので、全部の装備を足しても +3 まで)。</summary>
+    public const int MaxGearSpellBonus = 3;
+
+    /// <summary>呪文の難易度(装備の追加効果 spell_dc を足す。+3 まで)。</summary>
+    public static int SaveDc(GameData data, ClassDef cls, Character c) => SaveDc(cls, c) + Math.Clamp(c.PassiveBonus(data, "spell_dc"), 0, MaxGearSpellBonus);
+
+    /// <summary>呪文の攻撃の命中(装備の追加効果 spell_attack を足す。+3 まで)。</summary>
+    public static int AttackBonus(GameData data, ClassDef cls, Character c) => AttackBonus(cls, c) + Math.Clamp(c.PassiveBonus(data, "spell_attack"), 0, MaxGearSpellBonus);
 
     /// <summary>
     /// そのクラスで覚えられる(準備できる)呪文の一番高いレベル。マルチクラスでも、そのクラスだけのレベルで決める(5版)。

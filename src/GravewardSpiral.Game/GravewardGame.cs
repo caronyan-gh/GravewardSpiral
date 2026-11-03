@@ -229,6 +229,7 @@ public sealed class GravewardGame : Microsoft.Xna.Framework.Game, IDisplay
         {
             if (_options.Actions[_nextAction] is { } action) _input.Inject(action);
             if (_options.Clicks?.TryGetValue(_nextAction, out var click) == true) _input.InjectClick(click);
+            if (_options.Hovers?.TryGetValue(_nextAction, out var hover) == true) _input.InjectHover(hover);
             _nextAction++;
         }
         // 確認用の起動では、手元のキーやマウスの入力を受けない(自動操作だけにする)
@@ -238,6 +239,8 @@ public sealed class GravewardGame : Microsoft.Xna.Framework.Game, IDisplay
         // 確認用の起動の --drop: 少し待ってから、落としたことにする
         if (_updates == LaunchOptions.FramesPerAction && _options.Drop is { } drop) _services.DroppedFiles.Add(drop);
         _services.Cursor = null;
+        UI.Tooltip.Mouse = _input.Mouse;
+        UI.Glossary.Services = _services;   // 文の中の決まりの言葉(小休憩など)に説明を付ける
         _services.Scenes.Update(gameTime, _input);
         // 画面が決めたカーソル(迷宮のマウスの矢印など)を当てる。変わったときだけ
         if (_services.Cursor != _cursor)
@@ -261,6 +264,7 @@ public sealed class GravewardGame : Microsoft.Xna.Framework.Game, IDisplay
         _draw.Begin(_screen.Scale);
         _draw.FillRect(new RectangleF(0, 0, VirtualScreen.Width, VirtualScreen.Height), Background);
         _services.Scenes.Draw(_draw);
+        UI.Tooltip.Draw(_draw);   // 言葉の説明の窓は、全部の画面の上に
         _draw.End();
 
         GraphicsDevice.Viewport = full;

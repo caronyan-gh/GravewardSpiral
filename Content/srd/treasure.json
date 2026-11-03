@@ -1,8 +1,8 @@
 [
   {
     "id": "default",
-    "chest_chance": 0.35,
-    "room_chest_chance": 0.7,
+    "chest_chance": 0.45,
+    "room_chest_chance": 0.8,
     "trap_chance_first": 0.3,
     "trap_chance_last": 0.85,
     "gold_per_level": 20,
@@ -12,46 +12,203 @@
     "cursed_chance": 0.08,
     "rarity": [
       {
-        "depth": 0.0,
+        "level": 1,
+        "named": "common",
         "weights": {
-          "mundane": 50,
-          "common": 40,
-          "uncommon": 10
-        }
-      },
-      {
-        "depth": 0.4,
-        "weights": {
-          "mundane": 30,
-          "common": 40,
-          "uncommon": 27,
-          "rare": 3
-        }
-      },
-      {
-        "depth": 0.8,
-        "weights": {
-          "mundane": 15,
+          "mundane": 63,
           "common": 35,
-          "uncommon": 40,
-          "rare": 10
+          "uncommon": 2
         }
-      }
-    ],
-    "level_rarity": [
+      },
+      {
+        "level": 3,
+        "named": "common",
+        "weights": {
+          "mundane": 57,
+          "common": 38,
+          "uncommon": 5
+        }
+      },
+      {
+        "level": 5,
+        "named": "uncommon",
+        "weights": {
+          "mundane": 49,
+          "common": 38,
+          "uncommon": 11,
+          "rare": 2
+        }
+      },
+      {
+        "level": 8,
+        "named": "uncommon",
+        "weights": {
+          "mundane": 40,
+          "common": 35,
+          "uncommon": 20,
+          "rare": 5
+        }
+      },
       {
         "level": 11,
+        "named": "uncommon",
         "weights": {
-          "rare": 10,
-          "very_rare": 6
+          "mundane": 32,
+          "common": 33,
+          "uncommon": 24,
+          "rare": 9,
+          "very_rare": 2
+        }
+      },
+      {
+        "level": 14,
+        "named": "rare",
+        "weights": {
+          "mundane": 25,
+          "common": 30,
+          "uncommon": 26,
+          "rare": 14,
+          "very_rare": 5
         }
       },
       {
         "level": 17,
+        "named": "very_rare",
         "weights": {
+          "mundane": 20,
+          "common": 25,
+          "uncommon": 25,
+          "rare": 18,
+          "very_rare": 10,
+          "legendary": 2
+        }
+      },
+      {
+        "level": 20,
+        "named": "legendary",
+        "weights": {
+          "mundane": 15,
+          "common": 22,
+          "uncommon": 25,
+          "rare": 20,
+          "very_rare": 13,
+          "legendary": 5
+        }
+      }
+    ],
+    "room_rarity": [
+      {
+        "level": 1,
+        "named": "uncommon",
+        "weights": {
+          "mundane": 45,
+          "common": 45,
+          "uncommon": 10
+        }
+      },
+      {
+        "level": 5,
+        "named": "uncommon",
+        "weights": {
+          "mundane": 32,
+          "common": 40,
+          "uncommon": 24,
+          "rare": 4
+        }
+      },
+      {
+        "level": 8,
+        "named": "rare",
+        "weights": {
+          "mundane": 26,
+          "common": 35,
+          "uncommon": 29,
+          "rare": 10
+        }
+      },
+      {
+        "level": 11,
+        "named": "rare",
+        "weights": {
+          "mundane": 20,
+          "common": 30,
+          "uncommon": 32,
           "rare": 15,
-          "very_rare": 12,
-          "legendary": 3
+          "very_rare": 3
+        }
+      },
+      {
+        "level": 14,
+        "named": "very_rare",
+        "weights": {
+          "mundane": 15,
+          "common": 25,
+          "uncommon": 30,
+          "rare": 20,
+          "very_rare": 9,
+          "legendary": 1
+        }
+      },
+      {
+        "level": 17,
+        "named": "legendary",
+        "weights": {
+          "mundane": 10,
+          "common": 20,
+          "uncommon": 28,
+          "rare": 25,
+          "very_rare": 15,
+          "legendary": 2
+        }
+      }
+    ],
+    "boss_rarity": [
+      {
+        "level": 1,
+        "named": "uncommon",
+        "weights": {
+          "common": 40,
+          "uncommon": 55,
+          "rare": 5
+        }
+      },
+      {
+        "level": 5,
+        "named": "rare",
+        "weights": {
+          "common": 30,
+          "uncommon": 55,
+          "rare": 15
+        }
+      },
+      {
+        "level": 8,
+        "named": "very_rare",
+        "weights": {
+          "common": 20,
+          "uncommon": 50,
+          "rare": 26,
+          "very_rare": 4
+        }
+      },
+      {
+        "level": 11,
+        "named": "very_rare",
+        "weights": {
+          "common": 10,
+          "uncommon": 40,
+          "rare": 38,
+          "very_rare": 12
+        }
+      },
+      {
+        "level": 14,
+        "named": "legendary",
+        "weights": {
+          "uncommon": 30,
+          "rare": 40,
+          "very_rare": 24,
+          "legendary": 6
         }
       }
     ],

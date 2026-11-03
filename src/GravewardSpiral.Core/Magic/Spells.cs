@@ -15,6 +15,9 @@ public sealed class SpellDef
     public string Id { get; set; } = "";
     public LocalizedText Name { get; set; } = LocalizedText.Of("");
 
+    /// <summary>説明({"en": "...", "ja": "..."})。説明の窓に、効果の文の前に出す。省けば効果の文だけ(SRD の呪文は省いている)。</summary>
+    public LocalizedText? Description { get; set; }
+
     /// <summary>0 は初級呪文(キャントリップ)。</summary>
     public int Level { get; set; }
 

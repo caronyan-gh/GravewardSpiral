@@ -226,8 +226,21 @@ public sealed class CharacterCreateScene : Scene
         RefreshScores();
     }
 
+    /// <summary>成長表のボタン(クラスを選ぶ段で説明の欄に出す。Draw で決める)と、ボタンを光らせるマウスの場所。</summary>
+    private RectangleF? _growthButton;
+    private Vector2? _mouse;
+
     public override void Update(GameTime time, InputState input)
     {
+        _mouse = input.Mouse;
+        // クラスを選ぶ段では、地図のキーかボタンで、カーソルのクラスの成長表を開く(訓練場と同じ)
+        if (_step == Step.Class && _list.Current?.Tag is string gid
+            && (input.Pressed(GameAction.Map) || input.LeftClicked && _growthButton is { } b && input.Mouse is { } gm && b.Contains(gm)))
+        {
+            Services.Audio.PlaySe(Sounds.Confirm);
+            Stack.Push(new ClassGrowthScene(Data.Classes[gid], 0));
+            return;
+        }
         if (_step == Step.Scores && _pointBuy)
         {
             // マウス: 左の欄の中にマウスがあり、選択中の行が能力値なら、左クリックで上げ、右クリックで下げる(右クリックを取消にしない)
@@ -392,7 +405,8 @@ public sealed class CharacterCreateScene : Scene
         var s = Services.Strings;
         float y = at.Y;
         void Line(string text, Color? color = null, float size = 20f) =>
-            y = d.TextWrapped(text, new Vector2(at.X, y), DetailArea.Width - 48, size, color ?? Theme.Text) + 2;
+            y = (color == Theme.Title ? d.TextWrapped(text, new Vector2(at.X, y), DetailArea.Width - 48, size, Theme.Title)
+                : LinkText.Draw(d, text, new Vector2(at.X, y), DetailArea.Width - 48, size, color ?? Theme.Text)) + 2;   // 決まりの言葉に説明
         switch (_step)
         {
             case Step.Race when _list.Current?.Tag is string rid:
@@ -416,6 +430,15 @@ public sealed class CharacterCreateScene : Scene
                 var (armor, weapons) = Town.StatusScene.Proficiencies(Services, [c]);
                 Line(s.Format("create.armor_prof", armor), Theme.Text, 18);
                 Line(s.Format("create.weapon_prof", weapons), Theme.Text, 18);
+                // 成長表のボタン(地図のキーでも開く)
+                string label = s["training.growth"];
+                var button = new RectangleF(at.X, y + 6, d.Fonts.Measure(label, 17).X + 28, 32);
+                bool hover = _mouse is { } hm && button.Contains(hm);
+                if (hover) d.FillRect(button, Theme.SelectedFill);
+                d.Rect(button, hover ? Theme.SelectedFrame : Theme.Frame, 1f);
+                d.Text(label, new Vector2(button.X + 14, button.Y + 6), 17, Theme.Text);
+                _growthButton = button;
+                y = button.Y + button.Height + 8;
                 Wrap(d, Services.Name(c.Description), at.X, ref y);
                 break;
             }
@@ -466,5 +489,5 @@ public sealed class CharacterCreateScene : Scene
 
     /// <summary>長い文を詳しい欄の幅で折り返して描く。</summary>
     private static void Wrap(Draw2D d, string text, float x, ref float y, float size = 19f) =>
-        y = d.TextWrapped(text, new Vector2(x, y), DetailArea.Width - 48, size, Theme.Text);
+        y = LinkText.Draw(d, text, new Vector2(x, y), DetailArea.Width - 48, size, Theme.Text);
 }

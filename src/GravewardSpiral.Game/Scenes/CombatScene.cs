@@ -218,7 +218,7 @@ public sealed class CombatScene : Scene
         {
             string? left = f.Pool != null ? S.Format("combat.feature_left", ClassFeatures.UsesLeft(Services.Data, c, f.Pool)) : null;
             bool usable = ClassFeatures.CanUse(Services.Data, c, f) && (Current.Shape == null || ClassFeatures.UsableInBeastForm(f));   // 獣の姿では打撃の技は使えない
-            return new MenuItem(S["feature." + f.Id], left, usable, f);
+            return new MenuItem(FeatureText.Name(Services, f.Id), left, usable, f);
         }));
     }
 
@@ -864,8 +864,8 @@ public sealed class CombatScene : Scene
             // クラスの技の説明
             Theme.Panel(d, SpellInfoArea);
             float fx = SpellInfoArea.X + 20, fw = SpellInfoArea.Width - 40;
-            float fy = d.TextWrapped(S["feature." + f.Id], new Vector2(fx, SpellInfoArea.Y + 16), fw, 26, Theme.Title) + 8;
-            fy = d.TextWrapped(S["feature.about." + f.Id], new Vector2(fx, fy), fw, 19, Theme.Text, 6);
+            float fy = d.TextWrapped(FeatureText.Name(Services, f.Id), new Vector2(fx, SpellInfoArea.Y + 16), fw, 26, Theme.Title) + 8;
+            fy = LinkText.Draw(d, FeatureText.About(Services, f.Id) ?? "", new Vector2(fx, fy), fw, 19, Theme.Text, 6);
             // スマイト: 当たったら使う呪文の回数のレベル
             if (f.Part == "divine_smite" && ClassFeatures.SmiteSlot(Services.Data, Current.Character) is int smite)
                 d.TextWrapped(S.Format("combat.smite_slot", smite), new Vector2(fx, fy + 6), fw, 18, Theme.Gold, 6);
@@ -877,7 +877,7 @@ public sealed class CombatScene : Scene
             Theme.Panel(d, SpellInfoArea);
             float cx = SpellInfoArea.X + 20, cw = SpellInfoArea.Width - 40;
             float cy = d.TextWrapped(_menu.Current.Label, new Vector2(cx, SpellInfoArea.Y + 16), cw, 26, Theme.Title) + 8;
-            d.TextWrapped(about, new Vector2(cx, cy), cw, 19, Theme.Text, 6);
+            LinkText.Draw(d, about, new Vector2(cx, cy), cw, 19, Theme.Text, 6);
             return;
         }
         if (sp == null) return;
@@ -886,10 +886,10 @@ public sealed class CombatScene : Scene
         float x = SpellInfoArea.X + 20, w = SpellInfoArea.Width - 40;
         float y = SpellInfoArea.Y + 16;
         y = d.TextWrapped(Services.Name(sp.Name), new Vector2(x, y), w, 26, Theme.Title) + 2;
-        y = d.TextWrapped(SpellText.Header(S, sp, Spellcasting.AssignedLevel(Services.Data, Current.Character, sp)), new Vector2(x, y), w, 17, Theme.Dim) + 6;
+        y = LinkText.Draw(d, SpellText.Header(S, sp, Spellcasting.AssignedLevel(Services.Data, Current.Character, sp)), new Vector2(x, y), w, 17, Theme.Dim) + 6;
         foreach (var line in SpellText.Effects(S, sp, Math.Max(1, level)))
-            y = d.TextWrapped(line, new Vector2(x, y), w, 19, Theme.Text, 6);
-        if (CombatEngine.IsBonusAction(sp)) y = d.TextWrapped(S["spell.bonus_followup"], new Vector2(x, y + 6), w, 16, Theme.Gold, 4);
+            y = LinkText.Draw(d, line, new Vector2(x, y), w, 19, Theme.Text, 6);
+        if (CombatEngine.IsBonusAction(sp)) y = LinkText.Draw(d, S["spell.bonus_followup"], new Vector2(x, y + 6), w, 16, Theme.Gold, 4);
         if (sp.Note != null) d.TextWrapped(sp.Note, new Vector2(x, y + 6), w, 15, Theme.Dim, 4);
     }
 

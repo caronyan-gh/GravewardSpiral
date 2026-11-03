@@ -222,7 +222,7 @@ public sealed class ShopScene : MenuScene
         if (it != null)
         {
             y = Line(d, area, y, ItemText.Name(Services, it), Theme.Title, 24);
-            foreach (var line in ItemText.Lines(Services, it)) y = Line(d, area, y, line, Theme.Text, 18);
+            y = Lines(d, area, y, ItemText.Lines(Services, it), Theme.Text, 18, reserve: 24);
             // 買う人を選んでいるとき、その人に習熟が無ければ色付きで知らせる
             if (_mode == Mode.BuyFor && List.Current?.Tag is Character buyer && ItemText.ProficiencyNote(Services, it, buyer) is { } pn)
                 Line(d, area, y + 4, pn, Theme.Caution, 18);

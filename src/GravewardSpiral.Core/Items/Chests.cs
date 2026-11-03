@@ -36,8 +36,9 @@ public sealed class Chest
     /// <summary>罠の難易度(調べる・外す・罠のセーヴ)。</summary>
     public static int DcFor(int tier) => 12 + tier;
 
-    /// <summary>宝箱を作る。drops は敵の落とし物(中身に足す)。</summary>
-    public static Chest Generate(GameData data, TreasureSettings s, double depth, double targetLevel, IRandom rng, IEnumerable<ItemInstance>? drops = null)
+    /// <summary>宝箱を作る。drops は敵の落とし物(中身に足す)。source は宝の出どころ(等級の表を選ぶ)。</summary>
+    public static Chest Generate(GameData data, TreasureSettings s, double depth, double targetLevel, IRandom rng, IEnumerable<ItemInstance>? drops = null,
+        TreasureSource source = TreasureSource.Wander)
     {
         double trapChance = s.TrapChanceFirst + (s.TrapChanceLast - s.TrapChanceFirst) * Math.Clamp(depth, 0, 1);
         var trap = rng.NextDouble() < trapChance ? data.TrapSets.GetValueOrDefault(TrapSetDef.Chest)?.Pick(rng) ?? "" : "";
@@ -49,12 +50,13 @@ public sealed class Chest
             Trap = trap,
             Tier = TierFor(targetLevel),
             Gold = (long)(Math.Max(1, targetLevel) * s.GoldPerLevel * (0.5 + rng.NextDouble())),
-            Items = [.. Treasure.RollMany(data, s, depth, count, rng, targetLevel), .. materials, .. drops ?? []],
+            Items = [.. Treasure.RollMany(data, s, targetLevel, count, rng, source), .. materials, .. drops ?? []],
         };
     }
 
-    /// <summary>調べる判定に足す値(知力の修正 + 調査の習熟)。担当を選ぶ画面にも出す。</summary>
-    public static int InspectBonus(GameData data, Character c) => c.Stats(data).Mod(Ability.Int) + (c.IsProficient("investigation") ? c.ProficiencyBonus : 0);
+    /// <summary>調べる判定に足す値(知力の修正 + 調査の習熟 + 装備の調査の上乗せ)。担当を選ぶ画面にも出す。</summary>
+    public static int InspectBonus(GameData data, Character c) =>
+        c.Stats(data).Mod(Ability.Int) + (c.IsProficient("investigation") ? c.ProficiencyBonus : 0) + c.PassiveBonus(data, "investigation");
 
     /// <summary>罠を外す判定に足す値(敏捷力の修正 + 盗賊道具の習熟と道具 + 装備の disarm)と、道具を持っているか。</summary>
     public static (int Bonus, bool Tools) DisarmBonus(GameData data, Character c)

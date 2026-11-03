@@ -28,7 +28,7 @@ This game adapts the D&D 5th edition SRD 5.1 for dungeon exploration. These are 
 - Party and distance: Up to six members form a front row of three and a back row of three. Combat distance uses these rows and near or far enemy groups.
 - Inventory: Carrying capacity depends on free bag slots rather than weight.
 - Ammunition: Ordinary arrows and bolts need no replenishment. Special ammunition is consumed with each attack.
-- Attunement: No rest is required. Equipping an item attunes it automatically if an attunement slot is available. You can't attune to a second copy of the same item (as in 5e).
+- Attunement: No rest is required. Equipping an item attunes it automatically if an attunement slot is available, and you can change attunement on the inventory screen's Attuned tab without re-equipping. You can't attune to a second copy of the same item (as in 5e; randomly made rare items each count as a different item).
 - Armor and shields without proficiency: They can't be equipped (in 5e you can wear them, but they only hurt you, such as by stopping spellcasting).
 - Protective gear: Some items, such as Bracers of Defense and the Robe of the Archmagi, simply add to AC instead of working only without armor.
 - High magic bonuses: Weapons and armor above +4 have their attack and AC bonus capped (+4 gives +3; +5 and higher give +4). Damage keeps the full bonus.

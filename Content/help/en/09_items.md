@@ -46,7 +46,7 @@ Some magic items only grant their effects when attuned. Each character can attun
 
 In this game, attunement does not require a rest. Equipping an item automatically attunes it if required and space is available. Without space, the item can be equipped but does not grant its effects.
 
-To change attuned items, unequip one you are already attuned to, then re-equip the item you want to attune. An item's description states whether attunement is required and notes the three-item limit.
+You can change attunement without re-equipping. The Attuned tab on the inventory screen lists equipped items that need attunement. Select one to switch its attunement on or off right away (◆ marks attuned items). When all three are in use, end one first. An item's description states whether attunement is required and notes the three-item limit.
 
 ## Trading and transfers
 
@@ -56,4 +56,9 @@ You can transfer items between allies and choose how many to transfer from a sta
 
 ## Equipment with additional effects
 
-Deeper floors may contain rare equipment with extra effects. Check the item's description to see what it does.
+Magic weapons, armor, shields, rings, and other gear may come with random extra effects. Two items with the same name can have different effects and strengths, and deeper floors give stronger ones.
+
+- Magic items: one or two extra effects. No attunement is needed, but the extra effects work at only 2/3.
+- Rare items: four to six extra effects and a name of their own. They require attunement; without it, the extra effects work at only 1/3, and on-or-off effects such as resistances do not work.
+
+Enhancement bonuses such as +1 on weapons and armor always work in full, attuned or not. Item descriptions show the numbers as they currently apply.

@@ -57,19 +57,19 @@ public static class FloorAdvisor
             .OrderByDescending(x => x.Weight).ThenBy(x => x.Monster.Id, StringComparer.Ordinal).ToList();
     }
 
-    /// <summary>その深さの宝の等級の割合(合計 1)。</summary>
-    public static Dictionary<string, double> ItemRarities(TreasureSettings t, double depth)
+    /// <summary>その目安のレベルの宝の等級の割合(合計 1)。</summary>
+    public static Dictionary<string, double> ItemRarities(TreasureSettings t, double level, TreasureSource source = TreasureSource.Wander)
     {
-        var row = t.Rarity.OrderBy(r => r.Depth).LastOrDefault(r => r.Depth <= depth + 1e-9) ?? t.Rarity.FirstOrDefault();
-        if (row == null || row.Weights.Count == 0) return new() { ["mundane"] = 1 };
-        double total = row.Weights.Values.Sum();
-        return row.Weights.ToDictionary(kv => kv.Key, kv => kv.Value / total);
+        var weights = Treasure.Weights(t, level, source);
+        if (weights.Count == 0) return new() { ["mundane"] = 1 };
+        double total = weights.Values.Sum();
+        return weights.ToDictionary(kv => kv.Key, kv => kv.Value / total);
     }
 
-    /// <summary>おすすめの魔法のアイテム(その深さで出やすい等級のもの。出やすい等級の順、同じなら id の順)。</summary>
-    public static List<ItemDef> Items(GameData data, TreasureSettings t, double depth)
+    /// <summary>おすすめの魔法のアイテム(その目安のレベルで出やすい等級のもの。出やすい等級の順、同じなら id の順)。</summary>
+    public static List<ItemDef> Items(GameData data, TreasureSettings t, double level, TreasureSource source = TreasureSource.Wander)
     {
-        var rarities = ItemRarities(t, depth);
+        var rarities = ItemRarities(t, level, source);
         return data.Items.Values.Where(i => i.IsMagic && !i.NoRandom && rarities.ContainsKey(i.Rarity))
             .OrderByDescending(i => rarities[i.Rarity]).ThenBy(i => i.Id, StringComparer.Ordinal).ToList();
     }

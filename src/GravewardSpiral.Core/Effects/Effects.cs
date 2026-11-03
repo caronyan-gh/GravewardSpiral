@@ -45,6 +45,9 @@ public sealed class EffectPart
     public string? Dice { get; set; }
     public string? DamageType { get; set; }
 
+    /// <summary>振ったダメージに掛ける倍率(切り捨て)。マジックの品と同調していないレアの追加効果が、ここで弱まる。無ければ ×1。</summary>
+    public double? Scale { get; set; }
+
     // condition
     public Condition? Condition { get; set; }
     public int? Rounds { get; set; }
@@ -54,6 +57,9 @@ public sealed class EffectPart
     // modifier
     public string? Stat { get; set; }
     public int? Value { get; set; }
+
+    /// <summary>追加効果の修正値の幅の上(書けば、品に付くときに value〜value_max から振る。品ごとに数字が違う)。</summary>
+    public int? ValueMax { get; set; }
 
     /// <summary>レベルごとの dice(キーはスロットのレベルか、キャラクターのレベル。その値以下で一番大きいキーを使う)。</summary>
     public Dictionary<string, string> ByLevel { get; set; } = [];

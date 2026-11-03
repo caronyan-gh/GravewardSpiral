@@ -30,8 +30,10 @@ public static class AutoMapRenderer
     private static string Label(string key) => Strings?["automap." + key] ?? key[..1];
 
     /// <param name="arrivals">この階の、飛ばされて分かったテレポーターの行き先(AutoMap.ArrivalsOn。小さな枠の印を出す)。</param>
+    /// <param name="portals">この階の、町へ戻る魔法陣のマス(ExplorationState.PortalsOn)。</param>
     public static void Draw(Draw2D d, MazeFloor floor, FloorMap map, RectangleF area, GridPos center,
-        (GridPos Cell, Direction Facing)? party, int? radius, IReadOnlySet<GridPos>? notes = null, bool fitKnown = false, IReadOnlySet<GridPos>? arrivals = null)
+        (GridPos Cell, Direction Facing)? party, int? radius, IReadOnlySet<GridPos>? notes = null, bool fitKnown = false, IReadOnlySet<GridPos>? arrivals = null,
+        IReadOnlySet<GridPos>? portals = null)
     {
         d.FillRect(area, Panel);
         d.Rect(area, Frame, 1f);
@@ -100,6 +102,8 @@ public static class AutoMapRenderer
                 if (map.Teleports.TryGetValue(p, out var to) && to.Floor is int tf)
                     d.Text($"B{tf + 1}", new Vector2(x + cell * 0.5f, y + cell * 0.52f), cell * 0.32f, Warp);
             }
+            if (portals != null && portals.Contains(p))
+                d.Text(Label("portal"), new Vector2(x + cell * 0.08f, y + cell * 0.48f), cell * 0.42f, new Color(150, 210, 255));   // 町へ戻る魔法陣
             // 飛ばされて着いたマス: 小さな枠
             if (arrivals != null && arrivals.Contains(p))
                 d.Rect(new RectangleF(x + cell * 0.3f, y + cell * 0.3f, cell * 0.4f, cell * 0.4f), Warp, Math.Max(1f, thick * 0.6f));

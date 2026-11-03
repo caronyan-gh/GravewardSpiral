@@ -39,8 +39,8 @@ public sealed class LockScene(ExplorationState state, Direction dir, int tier, A
         _lines.Add(Services.Strings["lock.found"]);
     }
 
-    /// <summary>蹴破る判定に足す値(筋力の修正 + 運動の習熟)。</summary>
-    private int KickBonus(Character c) => c.Stats(Data).Mod(Ability.Str) + (c.IsProficient("athletics") ? c.ProficiencyBonus : 0);
+    /// <summary>蹴破る判定に足す値(筋力の修正 + 運動の習熟 + 装備の運動の上乗せ)。</summary>
+    private int KickBonus(Character c) => c.Stats(Data).Mod(Ability.Str) + (c.IsProficient("athletics") ? c.ProficiencyBonus : 0) + c.PassiveBonus(Data, "athletics");
 
     private static string Signed(int v) => v >= 0 ? $"+{v}" : v.ToString();
 

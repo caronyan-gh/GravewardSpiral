@@ -63,6 +63,22 @@ public class DrainTests
     }
 
     [Fact]
+    public void DrainStillWorksWhenTheFirstDamageKillsTheFoe()
+    {
+        // 命を吸う刃: 武器のダメージで倒したあとに、属性の追加ダメージの部品があっても、末尾の吸う部品まで届く
+        var (engine, s, p, m) = Fight();
+        m.Hp = 5;
+        p.Hp = 10;
+        engine.ApplyTo(s, p, m, [
+            new EffectPart { Type = EffectPart.Damage, Dice = "10", DamageType = "slashing" },
+            new EffectPart { Type = EffectPart.Damage, Dice = "4", DamageType = "fire" },
+            new EffectPart { Type = EffectPart.Drain, Value = 30 },
+        ]);
+        Assert.False(m.Standing);
+        Assert.Equal(11, p.Hp);   // 敵が持っていた 5 の 3 割(切り捨て)
+    }
+
+    [Fact]
     public void BundledDataDrains()
     {
         Assert.Contains(Data.Spells["vampiric_touch"].Effects, e => e.Type == EffectPart.Drain && e.Value == 50);

@@ -257,7 +257,7 @@ public sealed class ClanHouseScene(Action? onLeave = null) : MenuScene
         if (List.Current?.Tag is ItemInstance it)
         {
             y = Line(d, area, y, ItemText.Name(Services, it), Theme.Title, 24);
-            foreach (var line in ItemText.Lines(Services, it)) y = Line(d, area, y, line, Theme.Text, 18);
+            y = Lines(d, area, y, ItemText.Lines(Services, it), Theme.Text, 18, reserve: 24);
             return;
         }
         if (House.Def(_levels) is { } def)

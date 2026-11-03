@@ -66,7 +66,31 @@ public sealed class Character
     /// <summary>種族の増加を足したあとの能力値。</summary>
     public AbilityScores Scores { get; set; } = new();
 
-    public int MaxHp { get; set; }
+    /// <summary>元の最大 HP(レベルで上がる分。セーブには max_hp としてこれだけを持つ)。</summary>
+    [System.Text.Json.Serialization.JsonPropertyName("max_hp")]
+    public int BaseMaxHp { get; set; }
+
+    /// <summary>最大 HP(元の分 + 装備の追加効果の分)。足し引きは元の分に入る。</summary>
+    [System.Text.Json.Serialization.JsonIgnore]
+    public int MaxHp
+    {
+        get => BaseMaxHp + GearHp;
+        set => BaseMaxHp = value - GearHp;
+    }
+
+    /// <summary>装備の追加効果で増えている最大 HP(修正値 max_hp)。RefreshGearHp で数え直す。</summary>
+    [System.Text.Json.Serialization.JsonIgnore]
+    public int GearHp { get; private set; }
+
+    /// <summary>装備の最大 HP の分を数え直す(装備を替えたあと。AC を数えるときと戦闘の始めにも呼ぶ)。減ったら今の HP も最大までにする。</summary>
+    public void RefreshGearHp(GameData data)
+    {
+        int gear = Math.Max(0, PassiveBonus(data, "max_hp"));
+        if (gear == GearHp) return;
+        GearHp = gear;
+        if (Hp > MaxHp) Hp = MaxHp;
+    }
+
     public int Hp { get; set; }
 
     /// <summary>残っているヒットダイスの数(小休憩で使う。大休憩でレベルの半分戻る)。</summary>
@@ -203,10 +227,14 @@ public sealed class Character
     /// </summary>
     public IEnumerable<Effects.EffectPart> Passive(GameData data)
     {
-        foreach (var (_, item, def) in Inventory.Active(data.Items))
+        foreach (var (slot, item, def) in Inventory.Active(data.Items))
         {
             foreach (var p in def.Passive) yield return p;
-            foreach (var p in item.AffixPassive(data)) yield return p;
+            // 武器の追加効果: 逆手の武器は、その武器で殴ったときだけ(全部の効果を数えない)。利き手と遠隔の武器も、命中・ダメージ・薙ぎは
+            // その武器で殴ったときだけ(CombatEngine の攻撃で足す)。二刀流で重ならないように
+            if (def.Kind == ItemKind.Weapon && slot == EquipSlot.OffHand) { }
+            else foreach (var p in item.AffixPassive(data))
+                if (def.Kind != ItemKind.Weapon || p.Type != Effects.EffectPart.Modifier || !AffixDef.WeaponLocalStats.Contains(p.Stat)) yield return p;
             if (def.Kind is ItemKind.Armor or ItemKind.Shield && item.Element != null && item.TotalBonus(def) >= ItemInstance.ElementFrom)
                 yield return new Effects.EffectPart { Type = Effects.EffectPart.Resist, DamageType = item.Element };
         }
@@ -265,6 +293,7 @@ public sealed class Character
     /// <param name="now">能力の効く場面を決める今の様子(戦闘の激怒など。省けば戦闘の外)。</param>
     public int ArmorClass(GameData data, int? unarmoredBase = null, PassiveRules.Situation? now = null)
     {
+        RefreshGearHp(data);   // AC は装備の画面やパーティの欄でいつも数えるので、ここで最大 HP の装備の分もそろえる
         var stats = Stats(data);
         int dex = stats.Mod(Ability.Dex);
         int ac;

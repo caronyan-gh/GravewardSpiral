@@ -2991,6 +2991,104 @@
   "note": "SRD の「呪文へのセーヴに有利、呪文の攻撃に不利」をセーヴ +2 に簡略化。"
  },
  {
+  "id": "leather_belt",
+  "kind": "accessory",
+  "name": {
+   "en": "Leather Belt",
+   "ja": "革の帯"
+  },
+  "slot": "waist",
+  "price": 1,
+  "description": {
+   "en": "A plain leather belt.",
+   "ja": "ただの革の帯。"
+  }
+ },
+ {
+  "id": "leather_boots",
+  "kind": "accessory",
+  "name": {
+   "en": "Leather Boots",
+   "ja": "革の長靴"
+  },
+  "slot": "feet",
+  "price": 2,
+  "description": {
+   "en": "Plain leather boots.",
+   "ja": "ただの革の長靴。"
+  }
+ },
+ {
+  "id": "leather_gloves",
+  "kind": "accessory",
+  "name": {
+   "en": "Leather Gloves",
+   "ja": "革の手袋"
+  },
+  "slot": "hands",
+  "price": 1,
+  "description": {
+   "en": "Plain leather gloves.",
+   "ja": "ただの革の手袋。"
+  }
+ },
+ {
+  "id": "plain_amulet",
+  "kind": "accessory",
+  "name": {
+   "en": "Amulet",
+   "ja": "首飾り"
+  },
+  "slot": "neck",
+  "price": 5,
+  "description": {
+   "en": "A plain amulet on a cord.",
+   "ja": "紐に通した、飾りの少ない首飾り。"
+  }
+ },
+ {
+  "id": "plain_circlet",
+  "kind": "accessory",
+  "name": {
+   "en": "Circlet",
+   "ja": "額飾り"
+  },
+  "slot": "head",
+  "price": 5,
+  "description": {
+   "en": "A thin metal circlet.",
+   "ja": "細い金属の額飾り。"
+  }
+ },
+ {
+  "id": "plain_cloak",
+  "kind": "accessory",
+  "name": {
+   "en": "Cloak",
+   "ja": "外套"
+  },
+  "slot": "cloak",
+  "price": 1,
+  "description": {
+   "en": "A plain traveling cloak.",
+   "ja": "ただの旅の外套。"
+  }
+ },
+ {
+  "id": "plain_ring",
+  "kind": "accessory",
+  "name": {
+   "en": "Ring",
+   "ja": "指輪"
+  },
+  "slot": "ring",
+  "price": 5,
+  "description": {
+   "en": "A plain metal ring. Magic rings are made from rings like this.",
+   "ja": "飾りのない金属の指輪。魔法の指輪は、こうした指輪から作られる。"
+  }
+ },
+ {
   "id": "amulet_of_health",
   "kind": "accessory",
   "name": {

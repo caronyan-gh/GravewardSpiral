@@ -226,17 +226,18 @@ public class ItemTests
     }
 
     [Fact]
-    public void TreasureRollsByDepth()
+    public void TreasureRollsByTargetLevel()
     {
         var data = Fresh();
         var s = TreasureSettings.Load(Content);
         var rng = new Pcg32(3, 3);
-        var shallow = Enumerable.Range(0, 300).Select(_ => Treasure.PickRarity(s, 0, rng)).ToList();
-        var deep = Enumerable.Range(0, 300).Select(_ => Treasure.PickRarity(s, 1, rng)).ToList();
-        Assert.DoesNotContain("legendary", shallow);
-        Assert.DoesNotContain("rare", shallow);
-        Assert.Contains("rare", deep);   // 第1部 A の最下層(L5 あたり)で、たまに rare
-        var items = Treasure.RollMany(data, s, 0.5, 50, rng);
+        var shallow = Enumerable.Range(0, 1000).Select(_ => Treasure.PickRarity(s, 1, rng)).ToList();
+        var deep = Enumerable.Range(0, 1000).Select(_ => Treasure.PickRarity(s, 8, rng)).ToList();
+        Assert.DoesNotContain("rare", shallow);   // L1〜4 のうろつく敵の箱は、アンコモン(+1)まで
+        Assert.Contains("uncommon", shallow);
+        Assert.Contains("rare", deep);
+        Assert.DoesNotContain("very_rare", deep);
+        var items = Treasure.RollMany(data, s, 5, 50, rng);
         Assert.All(items, i => Assert.True(data.Items.ContainsKey(i.ItemId)));
         Assert.Contains(items, i => i.Bonus > 0 && !i.Identified);
     }

@@ -336,7 +336,7 @@ public sealed class CampaignSim
         var old = inv[sl];
         if (def.Kind == ItemKind.Accessory)
         {
-            if (old != null || def.Attunement && inv.AttunedCount >= Inventory.MaxAttuned) return false;
+            if (old != null || def.Attunement && inv.AttunedCount >= Inventory.MaxAttuned) return false;   // レアの品は同調できなくても 1/3 効く
             return inv.Equip(inv.Items.IndexOf(item), sl, defs) == EquipResult.Ok;
         }
         if (def.Kind == ItemKind.Shield && inv[EquipSlot.MainHand] is { } mh && defs[mh.ItemId].Has("two_handed")) return false;
@@ -608,20 +608,21 @@ public sealed class CampaignSim
     public int Drops { get; private set; }
     public int Uniques { get; private set; }
 
-    /// <summary>勝ったあと: 落とし物があれば必ず宝箱、無ければ確率で宝箱(randomChest のとき)。</summary>
+    /// <summary>勝ったあと: 落とし物があれば必ず宝箱、無ければ確率で宝箱(randomChest のとき)。ボスは必ず宝箱(ゲームと同じ)。</summary>
     private void AfterVictory(int floor, IEnumerable<(MonsterDef Def, int Count)> defeated, bool randomChest, string? boss = null, bool room = false)
     {
-        var drops = Loot.RollDrops(_data, _treasure, defeated, _enc.TargetLevel(DepthOf(floor)), _rng, boss, _session.DropBoostOf(_data, floor));
+        var source = boss != null ? TreasureSource.Boss : room ? TreasureSource.Room : TreasureSource.Wander;
+        var drops = Loot.RollDrops(_data, _treasure, defeated, _enc.TargetLevel(DepthOf(floor)), _rng, boss, _session.DropBoostOf(_data, floor), source);
         Drops += drops.Count;
         Uniques += drops.Count(d => _data.Items[d.ItemId] is { NoRandom: true, Kind: not ItemKind.Gear });   // クランハウスの素材(道具)は数えない
         foreach (var d in drops.Where(d => _data.Items[d.ItemId] is { NoRandom: true, Kind: not ItemKind.Gear })) Log($"固有の品を拾った: {d.ItemId}(平均 L{AverageLevel:F1})");
-        if (drops.Count > 0 || (randomChest && _rng.NextDouble() < (room ? _treasure.RoomChestChance : _treasure.ChestChance))) OpenChest(floor, drops);
+        if (drops.Count > 0 || boss != null || (randomChest && _rng.NextDouble() < (room ? _treasure.RoomChestChance : _treasure.ChestChance))) OpenChest(floor, drops, source);
     }
 
     /// <summary>宝箱。盗賊道具の使える人がいれば罠はたいてい外せる。中身(金と品)はパーティで分ける。</summary>
-    private void OpenChest(int floor, List<ItemInstance>? drops = null)
+    private void OpenChest(int floor, List<ItemInstance>? drops = null, TreasureSource source = TreasureSource.Wander)
     {
-        var chest = Chest.Generate(_data, _treasure, DepthOf(floor), _enc.TargetLevel(DepthOf(floor)), _rng, drops);
+        var chest = Chest.Generate(_data, _treasure, DepthOf(floor), _enc.TargetLevel(DepthOf(floor)), _rng, drops, source);
         var party = Party;
         if (!_o.Smart)
         {
@@ -763,9 +764,9 @@ public sealed class CampaignSim
         if (_rng.NextDouble() < def.ItemChance && _data.Items.TryGetValue(def.Item, out var item))
         {
             NamedItems++;
-            OpenChest(floor, [Loot.Make(_data, _treasure, item, _enc.TargetLevel(DepthOf(floor)), _rng)]);
+            OpenChest(floor, [Loot.Make(_data, _treasure, item, _enc.TargetLevel(DepthOf(floor)), _rng)], TreasureSource.Room);
         }
-        else AfterVictory(floor, groups, randomChest: true);
+        else AfterVictory(floor, groups, randomChest: true, room: true);
         return null;
     }
 

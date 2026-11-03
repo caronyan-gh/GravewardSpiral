@@ -71,7 +71,11 @@ public static class PartyPanel
             if (icon != null)
             {
                 float iw = size + 4;
-                d.Image(icon, new RectangleF(x + colW - 24 - d.Fonts.Measure(hp, size).X - iw - 4, y, iw, iw), Color.White);
+                var at = new RectangleF(x + colW - 24 - d.Fonts.Measure(hp, size).X - iw - 4, y, iw, iw);
+                d.Image(icon, at, Color.White);
+                // アイコンにマウスを載せると、状態の名前と説明
+                if (condition != null) HoverCondition(services, at, "condition." + condition);
+                else HoverCondition(services, at, $"state.{state.ToString().ToLowerInvariant()}");
             }
         }
         d.Line(new Vector2(area.X + colW, area.Y + 8), new Vector2(area.X + colW, area.Y + area.Height - 8), Theme.Frame, 1f);
@@ -107,16 +111,28 @@ public static class PartyPanel
             string id = cond.ToString().ToLowerInvariant();
             if (services.ConditionIcon(id) is { } icon)
             {
-                d.Image(icon, new RectangleF(x, at.Y, iw, iw), Color.White);
+                var rect = new RectangleF(x, at.Y, iw, iw);
+                d.Image(icon, rect, Color.White);
+                HoverCondition(services, rect, "condition." + id);   // 載せると、状態の名前と説明
                 x += step;
             }
             else
             {
                 string name = services.Strings["condition." + id];
                 d.Text(name, new Vector2(x, at.Y + 2), size * 0.8f, Theme.Caution);
-                x += d.Fonts.Measure(name, size * 0.8f).X + gap;
+                float nw = d.Fonts.Measure(name, size * 0.8f).X;
+                HoverCondition(services, new RectangleF(x, at.Y, nw, iw), "condition." + id);
+                x += nw + gap;
             }
         }
+    }
+
+    /// <summary>状態のアイコンの上にマウスがあれば、名前(key)と説明(key の .about)の窓を出す。</summary>
+    private static void HoverCondition(GameServices services, RectangleF rect, string key)
+    {
+        var s = services.Strings;
+        string about = key.Insert(key.IndexOf('.') + 1, "about.");
+        if (s.Has(about)) Tooltip.Hover(rect, s[key], s[about]);
     }
 
     private static void Fit(Draw2D d, string text, Vector2 at, float width, float size, Color color)

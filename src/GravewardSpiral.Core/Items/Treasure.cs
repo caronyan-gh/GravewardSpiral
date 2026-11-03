@@ -6,7 +6,7 @@ using GravewardSpiral.Core.Rules;
 namespace GravewardSpiral.Core.Items;
 
 /// <summary>
-/// 宝の設定(パックの treasure.json)。SRD には宝の表が無いので、深さ(割合)ごとの等級の出やすさを自分で決める。
+/// 宝の設定(パックの treasure.json)。SRD には宝の表が無いので、目安のレベルと出どころごとの等級の出やすさを自分で決める。
 /// </summary>
 public sealed class TreasureSettings
 {
@@ -14,7 +14,7 @@ public sealed class TreasureSettings
     public string Id { get; set; } = "default";
 
     /// <summary>勝ったあとに宝箱が出る確率。</summary>
-    public double ChestChance { get; set; } = 0.35;
+    public double ChestChance { get; set; } = 0.45;
 
     /// <summary>宝箱に、ほかの品とは別に入ることがある素材(深さが min_depth 以上で、chance の確率)。</summary>
     public List<MaterialRoll> Materials { get; set; } = [];
@@ -27,7 +27,7 @@ public sealed class TreasureSettings
     }
 
     /// <summary>部屋にいた敵を倒したときの、宝箱の出る確率(うろつく敵より出やすい)。</summary>
-    public double RoomChestChance { get; set; } = 0.7;
+    public double RoomChestChance { get; set; } = 0.8;
 
     /// <summary>宝箱に罠がある確率(最初の階と最下層。あいだはならす)。</summary>
     public double TrapChanceFirst { get; set; } = 0.3;
@@ -40,14 +40,17 @@ public sealed class TreasureSettings
     public int MinItems { get; set; } = 1;
     public int MaxItems { get; set; } = 2;
 
-    /// <summary>深さごとの等級の出やすさ(depth の小さい順。その深さ以上で一番近いものを使う)。</summary>
+    /// <summary>
+    /// うろつく敵の宝箱の、目安のレベルごとの等級の出やすさ(level の小さい順。目安のレベル以下で一番高い行を使う)。
+    /// 深い所ほど +N が上がり、名前つきの品は狙って取りに行く場所(部屋・ボス)から出る、ダンジョンクロウラーの段階にする。
+    /// </summary>
     public List<RarityRow> Rarity { get; set; } = [];
 
-    /// <summary>
-    /// 目安のレベルで足す等級の重み(5版の宝の表の段階: L11 から very_rare、L17 から legendary が出始める)。
-    /// 目安のレベル以下で一番高い行を、深さの重みに足す。強い世界の深い階で、物理に抵抗する敵に効く武器が手に入るように。
-    /// </summary>
-    public List<LevelRarityRow> LevelRarity { get; set; } = [];
+    /// <summary>部屋・ねぐら・名のある敵・イベントの宝(無ければ rarity と同じ)。</summary>
+    public List<RarityRow> RoomRarity { get; set; } = [];
+
+    /// <summary>ボスの宝箱と、ボスの戦いの落とし物(無ければ room_rarity と同じ)。</summary>
+    public List<RarityRow> BossRarity { get; set; } = [];
 
     /// <summary>魔法の等級が出たとき、名前つきの品の代わりに +N の武器・鎧・盾にする割合。</summary>
     public double BonusChance { get; set; } = 0.5;
@@ -58,26 +61,43 @@ public sealed class TreasureSettings
     /// <summary>目安のレベルがこれを超えると、+4 より上の強化値が出始める(超えた分の半分まで上乗せ)。</summary>
     public double BonusFromLevel { get; set; } = 13;
 
-    /// <summary>+N の武器・鎧・盾に付く追加効果の数(等級ごとの最小と最大)。</summary>
-    public Dictionary<string, List<int>> AffixCount { get; set; } = new()
+    /// <summary>
+    /// 宝の武器・鎧・盾・装飾品に付く追加効果の数の重み(等級ごとに、数 → 重み)。アンコモンはマジック(1〜2つ)、
+    /// レア以上はレアの品(4・5・6つを 8:3:1。Path of Exile と同じ)。
+    /// </summary>
+    public Dictionary<string, Dictionary<string, double>> AffixCount { get; set; } = new()
     {
-        ["uncommon"] = [0, 1], ["rare"] = [0, 2], ["very_rare"] = [1, 2], ["legendary"] = [1, 3], ["artifact"] = [2, 3],
+        ["uncommon"] = new() { ["1"] = 1, ["2"] = 1 },
+        ["rare"] = Rare(), ["very_rare"] = Rare(), ["legendary"] = Rare(), ["artifact"] = Rare(),
     };
+
+    private static Dictionary<string, double> Rare() => new() { ["4"] = 8, ["5"] = 3, ["6"] = 1 };
+
+    /// <summary>追加効果の段の幅(目安のレベルで出る一番上の段から、下へこの段数の中で均等に選ぶ)。</summary>
+    public int AffixTierWindow { get; set; } = 5;
 
     public static TreasureSettings Load(ContentLibrary content) =>
         content.Find(Collection, "default")?.As<TreasureSettings>() ?? new TreasureSettings();
 
     public sealed class RarityRow
     {
-        public double Depth { get; set; }
-        public Dictionary<string, double> Weights { get; set; } = [];
-    }
-
-    public sealed class LevelRarityRow
-    {
         public double Level { get; set; }
         public Dictionary<string, double> Weights { get; set; } = [];
+
+        /// <summary>名前つきの品が出る一番上の等級(これより上の等級が出たら +N の武器・鎧・盾にする)。無ければ上限なし。</summary>
+        public string? Named { get; set; }
     }
+}
+
+/// <summary>宝の出どころ(等級の表を選ぶ)。</summary>
+public enum TreasureSource
+{
+    /// <summary>うろつく敵。</summary>
+    Wander,
+    /// <summary>部屋・ねぐら・名のある敵・イベント。</summary>
+    Room,
+    /// <summary>ボス。</summary>
+    Boss,
 }
 
 /// <summary>宝を決める(宝箱の中身、敵の落とし物、ウィッシュのアイテム)。</summary>
@@ -94,13 +114,20 @@ public static class Treasure
         : rarity switch { "uncommon" => 1, "rare" => 2, "very_rare" => 3, _ => 0 };
 
     /// <summary>+N の品の等級(BonusFor の逆)。</summary>
+    /// <summary>
+    /// その品の等級(見せる・鑑定の料金に使う)。+N の品は強化値から、追加効果だけの装飾品はマジックならアンコモン・レアならレア、
+    /// それ以外は品の定義の等級。
+    /// </summary>
+    public static string GradeOf(ItemDef def, ItemInstance item) =>
+        def.IsMagic ? def.Rarity : item.Bonus > 0 ? RarityOf(item.Bonus, def.Kind) : item.Affixes.Count > 0 ? (item.Rare ? "rare" : "uncommon") : def.Rarity;
+
     public static string RarityOf(int bonus, ItemKind kind) => kind == ItemKind.Armor
         ? bonus switch { <= 0 => "mundane", 1 => "rare", 2 => "very_rare", _ => "legendary" }
         : bonus switch { <= 0 => "mundane", 1 => "uncommon", 2 => "rare", _ => "very_rare" };
 
-    public static string PickRarity(TreasureSettings s, double depth, IRandom rng, double level = 1)
+    public static string PickRarity(TreasureSettings s, double level, IRandom rng, TreasureSource source = TreasureSource.Wander)
     {
-        var weights = Weights(s, depth, level);
+        var weights = Weights(s, level, source);
         if (weights.Count == 0) return "mundane";
         double total = weights.Values.Sum(), r = rng.NextDouble() * total;
         foreach (var (k, w) in weights.OrderBy(kv => Array.IndexOf(Rarities, kv.Key)))
@@ -110,14 +137,29 @@ public static class Treasure
         return weights.Keys.Last();
     }
 
-    /// <summary>その深さと目安のレベルでの、等級の重み(深さの行に、レベルの行を足す)。</summary>
-    public static Dictionary<string, double> Weights(TreasureSettings s, double depth, double level)
+    /// <summary>その出どころと目安のレベルで使う行(目安のレベル以下で一番高い行。無ければ一番低い行)。</summary>
+    public static TreasureSettings.RarityRow? Row(TreasureSettings s, double level, TreasureSource source = TreasureSource.Wander)
     {
-        var row = s.Rarity.OrderBy(r => r.Depth).LastOrDefault(r => r.Depth <= depth + 1e-9) ?? s.Rarity.FirstOrDefault();
-        var weights = new Dictionary<string, double>(row?.Weights ?? []);
-        if (s.LevelRarity.OrderBy(r => r.Level).LastOrDefault(r => r.Level <= level + 1e-9) is { } add)
-            foreach (var (k, w) in add.Weights) weights[k] = weights.GetValueOrDefault(k) + w;
-        return weights;
+        var rows = source switch
+        {
+            TreasureSource.Boss when s.BossRarity.Count > 0 => s.BossRarity,
+            TreasureSource.Boss or TreasureSource.Room when s.RoomRarity.Count > 0 => s.RoomRarity,
+            _ => s.Rarity,
+        };
+        return rows.OrderBy(r => r.Level).LastOrDefault(r => r.Level <= level + 1e-9) ?? rows.OrderBy(r => r.Level).FirstOrDefault();
+    }
+
+    /// <summary>その出どころと目安のレベルでの、等級の重み。</summary>
+    public static Dictionary<string, double> Weights(TreasureSettings s, double level, TreasureSource source = TreasureSource.Wander) =>
+        new(Row(s, level, source)?.Weights.Where(kv => kv.Value > 0) ?? []);
+
+    /// <summary>その行で出る一番上の等級まで下げる(敵の落とし物の表の等級が、その階には強すぎるとき)。</summary>
+    public static string Clamp(TreasureSettings s, string rarity, double level, TreasureSource source = TreasureSource.Wander)
+    {
+        var weights = Weights(s, level, source);
+        if (weights.Count == 0) return rarity;
+        int top = weights.Keys.Max(k => Array.IndexOf(Rarities, k));
+        return Array.IndexOf(Rarities, rarity) > top ? Rarities[top] : rarity;
     }
 
     /// <summary>
@@ -132,8 +174,11 @@ public static class Treasure
 
     private static readonly string[] Elements = ["fire", "cold", "lightning", "acid", "thunder", "radiant", "necrotic", "force"];
 
-    /// <summary>その等級のアイテムを1つ作る。魔法の品は未鑑定。level は宝の目安のレベル(+4 より上の強化値に使う)。</summary>
-    public static ItemInstance Roll(GameData data, TreasureSettings s, string rarity, IRandom rng, double level = 1)
+    /// <summary>
+    /// その等級のアイテムを1つ作る。魔法の品は未鑑定。level は宝の目安のレベル(+4 より上の強化値に使う)。
+    /// named は名前つきの品が出る一番上の等級で、それより上の等級なら +N の武器・鎧・盾にする(作れなければ named の等級の品)。
+    /// </summary>
+    public static ItemInstance Roll(GameData data, TreasureSettings s, string rarity, IRandom rng, double level = 1, string? named = null)
     {
         var all = data.Items.Values.Where(i => !i.NoRandom).OrderBy(i => i.Id, StringComparer.Ordinal).ToList();   // 名指しでだけ出る品は、おまかせでは出さない
         T Pick<T>(List<T> list) => list[rng.Next(0, list.Count)];
@@ -142,28 +187,34 @@ public static class Treasure
             var mundane = all.Where(i => !i.IsMagic && i.Kind is ItemKind.Weapon or ItemKind.Armor or ItemKind.Shield or ItemKind.Consumable).ToList();
             return ItemInstance.Of(Pick(mundane).Id);
         }
-        if (rng.NextDouble() < s.BonusChance)
+        bool overNamed = named != null && Array.IndexOf(Rarities, rarity) > Array.IndexOf(Rarities, named);
+        if (overNamed || rng.NextDouble() < s.BonusChance)
         {
-            var bases = all.Where(i => !i.IsMagic && i.Base == null && i.Kind is ItemKind.Weapon or ItemKind.Armor or ItemKind.Shield
-                && BonusFor(rarity, i.Kind) > 0).ToList();
+            // 元の品: ふつうの武器・鎧・盾(+N が付く等級のもの)と、ふつうの装飾品(+N は無く、追加効果だけ)
+            int count = Loot.RollAffixCount(s, rarity, rng);
+            var bases = all.Where(i => !i.IsMagic && i.Base == null
+                && (i.Kind is ItemKind.Weapon or ItemKind.Armor or ItemKind.Shield && BonusFor(rarity, i.Kind) > 0
+                    || i.Kind == ItemKind.Accessory && count > 0 && data.Affixes.Values.Any(a => a.Fits(i) && a.TierFor(level) >= 0 && (!a.RareOnly || Loot.IsRareGrade(rarity))))).ToList();
             if (bases.Count > 0)
             {
                 var b = Pick(bases);
-                int bonus = Math.Min(ItemInstance.MaxBonus, BonusFor(rarity, b.Kind) + ExtraBonus(s, level, rng));
+                int bonus = b.Kind == ItemKind.Accessory ? 0 : Math.Min(ItemInstance.MaxBonus, BonusFor(rarity, b.Kind) + ExtraBonus(s, level, rng));
                 var made = new ItemInstance
                 {
-                    ItemId = b.Id, Bonus = bonus, Identified = false,
+                    ItemId = b.Id, Bonus = bonus, Identified = false, Rare = Loot.IsRareGrade(rarity),
                     Element = bonus >= ItemInstance.ElementFrom ? Elements[rng.Next(0, Elements.Length)] : null,
                 };
-                // 追加効果(等級で数が決まる。同じ名前の品でも違うものが出る)
-                var (min, max) = Loot.AffixCount(s, rarity);
-                if (max > 0) Loot.AddAffixes(data, made, b, rng.Next(min, max + 1), level, rng);
+                // 追加効果(等級で数が決まる。マジックは接頭・接尾1つずつ、レアは3つずつまで。同じ名前の品でも違うものが出る)
+                if (count > 0) Loot.AddAffixes(data, made, b, count, level, rng, made.Rare ? 3 : 1, s.AffixTierWindow);
+                if (made.Affixes.Count == 0) made.Rare = false;
                 return made;
             }
+            if (overNamed) rarity = named!;
         }
         if (rng.NextDouble() < s.CursedChance)
         {
-            var cursed = all.Where(i => i.Cursed).ToList();
+            // 呪いの品も、出た等級より上のものにはしない(浅い階にデーモン・アーマーを出さない)
+            var cursed = all.Where(i => i.Cursed && Array.IndexOf(Rarities, i.Rarity) <= Array.IndexOf(Rarities, rarity)).ToList();
             if (cursed.Count > 0) return Make(Pick(cursed));
         }
         var pool = all.Where(i => i.Rarity == rarity && !i.Cursed && i.MinLevel <= level + 1e-9).ToList();
@@ -174,9 +225,12 @@ public static class Treasure
 
     private static ItemInstance Make(ItemDef def) => new() { ItemId = def.Id, Identified = !def.IsMagic, Charges = def.Charges, Count = Math.Max(1, def.Bundle) };
 
-    /// <summary>深さに合った宝を count 個。level は目安のレベル(+4 より上の強化値に使う)。</summary>
-    public static List<ItemInstance> RollMany(GameData data, TreasureSettings s, double depth, int count, IRandom rng, double level = 1) =>
-        Enumerable.Range(0, count).Select(_ => Roll(data, s, PickRarity(s, depth, rng, level), rng, level)).ToList();
+    /// <summary>目安のレベルと出どころに合った宝を count 個。</summary>
+    public static List<ItemInstance> RollMany(GameData data, TreasureSettings s, double level, int count, IRandom rng, TreasureSource source = TreasureSource.Wander)
+    {
+        string? named = Row(s, level, source)?.Named;
+        return Enumerable.Range(0, count).Select(_ => Roll(data, s, PickRarity(s, level, rng, source), rng, level, named)).ToList();
+    }
 
     /// <summary>値段(+N は等級に合わせて上乗せ。追加効果はその段階の値段を足す)。</summary>
     public static long Price(ItemDef def, ItemInstance item)

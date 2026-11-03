@@ -159,6 +159,9 @@ public sealed class GameSession
     /// <summary>最下層の主の id(bosses.json)。世界の文の主の名前・出会い・倒したときの文は、この主に当てる。</summary>
     public const string FinalBossId = "final";
 
+    /// <summary>そのボスを、この世界で一度でも倒したかの印(Flags に入れる)。2回目からは物語の文とボスの宝の表を使わない。</summary>
+    public static string BossBeatenFlag(string id) => "boss_beaten:" + id;
+
     /// <summary>ボス(auto のボスは、この世界で選んだ組に差し替えた写し)。無ければ null。</summary>
     public Monsters.BossDef? Boss(Characters.GameData data, string id)
     {
@@ -420,6 +423,12 @@ public sealed class GameSession
         if (Exploration == null) Exploration = new ExplorationState(Dungeon, start);
         else Exploration.Position = start;
         Exploration.RoomsFloor = -1;   // 入り直したら、部屋の敵は抽選し直す
+        // 迷宮の印のボスは、入り直すと戻ってくる(倒した印は残す。前の版のセーブで済んだボスにも付ける)
+        foreach (var m in Exploration.UsedMarks.Where(m => m.Floor < Dungeon.Floors.Count && Dungeon.Floors[m.Floor][m.Cell].Mark is { } mark && mark.StartsWith("boss:")).ToList())
+        {
+            Flags.Add(BossBeatenFlag(Dungeon.Floors[m.Floor][m.Cell].Mark!["boss:".Length..]));
+            Exploration.UsedMarks.Remove(m);
+        }
         Exploration.StepsSinceCombat = 0;   // 入ってすぐは、うろつく敵に会わない(続けて出ないための間を使う)
         Location = Location.Maze;
         return Exploration;

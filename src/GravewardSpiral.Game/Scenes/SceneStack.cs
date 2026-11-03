@@ -61,6 +61,10 @@ public sealed class SceneStack
         // 一番上から下へ、重ねない Scene に当たるまでさかのぼり、そこから上へ描く
         int start = _scenes.Count - 1;
         while (start > 0 && _scenes[start].IsOverlay) start--;
-        for (int i = Math.Max(start, 0); i < _scenes.Count; i++) _scenes[i].Draw(d);
+        for (int i = Math.Max(start, 0); i < _scenes.Count; i++)
+        {
+            UI.Tooltip.Clear();   // 上に重ねた画面に隠れた、下の画面の言葉の説明は出さない
+            _scenes[i].Draw(d);
+        }
     }
 }

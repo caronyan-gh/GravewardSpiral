@@ -492,7 +492,10 @@ public sealed class TrainingScene : MenuScene
             if (now == 0 && who.ClassIds.Any()) y = Line(d, area, y, s["training.no_multiclass_saves"], Theme.Dim, 16);   // マルチクラスでは、セーヴの習熟は得ない(5版)
             y = Line(d, area, y, s.Format("create.primary", s.List(cls.PrimaryAbilities.Take(2).Select(a => s[$"ability.{a.Code()}"]))), Theme.Text, 19);
             var gains = ClassGrowth.Gains(Services, who, cls);
-            y = Line(d, area, y + 6, gains.Count > 0 ? s.Format("training.gains", s.List(gains)) : s["training.gains_none"], Theme.Good, 18);
+            // 得る技と能力の名前の上にマウスを載せると、その説明
+            y = gains.Count > 0
+                ? UI.LinkFlow.Draw(d, gains, s["common.list_sep"], new Vector2(area.X + 20, y + 6), area.Width - 70, 18, Theme.Good, lead: s.Format("training.gains", "")) + 2
+                : Line(d, area, y + 6, s["training.gains_none"], Theme.Good, 18);
             // 成長表のボタン(地図のキーでも開く)
             string label = s["training.growth"];
             float w = d.Fonts.Measure(label, 17).X + 28;
@@ -526,6 +529,9 @@ public sealed class StatusScene : Scene
     private readonly MemberSwitch _switch;
     private int _page;
 
+    /// <summary>ページの見出しのクリックできる場所(◀ は -1、▶ は -2、ページの名前はその番号)。Draw で決める。</summary>
+    private readonly List<(RectangleF Area, int Page)> _pageHits = [];
+
     /// <param name="members">切り替えられる仲間の並び(L2/R2・&lt; &gt;・F1〜F6・◀ ▶)。省くとその人だけ。</param>
     public StatusScene(Character c, IReadOnlyList<Character>? members = null) => _switch = new MemberSwitch(members ?? [c], c);
 
@@ -543,6 +549,17 @@ public sealed class StatusScene : Scene
             return;
         }
         int step = input.Pressed(Input.GameAction.Right) ? 1 : input.Pressed(Input.GameAction.Left) ? -1 : 0;
+        // ページの見出しをクリック: ◀ ▶ は前と次、名前はそのページ(ほかの所のクリックは、今までどおり閉じる)
+        if (input.LeftClicked && input.Mouse is { } m && _pageHits.FirstOrDefault(h => h.Area.Contains(m)) is { Area.Width: > 0 } hit)
+        {
+            if (hit.Page >= 0)
+            {
+                if (hit.Page != _page) Services.Audio.PlaySe(Audio.Sounds.Cursor);
+                _page = hit.Page;
+                return;
+            }
+            step = hit.Page == -1 ? -1 : 1;
+        }
         if (step != 0)
         {
             _page = (_page + step + Pages.Length) % Pages.Length;
@@ -566,7 +583,7 @@ public sealed class StatusScene : Scene
         var s = sv.Strings;
         var data = sv.Data;
         float y = at.Y;
-        void Text(string t, Color color, float size = 20f) => y = d.TextWrapped(t, new Vector2(at.X, y), width, size, color, 9);
+        void Text(string t, Color color, float size = 20f) => y = LinkText.Draw(d, t, new Vector2(at.X, y), width, size, color, 9);   // 決まりの言葉(AC・習熟など)に説明
         var race = data.Races[c.RaceId];
         Text(c.Name, Theme.Title, 26);
         // マルチクラスは最初のクラスの名前に (M) を付ける(Lv は合計。クラスごとのレベルは下に出す)
@@ -635,8 +652,13 @@ public sealed class StatusScene : Scene
         _page = Math.Clamp(_page, 0, pages.Length - 1);
         string page = pages[_page];
         // ページの見出し(今のページを明るく)
+        // ◀・名前・▶ はクリックでも切り替える(マウスを載せると明るく)
+        _pageHits.Clear();
         float hx = x2;
-        d.Text("◀", new Vector2(hx, y2 + 2), 16, Theme.Dim);
+        bool Over(RectangleF r) => UI.Tooltip.Over(r);
+        var prev = new RectangleF(hx - 6, y2 - 4, 26, 28);
+        _pageHits.Add((prev, -1));
+        d.Text("◀", new Vector2(hx, y2 + 2), 16, Over(prev) ? Theme.Title : Theme.Dim);
         hx += 24;
         for (int i = 0; i < pages.Length; i++)
         {
@@ -646,10 +668,15 @@ public sealed class StatusScene : Scene
                 hx += 16;
             }
             string name = s["status.page_" + pages[i]];
-            d.Text(name, new Vector2(hx, y2), 18, i == _page ? Theme.Title : Theme.Dim);
-            hx += d.Fonts.Measure(name, 18).X + 10;
+            float nw = d.Fonts.Measure(name, 18).X;
+            var r = new RectangleF(hx - 4, y2 - 4, nw + 8, 28);
+            _pageHits.Add((r, i));
+            d.Text(name, new Vector2(hx, y2), 18, i == _page ? Theme.Title : Over(r) ? Theme.Text : Theme.Dim);
+            hx += nw + 10;
         }
-        d.Text("▶", new Vector2(hx, y2 + 2), 16, Theme.Dim);
+        var next = new RectangleF(hx - 6, y2 - 4, 26, 28);
+        _pageHits.Add((next, -2));
+        d.Text("▶", new Vector2(hx, y2 + 2), 16, Over(next) ? Theme.Title : Theme.Dim);
         y2 += 34;
         if (page == "equipment")
         {
@@ -681,19 +708,26 @@ public sealed class StatusScene : Scene
             // 呪文の難易度と攻撃の修正は、術者のクラスごと
             foreach (var cls in Spellcasting.CasterClasses(data, Member))
                 Text2((Spellcasting.CasterClasses(data, Member).Count() > 1 ? Services.Name(cls.Name) + " " : "")
-                    + s.Format("status.spells", Spellcasting.SaveDc(cls, Member), Signed(Spellcasting.AttackBonus(cls, Member))), Theme.Title, 22);
+                    + s.Format("status.spells", Spellcasting.SaveDc(data, cls, Member), Signed(Spellcasting.AttackBonus(data, cls, Member))), Theme.Title, 22);
             foreach (var group in castable.GroupBy(x => Spellcasting.AssignedLevel(data, Member, x)))   // クラスで割り当てたレベルごと
             {
-                // 呪文の名前は長いので、欄の幅で折り返す
-                string line = $"{UI.SpellText.Level(s, group.First(), group.Key)}: {Services.Strings.List(group.Select(x => Services.Name(x.Name)))}";
-                y2 = d.TextWrapped(line, new Vector2(x2, y2), area.X + area.Width - x2 - 24, 16, Theme.Text, 6);
+                // 呪文の名前は長いので、欄の幅で折り返す(名前の上にマウスを載せると、呪文の説明)
+                var words = group.Select(x => new UI.LinkWord(Services.Name(x.Name), null, SpellAbout(x))).ToList();
+                y2 = UI.LinkFlow.Draw(d, words, s["common.list_sep"], new Vector2(x2, y2), area.X + area.Width - x2 - 24, 16, Theme.Text,
+                    lead: $"{UI.SpellText.Level(s, group.First(), group.Key)}: ");
             }
         }
         else
         {
         Text2(s["status.skills"], Theme.Title, 22);
+        // 技能の名前の上にマウスを載せると、技能の説明
         foreach (var id in Member.Skills)
-            Text2($"{Services.Name(data.Skills[id].Name)}  {Signed(Member.SkillBonus(data, id))}", Theme.Text);
+        {
+            var skill = data.Skills[id];
+            float w = UI.LinkFlow.Word(d, new UI.LinkWord(Services.Name(skill.Name), null, skill.Description is { } sd ? Services.Name(sd) : null), new Vector2(x2, y2), 18, Theme.Text);
+            d.Text($"  {Signed(Member.SkillBonus(data, id))}", new Vector2(x2 + w, y2), 18, Theme.Text);
+            y2 += 26;
+        }
         y2 += 8;
         Text2(s["status.saves"], Theme.Title, 22);
         // 6つ並ぶと欄の幅を越えるので、3つずつ2行に(体の能力値と、心の能力値)
@@ -701,7 +735,7 @@ public sealed class StatusScene : Scene
             Text2(string.Join("  ", three.Select(a => $"{s[$"ability.{a.Code()}"]} {Signed(Member.SaveBonus(data, a))}")), Theme.Text);
         // クラスの能力(マルチクラスでは全部のクラスのもの): 回数の残りと、勝手に効く能力の名前
         var pools = ClassFeatures.PoolsOf(Services.Data, Member).ToList();
-        var passives = ClassFeatures.Passives(data, Member).Select(id => s["passive." + id]).ToList();
+        var passives = ClassFeatures.Passives(data, Member).Select(id => UI.FeatureText.Link(Services, id)).ToList();
         var styles = ClassFeatures.ActiveStyles(data, Member);
         bool hasStyle = ClassFeatures.HasFightingStyle(data, Member);
         if (pools.Count > 0 || passives.Count > 0 || hasStyle)
@@ -712,14 +746,20 @@ public sealed class StatusScene : Scene
             if (hasStyle)
             {
                 string now = styles.Count == 0 ? s["style.none"]
-                    : string.Join(" / ", styles.Select(id => s.Format("status.style_item", s["passive." + id], s["passive.about." + id])));
+                    : string.Join(" / ", styles.Select(id => s.Format("status.style_item", UI.FeatureText.Name(Services, id), UI.FeatureText.About(Services, id) ?? "")));
                 y2 = d.TextWrapped(s.Format("status.fighting_style", now), new Vector2(x2, y2), area.X + area.Width - x2 - 24, 17, Theme.Text, 4);
                 y2 = d.TextWrapped(s["status.style_auto"], new Vector2(x2, y2 + 2), area.X + area.Width - x2 - 24, 15, Theme.Dim, 4) + 4;
             }
             // 回数は1つずつ行を分ける(折り返しで「5/5」が切れないように)
-            foreach (var p in pools) Text2($"{s["pool." + p]}  {ClassFeatures.UsesLeft(Services.Data, Member, p)}/{ClassFeatures.MaxUses(Services.Data, Member, p)}", Theme.Text, 17);
+            // 回数の名前と勝手に効く能力の名前の上にマウスを載せると、その説明
+            foreach (var p in pools)
+            {
+                float w = UI.LinkFlow.Word(d, new UI.LinkWord(UI.FeatureText.PoolName(Services, p), null, UI.FeatureText.PoolAbout(Services, Member, p)), new Vector2(x2, y2), 17, Theme.Text);
+                d.Text($"  {ClassFeatures.UsesLeft(Services.Data, Member, p)}/{ClassFeatures.MaxUses(Services.Data, Member, p)}", new Vector2(x2 + w, y2), 17, Theme.Text);
+                y2 += 25;
+            }
             if (passives.Count > 0)
-                y2 = d.TextWrapped(s.List(passives), new Vector2(x2, y2), area.X + area.Width - x2 - 24, 16, Theme.Dim, 6);
+                y2 = UI.LinkFlow.Draw(d, passives, s["common.list_sep"], new Vector2(x2, y2), area.X + area.Width - x2 - 24, 16, Theme.Dim);
         }
         }
 
@@ -744,4 +784,14 @@ public sealed class StatusScene : Scene
     }
 
     private static string Signed(int v) => v >= 0 ? $"+{v}" : v.ToString();
+
+    /// <summary>呪文の説明の窓の中身(書いた説明があればそれと、レベルと系統などの見出しと、効果)。</summary>
+    private string SpellAbout(SpellDef sp)
+    {
+        var s = Services.Strings;
+        // 初級呪文はその人の合計のレベルの強さ(ダイスや光線の数)で、ほかは元のレベルのスロットで唱えたときの強さ
+        var lines = UI.SpellText.Effects(s, sp, sp.Scale == "character" ? Member.Level : sp.Level).Prepend(UI.SpellText.Header(s, sp, Spellcasting.AssignedLevel(Services.Data, Member, sp)));
+        if (sp.Description is { } desc) lines = lines.Prepend(Services.Name(desc));   // 書いた説明があれば先に
+        return string.Join("\n", lines);
+    }
 }

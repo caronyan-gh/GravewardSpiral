@@ -88,6 +88,11 @@ public sealed class InputState
     /// <summary>次の Update で、この点(1280x720 の座標)を左クリックしたことにする(起動引数の自動操作用)。</summary>
     public void InjectClick(Vector2 point) => _injectedClick = point;
 
+    /// <summary>確認用の起動の自動操作: マウスをその点に置いたままにする(説明の窓を見る)。</summary>
+    public void InjectHover(Vector2 point) => _injectedHover = point;
+
+    private Vector2? _injectedHover;
+
     private Vector2? _injectedClick;
 
     private readonly HashSet<GameAction> _injected = [];
@@ -189,6 +194,7 @@ public sealed class InputState
             _reverseNext = false;
         }
         _injected.Clear();
+        if (_injectedHover is { } hover) Mouse ??= hover;
         if (_injectedClick is { } click)
         {
             Mouse = click;

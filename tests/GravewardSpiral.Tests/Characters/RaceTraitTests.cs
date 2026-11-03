@@ -109,7 +109,7 @@ public class RaceTraitTests
         var cast = typeof(CombatEngine).GetNestedType("CastContext", System.Reflection.BindingFlags.NonPublic)!;
         var ctx = Activator.CreateInstance(cast, s.Party[1], Data.Spells["eyebite"], 6, 3, 99);
         var add = typeof(CombatEngine).GetMethod("AddCondition", System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance)!;
-        foreach (var m in s.Party) add.Invoke(engine, [s, m, part, null, ctx]);
+        foreach (var m in s.Party) add.Invoke(engine, [s, m, part, null, ctx, null]);
         Assert.False(s.Party[0].Has(Condition.Unconscious));
         Assert.True(s.Party[1].Has(Condition.Unconscious));
     }

@@ -48,7 +48,8 @@ public sealed class CombatEngine(GameData data, IRandom rng)
         var all = state.Party.Cast<Combatant>().Concat(state.Groups.SelectMany(g => g.Units)).ToList();
         // 野性の勘(バーバリアン L7): イニシアチブが有利
         foreach (var c in all)
-            c.Initiative = (FeatureChecks.InitiativeAdvantage(_data, c) ? Math.Max(D20(), D20()) : D20()) + c.AbilityMod(Ability.Dex);
+            c.Initiative = (FeatureChecks.InitiativeAdvantage(_data, c) ? Math.Max(D20(), D20()) : D20()) + c.AbilityMod(Ability.Dex)
+                + (c is PartyMember ip ? ip.Character.PassiveBonus(_data, "initiative") : 0);   // 装備の先手
         state.Order.AddRange(all.OrderByDescending(c => c.Initiative).ThenByDescending(c => c.AbilityMod(Ability.Dex))
             .ThenBy(c => c.Side));
         foreach (var g in state.Groups) state.Add("combat.appear", g.DisplayName, g.Units.Count);
@@ -193,6 +194,20 @@ public sealed class CombatEngine(GameData data, IRandom rng)
         }
     }
 
+    /// <summary>その行動が向かうグループにいる、p を魅了した敵(いなければ null)。</summary>
+    private MonsterUnit? CharmerIn(CombatState s, PartyMember p, PlayerCommand cmd)
+    {
+        if (!p.Has(Condition.Charmed) || cmd.TargetGroup < 0 || cmd.TargetGroup >= s.Groups.Count) return null;
+        bool harmful = cmd.Kind switch
+        {
+            CommandKind.Attack => true,
+            CommandKind.Cast => cmd.SpellId != null && _data.Spells.TryGetValue(cmd.SpellId, out var sp) && sp.Target is SpellTarget.Enemy or SpellTarget.Group,
+            CommandKind.Feature => cmd.FeatureId != null && _data.Features.TryGetValue(cmd.FeatureId, out var f) && f.Target == FeatureTarget.EnemyGroup,
+            _ => false,
+        };
+        return harmful ? s.Groups[cmd.TargetGroup].Units.FirstOrDefault(u => u.Standing && p.CharmedBy(u)) : null;
+    }
+
     private static object ConditionName(Combatant c) =>
         c.Conditions.First(x => x.Condition is Condition.Paralyzed or Condition.Stunned or Condition.Unconscious
             or Condition.Petrified or Condition.Incapacitated).Condition;
@@ -201,6 +216,12 @@ public sealed class CombatEngine(GameData data, IRandom rng)
 
     private void PlayerTurn(CombatState s, PartyMember p, PlayerCommand cmd)
     {
+        // 魅了: 魅了した相手のいるグループには、攻撃も、敵1体かグループに向ける呪文や技も向けられない(その番は何もできない)
+        if (CharmerIn(s, p, cmd) is { } charmer)
+        {
+            s.Add("combat.charmed_refuse", p.Name, s.GroupOf(charmer).DisplayName);
+            return;
+        }
         switch (cmd.Kind)
         {
             case CommandKind.Attack:
@@ -315,6 +336,12 @@ public sealed class CombatEngine(GameData data, IRandom rng)
         bool martial = ClassFeatures.MartialArts(_data, c);
         bool techniqueUsed = false, monkMelee = false;
         int attacks = AttacksPerAction(_data, p.Character) + p.Modifiers.Where(m => m.Stat == "attacks").Sum(m => m.Value);   // ヘイストなど
+        // 装備の追加攻撃(extra_attack は % の確率。付けている品の合計)
+        if (p.Character.PassiveBonus(_data, "extra_attack") is int extraChance and > 0 && _rng.Next(0, 100) < extraChance)
+        {
+            attacks++;
+            s.Add("combat.extra_attack", p.Name);
+        }
         bool usedMainMelee = false;
         var offItem = p.Character.Inventory[EquipSlot.OffHand];
 
@@ -338,6 +365,9 @@ public sealed class CombatEngine(GameData data, IRandom rng)
                 bonus = ItemInstance.HitAcBonus(enchant);   // 命中は +7 から増えない。ダメージは全部
                 magical = weapon.IsMagic || held.Bonus != 0;
                 damageMod += enchant + p.Character.DamageBonus(_data);
+                // この武器の追加効果の命中とダメージ(その武器で殴ったときだけ)
+                bonus += WeaponLocal(held, "attack");
+                damageMod += WeaponLocal(held, "damage");
             }
             // 弾の枠の弾(その飛び道具に合うものだけ。無ければふつうの弾で、上乗せなし)
             if (shoot && weapon?.UsesAmmo is { } kind && Ammo(kind) is var (ammo, adef))
@@ -416,6 +446,7 @@ public sealed class CombatEngine(GameData data, IRandom rng)
                 if (held.ElementDice(weapon) is { } ed) parts.Add(new EffectPart { Type = EffectPart.Damage, Dice = ed, DamageType = held.Element, Label = "combat.src.element" });
                 parts.AddRange(held.AffixOnHit(_data).Select(x => Labeled(x, "combat.src.affix")));
             }
+            var cleaveParts = parts.ToList();   // 薙ぎで2体目に当てる分(武器と追加効果だけ。急所攻撃やスマイトのような1回だけのものは乗せない)
             var roll = AttackRoll(s, p, target, plan.ToHit, melee: !plan.Shoot, out bool advantage, extraDisadvantage: plan.Shoot && adjacent);
             int sneak = ClassFeatures.SneakAttackDice(_data, p.Character);
             if (p.SneakRound != s.Round && sneak > 0 && (plan.Finesse || weapon is { Ranged: true }) && roll.Hit   // 1ラウンドに1回(アクション・サージの2回目でも出ない)
@@ -449,6 +480,21 @@ public sealed class CombatEngine(GameData data, IRandom rng)
             // 一撃で倒す(instant_kill): ダメージを1以上与えた(一時的な HP で受けた分も、アンデッドの不屈でこらえた分も数える)最初の攻撃で、1度だけ振る。
             // 不屈でこらえた敵も、首はねは別に振る(不屈はダメージだけをこらえる)
             if (!killTried && roll.Hit && _damageDealt > dealtBefore) killTried = TryInstantKill(s, p, target, unarmed: weapon == null, melee);
+            // 薙ぎ(武器の cleave は % の確率、cleave_targets は何体まで): 当たったら、同じグループのほかの敵にも、確率に当たるあいだ続けて
+            // 1体ずつ命中の判定をして当てる(外れる確率を引いたら止まる)
+            if (roll.Hit && plan.Held is { } sweeper && weapon != null && sweeper.ItemId == weapon.Id && WeaponLocal(sweeper, "cleave") is int cleave and > 0)
+            {
+                int most = Math.Max(1, WeaponLocal(sweeper, "cleave_targets"));
+                var others = group.Alive.Where(u => u != target).ToList();
+                for (int k = 0; k < most && others.Count > 0 && _rng.Next(0, 100) < cleave; k++)
+                {
+                    var next = others[_rng.Next(0, others.Count)];
+                    others.Remove(next);
+                    s.Add("combat.cleave", p.Name);
+                    var roll2 = AttackRoll(s, p, next, plan.ToHit, melee: !plan.Shoot, out _, extraDisadvantage: plan.Shoot && adjacent);
+                    ResolveAttack(s, p, next, weapon?.Name ?? LocalizedText.Of("unarmed strike", "素手"), roll2, cleaveParts, plan.Magical);
+                }
+            }
             // 残忍な一撃(バーバリアン L9)と獰猛な攻撃(ハーフオーク): 近接のクリティカルで武器のダイスを足す
             if (roll.Crit && melee && FeatureChecks.MeleeCritExtraDice(_data, p) is int brutal and > 0 && target.Standing
                 && DiceExpression.Parse(plan.Dice).Terms.FirstOrDefault(t => !t.IsFlat) is { Sides: > 0 } die)
@@ -491,7 +537,7 @@ public sealed class CombatEngine(GameData data, IRandom rng)
     private void BeastAttack(CombatState s, PartyMember p, int groupIndex)
     {
         var beast = p.Shape!;
-        var near = s.LiveGroups.Where(g => s.IsNear(g)).ToList();
+        var near = s.LiveGroups.Where(g => s.IsNear(g) && !s.Spares(p, g)).ToList();   // 魅了した敵のいるグループは殴らない
         if (!s.InFront(p) || near.Count == 0)
         {
             s.Add("combat.no_reach", p.Name);
@@ -504,8 +550,8 @@ public sealed class CombatEngine(GameData data, IRandom rng)
         {
             if (s.Outcome != CombatOutcome.Ongoing) return;
             // 狙ったグループが倒れたら、近くの次のグループへ(攻撃のたびに選び直す)
-            var group = groupIndex >= 0 && groupIndex < s.Groups.Count && !s.Groups[groupIndex].Wiped && s.IsNear(s.Groups[groupIndex])
-                ? s.Groups[groupIndex] : s.LiveGroups.FirstOrDefault(g => s.IsNear(g));
+            var group = groupIndex >= 0 && groupIndex < s.Groups.Count && !s.Groups[groupIndex].Wiped && s.IsNear(s.Groups[groupIndex]) && !s.Spares(p, s.Groups[groupIndex])
+                ? s.Groups[groupIndex] : s.LiveGroups.FirstOrDefault(g => s.IsNear(g) && !s.Spares(p, g));
             if (group == null) return;
             var alive = group.Alive.ToList();
             var target = alive[_rng.Next(0, alive.Count)];
@@ -615,6 +661,13 @@ public sealed class CombatEngine(GameData data, IRandom rng)
                 if (ally == null)
                 {
                     s.Add("combat.no_target", p.Name);
+                    break;
+                }
+                // 耳の聞こえない仲間には、鼓舞の声が届かない(回数は使わない)
+                if (ally.Has(Condition.Deafened))
+                {
+                    s.Add("combat.deaf_no_inspire", ally.Name);
+                    FollowUp(s, p, cmd.TargetGroup);
                     break;
                 }
                 SpendFor(c, f);
@@ -791,7 +844,8 @@ public sealed class CombatEngine(GameData data, IRandom rng)
             }
             return;
         }
-        var targets = (a.Target == ActionTarget.Row ? s.FrontRowMembers : s.Party.Where(p => p.Standing)).ToList();
+        var targets = (a.Target == ActionTarget.Row ? s.FrontRowMembers : s.Party.Where(p => p.Standing)).Where(p => !m.CharmedBy(p)).ToList();   // 魅了した仲間は巻き込まない
+        if (targets.Count == 0) return;
         s.Add("combat.monster_area", group.DisplayName, a.Name);
         foreach (var t in targets) Apply(s, m, t, a.Effects, crit: false);
     }
@@ -838,13 +892,13 @@ public sealed class CombatEngine(GameData data, IRandom rng)
         List<Combatant> targets = pick.Target switch
         {
             SpellTarget.Enemy => PickPartyTarget(s, melee, m) is { } t ? [t] : [],
-            SpellTarget.AllEnemies => s.Party.Where(p => p.Standing).Cast<Combatant>().ToList(),
-            _ => s.FrontRowMembers.Cast<Combatant>().ToList(),   // 範囲は前列に当たる
+            SpellTarget.AllEnemies => s.Party.Where(p => p.Standing && !m.CharmedBy(p)).Cast<Combatant>().ToList(),
+            _ => s.FrontRowMembers.Where(p => !m.CharmedBy(p)).Cast<Combatant>().ToList(),   // 範囲は前列に当たる(魅了した仲間は巻き込まない)
         };
         if (pick.Zone && pick.Concentration && targets.Count > 0)
         {
             var first = targets[0];
-            Func<List<Combatant>> again = pick.Target == SpellTarget.Enemy ? () => [first] : () => s.FrontRowMembers.Cast<Combatant>().ToList();
+            Func<List<Combatant>> again = pick.Target == SpellTarget.Enemy ? () => [first] : () => s.FrontRowMembers.Where(p => !m.CharmedBy(p)).Cast<Combatant>().ToList();
             s.Lingerings.Add(new Lingering { Caster = m, Spell = pick, Level = ctx.Level, Mod = ctx.Mod, Dc = ctx.Dc, Targets = again });
         }
         var pool = pick.Effects.FirstOrDefault(e => e.Type == EffectPart.HpPool);
@@ -891,7 +945,8 @@ public sealed class CombatEngine(GameData data, IRandom rng)
     /// </summary>
     private Combatant? PickPartyTarget(CombatState s, bool melee, MonsterUnit? attacker = null)
     {
-        var pool = (melee ? s.FrontRowMembers : s.Party.Where(p => p.Standing)).Cast<Combatant>().ToList();
+        var pool = (melee ? s.FrontRowMembers : s.Party.Where(p => p.Standing)).Cast<Combatant>()
+            .Where(p => attacker == null || !attacker.CharmedBy(p)).ToList();   // 魅了された敵は、魅了した仲間を狙わない
         var visible = pool.Where(p => !p.Hidden).ToList();
         if (visible.Count > 0) pool = visible;
         var summons = s.Lingerings.Select(l => l.Unit).OfType<SummonUnit>().Where(u => u.Standing).ToList();
@@ -987,9 +1042,29 @@ public sealed class CombatEngine(GameData data, IRandom rng)
                 if (r.Message != null) s.Add(r.Message, tp.Name);
             }
         }
+        // 盾のブロック(装備の block は %): 近接の攻撃を受け止めて、ダメージも効果も受けない
+        if (!ranged && target is PartyMember blocker && attacker.Side != blocker.Side && !blocker.Incapacitated
+            && blocker.Character.PassiveBonus(_data, "block") is int block and > 0 && _rng.Next(0, 100) < block)
+        {
+            s.Add("combat.block", blocker.Name);
+            target.Halving = false;
+            target.Deflect = 0;
+            return;
+        }
+        bool wasUp = target.Standing;
         Apply(s, attacker, target, onHit, roll.Crit, magical);
         target.Halving = false;
         target.Deflect = 0;
+        // 糧の(装備の life_on_kill): 攻撃で敵を倒したら HP が戻る
+        if (wasUp && !target.Standing && target is MonsterUnit && attacker is PartyMember { Standing: true } eater
+            && eater.Character.PassiveBonus(_data, "life_on_kill") is int gain and > 0)
+            Heal(s, eater, Math.Min(gain, eater.MaxHp - eater.Hp));
+        // 棘(装備の thorns): 近接で殴ってきた敵に、そのダメージを返す
+        if (!ranged && target is PartyMember { Standing: true } thorny && attacker is MonsterUnit && thorny.Character.PassiveBonus(_data, "thorns") is int thorns and > 0)
+        {
+            int back = Damage(s, attacker, thorns, "piercing", false, true);
+            s.Add("combat.thorns", thorny.Name, who, back);
+        }
     }
 
     /// <summary>呪文を唱えたときの情報(ダイスのレベル、MOD、難易度、続くラウンド数、集中)。モンスターの行動では null。</summary>
@@ -1026,7 +1101,7 @@ public sealed class CombatEngine(GameData data, IRandom rng)
                 AddDot(s, source, target, part, fromSave, ctx, magical || ctx != null);
                 continue;
             }
-            if (!target.Standing && target is MonsterUnit) return;
+            if (!target.Standing && target is MonsterUnit) continue;   // 倒れた敵への残りの部品は飛ばす(末尾の吸う部品は、与えた分で働く)
             if (target is PartyMember { Character.State: LifeState.Dead or LifeState.Ashes } && part.Type != EffectPart.Revive) continue;
             // only を書いた部品は、その種類の相手(undead など)にだけ効く
             if (part.Only != null && (target is not MonsterUnit om || om.Def.CreatureType != part.Only)) continue;
@@ -1037,8 +1112,11 @@ public sealed class CombatEngine(GameData data, IRandom rng)
                     var expr = DiceExpression.Parse(DiceOf(part, ctx));
                     if (crit) expr = expr.WithDoubledDice();
                     int rolled = Math.Max(0, RollDamage(expr, part.Reroll, ctx?.Empower ?? 0));
+                    if (part.Scale is double scale) rolled = (int)(rolled * scale);   // マジックの品などの追加効果は弱まる
                     // 苦痛の魔撃(ウォーロック L2): エルドリッチ・ブラストに魅力の修正を足す
-                    if (ctx is { Caster: PartyMember wl }) rolled += FeatureChecks.SpellDamageBonus(_data, wl, ctx.Spell.Id);
+                    if (ctx is { Caster: PartyMember wl }) rolled += FeatureChecks.SpellDamageBonus(_data, wl, ctx.Spell.Id)
+                        + Math.Max(0, wl.Character.PassiveBonus(_data, "spell_damage"))   // 装備の秘力の(呪文のダメージ +N)
+                        + Math.Max(0, wl.Character.PassiveBonus(_data, "spell_damage:" + (part.DamageType ?? "")));   // 属性の呪文の強化(火の呪文 +N など)
                     if (source is MonsterUnit strong) rolled = (int)(rolled * strong.Scale.DamageMult);   // 深い階の敵はダメージが大きい
                     string type = part.DamageType ?? "bludgeoning";
                     _damageLabel = part.Label;   // 急所攻撃などのおまけの分は、ダメージの行に出どころを添える
@@ -1072,7 +1150,7 @@ public sealed class CombatEngine(GameData data, IRandom rng)
                 }
                 case EffectPart.ConditionType:
                     if (part.MaxHp is int killCap && target.Hp > killCap) break;
-                    AddCondition(s, target, part, fromSave, ctx);
+                    AddCondition(s, target, part, fromSave, ctx, source);
                     break;
                 case EffectPart.Resist or EffectPart.Vulnerable or EffectPart.SetAbility or EffectPart.ImmuneCondition:
                     // 水薬や呪文の、しばらくのあいだの抵抗・脆弱・能力値・状態の耐性
@@ -1152,8 +1230,9 @@ public sealed class CombatEngine(GameData data, IRandom rng)
                     var ability = Abilities.Parse(part.Ability ?? "con");
                     int dc = part.Dc == 0 && ctx != null ? ctx.Dc : part.Dc;
                     // その状態にする セーヴに有利(save_adv:<状態>。プロテクション・フロム・ポイズンの毒など)
-                    bool against = part.Fail.SelectMany(f => f.Flatten()).Any(f => f.Type == EffectPart.ConditionType && f.Condition is { } fc && SaveAdvantage(target, fc));
-                    bool ok = SaveOrResist(s, target, ability, dc, magical || ctx != null, against);
+                    var conds = part.Fail.SelectMany(f => f.Flatten()).Where(f => f.Type == EffectPart.ConditionType && f.Condition != null).Select(f => f.Condition!.Value).ToList();
+                    bool against = conds.Any(fc => SaveAdvantage(target, fc));
+                    bool ok = SaveOrResist(s, target, ability, dc, magical || ctx != null, against, conds.Count > 0 ? conds.Max(fc => ConditionSaveBonus(target, fc)) : 0);
                     s.Add(ok ? "combat.save_ok" : "combat.save_fail", target.Name, ability);
                     var withDc = part.Dc == dc ? part : new EffectPart { Ability = part.Ability, Dc = dc };
                     // 回避(ローグ・モンク L7): 敏捷力のセーヴで半分になる効果は、成功で 0、失敗で半分
@@ -1220,6 +1299,9 @@ public sealed class CombatEngine(GameData data, IRandom rng)
     }
 
     /// <summary>効果の部品を、パーティの生きている全員に起こす(ウィッシュなど)。</summary>
+    /// <summary>効果の部品を、1人(1体)の相手に起こす(攻撃や呪文の外から)。</summary>
+    public void ApplyTo(CombatState s, Combatant source, Combatant target, IEnumerable<EffectPart> parts) => Apply(s, source, target, parts.ToList(), false, true);
+
     public void ApplyToParty(CombatState s, Combatant source, IEnumerable<EffectPart> parts)
     {
         var list = parts.ToList();
@@ -1297,13 +1379,13 @@ public sealed class CombatEngine(GameData data, IRandom rng)
         }
 
         // 初級呪文はキャラクターの合計のレベルで強くなる(5版)。ほかは、割り当てたレベルから上のスロットの分だけ、もとのレベルより強くなる
-        var ctx = new CastContext(p, spell, spell.Scale == "character" ? c.Level : Spellcasting.EffectLevel(_data, c, spell, slot), Spellcasting.Mod(cls, c), Spellcasting.SaveDc(cls, c));
+        var ctx = new CastContext(p, spell, spell.Scale == "character" ? c.Level : Spellcasting.EffectLevel(_data, c, spell, slot), Spellcasting.Mod(cls, c), Spellcasting.SaveDc(_data, cls, c));
         if (cmd.Empower && CanEmpower(_data, c, spell) && ClassFeatures.Spend(_data, c, "sorcery_points"))
         {
             ctx.Empower = Math.Max(1, c.Scores.Mod(Ability.Cha));
             s.Add("combat.empowered", p.Name);
         }
-        Resolve(s, p, spell, cmd, ctx, Spellcasting.AttackBonus(cls, c));
+        Resolve(s, p, spell, cmd, ctx, Spellcasting.AttackBonus(_data, cls, c));
         if (IsBonusAction(spell)) FollowUp(s, p, cmd.TargetGroup);
     }
 
@@ -1493,7 +1575,7 @@ public sealed class CombatEngine(GameData data, IRandom rng)
             // 攻撃の目を振るもの(剣・武器)と、集中の要らないもの(番人)は、狙った相手が倒れたら、近くの敵へ移る
             var first = targets[0];
             Func<List<Combatant>> again = spell.Target == SpellTarget.Enemy || first is not MonsterUnit fm
-                ? spell.Attack != null || !spell.Concentration ? () => first.Standing ? [first] : NextFoe(s, first) : () => [first]
+                ? spell.Attack != null || !spell.Concentration ? () => first.Standing ? [first] : NextFoe(s, first, p) : () => [first]
                 : () => s.GroupOf(fm).Alive.Cast<Combatant>().ToList();
             s.Lingerings.RemoveAll(l => l.Caster == p && l.Spell.Id == spell.Id);   // 同じ呪文をかけ直したら、前のものは消える(重ねない)
             s.Lingerings.Add(new Lingering
@@ -1545,11 +1627,16 @@ public sealed class CombatEngine(GameData data, IRandom rng)
         }
     }
 
-    /// <summary>倒れた相手の代わりに狙う敵(同じグループの生き残り、いなければ近いグループ)。</summary>
-    private List<Combatant> NextFoe(CombatState s, Combatant gone)
+    /// <summary>source が target に手を出せないか(target に魅了されている。仲間なら、魅了した敵と同じグループの敵にも)。</summary>
+    private static bool Spared(CombatState s, Combatant source, Combatant target) =>
+        source.CharmedBy(target) || source is PartyMember pm && target is MonsterUnit mu && s.Spares(pm, s.GroupOf(mu));
+
+    /// <summary>倒れた相手の代わりに狙う敵(同じグループの生き残り、いなければ近いグループ。唱えた仲間を魅了した敵のいるグループは選ばない)。</summary>
+    private List<Combatant> NextFoe(CombatState s, Combatant gone, Combatant caster)
     {
-        var pool = gone is MonsterUnit gm && !s.GroupOf(gm).Wiped ? s.GroupOf(gm).Alive.ToList()
-            : s.LiveGroups.OrderBy(g => s.IsNear(g) ? 0 : 1).FirstOrDefault()?.Alive.ToList() ?? [];
+        bool ok(EnemyGroup g) => caster is not PartyMember pm || !s.Spares(pm, g);
+        var pool = gone is MonsterUnit gm && !s.GroupOf(gm).Wiped && ok(s.GroupOf(gm)) ? s.GroupOf(gm).Alive.ToList()
+            : s.LiveGroups.Where(ok).OrderBy(g => s.IsNear(g) ? 0 : 1).FirstOrDefault()?.Alive.ToList() ?? [];
         return pool.Count == 0 ? [] : [pool[_rng.Next(0, pool.Count)]];
     }
 
@@ -1641,11 +1728,11 @@ public sealed class CombatEngine(GameData data, IRandom rng)
                 return group.Alive.Take(spell.Count ?? int.MaxValue).Cast<Combatant>().ToList();   // count があれば、その数まで(チェイン・ライトニング)
             case SpellTarget.TwoGroups:
             {
-                var next = s.LiveGroups.SkipWhile(g => g != group).Skip(1).FirstOrDefault();
+                var next = s.LiveGroups.SkipWhile(g => g != group).Skip(1).FirstOrDefault(g => !s.Spares(p, g));
                 return group.Alive.Concat(next?.Alive ?? []).Cast<Combatant>().ToList();
             }
             default:
-                return s.LiveGroups.SelectMany(g => g.Alive).Cast<Combatant>().ToList();
+                return s.LiveGroups.Where(g => !s.Spares(p, g)).SelectMany(g => g.Alive).Cast<Combatant>().ToList();   // 魅了した敵のいるグループは巻き込まない
         }
     }
 
@@ -1655,7 +1742,7 @@ public sealed class CombatEngine(GameData data, IRandom rng)
         for (int i = 0; i < s.Groups.Count; i++)
         {
             var g = s.Groups[i];
-            if (g.Wiped) continue;
+            if (g.Wiped || s.Spares(p, g)) continue;   // 魅了した敵のいるグループには向けられない
             if (spell.Attack != "melee" || (s.InFront(p) && s.IsNear(g))) yield return i;
         }
     }
@@ -1687,16 +1774,16 @@ public sealed class CombatEngine(GameData data, IRandom rng)
     /// セーヴ。呪文と魔法の効果(magical)なら、魔法への抵抗のあるものは有利で振る。
     /// 失敗しても、伝説的抵抗が残っているモンスターは成功に変える(ボスに縛る呪文が素通りしないように)。
     /// </summary>
-    private bool SaveOrResist(CombatState s, Combatant c, Ability a, int dc, bool magical, bool advantage = false)
+    private bool SaveOrResist(CombatState s, Combatant c, Ability a, int dc, bool magical, bool advantage = false, int bonus = 0)
     {
         advantage |= magical && c.MagicResistant;
         advantage |= magical && FeatureChecks.MagicSaveAdvantage(_data, c, a);   // ノームの知恵
-        if (SavingThrow(c, a, dc, advantage)) return true;
+        if (SavingThrow(c, a, dc, advantage, bonus)) return true;
         // 不屈(ファイター L9): 失敗したセーヴを振り直す
         if (c is PartyMember ip && ClassFeatures.Spend(_data, ip.Character, "indomitable"))
         {
             s.Add("combat.indomitable", c.Name);
-            if (SavingThrow(c, a, dc, advantage)) return true;
+            if (SavingThrow(c, a, dc, advantage, bonus)) return true;
         }
         if (c is MonsterUnit { LegendaryResistLeft: > 0 } m)
         {
@@ -1733,7 +1820,8 @@ public sealed class CombatEngine(GameData data, IRandom rng)
                 }
                 continue;
             }
-            var targets = l.Targets().Where(t => t.Standing).ToList();
+            // 魅了した相手には、続く呪文でも手を出さない(唱えたあとで魅了された場合も)
+            var targets = l.Targets().Where(t => t.Standing && !Spared(s, c, t)).ToList();
             if (targets.Count == 0) continue;
             s.Add("combat.zone", c.Name, l.Spell.Name);
             foreach (var t in targets)
@@ -1796,14 +1884,22 @@ public sealed class CombatEngine(GameData data, IRandom rng)
     private bool SaveAdvantage(Combatant c, Condition condition) =>
         c.Modifiers.Any(m => m.Stat == "save_adv:" + condition.ToString().ToLowerInvariant()) || FeatureChecks.SaveAdvantageAgainst(_data, c, condition);
 
+    /// <summary>その武器の追加効果の、その武器で殴ったときだけ効く修正値(命中・ダメージ・薙ぎ。マジックとレアの効き方で弱めたもの)。</summary>
+    private int WeaponLocal(ItemInstance held, string stat) =>
+        held.AffixPassive(_data).Where(x => x.Type == EffectPart.Modifier && x.Stat == stat).Sum(x => x.Value ?? 0);
+
+    /// <summary>その状態にする(か、その状態を解く)セーヴの上乗せ(装備の修正値 save_vs:&lt;状態&gt;。追加効果の「自由の」など)。</summary>
+    private int ConditionSaveBonus(Combatant c, Condition condition) =>
+        c is PartyMember p ? p.Character.PassiveBonus(_data, "save_vs:" + condition.ToString().ToLowerInvariant()) : 0;
+
     /// <summary>攻撃・セーヴ・死亡のセーヴの d20 の 1 を振り直すか(幸運)。</summary>
     private bool Lucky(Combatant c) => FeatureChecks.Lucky(_data, c);
 
     /// <summary>魔法の眠りの呪文の状態に、魔法ではならないか(妖精の血)。</summary>
     private bool SleepImmune(Combatant c, EffectPart pool) => pool.Condition is { } pc && FeatureChecks.MagicImmune(_data, c, pc);
 
-    /// <summary>セーヴを振る。advantage なら d20 を2回振って良いほう(拘束の敏捷力のセーヴの不利と打ち消し合う)。</summary>
-    public bool SavingThrow(Combatant c, Ability a, int dc, bool advantage = false)
+    /// <summary>セーヴを振る。advantage なら d20 を2回振って良いほう(拘束の敏捷力のセーヴの不利と打ち消し合う)。bonus はその状態へのセーヴの上乗せ。</summary>
+    public bool SavingThrow(Combatant c, Ability a, int dc, bool advantage = false, int bonus = 0)
     {
         bool helpless = c.Has(Condition.Paralyzed) || c.Has(Condition.Stunned) || c.Has(Condition.Unconscious) || c.Has(Condition.Petrified);
         if (helpless && a is Ability.Str or Ability.Dex) return false;   // 麻痺などでは筋力と敏捷力のセーヴに必ず失敗する
@@ -1823,7 +1919,7 @@ public sealed class CombatEngine(GameData data, IRandom rng)
             roll = used;
         }
         else if (roll == 1 && Lucky(c)) roll = D20();
-        int total = roll + c.SaveBonus(a) + ModifierRoll(c, "save");
+        int total = roll + c.SaveBonus(a) + ModifierRoll(c, "save") + bonus;
         // 鼓舞: 失敗しそうなら、もらったダイスを足す(足して成功するときだけ使う)
         if (total < dc && c.Modifiers.FirstOrDefault(m => m.Stat == "inspire") is { Dice: { } inspire } im && total + RollDice(inspire) is int lifted && lifted >= dc)
         {
@@ -1837,7 +1933,7 @@ public sealed class CombatEngine(GameData data, IRandom rng)
     /// 状態にする。セーヴの失敗から来た状態で repeat_save なら、同じセーヴを毎ターンし直す。
     /// escape_dc が 0 なら唱えた人の呪文の難易度。repeat_save で ability があれば、そのセーヴ(パワー・ワード・スタン)。
     /// </summary>
-    private void AddCondition(CombatState s, Combatant target, EffectPart part, EffectPart? fromSave, CastContext? ctx = null)
+    private void AddCondition(CombatState s, Combatant target, EffectPart part, EffectPart? fromSave, CastContext? ctx = null, Combatant? source = null)
     {
         if (part.Condition is not { } cond || !target.Standing) return;
         if (target.Immune(cond)) return;
@@ -1854,7 +1950,7 @@ public sealed class CombatEngine(GameData data, IRandom rng)
             RoundsLeft = RoundsOf(part.Rounds, ctx),
             SaveAbility = repeat,
             Dc = part.EscapeDc.HasValue ? escape : fromSave?.Dc ?? ctx?.Dc ?? 0,
-            SourceId = ctx?.Caster.Id,
+            SourceId = ctx?.Caster.Id ?? source?.Id,   // かけた者(呪文でない行動でも。魅了した相手を覚える)
             SpellId = ctx is { Spell.Concentration: true } ? ctx.Spell.Id : null,
         });
         s.Add("combat.condition", target.Name, cond);
@@ -1950,6 +2046,16 @@ public sealed class CombatEngine(GameData data, IRandom rng)
         }
         double mult = target.DamageMultiplier(type, magical);   // 装備・種族・呪文などの抵抗と脆弱(効かないなら 0)
         int dealt = (int)Math.Floor(amount * mult);
+        // 装備のダメージ軽減(reduce:<種類>、物理の3種類は reduce:physical でも)
+        if (dealt > 0 && target is PartyMember rp)
+        {
+            int cut = rp.Character.PassiveBonus(_data, "reduce:" + type) + (DamageTypes.IsPhysical(type) ? rp.Character.PassiveBonus(_data, "reduce:physical") : 0);
+            if (cut > 0)
+            {
+                dealt = Math.Max(0, dealt - cut);
+                s.Add("combat.reduced", target.Name, cut);
+            }
+        }
         if (dealt > 0) target.Conditions.RemoveAll(x => x.SpellId == "turn_undead");   // 退散は、ダメージを受けると解ける
         if (dealt > 0 && target is MonsterUnit { Def.RegenerateStop: { Count: > 0 } stops } regen && stops.Contains(type)) regen.RegenerationStopped = true;   // 次の番は再生しない
         int taken = dealt;   // 一時的な HP で受けた分も含めた、受けたダメージ(集中の判定に使う)
@@ -2085,10 +2191,13 @@ public sealed class CombatEngine(GameData data, IRandom rng)
 
     private void EndOfTurn(CombatState s, Combatant c)
     {
+        // 再生の(装備の regen): 自分の番の終わりに HP が戻る(倒れている人は戻らない)
+        if (c is PartyMember { Standing: true } rp && rp.Hp < rp.MaxHp && rp.Character.PassiveBonus(_data, "regen") is int regen and > 0)
+            Heal(s, rp, Math.Min(regen, rp.MaxHp - rp.Hp));
         foreach (var x in c.Conditions.ToList())
         {
             bool end = false;
-            if (x.SaveAbility is { } a && SaveOrResist(s, c, a, x.Dc, magical: x.SpellId != null, SaveAdvantage(c, x.Condition))) end = true;
+            if (x.SaveAbility is { } a && SaveOrResist(s, c, a, x.Dc, magical: x.SpellId != null, SaveAdvantage(c, x.Condition), ConditionSaveBonus(c, x.Condition))) end = true;
             if (x.RoundsLeft is int n)
             {
                 x.RoundsLeft = n - 1;
@@ -2132,6 +2241,9 @@ public sealed class CombatEngine(GameData data, IRandom rng)
         long xp = s.Defeated.Sum(m => (long)m.Def.Xp);
         long each = alive.Count == 0 ? 0 : xp / alive.Count;
         long gold = s.Defeated.Where(m => CarriesTreasure(m.Def)).Sum(m => (long)DiceExpression.Parse($"{Math.Max(1, (int)Math.Ceiling(m.Def.Cr * 4))}d6").Roll(_rng).Total);
+        // 装備の黄金の(gold_find は %。生き残った人の合計)
+        int goldFind = alive.Sum(p => Math.Max(0, p.Character.PassiveBonus(_data, "gold_find")));
+        if (goldFind > 0) gold = gold * (100 + goldFind) / 100;
         foreach (var p in alive)
         {
             p.Character.Xp += each;

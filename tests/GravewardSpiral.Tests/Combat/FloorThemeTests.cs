@@ -42,8 +42,8 @@ public class FloorThemeTests
         var monsters = FloorAdvisor.Monsters(Data, s, 0.8, 6, theme);
         Assert.NotEmpty(monsters);
         Assert.Equal("undead", monsters[0].Monster.CreatureType);
-        var rarities = FloorAdvisor.ItemRarities(TreasureSettings.Load(Content), 0.8);
+        var rarities = FloorAdvisor.ItemRarities(TreasureSettings.Load(Content), 5);
         Assert.Equal(1.0, rarities.Values.Sum(), 6);
-        Assert.NotEmpty(FloorAdvisor.Items(Data, TreasureSettings.Load(Content), 0.8));
+        Assert.NotEmpty(FloorAdvisor.Items(Data, TreasureSettings.Load(Content), 5));
     }
 }

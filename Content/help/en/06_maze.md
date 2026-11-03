@@ -17,7 +17,7 @@ The minimap in the upper-right corner shows your surroundings. Press M to open a
 ## Darkness and fog
 
 - Darkness hides the view ahead, but exploration is still recorded on the map. A light spell or similar effect restores visibility while it lasts.
-- Fog leaves the view ahead visible, but stops mapping and hides your current position on the map. When you leave the fog, the path you walked inside is added to the map (shaded in fog color).
+- Fog leaves the view ahead visible, but stops mapping and hides your current position on the map. When you leave the fog, the path you walked inside is added to the map (shaded in fog color). On fog squares already on the map, your position is shown.
 
 ## Doors and keys
 

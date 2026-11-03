@@ -62,8 +62,11 @@ public static class ClassFeatures
     {
         return PoolOwners(data, c, pool)
             .Where(o => o.Pool.Recharge == "short" || (o.Pool.ShortWith != null && HasPassive(data, c, o.Pool.ShortWith)))
-            .Select(o => o.Pool.Max.Eval(c, o.Level)).DefaultIfEmpty(0).Max();
+            .Select(o => o.Pool.Max.Eval(c, o.Level)).DefaultIfEmpty(0).Max() is var max and > 0 ? max + ExtraUses(data, c, pool) : 0;
     }
+
+    /// <summary>装備で増える回数(修正値 uses:&lt;回数の id&gt;。追加効果の「憤怒の」など)。</summary>
+    private static int ExtraUses(GameData data, Character c, string pool) => Math.Max(0, c.PassiveBonus(data, "uses:" + pool));
 
     /// <summary>そのクラスのレベル(持っていなければ 0)。</summary>
     public static int Level(Character c, string classId) => c.LevelIn(classId);
@@ -86,7 +89,7 @@ public static class ClassFeatures
 
     /// <summary>回数の上限(その回数を持つクラスか種族の上限の一番大きいもの。持たなければ 0)。</summary>
     public static int MaxUses(GameData data, Character c, string pool) =>
-        PoolOwners(data, c, pool).Select(o => o.Pool.Max.Eval(c, o.Level)).DefaultIfEmpty(0).Max();
+        PoolOwners(data, c, pool).Select(o => o.Pool.Max.Eval(c, o.Level)).DefaultIfEmpty(0).Max() is var max and > 0 ? max + ExtraUses(data, c, pool) : 0;
 
     /// <summary>その人が持つ回数(状態の画面に出す順。クラスを取った順に各クラスの pools の並び、そのあと種族の回数)。上限が 0 のものは出さない。</summary>
     public static IReadOnlyList<string> PoolsOf(GameData data, Character c) =>

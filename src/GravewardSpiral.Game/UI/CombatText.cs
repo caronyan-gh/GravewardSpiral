@@ -50,7 +50,8 @@ public static class CombatText
             string str when e.Key == "combat.damage" && i == 2 => s["damage." + str],
             string str when e.Key is "combat.dot" or "combat.dot_on" or "combat.dot_end" && i == 1 => s["damage." + str],
             string str when str.StartsWith("stat.") => s[str],
-            string str when str.StartsWith("feature.") || str.StartsWith("passive.") || str.StartsWith("combat.src.") => s[str],
+            string str when FeatureText.FromKey(sv, str) is { } featureName => featureName,   // 技と能力の名前(データの name)
+            string str when str.StartsWith("combat.src.") => s[str],
             _ => a,
         }).ToArray();
         // 命中とダメージの行の4つめは出どころ(急所攻撃・ボーナスアクションなど、おまけの分だけ)。括弧で添える形の文言にする

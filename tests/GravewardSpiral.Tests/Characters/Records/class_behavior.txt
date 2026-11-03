@@ -2639,7 +2639,7 @@ str human ranger20 | cast ranger: kind=Known cantrips=0 known=11 prepared=0 clas
 str human ranger20 | book ranger: cantrips= known=wind_wall,cure_wounds,conjure_woodland_beings,conjure_animals,freedom_of_movement,stoneskin,protection_from_energy,barkskin,lesser_restoration,protection_from_poison,daylight prepared=
 str human ranger20 | castable: cure_wounds@ranger,barkskin@ranger,lesser_restoration@ranger,protection_from_poison@ranger,conjure_animals@ranger,daylight@ranger,protection_from_energy@ranger,wind_wall@ranger,conjure_woodland_beings@ranger,freedom_of_movement@ranger,stoneskin@ranger
 str human rogue1 | actions: 
-str human rogue1 | passives: 
+str human rogue1 | passives: sneak_attack
 str human rogue1 | traits: 
 str human rogue1 | pools: 
 str human rogue1 | short_rest: 
@@ -2653,7 +2653,7 @@ str human rogue1 | race: adv_against= magic_save_adv= lucky=False magic_immune=
 str human rogue1 | trap: poison_needle=21/30,20/30,22/30 gas_bomb=30+poisoned/30+poisoned,30/30,30/30+poisoned crossbow_bolt=14/30,17/30,7/30 exploding_box=19/11,21/8,10/20 stunner=30/30,30+paralyzed/30,30/30 teleporter=30/30/tp,30/30/tp,30/30/tp mage_blaster=30/30,30/30,30/30 priest_blaster=30/30,30/30,30/30 alarm=30/30/alarm,30/30/alarm,30/30/alarm
 str human rogue1 | action_nums: second_wind_bonus=0 sneak_d6=1 arcane_budget=0 turn_dc=0
 str human rogue2 | actions: 
-str human rogue2 | passives: 
+str human rogue2 | passives: sneak_attack
 str human rogue2 | traits: 
 str human rogue2 | pools: 
 str human rogue2 | short_rest: 
@@ -2667,7 +2667,7 @@ str human rogue2 | race: adv_against= magic_save_adv= lucky=False magic_immune=
 str human rogue2 | trap: poison_needle=21/30,20/30,22/30 gas_bomb=30+poisoned/30+poisoned,30/30,30/30+poisoned crossbow_bolt=14/30,17/30,7/30 exploding_box=19/11,21/8,10/20 stunner=30/30,30+paralyzed/30,30/30 teleporter=30/30/tp,30/30/tp,30/30/tp mage_blaster=30/30,30/30,30/30 priest_blaster=30/30,30/30,30/30 alarm=30/30/alarm,30/30/alarm,30/30/alarm
 str human rogue2 | action_nums: second_wind_bonus=0 sneak_d6=1 arcane_budget=0 turn_dc=0
 str human rogue3 | actions: 
-str human rogue3 | passives: 
+str human rogue3 | passives: sneak_attack
 str human rogue3 | traits: 
 str human rogue3 | pools: 
 str human rogue3 | short_rest: 
@@ -2681,7 +2681,7 @@ str human rogue3 | race: adv_against= magic_save_adv= lucky=False magic_immune=
 str human rogue3 | trap: poison_needle=21/30,20/30,22/30 gas_bomb=30+poisoned/30+poisoned,30/30,30/30+poisoned crossbow_bolt=14/30,17/30,7/30 exploding_box=19/11,21/8,10/20 stunner=30/30,30+paralyzed/30,30/30 teleporter=30/30/tp,30/30/tp,30/30/tp mage_blaster=30/30,30/30,30/30 priest_blaster=30/30,30/30,30/30 alarm=30/30/alarm,30/30/alarm,30/30/alarm
 str human rogue3 | action_nums: second_wind_bonus=0 sneak_d6=2 arcane_budget=0 turn_dc=0
 str human rogue4 | actions: 
-str human rogue4 | passives: 
+str human rogue4 | passives: sneak_attack
 str human rogue4 | traits: 
 str human rogue4 | pools: 
 str human rogue4 | short_rest: 
@@ -2695,7 +2695,7 @@ str human rogue4 | race: adv_against= magic_save_adv= lucky=False magic_immune=
 str human rogue4 | trap: poison_needle=21/30,20/30,22/30 gas_bomb=30+poisoned/30+poisoned,30/30,30/30+poisoned crossbow_bolt=14/30,17/30,7/30 exploding_box=19/11,21/8,10/20 stunner=30/30,30+paralyzed/30,30/30 teleporter=30/30/tp,30/30/tp,30/30/tp mage_blaster=30/30,30/30,30/30 priest_blaster=30/30,30/30,30/30 alarm=30/30/alarm,30/30/alarm,30/30/alarm
 str human rogue4 | action_nums: second_wind_bonus=0 sneak_d6=2 arcane_budget=0 turn_dc=0
 str human rogue5 | actions: 
-str human rogue5 | passives: uncanny_dodge
+str human rogue5 | passives: sneak_attack,uncanny_dodge
 str human rogue5 | traits: 
 str human rogue5 | pools: 
 str human rogue5 | short_rest: 
@@ -2709,7 +2709,7 @@ str human rogue5 | race: adv_against= magic_save_adv= lucky=False magic_immune=
 str human rogue5 | trap: poison_needle=21/30,20/30,22/30 gas_bomb=30+poisoned/30+poisoned,30/30,30/30+poisoned crossbow_bolt=14/30,17/30,7/30 exploding_box=19/11,21/8,10/20 stunner=30/30,30+paralyzed/30,30/30 teleporter=30/30/tp,30/30/tp,30/30/tp mage_blaster=30/30,30/30,30/30 priest_blaster=30/30,30/30,30/30 alarm=30/30/alarm,30/30/alarm,30/30/alarm
 str human rogue5 | action_nums: second_wind_bonus=0 sneak_d6=3 arcane_budget=0 turn_dc=0
 str human rogue6 | actions: 
-str human rogue6 | passives: uncanny_dodge
+str human rogue6 | passives: sneak_attack,uncanny_dodge
 str human rogue6 | traits: 
 str human rogue6 | pools: 
 str human rogue6 | short_rest: 
@@ -2723,7 +2723,7 @@ str human rogue6 | race: adv_against= magic_save_adv= lucky=False magic_immune=
 str human rogue6 | trap: poison_needle=21/30,20/30,22/30 gas_bomb=30+poisoned/30+poisoned,30/30,30/30+poisoned crossbow_bolt=14/30,17/30,7/30 exploding_box=19/11,21/8,10/20 stunner=30/30,30+paralyzed/30,30/30 teleporter=30/30/tp,30/30/tp,30/30/tp mage_blaster=30/30,30/30,30/30 priest_blaster=30/30,30/30,30/30 alarm=30/30/alarm,30/30/alarm,30/30/alarm
 str human rogue6 | action_nums: second_wind_bonus=0 sneak_d6=3 arcane_budget=0 turn_dc=0
 str human rogue7 | actions: 
-str human rogue7 | passives: uncanny_dodge,evasion
+str human rogue7 | passives: sneak_attack,uncanny_dodge,evasion
 str human rogue7 | traits: 
 str human rogue7 | pools: 
 str human rogue7 | short_rest: 
@@ -2737,7 +2737,7 @@ str human rogue7 | race: adv_against= magic_save_adv= lucky=False magic_immune=
 str human rogue7 | trap: poison_needle=21/30,20/30,22/30 gas_bomb=30+poisoned/30+poisoned,30/30,30/30+poisoned crossbow_bolt=14/30,17/30,7/30 exploding_box=30/11,30/8,20/20 stunner=30/30,30+paralyzed/30,30/30 teleporter=30/30/tp,30/30/tp,30/30/tp mage_blaster=30/30,30/30,30/30 priest_blaster=30/30,30/30,30/30 alarm=30/30/alarm,30/30/alarm,30/30/alarm
 str human rogue7 | action_nums: second_wind_bonus=0 sneak_d6=4 arcane_budget=0 turn_dc=0
 str human rogue8 | actions: 
-str human rogue8 | passives: uncanny_dodge,evasion
+str human rogue8 | passives: sneak_attack,uncanny_dodge,evasion
 str human rogue8 | traits: 
 str human rogue8 | pools: 
 str human rogue8 | short_rest: 
@@ -2751,7 +2751,7 @@ str human rogue8 | race: adv_against= magic_save_adv= lucky=False magic_immune=
 str human rogue8 | trap: poison_needle=21/30,20/30,22/30 gas_bomb=30+poisoned/30+poisoned,30/30,30/30+poisoned crossbow_bolt=14/30,17/30,7/30 exploding_box=30/11,30/8,20/20 stunner=30/30,30+paralyzed/30,30/30 teleporter=30/30/tp,30/30/tp,30/30/tp mage_blaster=30/30,30/30,30/30 priest_blaster=30/30,30/30,30/30 alarm=30/30/alarm,30/30/alarm,30/30/alarm
 str human rogue8 | action_nums: second_wind_bonus=0 sneak_d6=4 arcane_budget=0 turn_dc=0
 str human rogue9 | actions: 
-str human rogue9 | passives: uncanny_dodge,evasion
+str human rogue9 | passives: sneak_attack,uncanny_dodge,evasion
 str human rogue9 | traits: 
 str human rogue9 | pools: 
 str human rogue9 | short_rest: 
@@ -2765,7 +2765,7 @@ str human rogue9 | race: adv_against= magic_save_adv= lucky=False magic_immune=
 str human rogue9 | trap: poison_needle=21/30,20/30,22/30 gas_bomb=30+poisoned/30+poisoned,30/30,30/30+poisoned crossbow_bolt=14/30,17/30,7/30 exploding_box=30/11,30/8,20/20 stunner=30/30,30+paralyzed/30,30/30 teleporter=30/30/tp,30/30/tp,30/30/tp mage_blaster=30/30,30/30,30/30 priest_blaster=30/30,30/30,30/30 alarm=30/30/alarm,30/30/alarm,30/30/alarm
 str human rogue9 | action_nums: second_wind_bonus=0 sneak_d6=5 arcane_budget=0 turn_dc=0
 str human rogue10 | actions: 
-str human rogue10 | passives: uncanny_dodge,evasion
+str human rogue10 | passives: sneak_attack,uncanny_dodge,evasion
 str human rogue10 | traits: 
 str human rogue10 | pools: 
 str human rogue10 | short_rest: 
@@ -2779,7 +2779,7 @@ str human rogue10 | race: adv_against= magic_save_adv= lucky=False magic_immune=
 str human rogue10 | trap: poison_needle=21/30,20/30,22/30 gas_bomb=30+poisoned/30+poisoned,30/30,30/30+poisoned crossbow_bolt=14/30,17/30,7/30 exploding_box=30/11,30/8,20/20 stunner=30/30,30+paralyzed/30,30/30 teleporter=30/30/tp,30/30/tp,30/30/tp mage_blaster=30/30,30/30,30/30 priest_blaster=30/30,30/30,30/30 alarm=30/30/alarm,30/30/alarm,30/30/alarm
 str human rogue10 | action_nums: second_wind_bonus=0 sneak_d6=5 arcane_budget=0 turn_dc=0
 str human rogue11 | actions: 
-str human rogue11 | passives: uncanny_dodge,evasion
+str human rogue11 | passives: sneak_attack,uncanny_dodge,evasion
 str human rogue11 | traits: 
 str human rogue11 | pools: 
 str human rogue11 | short_rest: 
@@ -2793,7 +2793,7 @@ str human rogue11 | race: adv_against= magic_save_adv= lucky=False magic_immune=
 str human rogue11 | trap: poison_needle=21/30,20/30,22/30 gas_bomb=30+poisoned/30+poisoned,30/30,30/30+poisoned crossbow_bolt=14/30,17/30,7/30 exploding_box=30/11,30/8,20/20 stunner=30/30,30+paralyzed/30,30/30 teleporter=30/30/tp,30/30/tp,30/30/tp mage_blaster=30/30,30/30,30/30 priest_blaster=30/30,30/30,30/30 alarm=30/30/alarm,30/30/alarm,30/30/alarm
 str human rogue11 | action_nums: second_wind_bonus=0 sneak_d6=6 arcane_budget=0 turn_dc=0
 str human rogue12 | actions: 
-str human rogue12 | passives: uncanny_dodge,evasion
+str human rogue12 | passives: sneak_attack,uncanny_dodge,evasion
 str human rogue12 | traits: 
 str human rogue12 | pools: 
 str human rogue12 | short_rest: 
@@ -2807,7 +2807,7 @@ str human rogue12 | race: adv_against= magic_save_adv= lucky=False magic_immune=
 str human rogue12 | trap: poison_needle=21/30,20/30,22/30 gas_bomb=30+poisoned/30+poisoned,30/30,30/30+poisoned crossbow_bolt=14/30,17/30,7/30 exploding_box=30/11,30/8,20/20 stunner=30/30,30+paralyzed/30,30/30 teleporter=30/30/tp,30/30/tp,30/30/tp mage_blaster=30/30,30/30,30/30 priest_blaster=30/30,30/30,30/30 alarm=30/30/alarm,30/30/alarm,30/30/alarm
 str human rogue12 | action_nums: second_wind_bonus=0 sneak_d6=6 arcane_budget=0 turn_dc=0
 str human rogue13 | actions: 
-str human rogue13 | passives: uncanny_dodge,evasion
+str human rogue13 | passives: sneak_attack,uncanny_dodge,evasion
 str human rogue13 | traits: 
 str human rogue13 | pools: 
 str human rogue13 | short_rest: 
@@ -2821,7 +2821,7 @@ str human rogue13 | race: adv_against= magic_save_adv= lucky=False magic_immune=
 str human rogue13 | trap: poison_needle=21/30,20/30,22/30 gas_bomb=30+poisoned/30+poisoned,30/30,30/30+poisoned crossbow_bolt=14/30,17/30,7/30 exploding_box=30/11,30/8,30/20 stunner=30/30,30+paralyzed/30,30/30 teleporter=30/30/tp,30/30/tp,30/30/tp mage_blaster=30/30,30/30,30/30 priest_blaster=30/30,30/30,30/30 alarm=30/30/alarm,30/30/alarm,30/30/alarm
 str human rogue13 | action_nums: second_wind_bonus=0 sneak_d6=7 arcane_budget=0 turn_dc=0
 str human rogue14 | actions: 
-str human rogue14 | passives: uncanny_dodge,evasion
+str human rogue14 | passives: sneak_attack,uncanny_dodge,evasion
 str human rogue14 | traits: 
 str human rogue14 | pools: 
 str human rogue14 | short_rest: 
@@ -2835,7 +2835,7 @@ str human rogue14 | race: adv_against= magic_save_adv= lucky=False magic_immune=
 str human rogue14 | trap: poison_needle=21/30,20/30,22/30 gas_bomb=30+poisoned/30+poisoned,30/30,30/30+poisoned crossbow_bolt=14/30,17/30,7/30 exploding_box=30/11,30/8,30/20 stunner=30/30,30+paralyzed/30,30/30 teleporter=30/30/tp,30/30/tp,30/30/tp mage_blaster=30/30,30/30,30/30 priest_blaster=30/30,30/30,30/30 alarm=30/30/alarm,30/30/alarm,30/30/alarm
 str human rogue14 | action_nums: second_wind_bonus=0 sneak_d6=7 arcane_budget=0 turn_dc=0
 str human rogue15 | actions: 
-str human rogue15 | passives: uncanny_dodge,evasion,slippery_mind
+str human rogue15 | passives: sneak_attack,uncanny_dodge,evasion,slippery_mind
 str human rogue15 | traits: 
 str human rogue15 | pools: 
 str human rogue15 | short_rest: 
@@ -2849,7 +2849,7 @@ str human rogue15 | race: adv_against= magic_save_adv= lucky=False magic_immune=
 str human rogue15 | trap: poison_needle=21/30,20/30,22/30 gas_bomb=30+poisoned/30+poisoned,30/30,30/30+poisoned crossbow_bolt=14/30,17/30,7/30 exploding_box=30/11,30/8,30/20 stunner=30/30,30+paralyzed/30,30/30 teleporter=30/30/tp,30/30/tp,30/30/tp mage_blaster=30/30,30/30,30/30 priest_blaster=30/30,30/30,30/30 alarm=30/30/alarm,30/30/alarm,30/30/alarm
 str human rogue15 | action_nums: second_wind_bonus=0 sneak_d6=8 arcane_budget=0 turn_dc=0
 str human rogue16 | actions: 
-str human rogue16 | passives: uncanny_dodge,evasion,slippery_mind
+str human rogue16 | passives: sneak_attack,uncanny_dodge,evasion,slippery_mind
 str human rogue16 | traits: 
 str human rogue16 | pools: 
 str human rogue16 | short_rest: 
@@ -2863,7 +2863,7 @@ str human rogue16 | race: adv_against= magic_save_adv= lucky=False magic_immune=
 str human rogue16 | trap: poison_needle=21/30,20/30,22/30 gas_bomb=30+poisoned/30+poisoned,30/30,30/30+poisoned crossbow_bolt=14/30,17/30,7/30 exploding_box=30/11,30/8,30/20 stunner=30/30,30+paralyzed/30,30/30 teleporter=30/30/tp,30/30/tp,30/30/tp mage_blaster=30/30,30/30,30/30 priest_blaster=30/30,30/30,30/30 alarm=30/30/alarm,30/30/alarm,30/30/alarm
 str human rogue16 | action_nums: second_wind_bonus=0 sneak_d6=8 arcane_budget=0 turn_dc=0
 str human rogue17 | actions: 
-str human rogue17 | passives: uncanny_dodge,evasion,slippery_mind
+str human rogue17 | passives: sneak_attack,uncanny_dodge,evasion,slippery_mind
 str human rogue17 | traits: 
 str human rogue17 | pools: 
 str human rogue17 | short_rest: 
@@ -2877,7 +2877,7 @@ str human rogue17 | race: adv_against= magic_save_adv= lucky=False magic_immune=
 str human rogue17 | trap: poison_needle=21/30,20/30,22/30 gas_bomb=30+poisoned/30+poisoned,30/30,30/30+poisoned crossbow_bolt=14/30,17/30,7/30 exploding_box=30/11,30/8,30/20 stunner=30/30,30+paralyzed/30,30/30 teleporter=30/30/tp,30/30/tp,30/30/tp mage_blaster=30/30,30/30,30/30 priest_blaster=30/30,30/30,30/30 alarm=30/30/alarm,30/30/alarm,30/30/alarm
 str human rogue17 | action_nums: second_wind_bonus=0 sneak_d6=9 arcane_budget=0 turn_dc=0
 str human rogue18 | actions: 
-str human rogue18 | passives: uncanny_dodge,evasion,slippery_mind,elusive
+str human rogue18 | passives: sneak_attack,uncanny_dodge,evasion,slippery_mind,elusive
 str human rogue18 | traits: 
 str human rogue18 | pools: 
 str human rogue18 | short_rest: 
@@ -2891,7 +2891,7 @@ str human rogue18 | race: adv_against= magic_save_adv= lucky=False magic_immune=
 str human rogue18 | trap: poison_needle=21/30,20/30,22/30 gas_bomb=30+poisoned/30+poisoned,30/30,30/30+poisoned crossbow_bolt=14/30,17/30,7/30 exploding_box=30/11,30/8,30/20 stunner=30/30,30+paralyzed/30,30/30 teleporter=30/30/tp,30/30/tp,30/30/tp mage_blaster=30/30,30/30,30/30 priest_blaster=30/30,30/30,30/30 alarm=30/30/alarm,30/30/alarm,30/30/alarm
 str human rogue18 | action_nums: second_wind_bonus=0 sneak_d6=9 arcane_budget=0 turn_dc=0
 str human rogue19 | actions: 
-str human rogue19 | passives: uncanny_dodge,evasion,slippery_mind,elusive
+str human rogue19 | passives: sneak_attack,uncanny_dodge,evasion,slippery_mind,elusive
 str human rogue19 | traits: 
 str human rogue19 | pools: 
 str human rogue19 | short_rest: 
@@ -2905,7 +2905,7 @@ str human rogue19 | race: adv_against= magic_save_adv= lucky=False magic_immune=
 str human rogue19 | trap: poison_needle=21/30,20/30,22/30 gas_bomb=30+poisoned/30+poisoned,30/30,30/30+poisoned crossbow_bolt=14/30,17/30,7/30 exploding_box=30/11,30/8,30/20 stunner=30/30,30+paralyzed/30,30/30 teleporter=30/30/tp,30/30/tp,30/30/tp mage_blaster=30/30,30/30,30/30 priest_blaster=30/30,30/30,30/30 alarm=30/30/alarm,30/30/alarm,30/30/alarm
 str human rogue19 | action_nums: second_wind_bonus=0 sneak_d6=10 arcane_budget=0 turn_dc=0
 str human rogue20 | actions: 
-str human rogue20 | passives: uncanny_dodge,evasion,slippery_mind,elusive
+str human rogue20 | passives: sneak_attack,uncanny_dodge,evasion,slippery_mind,elusive
 str human rogue20 | traits: 
 str human rogue20 | pools: 
 str human rogue20 | short_rest: 
@@ -4143,7 +4143,7 @@ str human ranger4/druid4 | cast druid: kind=Prepared cantrips=3 known=0 prepared
 str human ranger4/druid4 | book druid: cantrips=poison_spray,produce_flame,resistance known= prepared=moonbeam,thunderwave,cure_wounds,healing_word
 str human ranger4/druid4 | castable: poison_spray@druid,produce_flame@druid,resistance@druid,cure_wounds@ranger,healing_word@druid,thunderwave@druid,moonbeam@druid
 str human bard5/rogue7 | actions: bardic_inspiration
-str human bard5/rogue7 | passives: song_of_rest,font_of_inspiration,uncanny_dodge,evasion
+str human bard5/rogue7 | passives: song_of_rest,font_of_inspiration,sneak_attack,uncanny_dodge,evasion
 str human bard5/rogue7 | traits: 
 str human bard5/rogue7 | pools: bardic_inspiration=1
 str human bard5/rogue7 | short_rest: bardic_inspiration
@@ -4161,7 +4161,7 @@ str human bard5/rogue7 | cast bard: kind=Known cantrips=3 known=8 prepared=0 cla
 str human bard5/rogue7 | book bard: cantrips=vicious_mockery,dancing_lights,light known=feather_fall,shatter,thunderwave,cure_wounds,healing_word,heat_metal,fear,hypnotic_pattern prepared=
 str human bard5/rogue7 | castable: dancing_lights@bard,light@bard,vicious_mockery@bard,cure_wounds@bard,feather_fall@bard,healing_word@bard,thunderwave@bard,heat_metal@bard,shatter@bard,fear@bard,hypnotic_pattern@bard
 str human rogue7/monk7 | actions: flurry_of_blows,patient_defense,stunning_strike
-str human rogue7/monk7 | passives: uncanny_dodge,evasion,unarmored_defense_wis,martial_arts,deflect_missiles,ki_empowered_strikes
+str human rogue7/monk7 | passives: sneak_attack,uncanny_dodge,evasion,unarmored_defense_wis,martial_arts,deflect_missiles,ki_empowered_strikes
 str human rogue7/monk7 | traits: 
 str human rogue7/monk7 | pools: ki=7
 str human rogue7/monk7 | short_rest: ki
@@ -7487,7 +7487,7 @@ cha human ranger20 | cast ranger: kind=Known cantrips=0 known=11 prepared=0 clas
 cha human ranger20 | book ranger: cantrips= known=wind_wall,cure_wounds,conjure_woodland_beings,conjure_animals,freedom_of_movement,stoneskin,protection_from_energy,barkskin,lesser_restoration,protection_from_poison,daylight prepared=
 cha human ranger20 | castable: cure_wounds@ranger,barkskin@ranger,lesser_restoration@ranger,protection_from_poison@ranger,conjure_animals@ranger,daylight@ranger,protection_from_energy@ranger,wind_wall@ranger,conjure_woodland_beings@ranger,freedom_of_movement@ranger,stoneskin@ranger
 cha human rogue1 | actions: 
-cha human rogue1 | passives: 
+cha human rogue1 | passives: sneak_attack
 cha human rogue1 | traits: 
 cha human rogue1 | pools: 
 cha human rogue1 | short_rest: 
@@ -7501,7 +7501,7 @@ cha human rogue1 | race: adv_against= magic_save_adv= lucky=False magic_immune=
 cha human rogue1 | trap: poison_needle=21/30,20/30,22+poisoned/30 gas_bomb=30+poisoned/30+poisoned,30/30,30/30+poisoned crossbow_bolt=14/30,17/30,7/30 exploding_box=8/11,21/8,10/20 stunner=30+paralyzed/30,30+paralyzed/30,30/30 teleporter=30/30/tp,30/30/tp,30/30/tp mage_blaster=30/30,30/30,30/30 priest_blaster=30/30,30/30,30/30 alarm=30/30/alarm,30/30/alarm,30/30/alarm
 cha human rogue1 | action_nums: second_wind_bonus=0 sneak_d6=1 arcane_budget=0 turn_dc=0
 cha human rogue2 | actions: 
-cha human rogue2 | passives: 
+cha human rogue2 | passives: sneak_attack
 cha human rogue2 | traits: 
 cha human rogue2 | pools: 
 cha human rogue2 | short_rest: 
@@ -7515,7 +7515,7 @@ cha human rogue2 | race: adv_against= magic_save_adv= lucky=False magic_immune=
 cha human rogue2 | trap: poison_needle=21/30,20/30,22+poisoned/30 gas_bomb=30+poisoned/30+poisoned,30/30,30/30+poisoned crossbow_bolt=14/30,17/30,7/30 exploding_box=8/11,21/8,10/20 stunner=30+paralyzed/30,30+paralyzed/30,30/30 teleporter=30/30/tp,30/30/tp,30/30/tp mage_blaster=30/30,30/30,30/30 priest_blaster=30/30,30/30,30/30 alarm=30/30/alarm,30/30/alarm,30/30/alarm
 cha human rogue2 | action_nums: second_wind_bonus=0 sneak_d6=1 arcane_budget=0 turn_dc=0
 cha human rogue3 | actions: 
-cha human rogue3 | passives: 
+cha human rogue3 | passives: sneak_attack
 cha human rogue3 | traits: 
 cha human rogue3 | pools: 
 cha human rogue3 | short_rest: 
@@ -7529,7 +7529,7 @@ cha human rogue3 | race: adv_against= magic_save_adv= lucky=False magic_immune=
 cha human rogue3 | trap: poison_needle=21/30,20/30,22+poisoned/30 gas_bomb=30+poisoned/30+poisoned,30/30,30/30+poisoned crossbow_bolt=14/30,17/30,7/30 exploding_box=8/11,21/8,10/20 stunner=30+paralyzed/30,30+paralyzed/30,30/30 teleporter=30/30/tp,30/30/tp,30/30/tp mage_blaster=30/30,30/30,30/30 priest_blaster=30/30,30/30,30/30 alarm=30/30/alarm,30/30/alarm,30/30/alarm
 cha human rogue3 | action_nums: second_wind_bonus=0 sneak_d6=2 arcane_budget=0 turn_dc=0
 cha human rogue4 | actions: 
-cha human rogue4 | passives: 
+cha human rogue4 | passives: sneak_attack
 cha human rogue4 | traits: 
 cha human rogue4 | pools: 
 cha human rogue4 | short_rest: 
@@ -7543,7 +7543,7 @@ cha human rogue4 | race: adv_against= magic_save_adv= lucky=False magic_immune=
 cha human rogue4 | trap: poison_needle=21/30,20/30,22+poisoned/30 gas_bomb=30+poisoned/30+poisoned,30/30,30/30+poisoned crossbow_bolt=14/30,17/30,7/30 exploding_box=8/11,21/8,10/20 stunner=30+paralyzed/30,30+paralyzed/30,30/30 teleporter=30/30/tp,30/30/tp,30/30/tp mage_blaster=30/30,30/30,30/30 priest_blaster=30/30,30/30,30/30 alarm=30/30/alarm,30/30/alarm,30/30/alarm
 cha human rogue4 | action_nums: second_wind_bonus=0 sneak_d6=2 arcane_budget=0 turn_dc=0
 cha human rogue5 | actions: 
-cha human rogue5 | passives: uncanny_dodge
+cha human rogue5 | passives: sneak_attack,uncanny_dodge
 cha human rogue5 | traits: 
 cha human rogue5 | pools: 
 cha human rogue5 | short_rest: 
@@ -7557,7 +7557,7 @@ cha human rogue5 | race: adv_against= magic_save_adv= lucky=False magic_immune=
 cha human rogue5 | trap: poison_needle=21/30,20/30,22+poisoned/30 gas_bomb=30+poisoned/30+poisoned,30/30,30/30+poisoned crossbow_bolt=14/30,17/30,7/30 exploding_box=8/11,21/8,10/20 stunner=30+paralyzed/30,30+paralyzed/30,30/30 teleporter=30/30/tp,30/30/tp,30/30/tp mage_blaster=30/30,30/30,30/30 priest_blaster=30/30,30/30,30/30 alarm=30/30/alarm,30/30/alarm,30/30/alarm
 cha human rogue5 | action_nums: second_wind_bonus=0 sneak_d6=3 arcane_budget=0 turn_dc=0
 cha human rogue6 | actions: 
-cha human rogue6 | passives: uncanny_dodge
+cha human rogue6 | passives: sneak_attack,uncanny_dodge
 cha human rogue6 | traits: 
 cha human rogue6 | pools: 
 cha human rogue6 | short_rest: 
@@ -7571,7 +7571,7 @@ cha human rogue6 | race: adv_against= magic_save_adv= lucky=False magic_immune=
 cha human rogue6 | trap: poison_needle=21/30,20/30,22+poisoned/30 gas_bomb=30+poisoned/30+poisoned,30/30,30/30+poisoned crossbow_bolt=14/30,17/30,7/30 exploding_box=8/11,21/8,10/20 stunner=30+paralyzed/30,30+paralyzed/30,30/30 teleporter=30/30/tp,30/30/tp,30/30/tp mage_blaster=30/30,30/30,30/30 priest_blaster=30/30,30/30,30/30 alarm=30/30/alarm,30/30/alarm,30/30/alarm
 cha human rogue6 | action_nums: second_wind_bonus=0 sneak_d6=3 arcane_budget=0 turn_dc=0
 cha human rogue7 | actions: 
-cha human rogue7 | passives: uncanny_dodge,evasion
+cha human rogue7 | passives: sneak_attack,uncanny_dodge,evasion
 cha human rogue7 | traits: 
 cha human rogue7 | pools: 
 cha human rogue7 | short_rest: 
@@ -7585,7 +7585,7 @@ cha human rogue7 | race: adv_against= magic_save_adv= lucky=False magic_immune=
 cha human rogue7 | trap: poison_needle=21/30,20/30,22+poisoned/30 gas_bomb=30+poisoned/30+poisoned,30/30,30/30+poisoned crossbow_bolt=14/30,17/30,7/30 exploding_box=19/11,30/8,20/20 stunner=30+paralyzed/30,30+paralyzed/30,30/30 teleporter=30/30/tp,30/30/tp,30/30/tp mage_blaster=30/30,30/30,30/30 priest_blaster=30/30,30/30,30/30 alarm=30/30/alarm,30/30/alarm,30/30/alarm
 cha human rogue7 | action_nums: second_wind_bonus=0 sneak_d6=4 arcane_budget=0 turn_dc=0
 cha human rogue8 | actions: 
-cha human rogue8 | passives: uncanny_dodge,evasion
+cha human rogue8 | passives: sneak_attack,uncanny_dodge,evasion
 cha human rogue8 | traits: 
 cha human rogue8 | pools: 
 cha human rogue8 | short_rest: 
@@ -7599,7 +7599,7 @@ cha human rogue8 | race: adv_against= magic_save_adv= lucky=False magic_immune=
 cha human rogue8 | trap: poison_needle=21/30,20/30,22+poisoned/30 gas_bomb=30+poisoned/30+poisoned,30/30,30/30+poisoned crossbow_bolt=14/30,17/30,7/30 exploding_box=19/11,30/8,20/20 stunner=30+paralyzed/30,30+paralyzed/30,30/30 teleporter=30/30/tp,30/30/tp,30/30/tp mage_blaster=30/30,30/30,30/30 priest_blaster=30/30,30/30,30/30 alarm=30/30/alarm,30/30/alarm,30/30/alarm
 cha human rogue8 | action_nums: second_wind_bonus=0 sneak_d6=4 arcane_budget=0 turn_dc=0
 cha human rogue9 | actions: 
-cha human rogue9 | passives: uncanny_dodge,evasion
+cha human rogue9 | passives: sneak_attack,uncanny_dodge,evasion
 cha human rogue9 | traits: 
 cha human rogue9 | pools: 
 cha human rogue9 | short_rest: 
@@ -7613,7 +7613,7 @@ cha human rogue9 | race: adv_against= magic_save_adv= lucky=False magic_immune=
 cha human rogue9 | trap: poison_needle=21/30,20/30,22+poisoned/30 gas_bomb=30+poisoned/30+poisoned,30/30,30/30+poisoned crossbow_bolt=14/30,17/30,7/30 exploding_box=30/11,30/8,20/20 stunner=30+paralyzed/30,30+paralyzed/30,30/30 teleporter=30/30/tp,30/30/tp,30/30/tp mage_blaster=30/30,30/30,30/30 priest_blaster=30/30,30/30,30/30 alarm=30/30/alarm,30/30/alarm,30/30/alarm
 cha human rogue9 | action_nums: second_wind_bonus=0 sneak_d6=5 arcane_budget=0 turn_dc=0
 cha human rogue10 | actions: 
-cha human rogue10 | passives: uncanny_dodge,evasion
+cha human rogue10 | passives: sneak_attack,uncanny_dodge,evasion
 cha human rogue10 | traits: 
 cha human rogue10 | pools: 
 cha human rogue10 | short_rest: 
@@ -7627,7 +7627,7 @@ cha human rogue10 | race: adv_against= magic_save_adv= lucky=False magic_immune=
 cha human rogue10 | trap: poison_needle=21/30,20/30,22+poisoned/30 gas_bomb=30+poisoned/30+poisoned,30/30,30/30+poisoned crossbow_bolt=14/30,17/30,7/30 exploding_box=30/11,30/8,20/20 stunner=30+paralyzed/30,30+paralyzed/30,30/30 teleporter=30/30/tp,30/30/tp,30/30/tp mage_blaster=30/30,30/30,30/30 priest_blaster=30/30,30/30,30/30 alarm=30/30/alarm,30/30/alarm,30/30/alarm
 cha human rogue10 | action_nums: second_wind_bonus=0 sneak_d6=5 arcane_budget=0 turn_dc=0
 cha human rogue11 | actions: 
-cha human rogue11 | passives: uncanny_dodge,evasion
+cha human rogue11 | passives: sneak_attack,uncanny_dodge,evasion
 cha human rogue11 | traits: 
 cha human rogue11 | pools: 
 cha human rogue11 | short_rest: 
@@ -7641,7 +7641,7 @@ cha human rogue11 | race: adv_against= magic_save_adv= lucky=False magic_immune=
 cha human rogue11 | trap: poison_needle=21/30,20/30,22+poisoned/30 gas_bomb=30+poisoned/30+poisoned,30/30,30/30+poisoned crossbow_bolt=14/30,17/30,7/30 exploding_box=30/11,30/8,20/20 stunner=30+paralyzed/30,30+paralyzed/30,30/30 teleporter=30/30/tp,30/30/tp,30/30/tp mage_blaster=30/30,30/30,30/30 priest_blaster=30/30,30/30,30/30 alarm=30/30/alarm,30/30/alarm,30/30/alarm
 cha human rogue11 | action_nums: second_wind_bonus=0 sneak_d6=6 arcane_budget=0 turn_dc=0
 cha human rogue12 | actions: 
-cha human rogue12 | passives: uncanny_dodge,evasion
+cha human rogue12 | passives: sneak_attack,uncanny_dodge,evasion
 cha human rogue12 | traits: 
 cha human rogue12 | pools: 
 cha human rogue12 | short_rest: 
@@ -7655,7 +7655,7 @@ cha human rogue12 | race: adv_against= magic_save_adv= lucky=False magic_immune=
 cha human rogue12 | trap: poison_needle=21/30,20/30,22+poisoned/30 gas_bomb=30+poisoned/30+poisoned,30/30,30/30+poisoned crossbow_bolt=14/30,17/30,7/30 exploding_box=30/11,30/8,20/20 stunner=30+paralyzed/30,30+paralyzed/30,30/30 teleporter=30/30/tp,30/30/tp,30/30/tp mage_blaster=30/30,30/30,30/30 priest_blaster=30/30,30/30,30/30 alarm=30/30/alarm,30/30/alarm,30/30/alarm
 cha human rogue12 | action_nums: second_wind_bonus=0 sneak_d6=6 arcane_budget=0 turn_dc=0
 cha human rogue13 | actions: 
-cha human rogue13 | passives: uncanny_dodge,evasion
+cha human rogue13 | passives: sneak_attack,uncanny_dodge,evasion
 cha human rogue13 | traits: 
 cha human rogue13 | pools: 
 cha human rogue13 | short_rest: 
@@ -7669,7 +7669,7 @@ cha human rogue13 | race: adv_against= magic_save_adv= lucky=False magic_immune=
 cha human rogue13 | trap: poison_needle=21/30,20/30,22+poisoned/30 gas_bomb=30+poisoned/30+poisoned,30/30,30/30+poisoned crossbow_bolt=14/30,17/30,7/30 exploding_box=30/11,30/8,20/20 stunner=30+paralyzed/30,30+paralyzed/30,30/30 teleporter=30/30/tp,30/30/tp,30/30/tp mage_blaster=30/30,30/30,30/30 priest_blaster=30/30,30/30,30/30 alarm=30/30/alarm,30/30/alarm,30/30/alarm
 cha human rogue13 | action_nums: second_wind_bonus=0 sneak_d6=7 arcane_budget=0 turn_dc=0
 cha human rogue14 | actions: 
-cha human rogue14 | passives: uncanny_dodge,evasion
+cha human rogue14 | passives: sneak_attack,uncanny_dodge,evasion
 cha human rogue14 | traits: 
 cha human rogue14 | pools: 
 cha human rogue14 | short_rest: 
@@ -7683,7 +7683,7 @@ cha human rogue14 | race: adv_against= magic_save_adv= lucky=False magic_immune=
 cha human rogue14 | trap: poison_needle=21/30,20/30,22+poisoned/30 gas_bomb=30+poisoned/30+poisoned,30/30,30/30+poisoned crossbow_bolt=14/30,17/30,7/30 exploding_box=30/11,30/8,20/20 stunner=30+paralyzed/30,30+paralyzed/30,30/30 teleporter=30/30/tp,30/30/tp,30/30/tp mage_blaster=30/30,30/30,30/30 priest_blaster=30/30,30/30,30/30 alarm=30/30/alarm,30/30/alarm,30/30/alarm
 cha human rogue14 | action_nums: second_wind_bonus=0 sneak_d6=7 arcane_budget=0 turn_dc=0
 cha human rogue15 | actions: 
-cha human rogue15 | passives: uncanny_dodge,evasion,slippery_mind
+cha human rogue15 | passives: sneak_attack,uncanny_dodge,evasion,slippery_mind
 cha human rogue15 | traits: 
 cha human rogue15 | pools: 
 cha human rogue15 | short_rest: 
@@ -7697,7 +7697,7 @@ cha human rogue15 | race: adv_against= magic_save_adv= lucky=False magic_immune=
 cha human rogue15 | trap: poison_needle=21/30,20/30,22+poisoned/30 gas_bomb=30+poisoned/30+poisoned,30/30,30/30+poisoned crossbow_bolt=14/30,17/30,7/30 exploding_box=30/11,30/8,20/20 stunner=30+paralyzed/30,30+paralyzed/30,30/30 teleporter=30/30/tp,30/30/tp,30/30/tp mage_blaster=30/30,30/30,30/30 priest_blaster=30/30,30/30,30/30 alarm=30/30/alarm,30/30/alarm,30/30/alarm
 cha human rogue15 | action_nums: second_wind_bonus=0 sneak_d6=8 arcane_budget=0 turn_dc=0
 cha human rogue16 | actions: 
-cha human rogue16 | passives: uncanny_dodge,evasion,slippery_mind
+cha human rogue16 | passives: sneak_attack,uncanny_dodge,evasion,slippery_mind
 cha human rogue16 | traits: 
 cha human rogue16 | pools: 
 cha human rogue16 | short_rest: 
@@ -7711,7 +7711,7 @@ cha human rogue16 | race: adv_against= magic_save_adv= lucky=False magic_immune=
 cha human rogue16 | trap: poison_needle=21/30,20/30,22+poisoned/30 gas_bomb=30+poisoned/30+poisoned,30/30,30/30+poisoned crossbow_bolt=14/30,17/30,7/30 exploding_box=30/11,30/8,20/20 stunner=30+paralyzed/30,30+paralyzed/30,30/30 teleporter=30/30/tp,30/30/tp,30/30/tp mage_blaster=30/30,30/30,30/30 priest_blaster=30/30,30/30,30/30 alarm=30/30/alarm,30/30/alarm,30/30/alarm
 cha human rogue16 | action_nums: second_wind_bonus=0 sneak_d6=8 arcane_budget=0 turn_dc=0
 cha human rogue17 | actions: 
-cha human rogue17 | passives: uncanny_dodge,evasion,slippery_mind
+cha human rogue17 | passives: sneak_attack,uncanny_dodge,evasion,slippery_mind
 cha human rogue17 | traits: 
 cha human rogue17 | pools: 
 cha human rogue17 | short_rest: 
@@ -7725,7 +7725,7 @@ cha human rogue17 | race: adv_against= magic_save_adv= lucky=False magic_immune=
 cha human rogue17 | trap: poison_needle=21/30,20/30,22+poisoned/30 gas_bomb=30+poisoned/30+poisoned,30/30,30/30+poisoned crossbow_bolt=14/30,17/30,7/30 exploding_box=30/11,30/8,20/20 stunner=30+paralyzed/30,30+paralyzed/30,30/30 teleporter=30/30/tp,30/30/tp,30/30/tp mage_blaster=30/30,30/30,30/30 priest_blaster=30/30,30/30,30/30 alarm=30/30/alarm,30/30/alarm,30/30/alarm
 cha human rogue17 | action_nums: second_wind_bonus=0 sneak_d6=9 arcane_budget=0 turn_dc=0
 cha human rogue18 | actions: 
-cha human rogue18 | passives: uncanny_dodge,evasion,slippery_mind,elusive
+cha human rogue18 | passives: sneak_attack,uncanny_dodge,evasion,slippery_mind,elusive
 cha human rogue18 | traits: 
 cha human rogue18 | pools: 
 cha human rogue18 | short_rest: 
@@ -7739,7 +7739,7 @@ cha human rogue18 | race: adv_against= magic_save_adv= lucky=False magic_immune=
 cha human rogue18 | trap: poison_needle=21/30,20/30,22+poisoned/30 gas_bomb=30+poisoned/30+poisoned,30/30,30/30+poisoned crossbow_bolt=14/30,17/30,7/30 exploding_box=30/11,30/8,20/20 stunner=30+paralyzed/30,30+paralyzed/30,30/30 teleporter=30/30/tp,30/30/tp,30/30/tp mage_blaster=30/30,30/30,30/30 priest_blaster=30/30,30/30,30/30 alarm=30/30/alarm,30/30/alarm,30/30/alarm
 cha human rogue18 | action_nums: second_wind_bonus=0 sneak_d6=9 arcane_budget=0 turn_dc=0
 cha human rogue19 | actions: 
-cha human rogue19 | passives: uncanny_dodge,evasion,slippery_mind,elusive
+cha human rogue19 | passives: sneak_attack,uncanny_dodge,evasion,slippery_mind,elusive
 cha human rogue19 | traits: 
 cha human rogue19 | pools: 
 cha human rogue19 | short_rest: 
@@ -7753,7 +7753,7 @@ cha human rogue19 | race: adv_against= magic_save_adv= lucky=False magic_immune=
 cha human rogue19 | trap: poison_needle=21/30,20/30,22+poisoned/30 gas_bomb=30+poisoned/30+poisoned,30/30,30/30+poisoned crossbow_bolt=14/30,17/30,7/30 exploding_box=30/11,30/8,20/20 stunner=30+paralyzed/30,30+paralyzed/30,30/30 teleporter=30/30/tp,30/30/tp,30/30/tp mage_blaster=30/30,30/30,30/30 priest_blaster=30/30,30/30,30/30 alarm=30/30/alarm,30/30/alarm,30/30/alarm
 cha human rogue19 | action_nums: second_wind_bonus=0 sneak_d6=10 arcane_budget=0 turn_dc=0
 cha human rogue20 | actions: 
-cha human rogue20 | passives: uncanny_dodge,evasion,slippery_mind,elusive
+cha human rogue20 | passives: sneak_attack,uncanny_dodge,evasion,slippery_mind,elusive
 cha human rogue20 | traits: 
 cha human rogue20 | pools: 
 cha human rogue20 | short_rest: 
@@ -8991,7 +8991,7 @@ cha human ranger4/druid4 | cast druid: kind=Prepared cantrips=3 known=0 prepared
 cha human ranger4/druid4 | book druid: cantrips=poison_spray,produce_flame,resistance known= prepared=moonbeam,thunderwave,cure_wounds,healing_word,flame_blade,flaming_sphere,heat_metal
 cha human ranger4/druid4 | castable: poison_spray@druid,produce_flame@druid,resistance@druid,cure_wounds@ranger,healing_word@druid,thunderwave@druid,flame_blade@druid,flaming_sphere@druid,heat_metal@druid,moonbeam@druid
 cha human bard5/rogue7 | actions: bardic_inspiration
-cha human bard5/rogue7 | passives: song_of_rest,font_of_inspiration,uncanny_dodge,evasion
+cha human bard5/rogue7 | passives: song_of_rest,font_of_inspiration,sneak_attack,uncanny_dodge,evasion
 cha human bard5/rogue7 | traits: 
 cha human bard5/rogue7 | pools: bardic_inspiration=4
 cha human bard5/rogue7 | short_rest: bardic_inspiration
@@ -9009,7 +9009,7 @@ cha human bard5/rogue7 | cast bard: kind=Known cantrips=3 known=8 prepared=0 cla
 cha human bard5/rogue7 | book bard: cantrips=vicious_mockery,dancing_lights,light known=feather_fall,shatter,thunderwave,cure_wounds,healing_word,heat_metal,fear,hypnotic_pattern prepared=
 cha human bard5/rogue7 | castable: dancing_lights@bard,light@bard,vicious_mockery@bard,cure_wounds@bard,feather_fall@bard,healing_word@bard,thunderwave@bard,heat_metal@bard,shatter@bard,fear@bard,hypnotic_pattern@bard
 cha human rogue7/monk7 | actions: flurry_of_blows,patient_defense,stunning_strike
-cha human rogue7/monk7 | passives: uncanny_dodge,evasion,unarmored_defense_wis,martial_arts,deflect_missiles,ki_empowered_strikes
+cha human rogue7/monk7 | passives: sneak_attack,uncanny_dodge,evasion,unarmored_defense_wis,martial_arts,deflect_missiles,ki_empowered_strikes
 cha human rogue7/monk7 | traits: 
 cha human rogue7/monk7 | pools: ki=7
 cha human rogue7/monk7 | short_rest: ki

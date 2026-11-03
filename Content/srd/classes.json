@@ -5,7 +5,7 @@
     "hit_die": 12,
     "progression": {"attacks": {"by_level": {"1": 1, "5": 2}}, "ability_increases": [4, 8, 12, 16, 19]},
     "pools": [
-      {"id": "rage", "max": {"by_level": {"1": 2, "3": 3, "6": 4, "12": 5, "17": 6, "20": 99}}, "recharge": "long"}
+      {"id": "rage", "name": {"en": "Rage", "ja": "激怒"}, "max": {"by_level": {"1": 2, "3": 3, "6": 4, "12": 5, "17": 6, "20": 99}}, "recharge": "long"}
     ],
     "features": [{"id": "rage_limits", "level": 1}, {"id": "rage_damage", "level": 1}, {"id": "rage", "level": 1}, {"id": "unarmored_defense_con", "level": 1}, {"id": "reckless_attack", "level": 2}, {"id": "danger_sense", "level": 2}, {"id": "feral_instinct", "level": 7}, {"id": "brutal_critical", "level": 9}, {"id": "relentless_rage", "level": 11}],
     "multiclass": [{ "str": 13 }],
@@ -17,7 +17,7 @@
     "skills": ["animal_handling", "athletics", "intimidation", "nature", "perception", "survival"],
     "start_gold": "2d4",
     "start_items": ["greataxe", "handaxe", "sack"],
-    "description": { "en": "Rage (level 1, recharges on a long rest): more damage on Strength melee attacks and half damage from physical attacks.\nWhile raging you can't cast spells, and concentration ends.\nFrom level 2 your melee attacks have advantage, but so do attacks against you.\nWithout armor, add your Constitution modifier to AC (a shield is fine).", "ja": "激怒(L1、大休憩で戻る): 筋力の近接攻撃のダメージが上がり、物理のダメージを半分にする。\n激怒中は呪文を使えず、集中も切れる。\nL2 からは自分の近接攻撃が有利になるが、敵からの攻撃も有利になる。\n鎧を着ていないとき、AC に耐久力の修正値も足す(盾は持ってよい)。" }
+    "description": { "en": "A furious front-line warrior who shrugs off blows. Fights well even without armor.", "ja": "怒りに任せて前で暴れる、とても打たれ強い戦士。鎧が無くても戦える。" }
   },
   {
     "id": "bard",
@@ -26,7 +26,7 @@
     "hit_die": 8,
     "progression": {"ability_increases": [4, 8, 12, 16, 19]},
     "pools": [
-      {"id": "bardic_inspiration", "max": {"ability": "cha", "min": 1}, "recharge": "long", "short_with": "font_of_inspiration"}
+      {"id": "bardic_inspiration", "name": {"en": "Inspiration", "ja": "鼓舞"}, "max": {"ability": "cha", "min": 1}, "recharge": "long", "short_with": "font_of_inspiration"}
     ],
     "features": [{"id": "bardic_inspiration", "level": 1}, {"id": "song_of_rest", "level": 2}, {"id": "font_of_inspiration", "level": 5}],
     "multiclass": [{ "cha": 13 }],
@@ -53,7 +53,7 @@
     },
     "start_gold": "5d4",
     "start_items": ["rapier", "leather_armor", "dagger", "sack"],
-    "description": { "en": "A Charisma caster who casts the spells they know.\nChoose any three skills.\nFrom level 1, Bardic Inspiration helps another ally's attacks and saves (recharges on a short rest from level 5).", "ja": "魅力で呪文を使う術者(覚えた呪文を使う)。\n技能をどれからでも3つ選べる。\nL1 から鼓舞で、自分以外の仲間の攻撃とセーヴを助ける(L5 から小休憩で戻る)。" }
+    "description": { "en": "A jack-of-all-trades who casts Charisma spells and inspires allies. Knows many skills.", "ja": "魅力で呪文を使い、仲間を励ます何でも屋。技能が多く、どこにいても役に立つ。" }
   },
   {
     "id": "cleric",
@@ -62,7 +62,7 @@
     "hit_die": 8,
     "progression": {"ability_increases": [4, 8, 12, 16, 19]},
     "pools": [
-      {"id": "channel_divinity", "max": {"by_level": {"2": 1, "6": 2, "18": 3}}, "recharge": "short"}
+      {"id": "channel_divinity", "name": {"en": "Channel Divinity", "ja": "チャネル・ディヴィニティ"}, "max": {"by_level": {"2": 1, "6": 2, "18": 3}}, "recharge": "short"}
     ],
     "features": [{"id": "turn_undead", "level": 2}, {"id": "destroy_undead", "level": 5}],
     "multiclass": [{ "wis": 13 }],
@@ -89,7 +89,7 @@
     },
     "start_gold": "5d4",
     "start_items": ["mace", "scale_mail", "shield", "sack"],
-    "description": { "en": "A Wisdom caster who prepares spells from the class list.\nStrong at healing and support.\nTurns undead from level 2.", "ja": "判断力で呪文を使う術者(クラスの呪文から準備する)。\n回復と補助が得意。\nL2 からアンデッドを退散させる。" }
+    "description": { "en": "The party's healer and support, casting Wisdom spells. Can wear armor and stand in front, and is strong against undead.", "ja": "判断力で呪文を使う、回復と補助の要。鎧を着て前にも立て、アンデッドに強い。" }
   },
   {
     "id": "druid",
@@ -98,7 +98,7 @@
     "hit_die": 8,
     "progression": {"ability_increases": [4, 8, 12, 16, 19]},
     "pools": [
-      {"id": "wild_shape", "max": {"by_level": {"2": 2, "20": 99}}, "recharge": "short"}
+      {"id": "wild_shape", "name": {"en": "Wild Shape", "ja": "ワイルドシェイプ"}, "max": {"by_level": {"2": 2, "20": 99}}, "recharge": "short"}
     ],
     "features": [{"id": "wild_shape", "level": 2}, {"id": "wild_shape_limits", "level": 2}, {"id": "beast_spells", "level": 18}, {"id": "archdruid", "level": 20}],
     "multiclass": [{ "wis": 13 }],
@@ -125,7 +125,7 @@
     },
     "start_gold": "2d4",
     "start_items": ["scimitar", "leather_armor", "shield", "sack"],
-    "description": { "en": "A Wisdom caster who prepares spells.\nFrom level 2, can turn into a beast in battle, fighting with the beast's HP and AC. Uses come back on a short rest.\nBelow level 18, no spells while transformed.", "ja": "判断力で呪文を使う術者(準備する)。\nL2 から戦闘中に獣に変身できる。獣の HP と AC で戦い、変身の回数は小休憩で戻る。\nL18 未満では、変身中は呪文を使えない。" }
+    "description": { "en": "A Wisdom caster of nature's magic who can also change into a beast to fight up front.", "ja": "判断力で自然の呪文を使う術者。獣に変身して前で戦うこともできる。" }
   },
   {
     "id": "fighter",
@@ -133,9 +133,9 @@
     "hit_die": 10,
     "progression": {"attacks": {"by_level": {"1": 1, "5": 2, "11": 3, "20": 4}}, "ability_increases": [4, 6, 8, 12, 14, 16, 19]},
     "pools": [
-      {"id": "second_wind", "max": 1, "recharge": "short"},
-      {"id": "action_surge", "max": {"by_level": {"2": 1, "17": 2}}, "recharge": "short"},
-      {"id": "indomitable", "max": {"by_level": {"9": 1, "13": 2, "17": 3}}, "recharge": "long"}
+      {"id": "second_wind", "name": {"en": "Second Wind", "ja": "セカンド・ウィンド"}, "max": 1, "recharge": "short"},
+      {"id": "action_surge", "name": {"en": "Action Surge", "ja": "アクション・サージ"}, "max": {"by_level": {"2": 1, "17": 2}}, "recharge": "short"},
+      {"id": "indomitable", "name": {"en": "Indomitable", "ja": "不屈"}, "description": {"en": "When you fail a saving throw, automatically spend one use to reroll it. Restored on a long rest.", "ja": "セーヴに失敗したとき、自動で1回使って振り直す。大休憩で戻る。"}, "max": {"by_level": {"9": 1, "13": 2, "17": 3}}, "recharge": "long"}
     ],
     "features": [{"id": "second_wind", "level": 1}, {"id": "action_surge", "level": 2}, {"id": "style_archery", "level": 1}, {"id": "style_defense", "level": 1}, {"id": "style_dueling", "level": 1}, {"id": "style_great_weapon", "level": 1}, {"id": "style_two_weapon", "level": 1}],
     "multiclass": [{ "str": 13 }, { "dex": 13 }],
@@ -147,7 +147,7 @@
     "skills": ["acrobatics", "animal_handling", "athletics", "history", "insight", "intimidation", "perception", "survival"],
     "start_gold": "5d4",
     "start_items": ["longsword", "chain_mail", "shield", "sack"],
-    "description": { "en": "Proficient with all weapons and armor.\nSecond Wind (level 1) heals you, and Action Surge (level 2) gives one more set of weapon attacks.\nAttacks per turn rise to 2, 3 and 4 at levels 5, 11 and 20.", "ja": "すべての武器と鎧に習熟。\nL1 のセカンド・ウィンドで回復し、L2 のアクション・サージで武器の攻撃をもう1回分行う。\nL5・11・20 で攻撃の回数が 2・3・4 回に増える。" }
+    "description": { "en": "The backbone of the front row, at home with every weapon and armor. Gets the most attacks and lasts long.", "ja": "どの武器も鎧も使いこなす、前列の柱。攻撃の回数が一番多く、長く戦える。" }
   },
   {
     "id": "monk",
@@ -155,7 +155,7 @@
     "hit_die": 8,
     "progression": {"attacks": {"by_level": {"1": 1, "5": 2}}, "ability_increases": [4, 8, 12, 16, 19]},
     "pools": [
-      {"id": "ki", "max": {"class_level": 1}, "recharge": "short", "from_level": 2}
+      {"id": "ki", "name": {"en": "Ki", "ja": "気"}, "max": {"class_level": 1}, "recharge": "short", "from_level": 2}
     ],
     "features": [{"id": "flurry_of_blows", "level": 2}, {"id": "patient_defense", "level": 2}, {"id": "stunning_strike", "level": 5}, {"id": "unarmored_defense_wis", "level": 1}, {"id": "martial_arts", "level": 1}, {"id": "deflect_missiles", "level": 3}, {"id": "ki_empowered_strikes", "level": 6}, {"id": "evasion", "level": 7}, {"id": "purity_of_body", "level": 10}, {"id": "diamond_soul", "level": 14}],
     "multiclass": [{ "dex": 13, "wis": 13 }],
@@ -167,7 +167,7 @@
     "skills": ["acrobatics", "athletics", "history", "insight", "religion", "stealth"],
     "start_gold": "5d4",
     "start_items": ["shortsword", "sack"],
-    "description": { "en": "Only without armor or a shield, two things work:\n- Martial Arts: use Dexterity with unarmed strikes and monk weapons, plus an extra unarmed strike after attacking.\n- Add your Wisdom modifier to AC.\nKi powers Flurry of Blows and Patient Defense from level 2 and Stunning Strike from level 5 (ki recharges on a short rest).", "ja": "鎧も盾も着けないときだけ、次の2つが働く。\n・武術: 素手とモンクの武器で敏捷力を使い、攻撃のあとに素手でもう1回。\n・AC に判断力の修正値も足す。\nL2 から気で連打や忍耐の守り、L5 から朦朧打撃(気は小休憩で戻る)。" }
+    "description": { "en": "A martial artist who fights unarmored with fast unarmed strikes. Nimble and hard to pin down.", "ja": "鎧を着ず、素手の素早い連撃で戦う武闘家。身軽で、敵の技をかわすのが得意。" }
   },
   {
     "id": "paladin",
@@ -176,7 +176,7 @@
     "hit_die": 10,
     "progression": {"attacks": {"by_level": {"1": 1, "5": 2}}, "ability_increases": [4, 8, 12, 16, 19]},
     "pools": [
-      {"id": "lay_on_hands", "max": {"class_level": 5}, "recharge": "long"}
+      {"id": "lay_on_hands", "name": {"en": "Lay on Hands", "ja": "レイ・オン・ハンズ"}, "max": {"class_level": 5}, "recharge": "long"}
     ],
     "features": [{"id": "lay_on_hands", "level": 1}, {"id": "divine_smite", "level": 2}, {"id": "style_archery", "level": 2}, {"id": "style_defense", "level": 2}, {"id": "style_dueling", "level": 2}, {"id": "style_great_weapon", "level": 2}, {"id": "style_two_weapon", "level": 2}, {"id": "aura_of_protection", "level": 6}, {"id": "aura_of_courage", "level": 10}, {"id": "improved_divine_smite", "level": 11}],
     "multiclass": [{ "str": 13, "cha": 13 }],
@@ -198,7 +198,7 @@
     },
     "start_gold": "5d4",
     "start_items": ["longsword", "chain_mail", "shield", "sack"],
-    "description": { "en": "A holy warrior who casts Charisma spells from level 2.\nLay on Hands heals from level 1.\nFrom level 2, Divine Smite spends a spell slot to add damage to a hit.\nFrom level 6, every ally gets a bonus to saves while you stand.", "ja": "魅力で呪文を使う聖なる戦士(呪文は L2 から)。\nL1 からレイ・オン・ハンズで回復する。\nL2 から、当てた攻撃に呪文の回数を使って神の一撃を足す。\nL6 から、立っているあいだ仲間全員のセーヴが上がる。" }
+    "description": { "en": "A holy warrior who casts Charisma spells, fighting up front while healing and protecting allies.", "ja": "魅力で呪文を使う聖なる戦士。前で戦いながら、仲間を癒やし守る。" }
   },
   {
     "id": "ranger",
@@ -226,7 +226,7 @@
     },
     "start_gold": "5d4",
     "start_items": ["shortsword", "longbow", "scale_mail", "sack"],
-    "description": { "en": "A warrior with medium armor.\nCasts Wisdom spells they know from level 2.\nAttacks twice from level 5.", "ja": "中装鎧まで扱える戦士。\nL2 から判断力で呪文を使う(覚えた呪文)。\nL5 から攻撃が2回になる。" }
+    "description": { "en": "A hunter at home with bow or blade who casts a few Wisdom spells. Fights from either row.", "ja": "弓も剣も使え、判断力で少し呪文も使う狩人。前でも後ろでも戦える。" }
   },
   {
     "id": "rogue",
@@ -244,7 +244,7 @@
     "skills": ["acrobatics", "athletics", "deception", "insight", "intimidation", "investigation", "perception", "performance", "persuasion", "sleight_of_hand", "stealth"],
     "start_gold": "4d4",
     "start_items": ["rapier", "shortbow", "leather_armor", "dagger", "sack"],
-    "description": { "en": "Many skills and proficiency with thieves' tools.\nSneak Attack: once per round, a hit with a finesse or ranged weapon deals extra damage when you have advantage, or when an ally is in the front row and the target is near.\nGood with traps and locks.", "ja": "技能が多く、盗賊道具に習熟。\n急所攻撃: 技巧の武器か飛び道具の攻撃は、有利なときか、前列に仲間がいて近くの敵を狙うとき、1ラウンドに1回ダメージが増える。\n罠と錠前の扱いが得意。" }
+    "description": { "en": "The thief who handles traps and locks. Knows many skills and hits hard when the foe is distracted.", "ja": "罠と錠前を受け持つ盗賊。技能が多く、隙を突いた一撃が重い。" }
   },
   {
     "id": "sorcerer",
@@ -253,7 +253,7 @@
     "hit_die": 6,
     "progression": {"ability_increases": [4, 8, 12, 16, 19]},
     "pools": [
-      {"id": "sorcery_points", "max": {"class_level": 1}, "recharge": "long", "from_level": 2}
+      {"id": "sorcery_points", "name": {"en": "Sorcery Points", "ja": "ソーサリーポイント"}, "description": {"en": "Spent on Empowered Spell (1 point to reroll low damage dice of a spell). As many as your sorcerer level; restored on a long rest.", "ja": "呪文の強化(1点でダメージの呪文の低い出目を振り直す)に使う点。ソーサラーのレベルと同じ数で、大休憩で戻る。"}, "max": {"class_level": 1}, "recharge": "long", "from_level": 2}
     ],
     "features": [{"id": "empowered_spell", "level": 3}],
     "multiclass": [{ "cha": 13 }],
@@ -280,7 +280,7 @@
     },
     "start_gold": "3d4",
     "start_items": ["light_crossbow", "dagger", "sack"],
-    "description": { "en": "A Charisma caster who casts the spells they know.\nFrom level 3, spend sorcery points to reroll low damage dice on a damage spell.", "ja": "魅力で呪文を使う術者(覚えた呪文)。\nL3 から、ソーサリー・ポイントを使ってダメージの呪文の低い出目を振り直せる。" }
+    "description": { "en": "A born Charisma caster. Knows fewer spells but can empower damaging ones.", "ja": "生まれ持った魅力で呪文を使う術者。覚える呪文は少ないが、攻撃の呪文を強められる。" }
   },
   {
     "id": "warlock",
@@ -313,7 +313,7 @@
     },
     "start_gold": "4d4",
     "start_items": ["light_crossbow", "leather_armor", "dagger", "sack"],
-    "description": { "en": "A Charisma caster.\nFew spell slots, but they all come back on a short rest (spell level up to 5).\nInvocations such as Agonizing Blast are added automatically at levels 2, 5 and 12.", "ja": "魅力で呪文を使う術者。\n呪文の回数は少ないが、小休憩で全部戻る(呪文のレベルは5まで)。\nL2・5・12 で苦痛の魔撃などの祈りが自動で付く。" }
+    "description": { "en": "A Charisma caster empowered by a pact. Few spell slots, but they return on a short rest.", "ja": "契約で得た力で魅力の呪文を使う術者。呪文スロットは少ないが、小休憩で戻る。" }
   },
   {
     "id": "wizard",
@@ -322,7 +322,7 @@
     "hit_die": 6,
     "progression": {"ability_increases": [4, 8, 12, 16, 19]},
     "pools": [
-      {"id": "arcane_recovery", "max": 1, "recharge": "long"}
+      {"id": "arcane_recovery", "name": {"en": "Arcane Recovery", "ja": "秘術の回復"}, "description": {"en": "Once per long rest, a short rest automatically restores used spell slots of level 5 or lower, highest first, up to a total of half your wizard level (rounded up).", "ja": "大休憩までに1回、小休憩で使った呪文スロットを自動で戻す。5 レベル以下を上のレベルから、合わせてウィザードのレベルの半分(切り上げ)まで。"}, "max": 1, "recharge": "long"}
     ],
     "features": [{"id": "arcane_recovery", "level": 1}],
     "multiclass": [{ "int": 13 }],
@@ -349,6 +349,6 @@
     },
     "start_gold": "4d4",
     "start_items": ["quarterstaff", "dagger", "sack"],
-    "description": { "en": "An Intelligence caster.\nWrites spells in a spellbook and prepares which to use (you can change them at the Training Grounds).\nOnce per long rest, a short rest recovers some spell slots.", "ja": "知力で呪文を使う術者。\n呪文書に呪文を書き、その中から使うものを準備する(訓練場で選び直せる)。\n小休憩で、大休憩までに1回、呪文の回数を少し取り戻せる。" }
+    "description": { "en": "An Intelligence caster with the widest choice of spells. Fragile, so keep them in the back row.", "ja": "知力で呪文を使う、扱える呪文の種類が一番多い術者。打たれ弱いので後列で守る。" }
   }
 ]

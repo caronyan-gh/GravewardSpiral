@@ -236,13 +236,70 @@ public sealed class ItemInstance
     /// <summary>ランダムに付いた追加効果(affixes.json)。鑑定するまで見えない。</summary>
     public List<AffixRoll> Affixes { get; set; } = [];
 
-    /// <summary>追加効果の、装備しているあいだの効果。</summary>
-    public IEnumerable<Effects.EffectPart> AffixPassive(Characters.GameData data) =>
-        Affixes.Select(a => a.Get(data)).OfType<AffixTier>().SelectMany(t => t.Passive);
+    /// <summary>
+    /// レアの品か(追加効果が4〜6つ。同調の品になり、同調していないと追加効果は 1/3)。
+    /// false で追加効果があればマジックの品(同調いらずで、追加効果は 2/3)。
+    /// </summary>
+    public bool Rare { get; set; }
 
-    /// <summary>追加効果の、当たったときの効果。</summary>
-    public IEnumerable<Effects.EffectPart> AffixOnHit(Characters.GameData data) =>
-        Affixes.Select(a => a.Get(data)).OfType<AffixTier>().SelectMany(t => t.OnHit);
+    /// <summary>魔法の品か(定義が魔法の品か、+N か、追加効果がある)。鑑定するまで正体が分からない。</summary>
+    public bool IsMagicItem(ItemDef def) => def.IsMagic || Bonus != 0 || Affixes.Count > 0;
+
+    /// <summary>同調が要るか(品の定義が同調の品か、レアの品)。</summary>
+    public bool NeedsAttunement(ItemDef def) => def.Attunement || Rare && !def.NoRandom;
+
+    /// <summary>追加効果の効き方の倍率。固有の品はそのまま、レアは同調していれば 1・いなければ 1/3、マジックは 2/3。</summary>
+    public double AffixFactor(ItemDef? def) =>
+        def is { NoRandom: true } ? 1 : Rare ? (Attuned ? 1 : 1.0 / 3) : 2.0 / 3;
+
+    /// <summary>追加効果の、装備しているあいだの効果(マジックとレアの効き方で弱めたもの)。</summary>
+    public IEnumerable<Effects.EffectPart> AffixPassive(Characters.GameData data) => AffixParts(data, t => t.Passive);
+
+    /// <summary>追加効果の、当たったときの効果(マジックとレアの効き方で弱めたもの)。</summary>
+    public IEnumerable<Effects.EffectPart> AffixOnHit(Characters.GameData data) => AffixParts(data, t => t.OnHit);
+
+    /// <summary>追加効果1つの部品(弱めたもの)。説明の窓で、効いている数字を見せるのに使う。</summary>
+    public IEnumerable<Effects.EffectPart> AffixParts(Characters.GameData data, AffixRoll roll, Func<AffixTier, List<Effects.EffectPart>> parts)
+    {
+        if (roll.Get(data) is not { } tier) yield break;
+        double f = AffixFactor(data.Items.GetValueOrDefault(ItemId));
+        foreach (var part in parts(tier))
+        {
+            var p = part;
+            // 幅のある修正値は、この品で振った数字(振っていない前のセーブの品は、幅の下)
+            if (p is { Type: Effects.EffectPart.Modifier, ValueMax: not null })
+            {
+                p = p.WithLabel(p.Label!);
+                p.Value = roll.Values?.GetValueOrDefault(p.Stat ?? "", p.Value ?? 0) ?? p.Value;
+                p.ValueMax = null;
+            }
+            if (Weaken(p, f) is { } w) yield return w;
+        }
+    }
+
+    private IEnumerable<Effects.EffectPart> AffixParts(Characters.GameData data, Func<AffixTier, List<Effects.EffectPart>> parts) =>
+        Affixes.SelectMany(a => AffixParts(data, a, parts));
+
+    /// <summary>
+    /// 部品を倍率で弱める。修正値と吸う割合は四捨五入(0 になれば効かない)、ダメージは振った目に掛ける。
+    /// 抵抗や状態のような有る無しの効果は、1/3(同調していないレア)では効かず、2/3(マジック)ではそのまま効く。
+    /// </summary>
+    public static Effects.EffectPart? Weaken(Effects.EffectPart p, double f)
+    {
+        if (f >= 1 - 1e-9) return p;
+        var copy = p.WithLabel(p.Label!);
+        switch (p.Type)
+        {
+            case Effects.EffectPart.Modifier or Effects.EffectPart.Drain when p.Value is int v:
+                copy.Value = (int)Math.Round(v * f, MidpointRounding.AwayFromZero);
+                return copy.Value == 0 ? null : copy;
+            case Effects.EffectPart.Damage:
+                copy.Scale = (p.Scale ?? 1) * f;
+                return copy;
+            default:
+                return f >= 0.5 ? p : null;
+        }
+    }
 
     public const int ElementFrom = 7;
 
@@ -255,7 +312,7 @@ public sealed class ItemInstance
     public ItemInstance SplitOne() => new()
     {
         ItemId = ItemId, Count = 1, Identified = Identified, Bonus = Bonus, Charges = Charges, Element = Element, CurseKnown = CurseKnown,
-        Affixes = [.. Affixes], Origin = Origin,
+        Affixes = [.. Affixes], Rare = Rare, Origin = Origin,
     };
 
     /// <summary>同じ品の写し(数も同じ)。</summary>
@@ -269,7 +326,8 @@ public sealed class ItemInstance
 
     /// <summary>重ねて持てるか(同じ種類で、鑑定と上乗せと回数が同じ)。</summary>
     public bool SameKind(ItemInstance o) => ItemId == o.ItemId && Identified == o.Identified && Bonus == o.Bonus && Charges == o.Charges && Element == o.Element
-        && Affixes.Count == o.Affixes.Count && Affixes.Zip(o.Affixes).All(x => x.First.Id == x.Second.Id && x.First.Tier == x.Second.Tier);
+        && Rare == o.Rare && Affixes.Count == o.Affixes.Count && Affixes.Zip(o.Affixes).All(x => x.First.Id == x.Second.Id && x.First.Tier == x.Second.Tier
+            && (x.First.Values ?? []).OrderBy(kv => kv.Key).SequenceEqual((x.Second.Values ?? []).OrderBy(kv => kv.Key)));
 
     public int TotalBonus(ItemDef def) => def.Bonus + Bonus;
 
@@ -307,6 +365,32 @@ public sealed class Inventory
     public int FreeSlots(IReadOnlyDictionary<string, ItemDef> defs) => Capacity(defs) - Items.Count;
 
     public int AttunedCount => Equipped.Values.Count(i => i.Attuned);
+
+    public enum AttuneResult { Ok, NotNeeded, Full, SameItem, Cursed, NotFound }
+
+    /// <summary>
+    /// 付けている品に同調する(付け替えずに、どれに同調するかを選び直す)。同調の要る品で、枠(3つ)に空きがあり、
+    /// 同じ品(レアでない同調の品)にまだ同調していないときだけ。
+    /// </summary>
+    public AttuneResult Attune(EquipSlot slot, IReadOnlyDictionary<string, ItemDef> defs)
+    {
+        if (this[slot] is not { } item || !defs.TryGetValue(item.ItemId, out var def)) return AttuneResult.NotFound;
+        if (!item.NeedsAttunement(def) || item.Attuned) return AttuneResult.NotNeeded;
+        if (def.Attunement && Equipped.Values.Any(x => x != item && x.Attuned && x.ItemId == item.ItemId)) return AttuneResult.SameItem;
+        if (AttunedCount >= MaxAttuned) return AttuneResult.Full;
+        item.Attuned = true;
+        return AttuneResult.Ok;
+    }
+
+    /// <summary>同調を解く(付けたまま)。呪われた品は解けない。</summary>
+    public AttuneResult Unattune(EquipSlot slot, IReadOnlyDictionary<string, ItemDef> defs)
+    {
+        if (this[slot] is not { } item) return AttuneResult.NotFound;
+        if (!item.Attuned) return AttuneResult.NotNeeded;
+        if (IsStuck(item, defs)) return AttuneResult.Cursed;
+        item.Attuned = false;
+        return AttuneResult.Ok;
+    }
 
     /// <summary>
     /// 効いている装備(同調が要るものは同調しているときだけ)。持っているあいだの効果や、当たったときの効果を集めるのに使う。
@@ -417,9 +501,9 @@ public sealed class Inventory
             if (!TryAdd(old, defs)) Items.Add(old);   // 同じ品が袋にあれば重ねる
         }
         Equipped[slot] = item;
-        // 同調は空きがあり、同じ品にまだ同調していないときだけ(同じ品の2つ目には同調できない。5版)
-        if (def.Attunement && !item.Attuned && AttunedCount < MaxAttuned
-            && !Equipped.Values.Any(x => x != item && x.Attuned && x.ItemId == item.ItemId)) item.Attuned = true;
+        // 同調は空きがあり、同じ品にまだ同調していないときだけ(同じ品の2つ目には同調できない。5版。レアの品は1つずつ別の品)
+        if (item.NeedsAttunement(def) && !item.Attuned && AttunedCount < MaxAttuned
+            && !(def.Attunement && Equipped.Values.Any(x => x != item && x.Attuned && x.ItemId == item.ItemId))) item.Attuned = true;
         if (slot == EquipSlot.MainHand && def.Has("two_handed") && this[EquipSlot.OffHand] is { } off)
         {
             Equipped.Remove(EquipSlot.OffHand);
@@ -440,8 +524,13 @@ public sealed class Inventory
         if (this[slot] is not { } item) return EquipResult.NotFound;
         if (slot == EquipSlot.Backpack) return EquipResult.WrongSlot;
         if (IsStuck(item, defs)) return EquipResult.Cursed;
-        item.Attuned = false;
-        if (!TryAdd(item, defs)) return EquipResult.BagFull;   // 同じ品が袋にあれば重ねる
+        bool attuned = item.Attuned;
+        item.Attuned = false;   // 袋で同じ品と重なるように、先に外す
+        if (!TryAdd(item, defs))
+        {
+            item.Attuned = attuned;   // 外せなかったら同調はそのまま
+            return EquipResult.BagFull;   // 同じ品が袋にあれば重ねる
+        }
         Equipped.Remove(slot);
         return EquipResult.Ok;
     }

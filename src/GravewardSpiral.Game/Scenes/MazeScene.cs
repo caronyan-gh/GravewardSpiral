@@ -27,7 +27,6 @@ public sealed class MazeScene : Scene
     private static readonly RectangleF InfoArea = new(860, 366, 396, 198);
     private static readonly RectangleF PartyArea = new(24, 590, 1232, 106);
     private const int MiniMapRadius = 5;
-    private const int MessageLines = 4;
 
     private readonly MazeNavigator _nav;
     private readonly List<string> _messages = [];
@@ -218,7 +217,8 @@ public sealed class MazeScene : Scene
         UpdateLastKnown();
     }
 
-    private bool InFog => State.Cell.Zone.HasFlag(Zone.Fog);
+    /// <summary>霧の中で、まだ地図に入っていないマスにいる(自分の位置が分からない)。霧を抜けて地図に書き足したマスでは位置を出す。</summary>
+    private bool InFog => State.Cell.Zone.HasFlag(Zone.Fog) && !State.AutoMap.For(State.Position.Floor).Visited.Contains(State.Position.Cell);
 
     /// <summary>自動移動の残りの向き(歩いていなければ null)と、次の1歩までの時間。</summary>
     private Queue<Direction>? _route;
@@ -233,7 +233,7 @@ public sealed class MazeScene : Scene
     /// <summary>小窓の地図のマスを押した: 通ったマスなら、そこへ歩き出す。小窓の中を押したら true(下の迷宮の操作に渡さない)。</summary>
     private bool MiniMapClicked(InputState input)
     {
-        if (!CanAutoWalk || !Services.Options.ShowMiniMap || !input.LeftClicked || input.Mouse is not { } m || !MiniMapArea.Contains(m)) return false;
+        if (!CanAutoWalk || !Services.Options.ShowMiniMap || _messagesExpanded || !input.LeftClicked || input.Mouse is not { } m || !MiniMapArea.Contains(m)) return false;
         var map = State.AutoMap.For(State.Position.Floor);
         if (AutoMapRenderer.CellAt(State.Floor, map, MiniMapArea, _lastKnown, State.Position.Cell, MiniMapRadius, fitKnown: false, m) is { } to
             && map.Visited.Contains(to)) StartRoute(to);
@@ -426,6 +426,11 @@ public sealed class MazeScene : Scene
 
     private void UseOrSearch()
     {
+        if (State.IsPortal(State.Position.Floor, State.Position.Cell))
+        {
+            AskPortal();
+            return;
+        }
         if (State.Cell.Feature == CellFeature.Elevator)
         {
             // スイッチ待ちの縦穴は動かない(シナリオの dungeons.json の elevators の power)
@@ -611,24 +616,46 @@ public sealed class MazeScene : Scene
         else if (mark.StartsWith("message:")) Say(s[mark["message:".Length..]]);
         else if (mark.StartsWith(EventPlacer.MarkPrefix) && Services.Session != null
             && Services.Data.Events.TryGetValue(mark[EventPlacer.MarkPrefix.Length..], out var ev) && ev.OnEnter) StartEvent(ev);
+        else if (mark.StartsWith("boss:") && State.UsedMarks.Contains(here) && Services.Session != null) AskPortal();
         else if (mark.StartsWith("boss:") && !State.UsedMarks.Contains(here) && Services.Session != null
             && Services.Session.Boss(Services.Data, mark["boss:".Length..]) is { } boss)
         {
-            // 決まった場所の敵。倒すまで、来るたびに戦う
-            if (boss.IntroText != null) Say(Services.Name(boss.IntroText));
+            // 決まった場所の敵。倒すまで来るたびに戦い、倒しても迷宮に入り直すと戻ってくる(2回目からは物語の文を出さない)
+            string beaten = GameSession.BossBeatenFlag(boss.Id);
+            bool again = Services.Session.Flags.Contains(beaten);
+            if (again) Say(s["maze.boss_again"]);
+            else if (boss.IntroText != null) Say(Services.Name(boss.IntroText));
             else if (boss.Intro != null) Say(s[boss.Intro]);
             var groups = boss.Fighters(Services.Data.Monsters);
             Stack.Push(new CombatScene(groups, noMagic: State.Cell.Zone.HasFlag(Zone.AntiMagic), scale: boss.Scale.Times(Services.Session!.FixedScale(_encounters ??= Services.Encounters())), bgm: CombatScene.BossBgm, onEnd: outcome =>
             {
                 if (outcome != CombatOutcome.Victory) return;
                 State.UsedMarks.Add(here);
+                double level = (_encounters ??= Services.Encounters()).TargetLevel(Depth);
+                if (again)
+                {
+                    // 2回目からは、部屋と同じ宝箱(ボスの宝の表と固有の品は1回目だけ)
+                    Say(s["maze.after_victory"]);
+                    Say(s["maze.portal_appears"]);
+                    MaybeChest(Depth, level, groups, room: true, always: true);
+                    return;
+                }
+                Services.Session!.Flags.Add(beaten);
                 if (boss.RewardFlag != null) Services.Session!.Flags.Add(boss.RewardFlag);
                 if (boss.VictoryText != null) Say(Services.Name(boss.VictoryText));
                 else if (boss.Victory != null) Say(s[boss.Victory]);
-                MaybeChest(Depth, (_encounters ??= Services.Encounters()).TargetLevel(Depth), groups, randomChest: false, boss: boss.Id);
+                Say(s["maze.portal_appears"]);
+                MaybeChest(Depth, level, groups, randomChest: false, boss: boss.Id);
             }));
         }
     }
+
+    /// <summary>倒したボスのマスの魔法陣: 町へ戻るかを聞く(いいえなら、そのまま残る)。</summary>
+    private void AskPortal() => Stack.Push(new ConfirmScene(Services.Strings["maze.confirm_portal"], () =>
+    {
+        Services.Audio.PlaySe(Sounds.Stairs);
+        Stack.Replace(new TownScene());
+    }));
 
     /// <summary>今いるマスか、dir の隣のマスが、仕掛けで開く扉(印 gate:)か。</summary>
     private bool IsGate(Direction dir)
@@ -829,7 +856,7 @@ public sealed class MazeScene : Scene
             var lootRng = session.Rng[RngStreams.Names.Loot];
             var prize = lootRng.NextDouble() < def.ItemChance && Services.Data.Items.TryGetValue(def.Item, out var item)
                 ? Loot.Make(Services.Data, _treasure, item, _encounters.TargetLevel(depth), lootRng) : null;
-            MaybeChest(depth, _encounters.TargetLevel(depth), groups, randomChest: true, extra: prize == null ? null : [prize]);
+            MaybeChest(depth, _encounters.TargetLevel(depth), groups, randomChest: true, room: true, extra: prize == null ? null : [prize]);
         }));
     }
 
@@ -870,18 +897,20 @@ public sealed class MazeScene : Scene
 
     /// <summary>
     /// 勝ったあと、宝箱が出るか。倒した敵の落とし物があれば必ず出て、中身に落とし物が入る。
-    /// randomChest が false なら、落とし物があるときだけ出る(ボス)。出たら宝箱の画面を積む。
+    /// randomChest が false なら、落とし物があるときだけ出る。迷宮の印のボス(と always)は必ず出る。出たら宝箱の画面を積む。
+    /// room は部屋の敵・名のある敵(宝箱が出やすく、中身は部屋の宝の表。ボスはボスの表)。
     /// </summary>
     private void MaybeChest(double depth, double targetLevel, IEnumerable<(Core.Monsters.MonsterDef Def, int Count)> defeated, bool randomChest = true,
-        string? boss = null, bool room = false, IEnumerable<ItemInstance>? extra = null)
+        string? boss = null, bool room = false, IEnumerable<ItemInstance>? extra = null, bool always = false)
     {
         var session = Services.Session!;
         _treasure ??= TreasureSettings.Load(Services.Content);
         var rng = session.Rng[RngStreams.Names.Loot];
-        var drops = Loot.RollDrops(Services.Data, _treasure, defeated, targetLevel, rng, boss, session.DropBoostOf(Services.Data, State.Position.Floor));
+        var source = boss != null ? TreasureSource.Boss : room ? TreasureSource.Room : TreasureSource.Wander;
+        var drops = Loot.RollDrops(Services.Data, _treasure, defeated, targetLevel, rng, boss, session.DropBoostOf(Services.Data, State.Position.Floor), source);
         if (extra != null) drops.AddRange(extra);   // 名のある敵の品(当たったとき)
-        if (drops.Count == 0 && (!randomChest || rng.NextDouble() >= (room ? _treasure.RoomChestChance : _treasure.ChestChance))) return;
-        var chest = Chest.Generate(Services.Data, _treasure, depth, targetLevel, rng, drops);
+        if (drops.Count == 0 && boss == null && !always && (!randomChest || rng.NextDouble() >= (room ? _treasure.RoomChestChance : _treasure.ChestChance))) return;
+        var chest = Chest.Generate(Services.Data, _treasure, depth, targetLevel, rng, drops, source);
         Stack.Push(new ChestScene(chest, TeleportRandom, () =>
         {
             Say(Services.Strings["maze.alarm"]);
@@ -980,7 +1009,12 @@ public sealed class MazeScene : Scene
     {
         _messages.Add(message);
         if (_messages.Count > 50) _messages.RemoveAt(0);
+        _saidAt = State.Position;   // 新しい知らせが長ければ、ここにいるあいだ欄を広げて全部出す
     }
+
+    /// <summary>最後の知らせを出した場所(そこから動いたら、広げた欄を戻す)と、今広げているか(広げているあいだはミニマップを押せない)。</summary>
+    private PartyPosition? _saidAt;
+    private bool _messagesExpanded;
 
     public override void Draw(Draw2D d)
     {
@@ -1000,18 +1034,36 @@ public sealed class MazeScene : Scene
         }
         else AutoMapRenderer.Draw(d, mapFloor, State.AutoMap.For(_lastKnownFloor), MiniMapArea, _lastKnown,
             InFog ? null : (State.Position.Cell, State.Position.Facing), MiniMapRadius,
-            State.Notes.Where(n => n.Floor == _lastKnownFloor).Select(n => n.Cell).ToHashSet(), arrivals: State.AutoMap.ArrivalsOn(_lastKnownFloor).ToHashSet());
+            State.Notes.Where(n => n.Floor == _lastKnownFloor).Select(n => n.Cell).ToHashSet(), arrivals: State.AutoMap.ArrivalsOn(_lastKnownFloor).ToHashSet(),
+            portals: State.PortalsOn(_lastKnownFloor).ToHashSet());
         if (InFog && Services.Options.ShowMiniMap)
             d.Text(s["maze.fog_map"], new Vector2(MiniMapArea.X + MiniMapArea.Width / 2, MiniMapArea.Y + MiniMapArea.Height - 34), 18, new Color(200, 200, 210), TextAlign.Center);
 
-        Theme.Panel(d, InfoArea);
-        d.Text(FloorLabel(), new Vector2(InfoArea.X + 16, InfoArea.Y + 10), 22, Color.White, style: FontStyle.Story);
-        int start = Math.Max(0, _messages.Count - MessageLines);
-        for (int i = start; i < _messages.Count; i++)
+        // 知らせは折り返して、新しいものを下に積む(縮めて1行に押し込まない)。新しい知らせが欄に入りきらなければ、
+        // ミニマップの上まで欄を広げて全部出す(その場から動くか向きを変えると元に戻る)
+        const float msgSize = 19f, msgGap = 7f;
+        float msgWidth = InfoArea.Width - 32;
+        float bottom = InfoArea.Y + InfoArea.Height - 48;   // キーの説明の上
+        var latestRows = _messages.Count > 0 ? d.WrapLines(_messages[^1], msgWidth, msgSize, FontStyle.Story) : [];
+        float need = latestRows.Count * (msgSize + msgGap);
+        var info = _saidAt == State.Position && need > bottom - (InfoArea.Y + 44)
+            ? new RectangleF(InfoArea.X, MiniMapArea.Y, InfoArea.Width, InfoArea.Y + InfoArea.Height - MiniMapArea.Y) : InfoArea;
+        _messagesExpanded = info.Y < InfoArea.Y;
+        if (_messagesExpanded) d.FillRect(info, new Color(10, 14, 20));   // 下のミニマップが透けないように
+        Theme.Panel(d, info);
+        d.Text(FloorLabel(), new Vector2(info.X + 16, info.Y + 10), 22, Color.White, style: FontStyle.Story);
+        float top = info.Y + 44, y = bottom;
+        for (int i = _messages.Count - 1; i >= 0 && y > top; i--)
         {
             bool latest = i == _messages.Count - 1;
-            DrawWrapped(d, _messages[i], new Vector2(InfoArea.X + 16, InfoArea.Y + 44 + (i - start) * 30), InfoArea.Width - 32, 19,
-                latest ? Color.White : Theme.Dim);
+            var rows = latest ? latestRows : d.WrapLines(_messages[i], msgWidth, msgSize, FontStyle.Story);
+            for (int r = rows.Count - 1; r >= 0; r--)
+            {
+                y -= msgSize + msgGap;
+                if (y < top) break;
+                d.Text(rows[r], new Vector2(info.X + 16, y), msgSize, latest ? Color.White : Theme.Dim, style: FontStyle.Story);
+            }
+            y -= 4;   // 知らせのあいだを少しあける
         }
         // キーの説明(2行)。長い行(言語や後ろのキーの設定で変わる)も枠に収まるよう、字を小さくする
         string help = s.Format("maze.help", s[Services.Options.BackKey == "turn" ? "maze.help.turn" : "maze.help.step"]);
@@ -1020,13 +1072,5 @@ public sealed class MazeScene : Scene
         d.Text(help, new Vector2(InfoArea.X + 16, InfoArea.Y + InfoArea.Height - 40 + (13 - helpSize)), helpSize, Theme.Dim);
 
         PartyPanel.Draw(d, Services, PartyArea);
-    }
-
-    /// <summary>1行に収まらないメッセージは、縮めて収める。</summary>
-    private static void DrawWrapped(Draw2D d, string text, Vector2 at, float width, float size, Color color)
-    {
-        float w = d.Fonts.Measure(text, size, FontStyle.Story).X;
-        if (w > width) size *= width / w;
-        d.Text(text, at, size, color, style: FontStyle.Story);
     }
 }

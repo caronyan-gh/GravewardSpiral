@@ -28,6 +28,12 @@ public sealed class Strings
         }
     }
 
+    /// <summary>今の言語そのものに、空でない文言があるか(代わりの言語は見ない)。</summary>
+    public bool HasOwn(string key) => _texts.TryGetValue(key, out var s) && !string.IsNullOrWhiteSpace(s);
+
+    /// <summary>その言語か、代わりの言語にキーがあるか。</summary>
+    public bool Has(string key) => _texts.ContainsKey(key) || _fallbacks.Any(f => f.ContainsKey(key));
+
     /// <summary>並べた名前(日本語は「・」、英語は「, 」。text の common.list_sep)。</summary>
     public string List(IEnumerable<string> items) => string.Join(this["common.list_sep"], items);
 

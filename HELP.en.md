@@ -220,7 +220,7 @@ Check equipment proficiencies on the status screen. Item descriptions also show 
 
 Inspect companions at the Training Grounds, at camp, or in the Clan House. The left panel shows a summary; the right panel shows details.
 
-Use Left and Right to switch the right panel between skills and features, spells, equipment, and carried items. Companions with no castable spells have no spells page. Press Confirm or Cancel to close the screen.
+Use Left and Right to switch the right panel between skills and features, spells, equipment, and carried items. Companions with no castable spells have no spells page. Press Confirm or Cancel to close the screen. Hover the mouse over a word with a dotted underline (skills, class features, uses and spell names, and rules terms such as short rest, advantage and saving throw) to see its description. Rules terms are underlined in description text on other screens too.
 
 "Slots 1: 3/4" means three of four level-1 spell slots remain. Other current/maximum values, such as HP and Hit Dice, help you track remaining resources.
 
@@ -332,7 +332,7 @@ The minimap in the upper-right corner shows your surroundings. Press M to open a
 ### Darkness and fog
 
 - Darkness hides the view ahead, but exploration is still recorded on the map. A light spell or similar effect restores visibility while it lasts.
-- Fog leaves the view ahead visible, but stops mapping and hides your current position on the map. When you leave the fog, the path you walked inside is added to the map (shaded in fog color).
+- Fog leaves the view ahead visible, but stops mapping and hides your current position on the map. When you leave the fog, the path you walked inside is added to the map (shaded in fog color). On fog squares already on the map, your position is shown.
 
 ### Doors and keys
 
@@ -475,6 +475,8 @@ A condition's name appears before HP in the party list.
 - Poisoned and Frightened give your attack rolls disadvantage.
 - Blinded gives your attacks disadvantage and makes attacks against you more likely to hit.
 - Paralyzed, Stunned, and Unconscious prevent you from acting.
+- While Charmed, you can't attack, or aim enemy-targeting spells or features at, the group with the foe who charmed you.
+- While Deafened, Bardic Inspiration can't reach you, and Perception checks in events have disadvantage.
 
 Poisoned, Blinded, Deafened, Frightened, and Paralyzed may linger after combat. Treat them with spells, at the temple, or with a long rest.
 
@@ -598,7 +600,7 @@ Some magic items only grant their effects when attuned. Each character can attun
 
 In this game, attunement does not require a rest. Equipping an item automatically attunes it if required and space is available. Without space, the item can be equipped but does not grant its effects.
 
-To change attuned items, unequip one you are already attuned to, then re-equip the item you want to attune. An item's description states whether attunement is required and notes the three-item limit.
+You can change attunement without re-equipping. The Attuned tab on the inventory screen lists equipped items that need attunement. Select one to switch its attunement on or off right away (◆ marks attuned items). When all three are in use, end one first. An item's description states whether attunement is required and notes the three-item limit.
 
 ### Trading and transfers
 
@@ -608,7 +610,12 @@ You can transfer items between allies and choose how many to transfer from a sta
 
 ### Equipment with additional effects
 
-Deeper floors may contain rare equipment with extra effects. Check the item's description to see what it does.
+Magic weapons, armor, shields, rings, and other gear may come with random extra effects. Two items with the same name can have different effects and strengths, and deeper floors give stronger ones.
+
+- Magic items: one or two extra effects. No attunement is needed, but the extra effects work at only 2/3.
+- Rare items: four to six extra effects and a name of their own. They require attunement; without it, the extra effects work at only 1/3, and on-or-off effects such as resistances do not work.
+
+Enhancement bonuses such as +1 on weapons and armor always work in full, attuned or not. Item descriptions show the numbers as they currently apply.
 
 ## Death and Rescue
 
@@ -747,7 +754,7 @@ This game adapts the D&D 5th edition SRD 5.1 for dungeon exploration. These are 
 - Party and distance: Up to six members form a front row of three and a back row of three. Combat distance uses these rows and near or far enemy groups.
 - Inventory: Carrying capacity depends on free bag slots rather than weight.
 - Ammunition: Ordinary arrows and bolts need no replenishment. Special ammunition is consumed with each attack.
-- Attunement: No rest is required. Equipping an item attunes it automatically if an attunement slot is available. You can't attune to a second copy of the same item (as in 5e).
+- Attunement: No rest is required. Equipping an item attunes it automatically if an attunement slot is available, and you can change attunement on the inventory screen's Attuned tab without re-equipping. You can't attune to a second copy of the same item (as in 5e; randomly made rare items each count as a different item).
 - Armor and shields without proficiency: They can't be equipped (in 5e you can wear them, but they only hurt you, such as by stopping spellcasting).
 - Protective gear: Some items, such as Bracers of Defense and the Robe of the Archmagi, simply add to AC instead of working only without armor.
 - High magic bonuses: Weapons and armor above +4 have their attack and AC bonus capped (+4 gives +3; +5 and higher give +4). Damage keeps the full bonus.

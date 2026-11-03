@@ -322,7 +322,7 @@ public sealed class EventRunner
             }
             case "treasure":
                 if (_ctx.Treasure != null)
-                    foreach (var item in Treasure.RollMany(data, _ctx.Treasure, _ctx.Depth, Math.Max(1, s.Count), _ctx.Rng, _ctx.TargetLevel)) Give(item, able);
+                    foreach (var item in Treasure.RollMany(data, _ctx.Treasure, _ctx.TargetLevel, Math.Max(1, s.Count), _ctx.Rng, TreasureSource.Room)) Give(item, able);
                 break;
             case "gold":
             {
@@ -524,16 +524,19 @@ public sealed class EventRunner
         return null;
     }
 
-    /// <summary>判定。動ける人のうち、一番得意な人が d20 を振る。</summary>
+    /// <summary>判定。動ける人のうち、一番得意な人が d20 を振る。耳の聞こえない人(聴覚喪失が残っている人)の知覚は不利(選ぶときも、その分低く見る)。</summary>
     private bool Check(EventStep s, List<Character> able)
     {
         if (able.Count == 0) return false;
         var data = _ctx.Data;
         SkillDef? skill = s.Skill != null && data.Skills.TryGetValue(s.Skill, out var sk) ? sk : null;
         var ability = skill?.AbilityValue ?? Abilities.Parse(s.Ability ?? "wis");
-        int Bonus(Character c) => c.Stats(data).Mod(ability) + (skill != null && c.IsProficient(skill.Id) ? c.ProficiencyBonus : 0);
-        var who = able.OrderByDescending(Bonus).First();
-        int total = _ctx.Rng.Roll(20) + Bonus(who);
+        int Bonus(Character c) => c.Stats(data).Mod(ability) + (skill != null ? (c.IsProficient(skill.Id) ? c.ProficiencyBonus : 0) + c.PassiveBonus(data, skill.Id) : 0);   // 装備の技能の上乗せも
+        bool Deaf(Character c) => skill?.Id == "perception" && c.Lasting.Any(l => l.Condition == Effects.Condition.Deafened);
+        var who = able.OrderByDescending(c => Bonus(c) - (Deaf(c) ? 5 : 0)).First();
+        int roll = _ctx.Rng.Roll(20);
+        if (Deaf(who)) roll = Math.Min(roll, _ctx.Rng.Roll(20));
+        int total = roll + Bonus(who);
         bool ok = total >= EventScale.Dc(s.Dc, _dcBonus);
         Say(ok ? "event.check_ok" : "event.check_ng", who.Name, (object?)skill?.Name ?? ability, total);
         return ok;

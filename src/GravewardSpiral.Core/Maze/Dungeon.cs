@@ -131,6 +131,13 @@ public sealed class ExplorationState
     /// <summary>済んだマスの印(拾った鍵、倒したボス)。</summary>
     public HashSet<(int Floor, GridPos Cell)> UsedMarks { get; } = [];
 
+    /// <summary>この冒険で倒したボスのマスには、町へ戻る魔法陣が出る(入り直すとボスと一緒に消える)。</summary>
+    public bool IsPortal(int floor, GridPos cell) =>
+        UsedMarks.Contains((floor, cell)) && floor < Dungeon.Floors.Count && Dungeon.Floors[floor][cell].Mark?.StartsWith("boss:") == true;
+
+    /// <summary>その階の魔法陣のマス(地図に描く)。</summary>
+    public IEnumerable<GridPos> PortalsOn(int floor) => UsedMarks.Where(m => m.Floor == floor && IsPortal(floor, m.Cell)).Select(m => m.Cell);
+
     /// <summary>
     /// 書き留めたメモ(何度でも起こるイベントの文を、その階のメモに残したもの)。書き留めた場所のイベントは、もう起こらない。
     /// </summary>

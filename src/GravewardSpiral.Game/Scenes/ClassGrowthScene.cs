@@ -15,7 +15,7 @@ public sealed class ClassGrowthScene(ClassDef cls, int nowLevel) : Scene
     private static readonly RectangleF Panel = new(140, 40, 1000, 640);
     private const float LineSize = 19f, LineGap = 6f, LevelWidth = 70f;
 
-    private List<(int Level, string Text)> _rows = [];
+    private List<(int Level, List<LinkWord> Words)> _rows = [];
     private float _scroll;
     private float _contentHeight;
 
@@ -47,15 +47,17 @@ public sealed class ClassGrowthScene(ClassDef cls, int nowLevel) : Scene
         d.Text(nowLevel > 0 ? s.Format("growth.now", nowLevel) : s["growth.new"], new Vector2(Panel.X + Panel.Width - 24, Panel.Y + 22), 18, Theme.Dim, TextAlign.Right);
         float top = Panel.Y + 64, bottom = Panel.Y + Panel.Height - 44, width = Panel.Width - 48 - LevelWidth;
         float y = top - _scroll;
-        foreach (var (level, text) in _rows)
+        // 技と能力の名前の上にマウスを載せると、その説明
+        string sep = s["common.list_sep"];
+        foreach (var (level, words) in _rows)
         {
             var color = level <= nowLevel ? Theme.Dim : level == nowLevel + 1 ? Theme.Gold : Theme.Text;
-            var lines = d.WrapLines(text, width, LineSize);
-            float h = lines.Count * (LineSize + LineGap) + 4;
+            var at = new Vector2(Panel.X + 24 + LevelWidth, y);
+            float h = LinkFlow.Draw(d, words, sep, at, width, LineSize, color, LineGap, draw: false) - y + 4;
             if (y >= top - 4 && y + h < bottom)
             {
                 d.Text($"L{level}", new Vector2(Panel.X + 24, y), LineSize, color);
-                for (int i = 0; i < lines.Count; i++) d.Text(lines[i], new Vector2(Panel.X + 24 + LevelWidth, y + i * (LineSize + LineGap)), LineSize, color);
+                LinkFlow.Draw(d, words, sep, at, width, LineSize, color, LineGap);
             }
             y += h;
         }

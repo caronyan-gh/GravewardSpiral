@@ -109,13 +109,16 @@ public sealed class CombatState
         Party.Select(p => (p.Id, p.Hp, p.Character.State, p.Shape?.Id, p.Ac, p.Conditions.Select(x => x.Condition).Distinct().ToArray())).ToList();
 
     /// <summary>そのラウンドで、パーティの1人が狙えるグループの番号(Groups の添え字)。</summary>
+    /// <summary>p がそのグループに手を出せないか(p を魅了した敵がいる。攻撃も、敵に向ける呪文や技も向けられない)。</summary>
+    public bool Spares(PartyMember p, EnemyGroup g) => p.Has(Effects.Condition.Charmed) && g.Units.Any(u => u.Standing && p.CharmedBy(u));
+
     public IEnumerable<int> AttackableGroups(PartyMember p)
     {
         if (!p.CanAct) yield break;
         for (int i = 0; i < Groups.Count; i++)
         {
             var g = Groups[i];
-            if (g.Wiped) continue;
+            if (g.Wiped || Spares(p, g)) continue;
             if (p.HasReach || (InFront(p) && IsNear(g))) yield return i;
         }
     }

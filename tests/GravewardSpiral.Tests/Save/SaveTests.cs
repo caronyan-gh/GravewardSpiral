@@ -190,6 +190,32 @@ public class SaveTests
     }
 
     [Fact]
+    public void ABeatenBossComesBackWhenThePartyEntersAgain()
+    {
+        // 倒したボスの印は入り直すと消え(また戦う)、倒した印は残る。拾った鍵は済んだまま
+        var s = NewSession(1);
+        var state = s.EnterMaze();
+        var floor = s.Dungeon.Floors[^1];
+        var lair = floor.AllCells().First(c => !floor[c].IsSolid);
+        var keyCell = floor.AllCells().Where(c => !floor[c].IsSolid).Skip(1).First();
+        floor[lair].Mark = "boss:final";
+        floor[keyCell].Mark = "key";
+        int last = s.Dungeon.Floors.Count - 1;
+        state.UsedMarks.Add((last, lair));
+        state.UsedMarks.Add((last, keyCell));
+        // 倒したボスのマスには、町へ戻る魔法陣が出る(鍵のマスには出ない)
+        Assert.True(state.IsPortal(last, lair));
+        Assert.False(state.IsPortal(last, keyCell));
+        Assert.Equal([lair], state.PortalsOn(last));
+        s.ReturnToTown();
+        s.EnterMaze();
+        Assert.False(state.IsPortal(last, lair));   // ボスが戻ると、魔法陣も倒すまで出ない
+        Assert.DoesNotContain((last, lair), state.UsedMarks);
+        Assert.Contains((last, keyCell), state.UsedMarks);
+        Assert.Contains(GameSession.BossBeatenFlag("final"), s.Flags);
+    }
+
+    [Fact]
     public void TheSummaryTellsTheFloorThePartyIsOn()
     {
         // 一覧の「迷宮の中」は今いる階(地図を描いた一番深い階ではなく)。町なら 0

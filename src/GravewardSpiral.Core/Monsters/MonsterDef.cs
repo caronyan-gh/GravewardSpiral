@@ -92,6 +92,9 @@ public sealed class MonsterDef
     /// <summary>名前({"en": "...", "ja": "..."})。</summary>
     public LocalizedText Name { get; set; } = LocalizedText.Of("");
 
+    /// <summary>説明({"en": "...", "ja": "..."})。省ける(SRD の敵は省いている)。</summary>
+    public LocalizedText? Description { get; set; }
+
     /// <summary>正体が分かる前の名前(「小さな人影」など)。</summary>
     public LocalizedText? UnknownName { get; set; }
 

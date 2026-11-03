@@ -47,11 +47,11 @@ public sealed class InventoryScene(Character first, IReadOnlyList<Character>? me
 
     private Mode _mode;
 
-    private enum Tab { Equip, Bag }
+    private enum Tab { Equip, Bag, Attune }
 
     private Tab _tab;
 
-    private static RectangleF TabRect(Tab t) => new(ListArea.X - 12 + (int)t * 130, 90, 120, 32);   // 右に AC と同調の数を置くので、短めに
+    private static RectangleF TabRect(Tab t) => new(ListArea.X - 12 + (int)t * 126, 90, 120, 32);   // 右に AC を置くので、短めに
     private object? _picked;   // 選んだもの(EquipSlot か、袋の中の ItemInstance)
 
     private Inventory Inv => Owner.Inventory;
@@ -88,6 +88,16 @@ public sealed class InventoryScene(Character first, IReadOnlyList<Character>? me
                 break;
             case Mode.Actions when AtStorage:
                 yield return new MenuItem(s["inv.give"], Tag: "give");   // 仲間へ引き出す
+                yield return new MenuItem(s["common.back"], Tag: "back");
+                break;
+            case Mode.List when _tab == Tab.Attune:
+                // 同調: 同調の要る付けている品。決定でその場でオンとオフが切り替わる(◆が同調している)
+                foreach (var (slot, it) in Inv.Equipped.OrderBy(kv => kv.Key)
+                    .Where(kv => Data.Items.TryGetValue(kv.Value.ItemId, out var d) && kv.Value.NeedsAttunement(d)).Select(kv => (kv.Key, kv.Value)))
+                    yield return new MenuItem($"{s["slot." + slot.ToString().ToLowerInvariant()]}: {ItemText.Name(Services, it)}", it.Attuned ? "◆" : "◇",
+                        Tag: ("attune", slot));
+                if (!Inv.Equipped.Values.Any(i => Data.Items.TryGetValue(i.ItemId, out var d) && i.NeedsAttunement(d)))
+                    yield return new MenuItem(s["inv.attune_none"], Enabled: false);
                 yield return new MenuItem(s["common.back"], Tag: "back");
                 break;
             case Mode.List when _tab == Tab.Bag:
@@ -167,6 +177,9 @@ public sealed class InventoryScene(Character first, IReadOnlyList<Character>? me
         switch (_mode, item.Tag)
         {
             case (Mode.List, "back"): Stack.Pop(); return;
+            case (Mode.List, (string, EquipSlot attuneSlot)):
+                ToggleAttune(attuneSlot);
+                return;
             case (Mode.SlotPick, "back"): BackToList(); return;
             case (Mode.SlotPick, _):
                 PickForSlot(item);
@@ -314,6 +327,26 @@ public sealed class InventoryScene(Character first, IReadOnlyList<Character>? me
         List.SetItems(items, Math.Max(0, items.FindIndex(i => i.Enabled)));
     }
 
+    /// <summary>同調のタブで選んだ品の同調を、その場で切り替える(カーソルはそのまま)。</summary>
+    private void ToggleAttune(EquipSlot slot)
+    {
+        var s = Services.Strings;
+        string name = Inv[slot] is { } cur ? ItemText.Name(Services, cur) : "";
+        bool on = Inv[slot]?.Attuned == true;
+        var r = on ? Inv.Unattune(slot, Data.Items) : Inv.Attune(slot, Data.Items);
+        Message = r switch
+        {
+            Inventory.AttuneResult.Ok => s.Format(on ? "inv.unattuned_now" : "inv.attuned_now", name),
+            Inventory.AttuneResult.Full => s["inv.attune_full"],
+            Inventory.AttuneResult.SameItem => s["inv.attune_same"],
+            Inventory.AttuneResult.Cursed => s["inv.attune_cursed"],
+            _ => null,
+        };
+        Services.Audio.PlaySe(r == Inventory.AttuneResult.Ok ? Sounds.Confirm : Sounds.Cancel);
+        int at = List.Cursor;
+        List.SetItems(Items().ToList(), at);
+    }
+
     /// <summary>部位の候補から選んだもの: 外すか、その品に替える。</summary>
     private void PickForSlot(MenuItem item)
     {
@@ -362,8 +395,8 @@ public sealed class InventoryScene(Character first, IReadOnlyList<Character>? me
         if (_mode == Mode.List && !AtStorage)
         {
             // 装備と袋の切り替え(左右キーか、上のボタンをクリック)
-            if (input.Repeat(GameAction.Left)) SwitchTab(Tab.Equip);
-            else if (input.Repeat(GameAction.Right)) SwitchTab(Tab.Bag);
+            if (input.Repeat(GameAction.Left) && _tab > Tab.Equip) SwitchTab(_tab - 1);
+            else if (input.Repeat(GameAction.Right) && _tab < Tab.Attune) SwitchTab(_tab + 1);
             else if (input.LeftClicked && input.Mouse is { } m)
             {
                 foreach (var t in Enum.GetValues<Tab>())
@@ -405,11 +438,16 @@ public sealed class InventoryScene(Character first, IReadOnlyList<Character>? me
             bool on = t == _tab;
             d.FillRect(r, on ? Theme.SelectedFill : Theme.PanelFill);
             d.Rect(r, on ? Theme.SelectedFrame : Theme.Frame, 1.5f);
-            string label = t == Tab.Equip ? s["inv.tab_equip"] : s.Format("inv.tab_bag", Inv.Items.Count, Inv.Capacity(Data.Items));
+            string label = t switch
+            {
+                Tab.Equip => s["inv.tab_equip"],
+                Tab.Bag => s.Format("inv.tab_bag", Inv.Items.Count, Inv.Capacity(Data.Items)),
+                _ => s.Format("inv.tab_attune", Inv.AttunedCount, Inventory.MaxAttuned),
+            };
             d.Text(label, new Vector2(r.X + r.Width / 2, r.Y + 6), 20, on ? Color.White : Theme.Dim, TextAlign.Center);
         }
-        // タブの右、左の欄の右端にそろえて AC と同調の数(袋の数はタブに出ている)
-        d.Text(s.Format("inv.summary_top", Owner.ArmorClass(Data), Inv.AttunedCount, Inventory.MaxAttuned),
+        // タブの右、左の欄の右端にそろえて AC(袋と同調の数はタブに出ている)
+        d.Text(s.Format("inv.summary_top", Owner.ArmorClass(Data)),
             new Vector2(ListArea.X + ListArea.Width + 4, TabRect(Tab.Equip).Y + 7), 18, Theme.Dim, TextAlign.Right);
     }
 
@@ -420,6 +458,7 @@ public sealed class InventoryScene(Character first, IReadOnlyList<Character>? me
         var it = List.Current?.Tag switch
         {
             EquipSlot slot => Inv[slot],
+            (string, EquipSlot attuneSlot) => Inv[attuneSlot],
             ItemInstance i => i,
             // 付け替えで、外すや部位の行を指しているときは、今付けているもの
             _ when _mode == Mode.SlotPick && _picked is EquipSlot ps2 => Inv[ps2],
@@ -428,7 +467,7 @@ public sealed class InventoryScene(Character first, IReadOnlyList<Character>? me
         if (it != null)
         {
             y = Line(d, area, y, ItemText.Name(Services, it), Theme.Title, 24);
-            foreach (var line in ItemText.Lines(Services, it)) y = Line(d, area, y, line, Theme.Text, 18);
+            y = Lines(d, area, y, ItemText.Lines(Services, it), Theme.Text, 18, reserve: 24);
             if (!AtStorage && ItemText.ProficiencyNote(Services, it, Owner) is { } pn) y = Line(d, area, y + 4, pn, Theme.Caution, 18);   // この人に習熟が無ければ
         }
     }

@@ -75,7 +75,7 @@ Check equipment proficiencies on the status screen. Item descriptions also show 
 
 Inspect companions at the Training Grounds, at camp, or in the Clan House. The left panel shows a summary; the right panel shows details.
 
-Use Left and Right to switch the right panel between skills and features, spells, equipment, and carried items. Companions with no castable spells have no spells page. Press Confirm or Cancel to close the screen.
+Use Left and Right to switch the right panel between skills and features, spells, equipment, and carried items. Companions with no castable spells have no spells page. Press Confirm or Cancel to close the screen. Hover the mouse over a word with a dotted underline (skills, class features, uses and spell names, and rules terms such as short rest, advantage and saving throw) to see its description. Rules terms are underlined in description text on other screens too.
 
 "Slots 1: 3/4" means three of four level-1 spell slots remain. Other current/maximum values, such as HP and Hit Dice, help you track remaining resources.
 

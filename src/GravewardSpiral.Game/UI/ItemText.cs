@@ -16,7 +16,7 @@ public static class ItemText
         item = item.Apparent(sv.Data.Items);
         if (!sv.Data.Items.TryGetValue(item.ItemId, out var def)) return item.ItemId;
         string name;
-        if (!item.Identified && (def.IsMagic || item.Bonus != 0))
+        if (!item.Identified && item.IsMagicItem(def))
         {
             name = def.Base != null && sv.Data.Items.TryGetValue(def.Base, out var b) ? sv.Name(b.Name) + "?"
                 : def.Kind is ItemKind.Weapon or ItemKind.Armor or ItemKind.Shield ? sv.Name(def.Name) + "?"
@@ -36,11 +36,13 @@ public static class ItemText
     /// <summary>
     /// 追加効果の語を付けた名前(「燃える 守りの ロングソード」/ "Flaming Longsword of Warding")。
     /// 固有の品(no_random)は、名前をそのまま出す(追加効果は説明の行で見せる)。
+    /// レアの品は追加効果が多いので、語をつないで作った名前にする(「凶ツ牙のロングソード」。効果は説明の行で見せる)。
     /// </summary>
     private static string WithAffixes(GameServices sv, ItemInstance item, ItemDef def)
     {
         string baseName = sv.Name(def.Name);
         if (def.NoRandom || item.Affixes.Count == 0) return baseName;
+        if (item.Rare) return RareName(sv, item, baseName);
         var affixes = item.Affixes.Select(a => sv.Data.Affixes.GetValueOrDefault(a.Id)).OfType<AffixDef>().ToList();
         // 日本語のように、追加効果の語を全部前に付ける言語(text の item.affix_order が "before")
         if (sv.Strings["item.affix_order"] == "before") return string.Concat(affixes.Select(a => sv.Name(a.Name) + " ")) + baseName;
@@ -48,6 +50,30 @@ public static class ItemText
         var suf = affixes.Where(a => a.Position == "suffix").Select(a => " " + sv.Name(a.Name));
         return string.Concat(pre) + baseName + string.Concat(suf);
     }
+
+    /// <summary>
+    /// レアの品の名前。前の語と後ろの語(text の item.rare_first / item.rare_second。読点区切り)を、品と追加効果から決まった形で選ぶ
+    /// (同じ品はいつも同じ名前。セーブには持たない)。
+    /// </summary>
+    private static string RareName(GameServices sv, ItemInstance item, string baseName)
+    {
+        var first = sv.Strings["item.rare_first"].Split(',', StringSplitOptions.TrimEntries | StringSplitOptions.RemoveEmptyEntries);
+        var second = sv.Strings["item.rare_second"].Split(',', StringSplitOptions.TrimEntries | StringSplitOptions.RemoveEmptyEntries);
+        if (first.Length == 0 || second.Length == 0) return baseName;
+        uint h = 2166136261;   // FNV-1a(string.GetHashCode は起動ごとに変わるので使わない)
+        foreach (char ch in item.ItemId + "|" + string.Join(",", item.Affixes.Select(a => $"{a.Id}#{a.Tier}")))
+            h = (h ^ ch) * 16777619;
+        return sv.Strings.Format("item.rare_name", first[h % (uint)first.Length], second[h / (uint)first.Length % (uint)second.Length], baseName);
+    }
+
+    /// <summary>ダメージの倍率の印(マジックの 2/3 など。×1 なら空)。</summary>
+    private static string Scaled(double? scale) => scale switch
+    {
+        null => "",
+        double f when Math.Abs(f - 2.0 / 3) < 1e-6 => " ×2/3",
+        double f when Math.Abs(f - 1.0 / 3) < 1e-6 => " ×1/3",
+        double f => $" ×{f:0.##}",
+    };
 
     /// <summary>武器の持ち方の短い印(片手・両手・片手か両手)。武器でなければ null。</summary>
     public static string? Hands(GameServices sv, ItemInstance item)
@@ -62,13 +88,13 @@ public static class ItemText
         var s = sv.Strings;
         item = item.Apparent(sv.Data.Items);
         if (!sv.Data.Items.TryGetValue(item.ItemId, out var def)) yield break;
-        if (!item.Identified && (def.IsMagic || item.Bonus != 0))
+        if (!item.Identified && item.IsMagicItem(def))
         {
             yield return s["item.not_identified"];
             if (WhoCanUse(sv, def) is { } guess) yield return guess;   // 何の武器・鎧かは見えているので、誰が使えるかは分かる
             yield break;
         }
-        if (def.IsMagic || item.Bonus != 0) yield return s["rarity." + (item.Bonus > 0 && !def.IsMagic ? Treasure.RarityOf(item.Bonus, def.Kind) : def.Rarity)];
+        if (item.IsMagicItem(def)) yield return s["rarity." + Treasure.GradeOf(def, item)];
         int bonus = item.TotalBonus(def);
         switch (def.Kind)
         {
@@ -101,16 +127,21 @@ public static class ItemText
                 break;
         }
         if (WhoCanUse(sv, def) is { } who) yield return who;
-        if (def.Attunement) yield return s[item.Attuned ? "item.attuned" : "item.needs_attunement"];
+        // マジックとレアの、追加効果の効き方(下の行の数字は、今の効き方で弱めたもの)。レアは同調の行と1行にまとめる
+        bool affixed = !def.NoRandom && item.Affixes.Count > 0;
+        if (affixed) yield return s[!item.Rare ? "item.magic_affixes" : item.Attuned ? "item.rare_attuned" : "item.rare_affixes"];
+        else if (item.NeedsAttunement(def)) yield return s[item.Attuned ? "item.attuned" : "item.needs_attunement"];
         if (def.Cursed) yield return s["item.cursed"];
         foreach (var p in def.Passive) yield return Passive(sv, p);
         foreach (var p in def.OnHit) if (OnHit(sv, p) is { } line) yield return line;
         // 追加効果(どの語で、何が付いたか)
         foreach (var roll in item.Affixes)
         {
-            if (!sv.Data.Affixes.TryGetValue(roll.Id, out var affix) || roll.Get(sv.Data) is not { } tier) continue;
-            var parts = tier.Passive.Select(p => Passive(sv, p)).Concat(tier.OnHit.Select(p => OnHit(sv, p)).OfType<string>());
-            yield return s.Format("item.affix", sv.Name(affix.Name).Trim(), string.Join(s["item.affix_sep"], parts));
+            if (!sv.Data.Affixes.TryGetValue(roll.Id, out var affix) || roll.Get(sv.Data) is null) continue;
+            var parts = item.AffixParts(sv.Data, roll, t => t.Passive).Select(p => Passive(sv, p))
+                .Concat(item.AffixParts(sv.Data, roll, t => t.OnHit).Select(p => OnHit(sv, p)).OfType<string>()).ToList();
+            yield return s.Format("item.affix", sv.Name(affix.Name).Trim(),
+                parts.Count > 0 ? string.Join(s["item.affix_sep"], parts) : s["item.affix_off"]);
         }
         // 使える回数(残り/最大と戻り方)
         if (def.Charges is int max) yield return s.Format("item.charges", item.Charges ?? max, max);
@@ -122,7 +153,7 @@ public static class ItemText
             foreach (var line in SpellText.Effects(s, sp, useLevel)) yield return s["item.use"] + line;
         }
         foreach (var line in SpellText.Effects(s, new Core.Magic.SpellDef { Effects = def.Use }, 1)) yield return s["item.use"] + line;
-        if (def.Description != null) yield return sv.Name(def.Description);
+        if (def.Description != null && !(affixed && !def.IsMagic)) yield return sv.Name(def.Description);   // 元の品(ただの指輪など)の説明は出さない
         yield return s.Format("item.price", Treasure.Price(def, item));
     }
 
@@ -153,7 +184,7 @@ public static class ItemText
     {
         var s = sv.Strings;
         if (p.Type == EffectPart.Damage)
-            return s.Format(p.Only != null ? "item.on_hit_only" : "item.on_hit", p.Dice ?? "", s["damage." + p.DamageType], p.Only != null ? s["creature." + p.Only] : "");
+            return s.Format(p.Only != null ? "item.on_hit_only" : "item.on_hit", (p.Dice ?? "") + Scaled(p.Scale), s["damage." + p.DamageType], p.Only != null ? s["creature." + p.Only] : "");
         if (p.Type == EffectPart.Drain) return s.Format("item.on_hit_drain", p.Value ?? 100);
         if (p.Type == EffectPart.Kill && p.Chance is int chance) return s.Format("item.kill_chance", chance);   // 首はねの武器
         if (p.Type == EffectPart.Dot) return s.Format("item.on_hit_dot", p.Dice ?? "", s["damage." + p.DamageType], p.Rounds ?? 10);

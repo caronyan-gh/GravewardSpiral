@@ -20,6 +20,21 @@ public sealed class SkillDef
     public Ability AbilityValue => Abilities.Parse(Ability);
 }
 
+/// <summary>
+/// 決まりの言葉(小休憩・有利・セーヴなど。パックの glossary.json)。品や技のようなデータの名前ではないが、説明の文や画面によく出る言葉。
+/// 画面の文の中に name か aliases の言葉があれば、その上にマウスを載せると description を出す。
+/// </summary>
+public sealed class GlossaryTerm
+{
+    public string Id { get; set; } = "";
+    public LocalizedText Name { get; set; } = LocalizedText.Of("");
+
+    /// <summary>文の中での別の書き方(言語ごと。{"ja": ["習熟ボーナス"], "en": ["proficient"]} など)。名前と同じく説明を付ける。</summary>
+    public Dictionary<string, List<string>> Aliases { get; set; } = [];
+
+    public LocalizedText? Description { get; set; }
+}
+
 public sealed class RaceDef
 {
     public string Id { get; set; } = "";
@@ -147,6 +162,13 @@ public sealed class ProgressionDef
 public sealed class PoolDef
 {
     public string Id { get; set; } = "";
+
+    /// <summary>回数の名前(日英)。同じ id の回数を持つクラスのどれかに書けばよい。省けば文言の pool.&lt;id&gt;(前の形)。</summary>
+    public LocalizedText? Name { get; set; }
+
+    /// <summary>回数の説明(日英)。省けば、その回数を使う技の説明を出す。</summary>
+    public LocalizedText? Description { get; set; }
+
     public LevelNumber Max { get; set; } = LevelNumber.Of(0);
     public string Recharge { get; set; } = "long";
     public int FromLevel { get; set; } = 1;
@@ -169,6 +191,13 @@ public sealed class FeatureRef
 public sealed class ClassFeatureDef
 {
     public string Id { get; set; } = "";
+
+    /// <summary>技か能力の名前(日英)。省けば文言の feature.&lt;id&gt;(技)か passive.&lt;id&gt;(能力)(前の形)。</summary>
+    public LocalizedText? Name { get; set; }
+
+    /// <summary>説明(日英。名前の上にマウスを載せたときと、戦闘の技の欄に出す)。省けば文言の feature.about.&lt;id&gt; か passive.about.&lt;id&gt;。</summary>
+    public LocalizedText? Description { get; set; }
+
     public string Kind { get; set; } = "";
     public Dictionary<string, LevelNumber> Values { get; set; } = [];
 
@@ -309,6 +338,8 @@ public sealed class BackgroundDef
 public sealed class GameData
 {
     public Dictionary<string, SkillDef> Skills { get; } = new(StringComparer.Ordinal);
+    /// <summary>決まりの言葉(glossary.json)。</summary>
+    public Dictionary<string, GlossaryTerm> Glossary { get; } = new(StringComparer.Ordinal);
     public Dictionary<string, RaceDef> Races { get; } = new(StringComparer.Ordinal);
     public Dictionary<string, ClassDef> Classes { get; } = new(StringComparer.Ordinal);
     public Dictionary<string, BackgroundDef> Backgrounds { get; } = new(StringComparer.Ordinal);
@@ -416,6 +447,7 @@ public sealed class GameData
             }
         }
         Read("skills", d.Skills, null, s => s.Id);
+        Read("glossary", d.Glossary, null, g => g.Id);
         Read("races", d.Races, d.RaceOrder, r => r.Id);
         Read("classes", d.Classes, d.ClassOrder, c => c.Id);
         Read("backgrounds", d.Backgrounds, d.BackgroundOrder, b => b.Id);
@@ -479,31 +511,56 @@ public sealed class GameData
             content.Problems.Add($"{where} の pools: '{dup.Key}' が2つあります");
     }
 
+    private static bool NonBlank(LocalizedText? text, string lang) => text != null && text.Texts.TryGetValue(lang, out var v) && !string.IsNullOrWhiteSpace(v);
+
+    /// <summary>回数の名前(その id の回数を持つクラスか種族のどれかに書いたもの。無ければ null)。</summary>
+    public LocalizedText? PoolName(string id) =>
+        Classes.Values.SelectMany(c => c.Pools).Concat(Races.Values.SelectMany(x => x.Pools)).Where(x => x.Id == id).Select(x => x.Name).FirstOrDefault(n => n != null);
+
+    /// <summary>回数の説明(書いたものがあれば。無ければ null)。</summary>
+    public LocalizedText? PoolDescription(string id) =>
+        Classes.Values.SelectMany(c => c.Pools).Concat(Races.Values.SelectMany(x => x.Pools)).Where(x => x.Id == id).Select(x => x.Description).FirstOrDefault(n => n != null);
+
     /// <summary>
-    /// クラスと種族が指す技・能力・回数の文言が日英にあるか(画面に出す名前)。技は feature.&lt;id&gt; と feature.about.&lt;id&gt;、
-    /// 能力の一覧に出す能力(listed)は passive.&lt;id&gt;、ファイティングスタイルは passive.&lt;id&gt; と passive.about.&lt;id&gt;、回数は pool.&lt;id&gt;。
+    /// クラスと種族が指す技・能力・回数に、日英の名前と説明があるか(画面に出す)。技とファイティングスタイルは name と description、
+    /// 能力の一覧に出す能力(listed)は name(description は無くてもよいが、あれば名前の上に説明を出す)、回数は name。
+    /// データに書いていなければ、前の形の文言(技は feature.&lt;id&gt; と feature.about.&lt;id&gt;、能力は passive.&lt;id&gt; と passive.about.&lt;id&gt;、
+    /// 回数は pool.&lt;id&gt;)で足りる。
     /// </summary>
     private void CheckFeatureTexts(ContentLibrary content)
     {
         var owners = Classes.Values.Select(c => ($"classes '{c.Id}'", c.Features, c.Pools))
             .Concat(Races.Values.Select(r => ($"races '{r.Id}'", r.Features, r.Pools)));
-        var keys = new SortedDictionary<string, string>(StringComparer.Ordinal);
+        // 要るもの: 前の形の文言のキー → (どこの何か, データに書いた日英, 欄の名前)
+        var needs = new SortedDictionary<string, (string Where, LocalizedText? Data, string Field)>(StringComparer.Ordinal);
         foreach (var (where, refs, pools) in owners)
         {
             foreach (var r in refs)
             {
                 if (!Features.TryGetValue(r.Id, out var f)) continue;
-                if (f.Kind == "action") { keys.TryAdd("feature." + f.Id, where); keys.TryAdd("feature.about." + f.Id, where); }
-                else if (f.Group == "fighting_style") { keys.TryAdd("passive." + f.Id, where); keys.TryAdd("passive.about." + f.Id, where); }
-                else if (f.Listed) keys.TryAdd("passive." + f.Id, where);
+                string what = $"{where} の技 '{f.Id}'";
+                if (f.Kind == "action" || f.Group == "fighting_style")
+                {
+                    string prefix = f.Kind == "action" ? "feature." : "passive.";
+                    needs.TryAdd(prefix + f.Id, (what, f.Name, "name"));
+                    needs.TryAdd(prefix + "about." + f.Id, (what, f.Description, "description"));
+                }
+                else if (f.Listed) needs.TryAdd("passive." + f.Id, (what, f.Name, "name"));
             }
-            foreach (var pool in pools) keys.TryAdd("pool." + pool.Id, where);
+            // 同じ id の回数は、どれか1つのクラスか種族に名前を書けばよい
+            foreach (var pool in pools)
+                needs.TryAdd("pool." + pool.Id, ($"{where} の回数 '{pool.Id}'", PoolName(pool.Id), "name"));
         }
         foreach (var lang in new[] { "ja", "en" })
         {
             var texts = content.Texts(lang);
-            foreach (var (key, where) in keys.Where(k => !texts.ContainsKey(k.Key)))
-                content.Problems.Add($"{where}: 文言 '{key}' が {lang} にありません(text/{lang}.json)");
+            foreach (var (key, (what, data, field)) in needs)
+            {
+                // 空や空白だけの文は、無いのと同じ
+                if (data != null && data.Texts.TryGetValue(lang, out var v) && !string.IsNullOrWhiteSpace(v)
+                    || texts.TryGetValue(key, out var tv) && !string.IsNullOrWhiteSpace(tv)) continue;
+                content.Problems.Add($"{what}: {field} の {lang} がありません(データの {field} か、文言 '{key}' に書く)");
+            }
         }
     }
 
@@ -627,6 +684,9 @@ public sealed class GameData
             Need($"spellsets '{set.Id}' の spells", "spells", set.Spells, Spells.ContainsKey);
         CheckSpellSlots(content);
         CheckFeatureTexts(content);
+        foreach (var g in Glossary.Values)
+            foreach (var lang in new[] { "ja", "en" })
+                if (!NonBlank(g.Name, lang) || !NonBlank(g.Description, lang)) content.Problems.Add($"glossary '{g.Id}': name と description の {lang} が要ります");
         CheckTraps(content);
         foreach (var f in Features.Values.Where(f => f.Kind is not ("passive" or "action")))
             content.Problems.Add($"features '{f.Id}': kind は passive か action です");
@@ -698,8 +758,8 @@ public sealed class GameData
         foreach (var a in Affixes.Values)
         {
             if (a.Tiers.Count == 0) content.Problems.Add($"affixes '{a.Id}': tiers がありません");
-            if (a.Kinds.Count == 0 || a.Kinds.Any(k => k is not ("weapon" or "armor" or "shield")))
-                content.Problems.Add($"affixes '{a.Id}': kinds は weapon / armor / shield です");
+            if (a.Kinds.Count == 0 || a.Kinds.Any(k => !AffixDef.KindNames.Contains(k)))
+                content.Problems.Add($"affixes '{a.Id}': kinds は {string.Join(" / ", AffixDef.KindNames)} です");
             if (a.Position is not ("prefix" or "suffix")) content.Problems.Add($"affixes '{a.Id}': position は prefix / suffix です");
             for (int i = 0; i < a.Tiers.Count; i++)
             {
@@ -748,7 +808,7 @@ public sealed class GameData
     /// <summary>modifier の stat に書けるもの(技能は 5版の 18 個)。</summary>
     public static readonly IReadOnlySet<string> ModifierStats = new HashSet<string>
     {
-        "ac", "ac_unarmored", "ac_min", "attack", "save", "damage", "attacks", "disarm", "flee",
+        "ac", "ac_unarmored", "ac_min", "attack", "save", "damage", "attacks", "disarm", "flee", "extra_attack", "cleave", "cleave_targets", "thorns", "max_hp", "initiative", "gold_find", "spell_damage", "block", "life_on_kill", "regen", "spell_dc", "spell_attack", "reduce:physical",
         "acrobatics", "animal_handling", "arcana", "athletics", "deception", "history", "insight", "intimidation", "investigation",
         "medicine", "nature", "perception", "performance", "persuasion", "religion", "sleight_of_hand", "stealth", "survival",
     };
@@ -772,9 +832,12 @@ public sealed class GameData
             }
             if (p.Type is EffectPart.ConditionType or EffectPart.RemoveCondition && p.Condition == null)
                 content.Problems.Add($"{where}: condition がありません");
-            bool saveAdv = p.Stat?.StartsWith("save_adv:") == true && Enum.TryParse<Effects.Condition>(p.Stat["save_adv:".Length..], true, out _);
+            bool saveAdv = p.Stat?.Split(':') is [("save_adv" or "save_vs"), var cond] && Enum.TryParse<Effects.Condition>(cond, true, out _)
+                || p.Stat?.Split(':') is ["reduce" or "spell_damage", var dtype] && DamageTypes.All.Contains(dtype)
+                || p.Stat?.Split(':') is ["uses", { Length: > 0 }]   // クラスの能力の回数(uses:rage など)
+                || p.Stat?.Split(':') is ["slots", var sl] && int.TryParse(sl, out int slv) && slv is >= 1 and <= 9;   // 呪文スロット(slots:3 など)
             if (p.Type == EffectPart.Modifier && !ModifierStats.Contains(p.Stat ?? "") && !saveAdv)
-                content.Problems.Add($"{where}: modifier の stat '{p.Stat}' は ac / attack / save / damage / attacks / disarm / flee か、技能の id か、save_adv:<状態> です");
+                content.Problems.Add($"{where}: modifier の stat '{p.Stat}' は ac / attack / save / damage / attacks / disarm / flee か、技能の id か、save_adv:<状態> か save_vs:<状態> です");
             if (p.Type is EffectPart.Resist or EffectPart.Vulnerable && !DamageTypes.All.Contains(p.DamageType ?? ""))
                 content.Problems.Add($"{where}: ダメージの種類 '{p.DamageType}' がありません");
             if (p.Type == EffectPart.ImmuneCondition && p.Condition == null) content.Problems.Add($"{where}: condition がありません");

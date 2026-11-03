@@ -168,15 +168,19 @@ public static class DebugStart
             session.Roster.Characters.Add(c);
             session.Roster.AddToParty(c);
         }
-        // レアな装備の見本(鑑定済み): 追加効果つきの +2 ロングソードと、固有の品
+        // レアな装備の見本(鑑定済み): 追加効果が5つのレアの +2 ロングソード、マジックの指輪、固有の品
         var leader = session.Roster.Characters[0];
         var ts = Core.Items.TreasureSettings.Load(services.Content);
         var lrng = new Core.Rng.Pcg32(11, 11);
-        var sword = new Core.Items.ItemInstance { ItemId = "longsword", Bonus = 2 };
-        Core.Items.Loot.AddAffixes(services.Data, sword, services.Data.Items["longsword"], 2, 8, lrng);
+        var sword = new Core.Items.ItemInstance { ItemId = "longsword", Bonus = 2, Rare = true };
+        Core.Items.Loot.AddAffixes(services.Data, sword, services.Data.Items["longsword"], 5, 13, lrng);
+        var ring = new Core.Items.ItemInstance { ItemId = "plain_ring" };   // 技能(用語の説明が出る)と抵抗
+        ring.Affixes.Add(new Core.Items.AffixRoll { Id = "skill_stealth", Tier = 2 });
+        ring.Affixes.Add(new Core.Items.AffixRoll { Id = "resist_fire", Tier = 0 });
         var unique = Core.Items.Loot.Make(services.Data, ts, services.Data.Items["hellbrand"], 8, lrng);
         unique.Identified = true;
         leader.Inventory.TryAdd(sword, services.Data.Items);
+        leader.Inventory.TryAdd(ring, services.Data.Items);
         leader.Inventory.TryAdd(unique, services.Data.Items);
         // 未鑑定の見本(キャンプの小休憩で調べられる)
         leader.Inventory.TryAdd(new Core.Items.ItemInstance { ItemId = "ring_of_protection", Identified = false }, services.Data.Items);
@@ -203,7 +207,7 @@ public static class DebugStart
         {
             c.Gold = 2000;
             c.Xp = Core.Rules.Progression.XpForLevel(c.Level + 1);   // 訓練場のレベルアップ(上げるクラスを選ぶ)を試せるように
-            foreach (var it in Core.Items.Treasure.RollMany(services.Data, s, 0.5, 2, rng)) c.Inventory.TryAdd(it, services.Data.Items);
+            foreach (var it in Core.Items.Treasure.RollMany(services.Data, s, 3, 2, rng)) c.Inventory.TryAdd(it, services.Data.Items);
         }
         // 先頭の人は L3 にして、L4 に上げられる経験値を持たせる(能力値上昇を試せるように)
         var lead = session.Roster.PartyMembers.First();
