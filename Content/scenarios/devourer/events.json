@@ -422,6 +422,13 @@
                     "dc": 10,
                     "value": 2500,
                     "count": 1
+                  },
+                  {
+                    "type": "treasure",
+                    "per_place": false,
+                    "dc": 10,
+                    "value": 0,
+                    "count": 2
                   }
                 ],
                 "fail": [

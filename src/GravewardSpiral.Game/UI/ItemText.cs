@@ -135,8 +135,9 @@ public static class ItemText
         if (WhoCanUse(sv, def) is { } who) yield return who;
         // マジックとレアの、追加効果の効き方(下の行の数字は、今の効き方で弱めたもの)。レアは同調の行と1行にまとめる
         bool affixed = !def.NoRandom && item.Affixes.Count > 0;
-        // 弱まった数字の色(マジックの 2/3 は黄、同調していないレアの 1/3 は橙)。1行目の「2/3」「1/3」も同じ色にして、色の見方にする
-        char? weak = affixed ? item.AffixFactor(def) switch { < 0.5 => LinkText.OneThirdColor, < 0.99 => LinkText.TwoThirdsColor, _ => null } : null;
+        // 弱まった数字の色(同調していないレアの 1/3 は橙)。1行目の「1/3」も同じ色にして、色の見方にする。
+        // マジックの 2/3 は、同調しても強くならない(出ている数字がその品の強さ)ので、色も倍率も出さない
+        char? weak = affixed && item.AffixFactor(def) < 0.5 ? LinkText.OneThirdColor : null;
         if (affixed) yield return s[!item.Rare ? "item.magic_affixes" : item.Attuned ? "item.rare_attuned" : "item.rare_affixes"]
             .Replace("2/3", LinkText.Colored("2/3", LinkText.TwoThirdsColor)).Replace("1/3", LinkText.Colored("1/3", LinkText.OneThirdColor));
         else if (item.NeedsAttunement(def)) yield return s[item.Attuned ? "item.attuned" : "item.needs_attunement"];
@@ -155,7 +156,23 @@ public static class ItemText
             string full = "T" + TierNumber(sv.Data, affix.Tiers[roll.Tier].MinLevel);
             string tier = usable >= roll.Tier ? full
                 : $"T{(usable < 0 ? 0 : TierNumber(sv.Data, affix.Tiers[usable].MinLevel))}{LinkText.Colored("/" + full, LinkText.DimColor)}";
-            if (weak is char w) parts = parts.Select(x => Numbers.Replace(x, m => LinkText.Colored(m.Value, w))).ToList();
+            // 同調していないレアは、弱めた数字のあとに、同調したときの数字を暗く添える(1d2(1d6))。マジックは強くならないので添えない
+            List<string>? strong = item.Rare && !item.Attuned && item.NeedsAttunement(def)
+                ? item.AffixParts(sv.Data, roll, t => t.Passive, level, full: true).Select(p => Passive(sv, p))
+                    .Concat(item.AffixParts(sv.Data, roll, t => t.OnHit, level, full: true).Select(p => OnHit(sv, p)).OfType<string>()).ToList()
+                : null;
+            if (weak is char w)
+                parts = parts.Select((x, i) =>
+                {
+                    var full = strong != null && i < strong.Count ? Numbers.Matches(strong[i]).Select(m => m.Value).ToList() : null;
+                    int n = 0;
+                    return Numbers.Replace(x, m =>
+                    {
+                        string shown = LinkText.Colored(m.Value, w);
+                        if (full != null && n < full.Count && full[n++] is var f && f != m.Value) shown += LinkText.Colored($"({f})", LinkText.DimColor);
+                        return shown;
+                    });
+                }).ToList();
             string text;
             if (parts.Count > 0) text = string.Join(s["item.affix_sep"], parts);
             else
