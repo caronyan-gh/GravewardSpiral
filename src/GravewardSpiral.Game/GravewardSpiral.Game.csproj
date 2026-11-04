@@ -12,7 +12,7 @@
     <ApplicationIcon>Icon.ico</ApplicationIcon>
     <!-- 版(タイトルバーに出す)。配布は make_installer.py が -p:Version と、コミットを付けない指定で作る。
          それ以外のビルドは開発版として、版の後ろにコミットが付く(+abc…。タイトルバーで「開発版」と出す) -->
-    <Version>0.3.7</Version>
+    <Version>0.3.8</Version>
   </PropertyGroup>
 
   <ItemGroup>

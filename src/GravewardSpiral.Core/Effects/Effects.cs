@@ -64,7 +64,7 @@ public sealed class EffectPart
     /// <summary>レベルごとの dice(キーはスロットのレベルか、キャラクターのレベル。その値以下で一番大きいキーを使う)。</summary>
     public Dictionary<string, string> ByLevel { get; set; } = [];
 
-    /// <summary>kill と condition で、これより HP が多い相手には効かない。</summary>
+    /// <summary>kill と condition で、これより HP が多い相手には効かない。kill で省くと HP に関わらず倒す(ボスには効かない。プレーン・シフト)。</summary>
     public int? MaxHp { get; set; }
 
     /// <summary>kill で、一撃で倒す確率(百分率。Wizardry の首はね)。HP に関わらず倒し、くらう側は resist_instant_kill の能力でこらえられる。</summary>

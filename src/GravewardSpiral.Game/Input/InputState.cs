@@ -39,7 +39,13 @@ public sealed class InputState
 
     /// <summary>マウスの位置(画面の帯の上なら null)。</summary>
     public Vector2? Mouse { get; private set; }
+    /// <summary>マウスを動かした(前に動いたとみなした所から、1280x720 の座標で MoveThreshold 以上)。カーソルをマウスの下の行に合わせるのに使う。</summary>
     public bool MouseMoved { get; private set; }
+
+    /// <summary>マウスが動いたとみなす距離(1280x720 の座標で)。</summary>
+    public const float MoveThreshold = 5f;
+
+    private Vector2? _moveAnchor;
     public bool LeftClicked { get; private set; }
 
     /// <summary>左ボタンを押している(つまみを引きずる操作に使う)。</summary>
@@ -170,7 +176,14 @@ public sealed class InputState
         if (ToggleFullscreen) _pressed.Remove(GameAction.Confirm);
 
         Mouse = windowActive ? screen.ToVirtual(mouse.Position) : null;
-        MouseMoved = Mouse.HasValue && mouse.Position != _prevMouse.Position;
+        // 動いたとみなすのは、前に動いたとみなした所から MoveThreshold 以上離れたとき(置いた手の数ドットの揺れで、カーソルが動かないように)
+        if (Mouse is { } now)
+        {
+            _moveAnchor ??= now;
+            MouseMoved = Vector2.DistanceSquared(now, _moveAnchor.Value) >= MoveThreshold * MoveThreshold;
+            if (MouseMoved) _moveAnchor = now;
+        }
+        else MouseMoved = false;
         // 窓を選び直したときに押していたボタンは、放すまで数えない(選び直すクリックで、迷宮を歩いたりしない)
         if (windowActive && !_wasActive && mouse.LeftButton == ButtonState.Pressed) _ignoreLeft = true;
         if (mouse.LeftButton == ButtonState.Released) _ignoreLeft = false;

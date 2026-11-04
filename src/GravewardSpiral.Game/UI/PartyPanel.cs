@@ -27,6 +27,9 @@ public static class PartyPanel
         }
         float colW = area.Width / 2;
         float rowH = (area.Height - 12) / Roster.FrontRow;
+        // 狭い欄(戦闘の画面)では、クラスを略し(FIG L10)にして、AC と HP に幅を回す
+        bool compact = colW < CompactWidth;
+        float nameW = compact ? 0.36f : 0.33f, clsX = compact ? 0.38f : 0.34f, clsW = compact ? 0.20f : 0.33f, acX = compact ? 0.60f : 0.69f;
         for (int i = 0; i < members.Count; i++)
         {
             var c = members[i];
@@ -35,8 +38,8 @@ public static class PartyPanel
             float x = area.X + 12 + col * colW, y = area.Y + 6 + row * rowH;
             if (highlight == i) d.FillRect(RowRect(area, i), Theme.SelectedFill);
             float size = Math.Min(19f, rowH - 8);
-            var cls = services.Data.Classes.TryGetValue(c.ClassId, out var cd) ? services.Name(cd.Name) : c.ClassId;
-            string level = $"Lv{c.Level}";
+            var cls = services.Data.Classes.TryGetValue(c.ClassId, out var cd) ? compact ? cd.ShortName : services.Name(cd.Name) : c.ClassId;
+            string level = compact ? $"L{c.Level}" : $"Lv{c.Level}";
             int hpNow = c.Hp, hpMax = c.MaxHp, ac = c.ArmorClass(services.Data);
             var state = c.State;
             // 戦闘中にかかっている状態異常(クラスの所にアイコンで並べる)
@@ -57,11 +60,13 @@ public static class PartyPanel
             var color = state == LifeState.Alive ? Theme.Text : Theme.Disabled;
             // 欄の幅に収まらない文字は縮める(戦闘の画面は幅が狭い)
             float w = colW - 24;
-            Fit(d, $"{(fKeys ? "F" : "")}{i + 1} {c.Name}", new Vector2(x, y + 2), w * 0.33f, size, usable == null || usable(c) ? color : Theme.Disabled);
+            Fit(d, $"{(fKeys ? "F" : "")}{i + 1} {c.Name}", new Vector2(x, y + 2), w * nameW, size, usable == null || usable(c) ? color : Theme.Disabled);
             if (state != LifeState.Alive || (conditions.Count == 0 && concentration == null && !raging))
-                Fit(d, $"{cls} {level}".TrimEnd(), new Vector2(x + w * 0.34f, y + 2), w * 0.33f, size, level.Length == 0 ? Theme.Good : Theme.Dim);
-            else ConditionIcons(d, services, conditions, new Vector2(x + w * 0.34f, y), w * 0.33f, size, concentration, raging);
-            Fit(d, $"AC {ac}", new Vector2(x + w * 0.69f, y + 2), w * 0.14f, size, Theme.Dim);
+                Fit(d, $"{cls} {level}".TrimEnd(), new Vector2(x + w * clsX, y + 2), w * clsW, size, level.Length == 0 ? Theme.Good : Theme.Dim);
+            else ConditionIcons(d, services, conditions, new Vector2(x + w * clsX, y), w * clsW, size, concentration, raging);
+            string acText = $"AC {ac}";
+            Fit(d, acText, new Vector2(x + w * acX, y + 2), w * 0.14f, size, Theme.Dim);
+            float acEnd = x + w * acX + Math.Min(d.Fonts.Measure(acText, size).X, w * 0.14f);
             string hp = state == LifeState.Alive ? $"{hpNow}/{hpMax}" : s[$"state.{state.ToString().ToLowerInvariant()}"];
             // 状態のアイコン(戦闘の外の毒など。死亡・灰も)は HP の前に出す。アイコンが無ければ、状態の名前を HP の前に出す
             string? condition = shown == null && state == LifeState.Alive && c.Lasting.Count > 0 ? c.Lasting[0].Condition.ToString().ToLowerInvariant() : null;
@@ -69,11 +74,14 @@ public static class PartyPanel
             if (condition != null && icon == null) hp = $"{s["condition." + condition]} {hp}";
             // HP は、満タン・あんぜん・きけん(半分以下)・危険が危ない(4分の1以下)で色を分ける。状態異常はアイコンで分かる
             var hpColor = state == LifeState.Alive ? Theme.Hp(hpNow, hpMax) : Theme.Disabled;
-            d.Text(hp, new Vector2(x + colW - 24, y + 2), size, hpColor, TextAlign.Right);
+            // HP は AC の右に収まるように縮める(戦闘の画面は幅が狭く、3桁の HP が AC に重なる)。状態のアイコンがあればその分も空ける
+            float hpRight = x + colW - 24, room = hpRight - acEnd - 8 - (icon != null ? size + 8 : 0);
+            float hpSize = d.Fonts.Measure(hp, size).X is var hw && hw > room && room > 0 ? size * room / hw : size;
+            d.Text(hp, new Vector2(hpRight, y + 2 + (size - hpSize) / 2), hpSize, hpColor, TextAlign.Right);
             if (icon != null)
             {
                 float iw = size + 4;
-                var at = new RectangleF(x + colW - 24 - d.Fonts.Measure(hp, size).X - iw - 4, y, iw, iw);
+                var at = new RectangleF(hpRight - d.Fonts.Measure(hp, hpSize).X - iw - 4, y, iw, iw);
                 d.Image(icon, at, Color.White);
                 // アイコンにマウスを載せると、状態の名前と説明
                 if (condition != null) HoverCondition(services, at, "condition." + condition);
@@ -84,6 +92,9 @@ public static class PartyPanel
         d.Text(s["party.front"], new Vector2(area.X + 12, area.Y - 20), 14, Theme.Dim);
         d.Text(s["party.back"], new Vector2(area.X + colW + 12, area.Y - 20), 14, Theme.Dim);
     }
+
+    /// <summary>1人分の欄の幅がこれより狭いと、クラスを略しで出す。</summary>
+    private const float CompactWidth = 480;
 
     /// <summary>i 番目の人の行(左に前列、右に後列)。</summary>
     public static RectangleF RowRect(RectangleF area, int i)

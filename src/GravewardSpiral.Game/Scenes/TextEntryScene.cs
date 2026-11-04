@@ -103,7 +103,7 @@ public sealed class TextEntryScene : Scene
                 {
                     var rect = r == Rows.Length ? FunctionRect(r, c) : KeyRect(r, c);
                     if (!rect.Contains(m)) continue;
-                    if (input.MouseMoved) (_row, _col) = (r, c);
+                    if (input.MouseMoved || input.LeftClicked) (_row, _col) = (r, c);
                     if (input.LeftClicked && (_row, _col) == (r, c)) clicked = true;
                 }
             }

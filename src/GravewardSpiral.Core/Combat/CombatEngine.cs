@@ -1214,7 +1214,8 @@ public sealed class CombatEngine(GameData data, IRandom rng)
                     KillOutright(s, target, part.Message ?? "combat.instant_killed");
                     break;
                 case EffectPart.Kill:
-                    if (target.Hp <= (part.MaxHp ?? 0)) Damage(s, target, target.Hp + target.TempHp + target.MaxHp, "force", false, true);
+                    // max_hp の無いもの(プレーン・シフトでよその次元へ送る)は HP に関わらず。ただしボスには効かない
+                    if (part.MaxHp == null ? target is not MonsterUnit { Scale.Boss: true } : target.Hp <= part.MaxHp) Damage(s, target, target.Hp + target.TempHp + target.MaxHp, "force", false, true);
                     else s.Add("combat.no_effect", target.Name);
                     break;
                 case EffectPart.Wish:

@@ -592,7 +592,7 @@ public sealed class CombatScene : Scene
                 // 仲間は左下のパーティの欄、敵は右上の敵の一覧からも、マウスで選べる
                 if (PointedItem(input.Mouse) is int pointed)
                 {
-                    if (input.MouseMoved && _menu.Cursor != pointed)
+                    if ((input.MouseMoved || input.LeftClicked) && _menu.Cursor != pointed)
                     {
                         _menu.Cursor = pointed;
                         Services.Audio.PlaySe(Sounds.Cursor);

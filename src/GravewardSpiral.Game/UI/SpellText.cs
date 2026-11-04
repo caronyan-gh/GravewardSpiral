@@ -112,7 +112,7 @@ public static class SpellText
                     yield return s["spell.fx.stabilize"];
                     break;
                 case EffectPart.Kill:
-                    yield return p.Chance is int chance ? s.Format("spell.fx.kill_chance", chance) : s.Format("spell.fx.kill", p.MaxHp ?? 0);
+                    yield return p.Chance is int chance ? s.Format("spell.fx.kill_chance", chance) : p.MaxHp is int most ? s.Format("spell.fx.kill", most) : s["spell.fx.kill_any"];
                     break;
                 // 迷宮とキャンプの呪文(value は続く歩数。1歩 = 1分)
                 case EffectPart.Light:

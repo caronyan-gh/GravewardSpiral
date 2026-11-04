@@ -113,7 +113,7 @@ public sealed class OptionsScene : Scene
             {
                 if (RowRect(i).Contains(m)) hovered = i;
             }
-            if (hovered is int h && input.MouseMoved) _cursor = h;
+            if (hovered is int h && (input.MouseMoved || input.LeftClicked)) _cursor = h;
         }
         if (_cursor != before) Services.Audio.PlaySe(Sounds.Cursor);
 

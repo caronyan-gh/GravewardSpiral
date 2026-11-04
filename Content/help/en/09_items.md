@@ -24,7 +24,7 @@ Weapon slots include main hand, off hand, ranged weapon, and ammunition. Other s
 
 Ordinary arrows and bolts do not need replenishing. Equipped special ammunition is consumed when you attack.
 
-Thrown weapons are recovered after a victory, but may be lost if you flee. Weapons that return automatically are an exception.
+Only weapons in the ranged slot are thrown. A main-hand weapon is used in melee and never thrown (weapons that return automatically are thrown from the main hand too). Thrown weapons are recovered after a victory, but may be lost if you flee. Weapons that return automatically are an exception.
 
 ## Identification
 

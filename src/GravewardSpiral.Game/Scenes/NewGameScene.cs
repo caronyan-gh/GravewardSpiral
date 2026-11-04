@@ -159,7 +159,7 @@ public sealed class NewGameScene : Scene
         if (input.Mouse is { } m)
         {
             for (int i = 0; i < rows.Count; i++)
-                if (RowRect(i).Contains(m) && input.MouseMoved) _cursor = i;
+                if (RowRect(i).Contains(m) && (input.MouseMoved || input.LeftClicked)) _cursor = i;
         }
         if (_cursor != before) Services.Audio.PlaySe(Sounds.Cursor);
         var row = rows[_cursor];

@@ -66,6 +66,12 @@ public sealed class ClassDef
 {
     public string Id { get; set; } = "";
     public LocalizedText Name { get; set; } = LocalizedText.Of("");
+
+    /// <summary>狭い欄に出す略し(英字3つほど。FIG・WIZ など。戦闘の仲間の欄)。省くと id の先頭3文字を大文字にしたもの。</summary>
+    public string? Abbr { get; set; }
+
+    /// <summary>略し(Abbr が無ければ id の先頭3文字の大文字)。</summary>
+    public string ShortName => string.IsNullOrWhiteSpace(Abbr) ? Id[..Math.Min(3, Id.Length)].ToUpperInvariant() : Abbr;
     public int HitDie { get; set; } = 8;
 
     /// <summary>伸び方(攻撃の回数と能力値上昇のレベル)。docs/class-data-design.md の progression。</summary>

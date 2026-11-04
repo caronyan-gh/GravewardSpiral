@@ -62,7 +62,7 @@ public sealed class TitleScene : Scene
         if (input.Repeat(GameAction.Down)) _cursor = (_cursor + 1) % MenuKeys.Length;
 
         int? hovered = HitTest(input.Mouse);
-        if (hovered.HasValue && input.MouseMoved) _cursor = hovered.Value;
+        if (hovered.HasValue && (input.MouseMoved || input.LeftClicked)) _cursor = hovered.Value;
 
         if (input.Pressed(GameAction.Confirm) || (input.LeftClicked && hovered.HasValue))
         {

@@ -100,7 +100,7 @@ public sealed class MenuList
             {
                 if (RowRect(i).Contains(m)) hovered = index;
             }
-            if (hovered is int h && (input.MouseMoved || scrolled)) Cursor = h;
+            if (hovered is int h && (input.MouseMoved || scrolled || input.LeftClicked)) Cursor = h;
         }
         // 見えている行に収める
         if (scrolled && Ring)

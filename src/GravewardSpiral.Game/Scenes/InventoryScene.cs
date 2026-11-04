@@ -205,6 +205,7 @@ public sealed class InventoryScene(Character first, IReadOnlyList<Character>? me
                     ? EquipSlot.OffHand : Inv.SlotFor(def);
                 Message = slot is { } sl ? Result(Inv.Equip(Inv.Items.IndexOf(it), sl, Data.Items)) : s["inv.cannot_equip"];
                 if (def.Cursed && Inv.Equipped.ContainsValue(it)) Message = s.Format("inv.cursed_now", ItemText.Name(Services, it));
+                else if (NotAttuned(it)) Message = s.Format("inv.equipped_not_attuned", ItemText.Name(Services, it));
                 Go(Mode.List);
                 return;
             }
@@ -357,6 +358,7 @@ public sealed class InventoryScene(Character first, IReadOnlyList<Character>? me
         {
             Message = Result(Inv.Equip(Inv.Items.IndexOf(it), slot, Data.Items));
             if (Data.Items[it.ItemId].Cursed && Inv.Equipped.ContainsValue(it)) Message = s.Format("inv.cursed_now", ItemText.Name(Services, it));
+            else if (NotAttuned(it)) Message = s.Format("inv.equipped_not_attuned", ItemText.Name(Services, it));
         }
         BackToList();
     }
@@ -411,6 +413,9 @@ public sealed class InventoryScene(Character first, IReadOnlyList<Character>? me
         }
         base.Update(time, input);
     }
+
+    /// <summary>付けたが、同調の枠がいっぱいで同調できなかった(同調の要る品は、同調していないと力の多くが出ない)。</summary>
+    private bool NotAttuned(ItemInstance it) => Inv.Equipped.ContainsValue(it) && it.NeedsAttunement(Data.Items[it.ItemId]) && !it.Attuned;
 
     private string Result(EquipResult r) => Services.Strings["inv.result." + r.ToString().ToLowerInvariant()];
 

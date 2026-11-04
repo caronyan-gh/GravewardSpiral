@@ -276,7 +276,8 @@ public sealed class PartyMember(Character character, GameData data) : Combatant
             yield return main.Def is { Ranged: false } ? (main.Def, main.Item, false) : (null, null, false);
             if (main.Def is { Ranged: true }) yield return (main.Def, main.Item, true);
         }
-        else if (main.Def is { } md && (md.Ranged || md.Has("thrown"))) yield return (md, main.Item, true);
+        // 利き手の投げる武器は投げない(投げてなくさないように。投げるのは遠隔の枠の武器)。戻ってくる武器(returning)だけは利き手からも投げる
+        else if (main.Def is { } md && (md.Ranged || md.Has("thrown") && md.Has("returning"))) yield return (md, main.Item, true);
         if (ranged.Def != null) yield return (ranged.Def, ranged.Item, true);
     }
 

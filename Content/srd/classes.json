@@ -2,6 +2,7 @@
   {
     "id": "barbarian",
     "name": { "en": "Barbarian", "ja": "バーバリアン" },
+    "abbr": "BAR",
     "hit_die": 12,
     "progression": {"attacks": {"by_level": {"1": 1, "5": 2}}, "ability_increases": [4, 8, 12, 16, 19]},
     "pools": [
@@ -22,6 +23,7 @@
   {
     "id": "bard",
     "name": { "en": "Bard", "ja": "バード" },
+    "abbr": "BRD",
     "tags": ["arcane"],
     "hit_die": 8,
     "progression": {"ability_increases": [4, 8, 12, 16, 19]},
@@ -58,6 +60,7 @@
   {
     "id": "cleric",
     "name": { "en": "Cleric", "ja": "クレリック" },
+    "abbr": "CLR",
     "tags": ["divine"],
     "hit_die": 8,
     "progression": {"ability_increases": [4, 8, 12, 16, 19]},
@@ -94,6 +97,7 @@
   {
     "id": "druid",
     "name": { "en": "Druid", "ja": "ドルイド" },
+    "abbr": "DRU",
     "tags": ["divine"],
     "hit_die": 8,
     "progression": {"ability_increases": [4, 8, 12, 16, 19]},
@@ -130,6 +134,7 @@
   {
     "id": "fighter",
     "name": { "en": "Fighter", "ja": "ファイター" },
+    "abbr": "FIG",
     "hit_die": 10,
     "progression": {"attacks": {"by_level": {"1": 1, "5": 2, "11": 3, "20": 4}}, "ability_increases": [4, 6, 8, 12, 14, 16, 19]},
     "pools": [
@@ -152,6 +157,7 @@
   {
     "id": "monk",
     "name": { "en": "Monk", "ja": "モンク" },
+    "abbr": "MNK",
     "hit_die": 8,
     "progression": {"attacks": {"by_level": {"1": 1, "5": 2}}, "ability_increases": [4, 8, 12, 16, 19]},
     "pools": [
@@ -172,6 +178,7 @@
   {
     "id": "paladin",
     "name": { "en": "Paladin", "ja": "パラディン" },
+    "abbr": "PAL",
     "tags": ["divine"],
     "hit_die": 10,
     "progression": {"attacks": {"by_level": {"1": 1, "5": 2}}, "ability_increases": [4, 8, 12, 16, 19]},
@@ -203,6 +210,7 @@
   {
     "id": "ranger",
     "name": { "en": "Ranger", "ja": "レンジャー" },
+    "abbr": "RNG",
     "tags": ["divine"],
     "hit_die": 10,
     "progression": {"attacks": {"by_level": {"1": 1, "5": 2}}, "ability_increases": [4, 8, 12, 16, 19]},
@@ -231,6 +239,7 @@
   {
     "id": "rogue",
     "name": { "en": "Rogue", "ja": "ローグ" },
+    "abbr": "ROG",
     "hit_die": 8,
     "progression": {"ability_increases": [4, 8, 10, 12, 16, 19]},
     "features": [{"id": "sneak_attack", "level": 1}, {"id": "uncanny_dodge", "level": 5}, {"id": "evasion", "level": 7}, {"id": "slippery_mind", "level": 15}, {"id": "elusive", "level": 18}],
@@ -249,6 +258,7 @@
   {
     "id": "sorcerer",
     "name": { "en": "Sorcerer", "ja": "ソーサラー" },
+    "abbr": "SOR",
     "tags": ["arcane"],
     "hit_die": 6,
     "progression": {"ability_increases": [4, 8, 12, 16, 19]},
@@ -285,6 +295,7 @@
   {
     "id": "warlock",
     "name": { "en": "Warlock", "ja": "ウォーロック" },
+    "abbr": "WLK",
     "tags": ["arcane"],
     "hit_die": 8,
     "progression": {"attacks": {"by_level": {"1": 1, "5": 2}}, "ability_increases": [4, 8, 12, 16, 19]},
@@ -318,6 +329,7 @@
   {
     "id": "wizard",
     "name": { "en": "Wizard", "ja": "ウィザード" },
+    "abbr": "WIZ",
     "tags": ["arcane"],
     "hit_die": 6,
     "progression": {"ability_increases": [4, 8, 12, 16, 19]},

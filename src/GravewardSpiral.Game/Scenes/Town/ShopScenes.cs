@@ -98,12 +98,15 @@ public sealed class ShopScene : MenuScene
         }
     }
 
-    private void Go(Mode m)
+    /// <param name="cursor">カーソルを置く行(売った・買った・鑑定したあと、同じ所に残す)。null なら選べる先頭の行。</param>
+    private void Go(Mode m, int? cursor = null)
     {
         _mode = m;
         var items = Items().ToList();
-        List.SetItems(items, Math.Max(0, items.FindIndex(i => i.Enabled)));
+        List.SetItems(items, cursor ?? Math.Max(0, items.FindIndex(i => i.Enabled)));
     }
+
+    private int _buyCursor;   // 買う品の一覧で選んでいた行(買う人を選んだあと、そこへ戻る)
 
     protected override void Choose(MenuItem item, int index)
     {
@@ -114,6 +117,7 @@ public sealed class ShopScene : MenuScene
             case (Mode.Main, Mode m): Go(m); return;
             case (Mode.Buy, ValueTuple<ItemDef, ItemInstance, bool> b):
                 _buying = b;
+                _buyCursor = index;
                 Go(Mode.BuyFor);
                 return;
             case (Mode.BuyFor, Character c):
@@ -134,7 +138,7 @@ public sealed class ShopScene : MenuScene
                     Services.Audio.PlaySe(Sounds.Coins);
                     Message = s.Format("shop.bought", c.Name, ItemText.Name(Services, copy));
                 }
-                Go(Mode.Buy);
+                Go(Mode.Buy, _buyCursor);
                 return;
             }
             case (Mode.SellWho, Character c):
@@ -145,8 +149,8 @@ public sealed class ShopScene : MenuScene
                 // 重ねた品は、売る個数を小窓で選ぶ(値段はその個数の分)
                 if (it.Count > 1)
                     Stack.Push(new CountScene(s.Format("shop.sell_count", ItemText.Name(Services, it, count: false)), it.Count,
-                        n => Sell(it, n), n => s.Format("shop.price", SellPriceOf(it, n))));
-                else Sell(it, 1);
+                        n => Sell(it, n, index), n => s.Format("shop.price", SellPriceOf(it, n))));
+                else Sell(it, 1, index);
                 return;
             case (Mode.IdentifyWho, Character c):
                 _who = c;
@@ -160,7 +164,7 @@ public sealed class ShopScene : MenuScene
                     Services.Audio.PlaySe(Sounds.Coins);
                     Message = s.Format("shop.identified", ItemText.Name(Services, it));
                 }
-                Go(Mode.Identify);
+                Go(Mode.Identify, index);
                 return;
             case (Mode.CurseWho, Character c):
                 if (PartyGold.Pay(Party, House(ClanHouseLevel.Chapel, Shop.RemoveCursePrice)))
@@ -183,7 +187,8 @@ public sealed class ShopScene : MenuScene
     }
 
     /// <summary>n 個を売る(重ねた品は分けて、残りは袋に残す)。売った分は店に並ぶ。</summary>
-    private void Sell(ItemInstance it, int n)
+    /// <param name="index">売った品の行(売ったあとも、カーソルをそこに残す。次の品がその行に来る)。</param>
+    private void Sell(ItemInstance it, int n, int index)
     {
         var s = Services.Strings;
         var part = it.Count > n ? it.SplitOne() : it;
@@ -196,7 +201,7 @@ public sealed class ShopScene : MenuScene
         Services.Audio.PlaySe(Sounds.Coins);
         Message = s.Format("shop.sold", ItemText.Name(Services, part), price);
         // 売り切ったら、ほかの人を選ぶ画面へ(だれも持っていなければ店の初めへ)
-        if (_who!.Inventory.Items.Count > 0) Go(Mode.Sell);
+        if (_who!.Inventory.Items.Count > 0) Go(Mode.Sell, index);
         else if (Party.Any(c => c.Inventory.Items.Count > 0)) Go(Mode.SellWho);
         else Go(Mode.Main);
     }
@@ -206,7 +211,7 @@ public sealed class ShopScene : MenuScene
         switch (_mode)
         {
             case Mode.Main: Stack.Pop(); break;
-            case Mode.BuyFor: Go(Mode.Buy); break;
+            case Mode.BuyFor: Go(Mode.Buy, _buyCursor); break;
             case Mode.Sell: Go(Mode.SellWho); break;
             case Mode.Identify: Go(Mode.IdentifyWho); break;
             default: Go(Mode.Main); break;
