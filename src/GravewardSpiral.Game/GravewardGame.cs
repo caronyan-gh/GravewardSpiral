@@ -293,7 +293,13 @@ public sealed class GravewardGame : Microsoft.Xna.Framework.Game, IDisplay
     {
         // 確認用の起動(--screenshot)では、画面の設定を残さない
         if (_options.ScreenshotPath == null)
+        {
             _display.Save(AppPaths.UserFile(DisplaySettings.FileName));
+            // ×で閉じても、町と迷宮を歩いているところなら保存する(戦闘・イベント・宝箱・レベルアップの途中は、やり直しに使えるので保存しない)
+            if (!_services.Scenes.Any(s => s is CombatScene or EventScene or ChestScene or LockScene or StoryScene or EndingScene
+                    or Scenes.Town.AbilityIncreaseScene or SpellPickScene or ClassGrowthScene or WorldWritingScene or NewGameScene))
+                _services.SaveSession();
+        }
         if (_services.Audio.Enabled) Console.WriteLine($"audio: bgm buffers {_services.Audio.BgmBuffersSubmitted}, loops {_services.Audio.BgmLoops}");
         _services.Audio.Dispose();
         base.OnExiting(sender, args);

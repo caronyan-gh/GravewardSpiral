@@ -14,14 +14,20 @@ public sealed class MemberPickScene(string title, Func<Character, bool> filter, 
 {
     public (string Label, Func<string> Info, Action OnPick)? Extra { get; init; }
 
+    /// <summary>人の行の右に出す文(荷物の整理の袋の埋まり具合など)。null なら出さない。</summary>
+    public Func<Character, string?>? Detail { get; init; }
+
+    /// <summary>Extra の行の右に出す文。</summary>
+    public Func<string?>? ExtraDetail { get; init; }
+
     protected override string Title => title;
 
     protected override int? PartyHighlight => List.Current?.Tag is Character ? List.Cursor : null;
 
     protected override IEnumerable<MenuItem> Items()
     {
-        foreach (var c in Services.Session!.Roster.PartyMembers) yield return new MenuItem(c.Name, Enabled: filter(c), Tag: c);
-        if (Extra is { } extra) yield return new MenuItem(extra.Label, Tag: "extra");
+        foreach (var c in Services.Session!.Roster.PartyMembers) yield return new MenuItem(c.Name, Detail?.Invoke(c), Enabled: filter(c), Tag: c);
+        if (Extra is { } extra) yield return new MenuItem(extra.Label, ExtraDetail?.Invoke(), Tag: "extra");
         yield return new MenuItem(Services.Strings["common.back"], Tag: "back");
     }
 

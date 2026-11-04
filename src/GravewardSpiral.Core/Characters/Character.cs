@@ -113,6 +113,15 @@ public sealed class Character
     /// <summary>使ったウォーロックの協約魔術のスロット。小休憩でも戻る。</summary>
     public int PactSlotsUsed { get; set; }
 
+    /// <summary>
+    /// 装備の追加効果(slots:&lt;レベル&gt;)で増えたスロットの数の、最後に見た値(呪文レベルごと)。装備を付け外しして増減したら、
+    /// 残りはそのままで最大だけ変える(Spellcasting.Sync)。休んで戻したときに今の値にする。無ければ、今の値で数え始める。
+    /// </summary>
+    public Dictionary<int, int> SlotBonusSeen { get; set; } = [];
+
+    /// <summary>協約魔術のスロットの、装備で増えた数の最後に見た値。</summary>
+    public int? PactBonusSeen { get; set; }
+
     /// <summary>クラスの能力の使った回数(ClassFeatures の回数の名前ごと)。大休憩で全部、小休憩で小休憩のものが戻る。</summary>
     public Dictionary<string, int> FeatureUses { get; set; } = [];
 
@@ -230,10 +239,9 @@ public sealed class Character
         foreach (var (slot, item, def) in Inventory.Active(data.Items))
         {
             foreach (var p in def.Passive) yield return p;
-            // 武器の追加効果: 逆手の武器は、その武器で殴ったときだけ(全部の効果を数えない)。利き手と遠隔の武器も、命中・ダメージ・薙ぎは
-            // その武器で殴ったときだけ(CombatEngine の攻撃で足す)。二刀流で重ならないように
-            if (def.Kind == ItemKind.Weapon && slot == EquipSlot.OffHand) { }
-            else foreach (var p in item.AffixPassive(data, Level))
+            // 武器の追加効果: 命中・ダメージ・薙ぎは、その武器で殴ったときだけ(CombatEngine の攻撃で足す。二刀流で重ならないように)。
+            // それ以外(呪文・抵抗・能力値など)は、利き手・逆手・遠隔のどれでも持っているだけで効く
+            foreach (var p in item.AffixPassive(data, Level))
                 if (def.Kind != ItemKind.Weapon || p.Type != Effects.EffectPart.Modifier || !AffixDef.WeaponLocalStats.Contains(p.Stat)) yield return p;
             if (def.Kind is ItemKind.Armor or ItemKind.Shield && item.Element != null && item.TotalBonus(def) >= ItemInstance.ElementFrom)
                 yield return new Effects.EffectPart { Type = Effects.EffectPart.Resist, DamageType = item.Element };
@@ -361,13 +369,16 @@ public sealed class Character
     }
 
     /// <summary>大休憩(宿屋)。HP が hpFraction まで戻り、ヒットダイスが全部戻る(5版の 2024 年の決まりと同じ。何泊でもできるので、半分ずつ戻しても手間が増えるだけ)。</summary>
-    public void LongRest(double hpFraction = 1.0)
+    /// <param name="data">渡すと、装備で増えたスロットも満タンとして数え始める(渡さなければ、次に数えたときの値から)。</param>
+    public void LongRest(double hpFraction = 1.0, GameData? data = null)
     {
         if (!IsAlive) return;
         Hp = Math.Max(Hp, Math.Min(MaxHp, (int)Math.Ceiling(MaxHp * hpFraction)));
         HitDice = Level;
         SlotsUsed.Clear();
         PactSlotsUsed = 0;
+        if (data != null) Magic.Spellcasting.MarkFull(data, this);
+        else { SlotBonusSeen.Clear(); PactBonusSeen = null; }
         TempHp = 0;
         FeatureUses.Clear();
         Lasting.Clear();
@@ -391,6 +402,7 @@ public sealed class Character
             Hp = Math.Min(MaxHp, Hp + Math.Max(1, rng.Roll(cls.HitDie) + Scores.Mod(Ability.Con)) + mending);
         }
         PactSlotsUsed = 0;   // 協約魔術のスロットが戻る(ふつうのスロットは戻らない)
+        PactBonusSeen = Magic.Spellcasting.PactBonus(data, this);
         LastSlotsRecovered = ClassFeatures.ShortRest(data, this);   // 小休憩で戻る技の回数と、ウィザードの秘術の回復
         return used;
     }

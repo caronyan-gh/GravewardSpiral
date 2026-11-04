@@ -104,7 +104,8 @@ public sealed class MapScene : Scene
         var center = here ? _center : map.Visited.FirstOrDefault(_center);
         AutoMapRenderer.Draw(d, _state.Dungeon.Floors[floor], map, Area, center,
             here && _party is { } p ? (p.Cell, p.Facing) : null, radius: null, notes: _state.Notes.Where(n => n.Floor == floor).Select(n => n.Cell).ToHashSet(),
-            fitKnown: true, arrivals: _state.AutoMap.ArrivalsOn(floor).ToHashSet(), portals: _state.PortalsOn(floor).ToHashSet());   // 分かっているところだけ(まだ行っていない広さは見せない)
+            fitKnown: true, arrivals: _state.AutoMap.ArrivalsOn(floor).ToHashSet(), portals: _state.PortalsOn(floor).ToHashSet(),
+            open: AutoMapRenderer.OpenSpots(Services, _state, floor));   // 分かっているところだけ(まだ行っていない広さは見せない)
 
         var s = Services.Strings;
         string title = _label?.Invoke(floor) ?? $"B{floor + 1}";

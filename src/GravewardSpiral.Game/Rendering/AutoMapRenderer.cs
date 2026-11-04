@@ -29,11 +29,40 @@ public static class AutoMapRenderer
 
     private static string Label(string key) => Strings?["automap." + key] ?? key[..1];
 
+    private static readonly Color DarkCell = new(18, 24, 34);       // 暗闇のマス
+    private static readonly Color AntiMagicCell = new(52, 34, 66);  // 魔法の効かないマス
+    private static readonly Color EventMark = new(240, 220, 120);
+    private static readonly Color LairMark = new(255, 160, 80);
+
+    /// <summary>
+    /// 地図に残す、まだ済んでいないもの: 見たことのあるイベントで、まだ起こせるもの(一度きりで済んだものは出さない)と、
+    /// 見つけたが倒していない名のある敵のねぐら。どちらも踏んだことのあるマスだけ。
+    /// </summary>
+    public static (HashSet<GridPos> Events, HashSet<GridPos> Lairs) OpenSpots(GameServices services, ExplorationState state, int floor)
+    {
+        var events = new HashSet<GridPos>();
+        var lairs = new HashSet<GridPos>();
+        if (services.Session is not { } session || floor < 0 || floor >= state.Dungeon.Floors.Count) return (events, lairs);
+        var f = state.Dungeon.Floors[floor];
+        var map = state.AutoMap.For(floor);
+        foreach (var p in map.Visited)
+        {
+            if (f[p].Mark is not { } mark || !mark.StartsWith(Core.Events.EventPlacer.MarkPrefix)) continue;
+            if (!services.Data.Events.TryGetValue(mark[Core.Events.EventPlacer.MarkPrefix.Length..], out var ev) || !session.EventsSeen.Contains(ev.Id)) continue;
+            if (ev.Once == "game" && session.Flags.Contains(ev.DoneFlag)) continue;
+            if (ev.Once == "place" && state.UsedMarks.Contains((floor, p))) continue;
+            events.Add(p);
+        }
+        foreach (var n in session.Named.Where(n => n.Lair && !n.Defeated && n.Floor == floor))
+            if (map.Visited.Contains(new GridPos(n.X, n.Y))) lairs.Add(new GridPos(n.X, n.Y));
+        return (events, lairs);
+    }
+
     /// <param name="arrivals">この階の、飛ばされて分かったテレポーターの行き先(AutoMap.ArrivalsOn。小さな枠の印を出す)。</param>
     /// <param name="portals">この階の、町へ戻る魔法陣のマス(ExplorationState.PortalsOn)。</param>
     public static void Draw(Draw2D d, MazeFloor floor, FloorMap map, RectangleF area, GridPos center,
         (GridPos Cell, Direction Facing)? party, int? radius, IReadOnlySet<GridPos>? notes = null, bool fitKnown = false, IReadOnlySet<GridPos>? arrivals = null,
-        IReadOnlySet<GridPos>? portals = null)
+        IReadOnlySet<GridPos>? portals = null, (HashSet<GridPos> Events, HashSet<GridPos> Lairs)? open = null)
     {
         d.FillRect(area, Panel);
         d.Rect(area, Frame, 1f);
@@ -49,7 +78,13 @@ public static class AutoMapRenderer
             d.Rect(new RectangleF(x, y, cell + 1, cell + 1), Grid, 1f);
             if (at is not { } p) continue;
 
-            if (map.Visited.Contains(p)) d.FillRect(new RectangleF(x + 1, y + 1, cell - 1, cell - 1), map.Fog.Contains(p) ? FogCell : Visited);
+            if (map.Visited.Contains(p))
+            {
+                // 魔法の効かないマスと暗闇のマスは、塗りの色を変える
+                var zone = floor[p].Zone;
+                var fill = map.Fog.Contains(p) ? FogCell : zone.HasFlag(Zone.AntiMagic) ? AntiMagicCell : zone.HasFlag(Zone.Dark) ? DarkCell : Visited;
+                d.FillRect(new RectangleF(x + 1, y + 1, cell - 1, cell - 1), fill);
+            }
             foreach (var dir in DirectionExtensions.All)
             {
                 if (map.Seen(p, dir) is not { } edge) continue;
@@ -101,6 +136,16 @@ public static class AutoMapRenderer
                 // 別の階へ飛ぶテレポーターは、分かった行き先の階を横に書く
                 if (map.Teleports.TryGetValue(p, out var to) && to.Floor is int tf)
                     d.Text($"B{tf + 1}", new Vector2(x + cell * 0.5f, y + cell * 0.52f), cell * 0.32f, Warp);
+            }
+            // 決まった場所のボス: 踏んだことのあるマスに印(倒したあとも残す)
+            if (floor[p].Mark is { } bossMark && bossMark.StartsWith("boss:") && map.Visited.Contains(p))
+                d.Text(Label("boss"), new Vector2(x + cell * 0.52f, y + cell * 0.48f), cell * 0.42f, Locked);
+            if (open is { } o)
+            {
+                if (o.Events.Contains(p) && label0 == null)
+                    d.Text(Label("event"), new Vector2(x + cell * 0.08f, y + cell * 0.04f), cell * 0.42f, EventMark);   // まだ起こせるイベント
+                if (o.Lairs.Contains(p))
+                    d.Text(Label("lair"), new Vector2(x + cell * 0.52f, y + cell * 0.48f), cell * 0.42f, LairMark);    // 倒していない名のある敵のねぐら
             }
             if (portals != null && portals.Contains(p))
                 d.Text(Label("portal"), new Vector2(x + cell * 0.08f, y + cell * 0.48f), cell * 0.42f, new Color(150, 210, 255));   // 町へ戻る魔法陣

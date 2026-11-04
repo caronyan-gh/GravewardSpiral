@@ -153,6 +153,7 @@ public static class ClassFeatures
     {
         if (UsesLeft(data, c, "arcane_recovery") <= 0) return 0;
         int budget = ArcaneRecoveryBudget(data, c), got = 0;
+        Spellcasting.SyncAll(data, c);
         for (int lv = Math.Min(5, budget); lv >= 1; lv--)
         {
             while (lv <= budget - got && c.SlotsUsed.GetValueOrDefault(lv) > 0)

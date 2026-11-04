@@ -3,6 +3,7 @@ using GravewardSpiral.Core.Combat;
 using GravewardSpiral.Core.Content;
 using GravewardSpiral.Core.Effects;
 using GravewardSpiral.Core.Items;
+using GravewardSpiral.Core.Magic;
 using GravewardSpiral.Core.Rng;
 
 namespace GravewardSpiral.Tests.Items;
@@ -460,5 +461,42 @@ public class AffixCombatTests
         // 指輪の 残忍な は全部の攻撃に効く
         c.Inventory.Equipped[EquipSlot.Ring1] = Rare("plain_ring", "brutal", 4);
         Assert.Equal(before + 3, c.DamageBonus(Data));
+    }
+
+    [Fact]
+    public void SlotAffixKeepsTheSlotsLeftWhenPutOnAndTakenOff()
+    {
+        // 装備で増えたスロットは、付けた時点では空(休むと満タン)。外すと残りを新しい最大までに切り詰める。付け外しで増えない
+        var c = CharacterFactory.QuickCreate(Data, "T", "human", "wizard", 5);
+        c.Inventory.Equipped.Remove(EquipSlot.MainHand);
+        int max = Spellcasting.MaxSlots(Data, c, 1);
+        Assert.Equal(max, Spellcasting.SlotsLeft(Data, c, 1));
+        c.Inventory.Equipped[EquipSlot.MainHand] = Rare("quarterstaff", "slot_1", 0);
+        int bonus = Spellcasting.MaxSlots(Data, c, 1) - max;
+        Assert.True(bonus > 0);
+        Assert.Equal(max, Spellcasting.SlotsLeft(Data, c, 1));            // 付けた: 最大だけ増える
+        c.LongRest(data: Data);
+        Assert.Equal(max + bonus, Spellcasting.SlotsLeft(Data, c, 1));    // 休むと満タン
+        Spellcasting.UseSlot(Data, c, 1);
+        Spellcasting.UseSlot(Data, c, 1);
+        int left = max + bonus - 2;
+        Assert.Equal(left, Spellcasting.SlotsLeft(Data, c, 1));
+        var staff = c.Inventory.Equipped[EquipSlot.MainHand];
+        c.Inventory.Equipped.Remove(EquipSlot.MainHand);
+        Assert.Equal(Math.Min(left, max), Spellcasting.SlotsLeft(Data, c, 1));   // 外した: 残りはそのまま(最大まで)
+        c.Inventory.Equipped[EquipSlot.MainHand] = staff;
+        Assert.Equal(Math.Min(left, max), Spellcasting.SlotsLeft(Data, c, 1));   // 付け直しても増えない
+    }
+
+    [Fact]
+    public void OffHandWeaponNonAttackAffixesApply()
+    {
+        // 逆手の武器でも、命中・ダメージ以外の追加効果(技能など)は持っているだけで効く
+        var c = CharacterFactory.QuickCreate(Data, "T", "human", "rogue", 5);
+        c.Inventory.Equipped[EquipSlot.MainHand] = ItemInstance.Of("dagger");
+        c.Inventory.Equipped.Remove(EquipSlot.OffHand);
+        int before = c.SkillBonus(Data, "stealth");
+        c.Inventory.Equipped[EquipSlot.OffHand] = Rare("dagger", "skill_stealth", 4);
+        Assert.True(c.SkillBonus(Data, "stealth") > before);
     }
 }

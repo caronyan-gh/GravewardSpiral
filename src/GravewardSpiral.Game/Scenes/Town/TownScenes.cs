@@ -251,7 +251,7 @@ public sealed class InnScene : MenuScene
                 continue;
             }
             paid += price;
-            c.LongRest(room.HpFraction);
+            c.LongRest(room.HpFraction, Services.Data);
             rested++;
         }
         if (paid > 0) Services.Audio.PlaySe(Audio.Sounds.Coins);

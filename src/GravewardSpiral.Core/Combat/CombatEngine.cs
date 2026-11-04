@@ -1752,14 +1752,14 @@ public sealed class CombatEngine(GameData data, IRandom rng)
         }
     }
 
-    private static void StartConcentration(CombatState s, Combatant caster, SpellDef spell)
+    private void StartConcentration(CombatState s, Combatant caster, SpellDef spell)
     {
         if (caster.Concentration != null) EndConcentration(s, caster);
         caster.Concentration = spell.Id;
     }
 
     /// <summary>集中が切れる: その人がその呪文でかけた状態と修正値を、全員から消す。</summary>
-    private static void EndConcentration(CombatState s, Combatant caster)
+    private void EndConcentration(CombatState s, Combatant caster)
     {
         string? spell = caster.Concentration;
         if (spell == null) return;
@@ -1772,7 +1772,8 @@ public sealed class CombatEngine(GameData data, IRandom rng)
             c.Modifiers.RemoveAll(x => x.SourceId == caster.Id && x.SpellId == spell);
             c.Dots.RemoveAll(x => x.SourceId == caster.Id && x.SpellId == spell);
         }
-        s.Add("combat.concentration_end", caster.Name);
+        if (_data.Spells.TryGetValue(spell, out var def)) s.Add("combat.concentration_end_spell", caster.Name, def.Name);
+        else s.Add("combat.concentration_end", caster.Name);
     }
 
     /// <summary>
@@ -2097,8 +2098,11 @@ public sealed class CombatEngine(GameData data, IRandom rng)
             }
         }
         // 集中: ダメージを受けたら耐久力のセーヴ(難易度は 10 か、受けたダメージの半分の大きい方。一時的な HP で受けても判定する)
-        if (taken > 0 && target.Concentration != null && target.Hp - dealt > 0 && !SavingThrow(target, Ability.Con, Math.Max(10, taken / 2)))
-            EndConcentration(s, target);
+        if (taken > 0 && target.Concentration != null && target.Hp - dealt > 0)
+        {
+            if (!SavingThrow(target, Ability.Con, Math.Max(10, taken / 2))) EndConcentration(s, target);
+            else s.Add("combat.concentration_kept", target.Name);
+        }
         if (allAbsorbed) return taken;
         // 獣の姿: 獣の HP から減り、0 になったら元の姿に戻って、あふれた分を受ける
         if (target is PartyMember shaped && shaped.Shape != null && dealt > 0)

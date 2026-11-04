@@ -525,7 +525,8 @@ public sealed class MazeScene : Scene
                 audio.PlaySe(throughDoor ? Sounds.Door : Sounds.Step);
                 AfterMove();
                 PoisonStep();
-                if (!RoomEncounter()) MaybeEncounter();
+                // 着いたマスでボス戦・イベント・名のある敵が始まったなら、ふつうの遭遇はしない
+                if (!Stack.HasPending && !RoomEncounter()) MaybeEncounter();
                 break;
             case MoveResult.Teleported:
                 audio.PlaySe(Sounds.Step);
@@ -812,8 +813,8 @@ public sealed class MazeScene : Scene
         return true;
     }
 
-    /// <summary>この1歩で敵に出会うか。出会ったら戦闘へ。</summary>
-    private void MaybeEncounter(bool force = false)
+    /// <summary>この1歩で敵に出会うか。出会ったら戦闘へ。won があれば、勝ったときに宝箱の代わりにそれを呼ぶ(さまよう名のある敵は混ざらない)。</summary>
+    private void MaybeEncounter(bool force = false, Action? won = null)
     {
         var session = Services.Session;
         if (session == null || !session.Roster.PartyMembers.Any(c => c.State == LifeState.Alive && c.Hp > 0)) return;
@@ -823,13 +824,13 @@ public sealed class MazeScene : Scene
         int floors = State.Dungeon.Floors.Count;
         double depth = floors <= 1 ? 0 : (double)State.Position.Floor / (floors - 1);
         // さまよう名のある敵は、その階の遭遇にまれに混ざる
-        if (session.NamedWandering(State.Position.Floor) is { } wanderer && rng.NextDouble() < Core.Monsters.NamedMonsterDef.WanderChance)
+        if (won == null && session.NamedWandering(State.Position.Floor) is { } wanderer && rng.NextDouble() < Core.Monsters.NamedMonsterDef.WanderChance)
         {
             NamedFight(wanderer);
             return;
         }
         var e = Encounters.Build(Services.Data, _encounters, depth, session.Roster.Party.Count, rng, session.RosterOf(State.Position.Floor));
-        StartEncounter(e.Groups, e.Scale);
+        StartEncounter(e.Groups, e.Scale, won: won);
     }
 
     /// <summary>名のある敵と戦う(1体だけ。倒すと item_chance で決まった品を落とす)。</summary>
@@ -864,7 +865,7 @@ public sealed class MazeScene : Scene
     /// 歩いていて出会った敵と戦う。厳しいセーブなら、始める前に「続きの戦闘」として保存する
     /// (戦闘の途中でやめても、続きからこの戦闘を始め直す。やり直しで逃れられない)。
     /// </summary>
-    private void StartEncounter(IReadOnlyList<(Core.Monsters.MonsterDef Def, int Count)> groups, MonsterScale? scale, int? room = null)
+    private void StartEncounter(IReadOnlyList<(Core.Monsters.MonsterDef Def, int Count)> groups, MonsterScale? scale, int? room = null, Action? won = null)
     {
         var session = Services.Session!;
         _encounters ??= Services.Encounters();
@@ -887,7 +888,8 @@ public sealed class MazeScene : Scene
             {
                 Say(Services.Strings["maze.after_victory"]);
                 if (room is int r) State.OccupiedRooms.Remove(r);   // 部屋は空になる(逃げたら、いたまま)
-                MaybeChest(depth, _encounters.TargetLevel(depth), groups, room: room != null);
+                if (won != null) won();
+                else MaybeChest(depth, _encounters.TargetLevel(depth), groups, room: room != null);
             }
             else if (outcome == CombatOutcome.Fled) Say(Services.Strings["maze.after_flee"]);
         }));
@@ -911,11 +913,17 @@ public sealed class MazeScene : Scene
         if (extra != null) drops.AddRange(extra);   // 名のある敵の品(当たったとき)
         if (drops.Count == 0 && boss == null && !always && (!randomChest || rng.NextDouble() >= (room ? _treasure.RoomChestChance : _treasure.ChestChance))) return;
         var chest = Chest.Generate(Services.Data, _treasure, depth, targetLevel, rng, drops, source);
-        Stack.Push(new ChestScene(chest, TeleportRandom, () =>
+        // 警報: 襲ってきた敵を倒せば、元の宝箱(罠はもう無い)が残っている。逃げたら無くなる
+        void Open() => Stack.Push(new ChestScene(chest, TeleportRandom, () =>
         {
             Say(Services.Strings["maze.alarm"]);
-            MaybeEncounter(force: true);
+            MaybeEncounter(force: true, won: () =>
+            {
+                Say(Services.Strings["maze.alarm_chest_left"]);
+                Open();
+            });
         }));
+        Open();
     }
 
     /// <summary>テレポーターの罠: 同じ階の、岩盤でない別のマスへ飛ばされる。</summary>
@@ -1035,7 +1043,7 @@ public sealed class MazeScene : Scene
         else AutoMapRenderer.Draw(d, mapFloor, State.AutoMap.For(_lastKnownFloor), MiniMapArea, _lastKnown,
             InFog ? null : (State.Position.Cell, State.Position.Facing), MiniMapRadius,
             State.Notes.Where(n => n.Floor == _lastKnownFloor).Select(n => n.Cell).ToHashSet(), arrivals: State.AutoMap.ArrivalsOn(_lastKnownFloor).ToHashSet(),
-            portals: State.PortalsOn(_lastKnownFloor).ToHashSet());
+            portals: State.PortalsOn(_lastKnownFloor).ToHashSet(), open: AutoMapRenderer.OpenSpots(Services, State, _lastKnownFloor));
         if (InFog && Services.Options.ShowMiniMap)
             d.Text(s["maze.fog_map"], new Vector2(MiniMapArea.X + MiniMapArea.Width / 2, MiniMapArea.Y + MiniMapArea.Height - 34), 18, new Color(200, 200, 210), TextAlign.Center);
 

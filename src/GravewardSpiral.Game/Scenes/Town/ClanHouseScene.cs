@@ -163,6 +163,9 @@ public sealed class ClanHouseScene(Action? onLeave = null) : MenuScene
                 // 荷物の整理(装備の付け替え、仲間に渡す)。人の次に倉庫のページがあり、渡すで預ける・引き出す
                 Stack.Push(new MemberPickScene(s["house.items"], _ => true, c => Stack.Push(new InventoryScene(c, Party, storage: true)))
                 {
+                    // 人の行の右に袋の埋まり具合、倉庫の行の右に倉庫の埋まり具合
+                    Detail = c => s.Format("shop.slots", c.Inventory.Items.Count, c.Inventory.Capacity(Data.Items)),
+                    ExtraDetail = () => s.Format("house.slots", House.Used(Data.Items), House.Capacity(_levels)),
                     // 戻るの前に倉庫(選ぶと倉庫のページから開く)
                     Extra = (s["house.storage"], () => s.Format("house.slots_info", House.Used(Data.Items), House.Capacity(_levels)),
                         () => Stack.Push(new InventoryScene(Party[0], Party, storage: true, atStorage: true))),
@@ -181,7 +184,7 @@ public sealed class ClanHouseScene(Action? onLeave = null) : MenuScene
             {
                 // 寝床: ただで大休憩(段階で戻る HP が違う)
                 double hp = House.Has(_levels, ClanHouseLevel.BedFull) ? 1.0 : 0.7;   // 宿屋の馬小屋(半分)よりは休まる
-                foreach (var c in Party.Where(c => c.IsAlive)) c.LongRest(hp);
+                foreach (var c in Party.Where(c => c.IsAlive)) c.LongRest(hp, Data);
                 Services.Audio.PlaySe(Sounds.InnRest);
                 Message = s["inn.rested"];
                 Refresh();

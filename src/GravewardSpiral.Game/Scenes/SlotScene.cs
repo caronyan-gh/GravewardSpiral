@@ -327,7 +327,11 @@ public sealed class SlotScene : MenuScene
         List.SetItems(Items(), 0);   // 直前に遊んだ世界(一番上)を選んでおく
     }
 
-    private void Load() => _clan = Services.Saves.ListClans().FirstOrDefault(x => x.Id == _clanId);
+    private void Load()
+    {
+        _clan = Services.Saves.ListClans().FirstOrDefault(x => x.Id == _clanId);
+        _clearedCache = null;
+    }
 
     /// <summary>行の中身: 遊んだ世界(key)、まだ行っていないシナリオ(id)、新しい自由な迷宮、消す、戻る。</summary>
     private sealed record Unvisited(string ScenarioId);
@@ -459,6 +463,17 @@ public sealed class SlotScene : MenuScene
 
     protected override void Cancel() => Stack.Pop();
 
+    /// <summary>題: シナリオの名前。このクランがクリアしていれば「(クリア済み)」を付ける(世界を消してもクリアの印は残る)。</summary>
+    private string InfoTitle(string? scenarioId)
+    {
+        string name = Services.ScenarioDisplayName(scenarioId);
+        if (_scenarios.FirstOrDefault(x => x.Id == scenarioId) is not { } sc) return name;
+        _clearedCache ??= Services.Saves.LoadClan(_clanId)?.ClearedScenarios ?? [];
+        return ScenarioClears.Count(_clearedCache, sc.Manifest) > 0 ? Services.Strings.Format("slot.cleared", name) : name;
+    }
+
+    private Dictionary<string, int>? _clearedCache;
+
     protected override void DrawInfo(Draw2D d, RectangleF area)
     {
         var s = Services.Strings;
@@ -466,7 +481,7 @@ public sealed class SlotScene : MenuScene
         switch (List.Current?.Tag)
         {
             case SaveStore.WorldSummary info:
-                y = Line(d, area, y, Services.ScenarioDisplayName(info.Scenario), Theme.Title, 26);
+                y = Line(d, area, y, InfoTitle(info.Scenario), Theme.Title, 26);
                 y = Line(d, area, y, s.Format("slot.saved_at", info.SavedAt), Theme.Text);
                 y = Line(d, area, y, s.Format("slot.dungeon", info.Floors, info.DeepestFloor, info.Seed), Theme.Text);
                 y = Line(d, area, y, s.Format("slot.party", info.Party.Count == 0 ? s["slot.no_party"] : s.List(info.Party)), Theme.Text);
@@ -474,7 +489,7 @@ public sealed class SlotScene : MenuScene
                 Line(d, area, y, info.Location == "maze" ? s["slot.in_maze"] : s["slot.in_town"], Theme.Dim);
                 break;
             case Unvisited u when _scenarios.FirstOrDefault(x => x.Id == u.ScenarioId) is { } sc:
-                y = Line(d, area, y, Services.ScenarioDisplayName(sc.Id), Theme.Title, 26);
+                y = Line(d, area, y, InfoTitle(sc.Id), Theme.Title, 26);
                 if (sc.Manifest.Description != null) y = Line(d, area, y, Services.Name(sc.Manifest.Description), Theme.Text);
                 if (sc.Manifest.Levels is [int lo, int hi]) y = Line(d, area, y, s.Format("slot.levels", lo, hi), Theme.Text);   // 推奨レベル(参考)
                 Line(d, area, y + 6, s["slot.about_unvisited"], Theme.Dim, 18);

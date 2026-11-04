@@ -52,4 +52,14 @@ public class ClanImportTests
         Assert.Equal("wiz", m!.Series);
         Assert.False(m.AllowImport);
     }
+
+    [Fact]
+    public void ClearCountAddsGuidAndOldIdMarks()
+    {
+        var m = new PackManifest { Id = "gravekeeper", Guid = "g-1" };
+        Assert.Equal(0, ScenarioClears.Count(null, m));
+        Assert.Equal(0, ScenarioClears.Count(new Dictionary<string, int> { ["id:other"] = 1 }, m));
+        Assert.Equal(3, ScenarioClears.Count(new Dictionary<string, int> { ["g-1"] = 2, ["id:gravekeeper"] = 1 }, m));
+        Assert.Equal(1, ScenarioClears.Count(new Dictionary<string, int> { ["id:gravekeeper"] = 1 }, new PackManifest { Id = "gravekeeper" }));
+    }
 }

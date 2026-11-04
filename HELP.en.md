@@ -682,7 +682,7 @@ Basic tab:
 Gameplay tab:
 
 - Battle log speed: Change how quickly battle messages appear.
-- Cursor repeat / Walk repeat: Set the time between cursor steps and between steps in the maze while you hold a key or button, from 10 to 1500 ms (smaller is faster). The wait before repeating starts follows from it: the shorter the time, the relatively longer the wait (3x at 10 ms, 1x at 1000 ms and above).
+- Cursor repeat / Walk repeat: Set the time between cursor steps and between steps in the maze while you hold a key or button, from 10 to 1500 ms (smaller is faster). The wait before repeating starts follows from it: the shorter the time, the relatively longer the wait (3x at 10 ms, 1x at 1000 ms and above, but never less than 0.3 seconds).
 - Dungeon map: Choose minimap and map, map only, or no map.
 - Back key: Choose whether Down steps backward or turns around. Hold Shift to use the opposite behavior.
 - Maze mouse movement: Choose whether clicking the maze view moves the party (see "Moving in the maze" under Controls).

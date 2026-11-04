@@ -13,7 +13,7 @@ public static class PartyPanel
     /// <param name="fKeys">番号を F1〜F6 にする(そのキーで仲間を切り替えられる画面)。</param>
     /// <param name="usable">その画面を使える人か(使えない人は名前をグレーにする。呪文の準備で術者でない人など)。</param>
     public static void Draw(Draw2D d, GameServices services, RectangleF area, int? highlight = null,
-        IReadOnlyList<(string Id, int Hp, LifeState State, string? Shape, int Ac, Condition[] Conditions)>? shown = null, bool fKeys = false, Func<Character, bool>? usable = null)
+        IReadOnlyList<(string Id, int Hp, LifeState State, string? Shape, int Ac, Condition[] Conditions, string? Concentration, bool Raging)>? shown = null, bool fKeys = false, Func<Character, bool>? usable = null)
     {
         Theme.Panel(d, area);
         var session = services.Session;
@@ -41,9 +41,11 @@ public static class PartyPanel
             var state = c.State;
             // 戦闘中にかかっている状態異常(クラスの所にアイコンで並べる)
             IReadOnlyList<Condition> conditions = [];
+            string? concentration = null;
+            bool raging = false;
             if (shown?.FirstOrDefault(x => x.Id == c.Id) is { Id: not null } snap)
             {
-                (hpNow, state, ac, conditions) = (snap.Hp, snap.State, snap.Ac, snap.Conditions);   // 戦闘中は、そのときの AC(呪文などの分を含む)
+                (hpNow, state, ac, conditions, concentration, raging) = (snap.Hp, snap.State, snap.Ac, snap.Conditions, snap.Concentration, snap.Raging);   // 戦闘中は、そのときの AC(呪文などの分を含む)
                 // ワイルドシェイプ中は、クラスのところに獣の名前、HP は獣のもの
                 if (snap.Shape != null && services.Data.Monsters.TryGetValue(snap.Shape, out var beast))
                 {
@@ -56,9 +58,9 @@ public static class PartyPanel
             // 欄の幅に収まらない文字は縮める(戦闘の画面は幅が狭い)
             float w = colW - 24;
             Fit(d, $"{(fKeys ? "F" : "")}{i + 1} {c.Name}", new Vector2(x, y + 2), w * 0.33f, size, usable == null || usable(c) ? color : Theme.Disabled);
-            if (state != LifeState.Alive || conditions.Count == 0)
+            if (state != LifeState.Alive || (conditions.Count == 0 && concentration == null && !raging))
                 Fit(d, $"{cls} {level}".TrimEnd(), new Vector2(x + w * 0.34f, y + 2), w * 0.33f, size, level.Length == 0 ? Theme.Good : Theme.Dim);
-            else ConditionIcons(d, services, conditions, new Vector2(x + w * 0.34f, y), w * 0.33f, size);
+            else ConditionIcons(d, services, conditions, new Vector2(x + w * 0.34f, y), w * 0.33f, size, concentration, raging);
             Fit(d, $"AC {ac}", new Vector2(x + w * 0.69f, y + 2), w * 0.14f, size, Theme.Dim);
             string hp = state == LifeState.Alive ? $"{hpNow}/{hpMax}" : s[$"state.{state.ToString().ToLowerInvariant()}"];
             // 状態のアイコン(戦闘の外の毒など。死亡・灰も)は HP の前に出す。アイコンが無ければ、状態の名前を HP の前に出す
@@ -100,12 +102,39 @@ public static class PartyPanel
         return null;
     }
 
-    /// <summary>状態異常のアイコンを横に並べる(幅に収まらなければ詰める)。アイコンの無い状態は名前の字で出す。</summary>
-    private static void ConditionIcons(Draw2D d, GameServices services, IReadOnlyList<Condition> conditions, Vector2 at, float width, float size)
+    /// <summary>状態異常のアイコンを横に並べる(幅に収まらなければ詰める)。アイコンの無い状態は名前の字で出す。
+    /// 激怒していれば「激怒」、集中している呪文があれば「集中」の印を先頭に出す(載せると説明)。</summary>
+    private static void ConditionIcons(Draw2D d, GameServices services, IReadOnlyList<Condition> conditions, Vector2 at, float width, float size, string? concentration = null, bool raging = false)
     {
         float iw = size + 4, gap = 4;
-        float step = Math.Min(iw + gap, conditions.Count > 1 ? (width - iw) / (conditions.Count - 1) : iw + gap);
         float x = at.X;
+        var s = services.Strings;
+        if (raging) Mark("rage", FeatureText.Name(services, "rage"), Theme.Caution, FeatureText.Name(services, "rage"), s["condition.about.raging"]);
+        if (concentration != null)
+        {
+            string spell = services.Data.Spells.TryGetValue(concentration, out var sp) ? services.Name(sp.Name) : concentration;
+            Mark("concentration", s["spell.concentration"], Theme.Good, s.Format("condition.concentrating", spell), s["condition.about.concentrating"]);
+        }
+
+        // アイコン(art/conditions/<id>.png)があればそれ、無ければ字で出す印
+        void Mark(string iconId, string text, Color color, string title, string about)
+        {
+            RectangleF rect;
+            if (services.ConditionIcon(iconId) is { } icon)
+            {
+                rect = new RectangleF(x, at.Y, iw, iw);
+                d.Image(icon, rect, Color.White);
+            }
+            else
+            {
+                d.Text(text, new Vector2(x, at.Y + 2), size * 0.8f, color);
+                rect = new RectangleF(x, at.Y, d.Fonts.Measure(text, size * 0.8f).X, iw);
+            }
+            Tooltip.Hover(rect, title, about);
+            x += rect.Width + gap;
+            width -= rect.Width + gap;
+        }
+        float step = Math.Min(iw + gap, conditions.Count > 1 ? Math.Max(1, (width - iw) / (conditions.Count - 1)) : iw + gap);
         foreach (var cond in conditions)
         {
             string id = cond.ToString().ToLowerInvariant();

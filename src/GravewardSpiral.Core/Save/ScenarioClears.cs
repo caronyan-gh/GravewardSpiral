@@ -26,6 +26,10 @@ public static class ScenarioClears
     public static bool Has(IReadOnlyDictionary<string, int> clears, RequiredClear required) =>
         required.Guid != null && clears.ContainsKey(required.Guid) || required.Id.Length > 0 && clears.ContainsKey(IdPrefix + required.Id);
 
+    /// <summary>このシナリオをクリアした数(guid の印と、印を持つ前の id の印を足す)。</summary>
+    public static int Count(IReadOnlyDictionary<string, int>? clears, PackManifest scenario) =>
+        clears == null ? 0 : clears.GetValueOrDefault(Key(scenario)) + (scenario.Guid != null ? clears.GetValueOrDefault(IdPrefix + scenario.Id) : 0);
+
     /// <summary>scenario を始めるのに足りないクリア(クランを連れていかないなら clears は空)。</summary>
     public static List<RequiredClear> Missing(PackManifest? scenario, IReadOnlyDictionary<string, int>? clears) =>
         scenario?.RequiresClear.Where(r => !Has(clears ?? new Dictionary<string, int>(), r)).ToList() ?? [];

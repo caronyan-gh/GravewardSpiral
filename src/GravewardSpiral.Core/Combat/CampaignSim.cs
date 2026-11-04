@@ -213,7 +213,7 @@ public sealed class CampaignSim
                 c.AutoIncreaseAbilities(_data);
                 Spellcasting.AutoPick(_data, c);
             }
-            c.LongRest();
+            c.LongRest(data: _data);
         }
         if (_o.Smart) Shopping();
         // 町の人を訪ねる(話でフラグが立つ)

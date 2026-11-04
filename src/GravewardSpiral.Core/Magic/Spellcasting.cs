@@ -109,8 +109,56 @@ public static class Spellcasting
     public static int PactSlotLevel(GameData data, Character c) => PactDef(data, c)?.Level.Eval(c, Pact(data, c)) ?? 0;
 
     /// <summary>今使えるスロットの数(ふつうのスロットの残りと、そのレベルなら協約魔術のスロットの残り)。</summary>
-    public static int SlotsLeft(GameData data, Character c, int spellLevel) =>
-        Math.Max(0, RegularSlots(data, c, spellLevel) - c.SlotsUsed.GetValueOrDefault(spellLevel)) + PactLeft(data, c, spellLevel);
+    public static int SlotsLeft(GameData data, Character c, int spellLevel)
+    {
+        Sync(data, c, spellLevel);
+        return Math.Max(0, RegularSlots(data, c, spellLevel) - c.SlotsUsed.GetValueOrDefault(spellLevel)) + PactLeft(data, c, spellLevel);
+    }
+
+    /// <summary>装備で増えたふつうのスロットの数(もともとそのレベルのスロットがある人だけ)。</summary>
+    private static int RegularBonus(GameData data, Character c, int spellLevel) => RegularSlots(data, c, spellLevel) - TableRegular(data, c, spellLevel);
+
+    /// <summary>装備で増えた協約魔術のスロットの数。</summary>
+    public static int PactBonus(GameData data, Character c) =>
+        PactLevel(data, c) > 0 ? PactSlots(data, c) - (PactDef(data, c)?.Slots.Eval(c, Pact(data, c)) ?? 0) : 0;
+
+    /// <summary>
+    /// 装備の付け外しで、装備の分のスロットの数が変わっていたら、残りはそのままで最大だけ変える(使った数を合わせる)。
+    /// 増えた分は休むまで空、減ったときは残りを新しい最大までに切り詰める。どちらも「使った数 += 増えた数(0 未満にしない)」になる。
+    /// クラスのレベルで増えた分は満タンのまま(ここでは見ない)。
+    /// </summary>
+    public static void Sync(GameData data, Character c, int spellLevel)
+    {
+        if (spellLevel is >= 1 and <= 9)
+        {
+            int now = RegularBonus(data, c, spellLevel);
+            if (!c.SlotBonusSeen.TryGetValue(spellLevel, out int seen)) seen = now;
+            if (now != seen)
+            {
+                int used = Math.Max(0, c.SlotsUsed.GetValueOrDefault(spellLevel) + now - seen);
+                if (used > 0) c.SlotsUsed[spellLevel] = used; else c.SlotsUsed.Remove(spellLevel);
+            }
+            c.SlotBonusSeen[spellLevel] = now;
+        }
+        int pact = PactBonus(data, c);
+        int pactSeen = c.PactBonusSeen ?? pact;
+        if (pact != pactSeen) c.PactSlotsUsed = Math.Max(0, c.PactSlotsUsed + pact - pactSeen);
+        c.PactBonusSeen = pact;
+    }
+
+    /// <summary>全部の呪文レベルを Sync する。</summary>
+    public static void SyncAll(GameData data, Character c)
+    {
+        for (int lv = 1; lv <= 9; lv++) Sync(data, c, lv);
+    }
+
+    /// <summary>休んでスロットを戻したとき、装備の分も今の数で満タンとして数え始める。</summary>
+    public static void MarkFull(GameData data, Character c)
+    {
+        c.SlotBonusSeen.Clear();
+        for (int lv = 1; lv <= 9; lv++) c.SlotBonusSeen[lv] = RegularBonus(data, c, lv);
+        c.PactBonusSeen = PactBonus(data, c);
+    }
 
     /// <summary>
     /// ふつうの呪文スロットの数(術者のレベルの表から。協約魔術の分は入れない)。武器の追加効果(修正値 slots:&lt;レベル&gt;)の分も足すが、
@@ -147,6 +195,7 @@ public static class Spellcasting
     /// <summary>スロットを1つ使う。協約魔術のスロットが残っていれば先にそちら(小休憩で戻るので)。</summary>
     public static void UseSlot(GameData data, Character c, int spellLevel)
     {
+        Sync(data, c, spellLevel);
         if (PactLeft(data, c, spellLevel) > 0) c.PactSlotsUsed++;
         else c.SlotsUsed[spellLevel] = c.SlotsUsed.GetValueOrDefault(spellLevel) + 1;
     }

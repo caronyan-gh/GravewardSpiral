@@ -22,6 +22,12 @@ public sealed class SceneStack
     public int Version { get; private set; }
     public Scene? Top => _scenes.Count > 0 ? _scenes[^1] : null;
 
+    /// <summary>このフレームで積む・降ろすものがまだ残っているか(ボス戦などを積んだあとに、ほかの画面を重ねないため)。</summary>
+    public bool HasPending => _pending.Count > 0;
+
+    /// <summary>積んである画面のどれかが当てはまるか。</summary>
+    public bool Any(Func<Scene, bool> match) => _scenes.Any(match);
+
     public void Push(Scene scene) => _pending.Enqueue(() =>
     {
         scene.Attach(_services);

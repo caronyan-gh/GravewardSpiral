@@ -109,6 +109,8 @@ public sealed class CombatScene : Scene
         _engine = new CombatEngine(Services.Data, rng);
         var party = session?.Roster.PartyMembers.ToList() ?? [];
         _state = _engine.Start(party, _groups, _scale);
+        // 狙った敵は、その戦闘の中だけ覚える(呪文・技・仲間の選びは戦闘をまたいで残す)
+        foreach (var key in Services.CombatCursor.Keys.Where(k => k.Phase == nameof(Phase.Target)).ToList()) Services.CombatCursor.Remove(key);
         _state.NoMagic = _noMagic;
         if (_noMagic) _state.Add("combat.antimagic_zone");
         Services.Audio.PlaySe(Sounds.Encounter);
@@ -834,6 +836,8 @@ public sealed class CombatScene : Scene
         return key == null ? null : S[key];
     }
 
+    private string SpellName(string id) => Services.Data.Spells.TryGetValue(id, out var sp) ? Services.Name(sp.Name) : id;
+
     private void DrawSpellInfo(Draw2D d)
     {
         SpellDef? sp = null;
@@ -848,6 +852,14 @@ public sealed class CombatScene : Scene
         {
             sp = _spell;
             level = _menu.Current?.Tag is int l ? Spellcasting.EffectLevel(Services.Data, Current.Character, _spell, l) : _spell.Level;
+        }
+        else if (_phase == Phase.ItemList && _menu.Current?.Tag is int ii && ii < Current.Character.Inventory.Items.Count
+            && Services.Data.Items.TryGetValue(Current.Character.Inventory.Items[ii].ItemId, out var idef)
+            && idef.UseSpell != null && Services.Data.Spells.TryGetValue(idef.UseSpell, out var isp))
+        {
+            // 呪文の入った品(巻物・杖など)は、その呪文の説明(集中が切れることも)
+            sp = isp;
+            level = Math.Max(isp.Level, idef.UseSlot);
         }
         if (_phase == Phase.Beast && _menu.Current?.Tag is MonsterDef b)
         {
@@ -868,7 +880,10 @@ public sealed class CombatScene : Scene
             fy = LinkText.Draw(d, FeatureText.About(Services, f.Id) ?? "", new Vector2(fx, fy), fw, 19, Theme.Text, 6);
             // スマイト: 当たったら使う呪文の回数のレベル
             if (f.Part == "divine_smite" && ClassFeatures.SmiteSlot(Services.Data, Current.Character) is int smite)
-                d.TextWrapped(S.Format("combat.smite_slot", smite), new Vector2(fx, fy + 6), fw, 18, Theme.Gold, 6);
+                fy = d.TextWrapped(S.Format("combat.smite_slot", smite), new Vector2(fx, fy + 6), fw, 18, Theme.Gold, 6);
+            // 激怒すると、今の集中が切れる
+            if (f.Id == "rage" && Current.Concentration is { } held)
+                d.TextWrapped(S.Format("combat.concentration_rage", SpellName(held)), new Vector2(fx, fy + 6), fw, 18, Theme.Caution, 4);
             return;
         }
         if (_phase == Phase.Input && _menu.Current?.Tag is { } cmdTag && CommandAbout(cmdTag) is { } about)
@@ -889,6 +904,9 @@ public sealed class CombatScene : Scene
         y = LinkText.Draw(d, SpellText.Header(S, sp, Spellcasting.AssignedLevel(Services.Data, Current.Character, sp)), new Vector2(x, y), w, 17, Theme.Dim) + 6;
         foreach (var line in SpellText.Effects(S, sp, Math.Max(1, level)))
             y = LinkText.Draw(d, line, new Vector2(x, y), w, 19, Theme.Text, 6);
+        // もう集中している人が集中の呪文を選ぶと、今の集中が切れる
+        if (sp.Concentration && Current.Concentration is { } now)
+            y = d.TextWrapped(S.Format("combat.concentration_replace", SpellName(now)), new Vector2(x, y + 6), w, 18, Theme.Caution, 4);
         if (CombatEngine.IsBonusAction(sp)) y = LinkText.Draw(d, S["spell.bonus_followup"], new Vector2(x, y + 6), w, 16, Theme.Gold, 4);
         if (sp.Note != null) d.TextWrapped(sp.Note, new Vector2(x, y + 6), w, 15, Theme.Dim, 4);
     }

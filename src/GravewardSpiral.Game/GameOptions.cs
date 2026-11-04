@@ -62,13 +62,17 @@ public sealed class GameOptions
 
     /// <summary>
     /// 繰り返しが始まるまでの待ち(ミリ秒)。間隔の 3 倍(10ms のとき)から、間隔が大きくなるほど倍率を下げ、1000ms 以上で 1 倍(倍率は間隔の対数で変える)。
+    /// ただし RepeatDelayMinMs より短くはしない(短い間隔だと、軽く押しただけで繰り返してしまう)。
     /// </summary>
     public static int RepeatDelayMs(int intervalMs)
     {
         int i = Math.Clamp(intervalMs, RepeatMinMs, RepeatMaxMs);
         double factor = i >= 1000 ? 1 : 3 - Math.Log10(i / 10.0);
-        return (int)Math.Round(i * factor);
+        return Math.Max(RepeatDelayMinMs, (int)Math.Round(i * factor));
     }
+
+    /// <summary>繰り返しが始まるまでの、いちばん短い待ち(ミリ秒)。</summary>
+    public const int RepeatDelayMinMs = 300;
 
     /// <summary>設定の画面で ◀ ▶ を押したときの一段(小さい値ほど細かく)。</summary>
     public static int RepeatStep(int ms, int step)

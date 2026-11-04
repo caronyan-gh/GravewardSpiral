@@ -23,10 +23,13 @@ public static class SpellText
         return item with { Badge = badge, BadgeText = badge == null ? svc.Name(cls.Name) : null };
     }
 
-    /// <summary>「Lv1 力術 / 敵1グループ / 集中」のような1行。</summary>
+    /// <summary>「Lv1 力術 / 火 / 敵1グループ / 集中」のような1行。ダメージの属性も出す(装備の「〜の呪文のダメージ」と合わせて探せるように)。</summary>
     public static string Header(Strings s, SpellDef sp, int? level = null)
     {
         var parts = new List<string> { Level(s, sp, level), s["school." + sp.School] };
+        var types = sp.Effects.SelectMany(e => e.Flatten()).Where(e => e.Type is EffectPart.Damage or EffectPart.Dot && e.DamageType != null)
+            .Select(e => e.DamageType!.ToString()!.ToLowerInvariant()).Distinct().ToList();
+        if (types.Count > 0) parts.Add(s.Format("spell.header_damage", s.List(types.Select(t => s["damage." + t]))));
         if (sp.Target is { } t) parts.Add(s["spell.target." + t.ToString().ToLowerInvariant()]);
         if (sp.Concentration) parts.Add(s["spell.concentration"]);
         if (sp.Time == "bonus") parts.Add(s["spell.bonus"]);
@@ -57,6 +60,7 @@ public static class SpellText
 
     private static IEnumerable<string> Parts(Strings s, IEnumerable<EffectPart> parts, int level)
     {
+        bool immuneSaid = false;
         foreach (var p in parts)
         {
             string dice = (p.DiceAt(level) ?? "").Replace("MOD", s["spell.mod"]);
@@ -82,6 +86,15 @@ public static class SpellText
                     break;
                 case EffectPart.Dot:
                     yield return s.Format("spell.fx.dot", dice, s["damage." + p.DamageType], p.Rounds ?? 10);
+                    break;
+                case EffectPart.Drain:
+                    yield return s.Format("spell.fx.drain", p.Value ?? 100);   // 与えたダメージの value% だけ HP が戻る
+                    break;
+                case EffectPart.ImmuneCondition when !immuneSaid:
+                    // 状態にかからない(いくつもあれば1行にまとめる)
+                    immuneSaid = true;
+                    yield return s.Format("spell.fx.immune", s.List(parts.Where(x => x.Type == EffectPart.ImmuneCondition && x.Condition != null)
+                        .Select(x => s["condition." + x.Condition.ToString()!.ToLowerInvariant()])));
                     break;
                 case EffectPart.Resist:
                     yield return s.Format("spell.fx.resist", s["damage." + p.DamageType]);

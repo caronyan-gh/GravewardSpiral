@@ -195,7 +195,10 @@ public sealed class ShopScene : MenuScene
         Shop.Stock(Sold, part);
         Services.Audio.PlaySe(Sounds.Coins);
         Message = s.Format("shop.sold", ItemText.Name(Services, part), price);
-        Go(_who!.Inventory.Items.Count > 0 ? Mode.Sell : Mode.Main);
+        // 売り切ったら、ほかの人を選ぶ画面へ(だれも持っていなければ店の初めへ)
+        if (_who!.Inventory.Items.Count > 0) Go(Mode.Sell);
+        else if (Party.Any(c => c.Inventory.Items.Count > 0)) Go(Mode.SellWho);
+        else Go(Mode.Main);
     }
 
     protected override void Cancel()
