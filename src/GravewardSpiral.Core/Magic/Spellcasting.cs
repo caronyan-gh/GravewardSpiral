@@ -298,6 +298,23 @@ public static class Spellcasting
     }
 
     /// <summary>
+    /// キャンプで唱えられる呪文: 今唱えられる呪文に、準備できる呪文を足す(準備する術者は、クラスの呪文のうち唱えられるレベルのもの。
+    /// ウィザードは呪文書の呪文)。キャンプでは準備を入れ替えればすぐ唱えられるので、入れ替えなくても唱えられることにする(2026-11-04、ユーザーが決めた)。
+    /// 覚える術者(ソーサラー・バードなど)は覚えた呪文だけ。キャンプで使える呪文(InCamp)かは、呼ぶ側で絞る。
+    /// </summary>
+    public static IEnumerable<SpellDef> CampCastable(GameData data, Character c)
+    {
+        var spells = Castable(data, c).ToList();
+        foreach (var cls in CasterClasses(data, c))
+        {
+            if (Kind(cls) == CasterKind.Prepared) spells.AddRange(ClassSpells(data, cls, c, cantrips: false));
+            else if (Kind(cls) == CasterKind.Book && c.Books.TryGetValue(cls.Id, out var b))
+                spells.AddRange(b.Known.Select(id => data.Spells.GetValueOrDefault(id)).OfType<SpellDef>().Where(x => x.Usable && !x.IsCantrip && x.Level <= ClassMaxSpellLevel(data, cls, c)));
+        }
+        return spells.DistinctBy(x => x.Id).OrderBy(x => AssignedLevel(data, c, x)).ThenBy(x => x.Id, StringComparer.Ordinal);
+    }
+
+    /// <summary>
     /// 呪文を唱える画面で、その呪文を slotLevel のスロット(0 は初級呪文)の欄に並べるか。そのレベルの呪文と、上のスロットで強くなる呪文。
     /// 強くならない呪文も、自分のレベルのスロットが無い(使い切った、ウォーロックのように持っていない)ときは、払える一番低い上の欄に並べる
     /// (並べないと唱える手段が無くなる)。
@@ -334,6 +351,19 @@ public static class Spellcasting
         foreach (var cls in CasterClasses(data, c)) AutoPick(data, c, cls);
     }
 
+    /// <summary>準備できる呪文(ウィザードは呪文書から、ほかはクラスの呪文から)。キャンプでだけ使う呪文は、準備しなくてもキャンプで唱えられるので入れない。</summary>
+    public static IEnumerable<SpellDef> PreparePool(GameData data, ClassDef cls, Character c) =>
+        (Kind(cls) == CasterKind.Book
+            ? c.Book(cls.Id).Known.Select(id => data.Spells.GetValueOrDefault(id)).OfType<SpellDef>().OrderBy(s => AssignedLevel(data, cls, c, s))
+            : ClassSpells(data, cls, c, cantrips: false))
+        .Where(s => !s.CampOnly);
+
+    /// <summary>準備から、キャンプでだけ使う呪文を外す(前の版で準備していた分。準備しなくても唱えられる)。</summary>
+    public static void DropCampOnlyPrepared(GameData data, Character c)
+    {
+        foreach (var b in c.Books.Values) b.Prepared.RemoveAll(id => data.Spells.TryGetValue(id, out var sp) && sp.CampOnly);
+    }
+
     /// <summary>1つのクラスの呪文を、おまかせで足す。</summary>
     public static void AutoPick(GameData data, Character c, ClassDef cls)
     {
@@ -344,9 +374,7 @@ public static class Spellcasting
             Fill(book.Known, ClassSpells(data, cls, c, cantrips: false), SpellsKnown(cls, c));
         if (kind is CasterKind.Prepared or CasterKind.Book)
         {
-            var pool = kind == CasterKind.Book
-                ? book.Known.Select(id => data.Spells.GetValueOrDefault(id)).OfType<SpellDef>()
-                : ClassSpells(data, cls, c, cantrips: false);
+            var pool = PreparePool(data, cls, c);
             book.Prepared.RemoveAll(id => !pool.Any(s => s.Id == id));
             Fill(book.Prepared, pool, PreparedCount(cls, c));
         }

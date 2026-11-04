@@ -85,8 +85,7 @@ public sealed class SpellPickScene : MenuScene
     private IEnumerable<SpellDef> Pool() => _kind switch
     {
         Kind.Cantrips => Spellcasting.ClassSpells(Services.Data, Cls, Member, cantrips: true),
-        Kind.Prepared when Spellcasting.Kind(Cls) == CasterKind.Book =>
-            Book.Known.Select(id => Services.Data.Spells.GetValueOrDefault(id)).OfType<SpellDef>().OrderBy(s => Spellcasting.AssignedLevel(Services.Data, Cls, Member, s)),
+        Kind.Prepared => Spellcasting.PreparePool(Services.Data, Cls, Member),   // キャンプでだけ使う呪文は出さない
         _ => Spellcasting.ClassSpells(Services.Data, Cls, Member, cantrips: false),
     };
 
@@ -103,6 +102,7 @@ public sealed class SpellPickScene : MenuScene
     protected override IEnumerable<MenuItem> Items()
     {
         var s = Services.Strings;
+        if (_kind == Kind.Prepared) Spellcasting.DropCampOnlyPrepared(Services.Data, Member);   // 前の版で準備していた、キャンプでだけ使う呪文を外す
         yield return new MenuItem(s["pick.done"], s.Format("pick.count", Target.Count, Limit), Tag: "done");
         yield return new MenuItem(s["pick.auto"], Tag: "auto");
         foreach (var sp in Pool())

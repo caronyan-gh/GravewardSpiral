@@ -85,6 +85,9 @@ public sealed class SpellDef
     public bool IsCantrip => Level == 0;
     public bool InCombat => Usable && Use.Contains("combat") && Time is "action" or "bonus";
     public bool InCamp => Usable && Use.Contains("camp");
+
+    /// <summary>キャンプでだけ使う呪文(戦闘でも迷宮でも使わない)。準備しなくてもキャンプで唱えられるので、準備の一覧には出さない(2026-11-04、ユーザーが決めた)。</summary>
+    public bool CampOnly => Use.Count > 0 && Use.All(u => u == "camp");
     public bool TargetsEnemies => Target is SpellTarget.Enemy or SpellTarget.Group or SpellTarget.TwoGroups or SpellTarget.AllEnemies;
     public bool TargetsAllies => Target is SpellTarget.Self or SpellTarget.Ally or SpellTarget.Allies;
 }

@@ -73,3 +73,41 @@ public class MainHandThrowTests
         Assert.Equal(thrown, s.Party[0].WeaponChoices(melee: false).Any());
     }
 }
+
+/// <summary>キャンプでは、準備していなくても準備できる呪文を唱えられる。</summary>
+public class CampCastTests
+{
+    private static readonly ContentLibrary Content = ContentLibrary.Load(TestPaths.Content);
+    private static readonly GameData Data = GameData.Load(Content);
+
+    [Fact]
+    public void ClericCastsUnpreparedClassSpellsAtCamp()
+    {
+        var c = CharacterFactory.QuickCreate(Data, "C", "human", "cleric", 5);
+        c.Books["cleric"].Prepared.Clear();
+        Assert.DoesNotContain(GravewardSpiral.Core.Magic.Spellcasting.Castable(Data, c), s => s.Id == "lesser_restoration");
+        var camp = GravewardSpiral.Core.Magic.Spellcasting.CampCastable(Data, c).ToList();
+        Assert.Contains(camp, s => s.Id == "lesser_restoration");
+        Assert.DoesNotContain(camp, s => s.Level > 3);   // L5 のクレリックは 3 レベルの呪文まで
+    }
+
+    [Fact]
+    public void SorcererStillCastsOnlyKnownSpellsAtCamp()
+    {
+        var c = CharacterFactory.QuickCreate(Data, "S", "human", "sorcerer", 5);
+        Assert.Equal(GravewardSpiral.Core.Magic.Spellcasting.Castable(Data, c).Select(s => s.Id), GravewardSpiral.Core.Magic.Spellcasting.CampCastable(Data, c).Select(s => s.Id));
+    }
+
+    [Fact]
+    public void CampOnlySpellsAreNotPreparedButCastAtCamp()
+    {
+        var c = CharacterFactory.QuickCreate(Data, "C", "human", "cleric", 5);
+        var cleric = Data.Classes["cleric"];
+        Assert.DoesNotContain(GravewardSpiral.Core.Magic.Spellcasting.PreparePool(Data, cleric, c), s => s.Id == "prayer_of_healing");
+        Assert.Contains(GravewardSpiral.Core.Magic.Spellcasting.PreparePool(Data, cleric, c), s => s.Id == "lesser_restoration");
+        c.Books["cleric"].Prepared.Add("prayer_of_healing");   // 前の版で準備していた分は、大休憩で外れる
+        c.LongRest(data: Data);
+        Assert.DoesNotContain("prayer_of_healing", c.Books["cleric"].Prepared);
+        Assert.Contains(GravewardSpiral.Core.Magic.Spellcasting.CampCastable(Data, c), s => s.Id == "prayer_of_healing");
+    }
+}

@@ -377,7 +377,7 @@ public sealed class Character
         HitDice = Level;
         SlotsUsed.Clear();
         PactSlotsUsed = 0;
-        if (data != null) Magic.Spellcasting.MarkFull(data, this);
+        if (data != null) { Magic.Spellcasting.MarkFull(data, this); Magic.Spellcasting.DropCampOnlyPrepared(data, this); }
         else { SlotBonusSeen.Clear(); PactBonusSeen = null; }
         TempHp = 0;
         FeatureUses.Clear();

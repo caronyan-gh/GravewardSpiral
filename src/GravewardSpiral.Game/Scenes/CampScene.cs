@@ -150,7 +150,7 @@ public sealed class CampScene : MenuScene
     private bool NoMagic => Services.Session?.Exploration is { } e && e.Cell.Zone.HasFlag(Core.Maze.Zone.AntiMagic);
 
     /// <summary>キャンプで唱えられる呪文(唱えた人が持っているもの)。</summary>
-    private IEnumerable<SpellDef> CampSpells(Character c) => Spellcasting.Castable(Services.Data, c).Where(x => x.InCamp);
+    private IEnumerable<SpellDef> CampSpells(Character c) => Spellcasting.CampCastable(Services.Data, c).Where(x => x.InCamp);   // 準備していなくても、準備できる呪文なら
 
     private void Go(Mode mode)
     {

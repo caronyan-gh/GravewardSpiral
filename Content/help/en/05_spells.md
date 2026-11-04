@@ -17,6 +17,7 @@ Choosing which spells you can use is separate from having slots to cast them. Ca
 - Cleric, Druid, and Paladin: prepare the spells you want to use from the class spell list. Unprepared spells cannot be cast.
 - Wizard: first choose spells for your spellbook, then prepare the ones you want to use. A spell must be prepared, not merely written in the book.
 - Sorcerer, Bard, Ranger, and Warlock: cast known spells directly. No preparation is needed.
+- At camp, you can also cast spells you have not prepared: Clerics, Druids, and Paladins choose from their class list, Wizards from the spells in their spellbook. Camp-only spells such as Light or Remove Curse no longer appear in the preparation list.
 
 Cantrips are chosen separately. The number you can learn increases with class level.
 
