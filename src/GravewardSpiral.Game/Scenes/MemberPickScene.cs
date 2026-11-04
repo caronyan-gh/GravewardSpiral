@@ -22,6 +22,20 @@ public sealed class MemberPickScene(string title, Func<Character, bool> filter, 
 
     protected override string Title => title;
 
+    /// <summary>上に重ねた画面(持ち物など)から戻ったか見るための、画面の重なりの版。</summary>
+    private int _version = -1;
+
+    public override void Update(GameTime time, Input.InputState input)
+    {
+        // 持ち物の画面で渡したり預けたりして戻ったら、袋の数などを作り直す
+        if (_version != Stack.Version)
+        {
+            if (_version >= 0) Refresh();
+            _version = Stack.Version;
+        }
+        base.Update(time, input);
+    }
+
     protected override int? PartyHighlight => List.Current?.Tag is Character ? List.Cursor : null;
 
     protected override IEnumerable<MenuItem> Items()
