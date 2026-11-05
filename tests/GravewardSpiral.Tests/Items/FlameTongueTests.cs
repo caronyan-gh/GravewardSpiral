@@ -111,3 +111,53 @@ public class CampCastTests
         Assert.Contains(GravewardSpiral.Core.Magic.Spellcasting.CampCastable(Data, c), s => s.Id == "prayer_of_healing");
     }
 }
+
+/// <summary>キャンプで唱えた長い呪文の効き目は、戦闘をまたいで続く。</summary>
+public class LastingBuffTests
+{
+    private static readonly ContentLibrary Content = ContentLibrary.Load(TestPaths.Content);
+    private static readonly GameData Data = GameData.Load(Content);
+
+    private static void CampCast(Character caster, string spell, int slot)
+    {
+        var state = new CombatState { Party = [new PartyMember(caster, Data)], Groups = [] };
+        var engine = new CombatEngine(Data, new Pcg32(1, 1));
+        foreach (var p in state.Party) Lasting.Load(p);
+        engine.CastSpell(state, state.Party[0], new PlayerCommand(CommandKind.Cast, -1, 0, spell, slot));
+        foreach (var p in state.Party) Lasting.Save(p);
+    }
+
+    [Fact]
+    public void MageArmorLastsIntoTheNextFightUntilALongRest()
+    {
+        var c = CharacterFactory.QuickCreate(Data, "W", "human", "wizard", 15);
+        CampCast(c, "mage_armor", 1);
+        var buff = Assert.Single(c.Buffs, b => b.SpellId == "mage_armor");
+        Assert.Null(buff.Minutes);   // 8時間は、大休憩か町に戻るまで
+        for (int i = 0; i < 200; i++) Lasting.Step([c]);
+        var s = new CombatEngine(Data, new Pcg32(2, 2)).Start([c], [(Data.Monsters["goblin"], 1)]);
+        Assert.Contains(s.Party[0].Modifiers, m => m.SpellId == "mage_armor");
+        c.LongRest(data: Data);
+        Assert.Empty(c.Buffs);
+    }
+
+    [Fact]
+    public void FreedomOfMovementEndsAfterAnHour()
+    {
+        var c = CharacterFactory.QuickCreate(Data, "C", "human", "cleric", 15);
+        CampCast(c, "freedom_of_movement", 4);
+        var buff = Assert.Single(c.Buffs, b => b.SpellId == "freedom_of_movement" && b.Stat == "immune:paralyzed");
+        Assert.InRange(buff.Minutes!.Value, 59, 60);
+        for (int i = 0; i < 61; i++) Lasting.Step([c]);
+        Assert.Empty(c.Buffs);
+    }
+
+    [Fact]
+    public void ConcentrationSpellsDoNotLast()
+    {
+        var c = CharacterFactory.QuickCreate(Data, "C", "human", "cleric", 15);
+        c.Books["cleric"].Prepared.Add("shield_of_faith");
+        CampCast(c, "shield_of_faith", 1);
+        Assert.Empty(c.Buffs);
+    }
+}

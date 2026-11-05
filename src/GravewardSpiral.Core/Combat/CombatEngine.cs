@@ -34,6 +34,7 @@ public sealed class CombatEngine(GameData data, IRandom rng)
         foreach (var p in state.Party.Where(p => p.Character.State == LifeState.Unconscious)) p.Stable = true;
         foreach (var p in state.Party) p.Allies = state.Party;
         foreach (var p in state.Party) Lasting.Load(p);
+        foreach (var p in state.Party.Where(p => p.Standing)) CallCompanion(state, p);
 
         // 正体: パーティの誰かが知力の判定(難易度 10 + CR)に成功すれば分かる
         foreach (var g in state.Groups)
@@ -58,6 +59,33 @@ public sealed class CombatEngine(GameData data, IRandom rng)
         return state;
     }
 
+    /// <summary>
+    /// 森の主(ドルイド L20): 選んだ召喚の呪文で呼ぶものが、戦闘の始めからいる。もとのレベルの強さで、枠も集中も使わない
+    /// (集中で消えないよう、ラウンドで数える続く呪文にして、戦闘のあいだ尽きない数にしておく)。
+    /// </summary>
+    private void CallCompanion(CombatState s, PartyMember p)
+    {
+        var c = p.Character;
+        if (Spellcasting.Companion(_data, c) is not { Summon: { } summon } spell || !_data.Monsters.TryGetValue(summon.Monster, out var beast)) return;
+        var cls = Spellcasting.ClassFor(_data, c, spell.Id);
+        int mod = cls != null ? Spellcasting.Mod(cls, c) : 0, dc = cls != null ? Spellcasting.SaveDc(_data, cls, c) : 10;
+        int n = summon.CountAt(spell.Level, spell.Level);
+        s.Lingerings.Add(new Lingering { Caster = p, Spell = spell, Level = spell.Level, Mod = mod, Dc = dc, Targets = () => [], Summoned = beast,
+            Unit = new SummonUnit(beast, n), RoundsLeft = 100_000 });
+        s.Add("combat.companion", p.Name, beast.Name, n);
+    }
+
+    /// <summary>尽きぬ鼓舞(バード L20): ラウンドの始めに、鼓舞のダイスを持っていない立っている仲間全員に渡す。</summary>
+    private void GrantEndlessInspiration(CombatState s)
+    {
+        var bard = s.Party.FirstOrDefault(p => p.Standing && FeatureChecks.Has(_data, p, "endless_inspiration"));
+        if (bard == null) return;
+        int die = ClassFeatures.InspirationDie(_data, bard.Character);
+        if (die <= 0) return;
+        foreach (var ally in s.Party.Where(p => p.Standing && !p.Modifiers.Any(m => m.Stat == "inspire")))
+            ally.Modifiers.Add(new ActiveModifier { Stat = "inspire", Dice = $"1d{die}", RoundsLeft = 10, SourceId = bard.Id });
+    }
+
     /// <summary>不意打ち: 隠れて近づく側の隠密の判定と、気づく側の受動知覚を比べる。</summary>
     private void DecideSurprise(CombatState s)
     {
@@ -78,6 +106,7 @@ public sealed class CombatEngine(GameData data, IRandom rng)
     {
         if (s.Outcome != CombatOutcome.Ongoing) return;
         s.Round++;
+        GrantEndlessInspiration(s);
         foreach (var c in s.Order.ToList())
         {
             if (s.Outcome != CombatOutcome.Ongoing) break;
@@ -343,6 +372,9 @@ public sealed class CombatEngine(GameData data, IRandom rng)
             s.Add("combat.extra_attack", p.Name);
         }
         bool usedMainMelee = false;
+        bool steady = FeatureChecks.SteadyShot(_data, p);   // 宿敵を討つ: 近くに敵がいても撃つときに不利にならない
+        (ItemDef, ItemInstance)? MonkWeaponInHand() =>
+            c.Inventory[EquipSlot.MainHand] is { } mh && _data.Items.TryGetValue(mh.ItemId, out var md) && md.Kind == ItemKind.Weapon && ClassFeatures.MonkWeapon(_data, md) ? (md, mh) : null;
         var offItem = p.Character.Inventory[EquipSlot.OffHand];
 
         (ItemInstance, ItemDef)? Ammo(string kind) =>
@@ -380,7 +412,9 @@ public sealed class CombatEngine(GameData data, IRandom rng)
             bonus += p.Character.PassiveBonus(_data, "attack");
             if (weapon == null && monk && FeatureChecks.UnarmedMagical(_data, p)) magical = true;   // 気の込もった打撃
             if (shoot && weapon is { Ranged: true }) bonus += FeatureChecks.RangedShotHitBonus(_data, p);   // 弓術(利き手のスタイルにかかわらず、撃つ番に)
+            if (shoot && weapon is { Ranged: true }) damageMod += FeatureChecks.RangedShotDamageBonus(_data, p);   // 宿敵を討つ(判断力の 2 倍)
             if (!shoot && !offHand && weapon != null) damageMod += FeatureChecks.MainMeleeDamageBonus(_data, p);   // 決闘
+            if (weapon != null) damageMod += FeatureChecks.WeaponDamageBonus(_data, p);   // 宿敵を討つ(どの手の武器でも、投げても)
             // 激怒: 筋力で振る近接の攻撃のダメージに上乗せ
             if (!shoot && mod == str) damageMod += PassiveRules.Sum(_data, c, "damage_bonus", "melee_str", p.Now);   // 激怒(能力 rage_damage は激怒のあいだ)
             int toHit = mod + bonus + (proficient ? p.Character.ProficiencyBonus : 0);
@@ -395,7 +429,7 @@ public sealed class CombatEngine(GameData data, IRandom rng)
         double Expected(StrikePlan plan, Combatant target, bool adjacent)
         {
             double hit = Math.Clamp((21 - (target.Ac - plan.ToHit)) / 20.0, 0.05, 0.95);
-            if (plan.Shoot && adjacent) hit *= hit;
+            if (plan.Shoot && adjacent && !steady) hit *= hit;
             return hit * (plan.Average(plan.Weapon) + HpDamageBonus(p, plan.Held, target));   // 先制の・とどめの も、その相手の HP で見込む
         }
 
@@ -415,7 +449,14 @@ public sealed class CombatEngine(GameData data, IRandom rng)
             var target = alive[_rng.Next(0, alive.Count)];
             bool adjacent = s.InFront(p) && s.IsNear(group);
             StrikePlan plan;
-            if (unarmed) plan = Plan(null, null, false, offHand: false);
+            if (unarmed && martial && MonkWeaponInHand() is var (mwDef, mwItem) && FeatureChecks.Has(_data, p, "unarmed_with_weapon"))
+            {
+                // 武の極み(モンク L20): 素手の打撃も、利き手のモンクの武器で打つ(ダイスは武術のダイスと武器の大きい方)
+                plan = Plan(mwDef, mwItem, false, offHand: false);
+                string martialDie = $"1d{ClassFeatures.MartialArtsDie(_data, c)}";
+                if (DiceExpression.Parse(martialDie).Average > DiceExpression.Parse(plan.Dice).Average) plan = plan with { Dice = martialDie };
+            }
+            else if (unarmed) plan = Plan(null, null, false, offHand: false);
             else if (offHand) plan = Plan(offItem != null ? _data.Items.GetValueOrDefault(offItem.ItemId) : null, offItem, false, offHand: true);
             else
             {
@@ -446,7 +487,14 @@ public sealed class CombatEngine(GameData data, IRandom rng)
                 parts.AddRange(held.AffixOnHit(_data, p.Character.Level).Select(x => Labeled(x, "combat.src.affix")));
             }
             var cleaveParts = parts.Skip(1).ToList();   // 薙ぎで2体目に当てる分(武器と追加効果だけ。急所攻撃やスマイトのような1回だけのものは乗せない。武器のダメージは当てる敵ごとに Hit で)
-            var roll = AttackRoll(s, p, target, plan.ToHit, melee: !plan.Shoot, out bool advantage, extraDisadvantage: plan.Shoot && adjacent);
+            var roll = AttackRoll(s, p, target, plan.ToHit, melee: !plan.Shoot, out bool advantage, extraDisadvantage: plan.Shoot && adjacent && !steady);
+            // 幸運の一撃(ローグ L20): 1ラウンドに1回、外れた攻撃を当たりにする
+            if (!roll.Hit && p.LuckRound != s.Round && FeatureChecks.Has(_data, p, "miss_to_hit"))
+            {
+                roll = roll with { Hit = true };
+                p.LuckRound = s.Round;
+                s.Add("combat.stroke_of_luck", p.Name);
+            }
             int sneak = ClassFeatures.SneakAttackDice(_data, p.Character);
             if (p.SneakRound != s.Round && sneak > 0 && (plan.Finesse || weapon is { Ranged: true }) && roll.Hit   // 1ラウンドに1回(アクション・サージの2回目でも出ない)
                 && (advantage || (s.IsNear(group) && s.FrontRowMembers.Any(x => x != p))))
@@ -490,7 +538,7 @@ public sealed class CombatEngine(GameData data, IRandom rng)
                     var next = others[_rng.Next(0, others.Count)];
                     others.Remove(next);
                     s.Add("combat.cleave", p.Name);
-                    var roll2 = AttackRoll(s, p, next, plan.ToHit, melee: !plan.Shoot, out _, extraDisadvantage: plan.Shoot && adjacent);
+                    var roll2 = AttackRoll(s, p, next, plan.ToHit, melee: !plan.Shoot, out _, extraDisadvantage: plan.Shoot && adjacent && !steady);
                     ResolveAttack(s, p, next, weapon?.Name ?? LocalizedText.Of("unarmed strike", "素手"), roll2, [Hit(next), .. cleaveParts], plan.Magical);
                 }
             }
@@ -1071,6 +1119,12 @@ public sealed class CombatEngine(GameData data, IRandom rng)
     {
         /// <summary>ソーサラーの呪文の強化(ダメージのダイスの低い目を、魅力の修正の数まで振り直す)。</summary>
         public int Empower { get; set; }
+
+        /// <summary>魔力の極み(ソーサラー L20): 強化で、低い方から Empower 個のダイスを最大の目にする(振り直さない)。</summary>
+        public bool EmpowerMax { get; set; }
+
+        /// <summary>道具(巻物・ワンド・水薬など)で唱えた。エピックの呪文の恩恵と至高の癒しは乗らない。</summary>
+        public bool FromItem { get; init; }
     }
 
     private string DiceOf(EffectPart part, CastContext? ctx)
@@ -1111,12 +1165,13 @@ public sealed class CombatEngine(GameData data, IRandom rng)
                 {
                     var expr = DiceExpression.Parse(DiceOf(part, ctx));
                     if (crit) expr = expr.WithDoubledDice();
-                    int rolled = Math.Max(0, RollDamage(expr, part.Reroll, ctx?.Empower ?? 0));
+                    int rolled = Math.Max(0, RollDamage(expr, part.Reroll, ctx?.Empower ?? 0, ctx?.EmpowerMax ?? false));
                     if (part.Scale is double scale) rolled = (int)(rolled * scale);   // マジックの品などの追加効果は弱まる
                     // 苦痛の魔撃(ウォーロック L2): エルドリッチ・ブラストに魅力の修正を足す
                     if (ctx is { Caster: PartyMember wl }) rolled += FeatureChecks.SpellDamageBonus(_data, wl, ctx.Spell.Id)
                         + Math.Max(0, wl.Character.PassiveBonus(_data, "spell_damage"))   // 装備の秘力の(呪文のダメージ +N)
-                        + Math.Max(0, wl.Character.PassiveBonus(_data, "spell_damage:" + (part.DamageType ?? "")));   // 属性の呪文の強化(火の呪文 +N など)
+                        + Math.Max(0, wl.Character.PassiveBonus(_data, "spell_damage:" + (part.DamageType ?? "")))   // 属性の呪文の強化(火の呪文 +N など)
+                        + (ctx.FromItem ? 0 : wl.Character.BoonCount("spell"));   // エピックの恩恵(呪文 +1)
                     if (source is MonsterUnit strong) rolled = (int)(rolled * strong.Scale.DamageMult);   // 深い階の敵はダメージが大きい
                     string type = part.DamageType ?? "bludgeoning";
                     _damageLabel = part.Label;   // 急所攻撃などのおまけの分は、ダメージの行に出どころを添える
@@ -1125,7 +1180,7 @@ public sealed class CombatEngine(GameData data, IRandom rng)
                     break;
                 }
                 case EffectPart.Heal:
-                    Heal(s, target, Math.Max(1, RollDice(DiceOf(part, ctx)) + HealBonus(source, target, ctx)));
+                    Heal(s, target, Math.Max(1, HealDice(source, DiceOf(part, ctx), ctx) + HealBonus(source, target, ctx)));
                     break;
                 case EffectPart.TempHp:
                 {
@@ -1248,8 +1303,10 @@ public sealed class CombatEngine(GameData data, IRandom rng)
                     {
                         if (part.Half && !evade)
                         {
-                            foreach (var d in part.Fail.Where(f => f.Type == EffectPart.Damage))
-                                Damage(s, target, RollDice(DiceOf(d, ctx)) / 2, d.DamageType ?? "", false, magical || ctx != null);
+                            // 成功で半分: 失敗のときと同じダメージの出し方(強化・呪文のダメージの上乗せ・深い階の倍率も乗る)で、半分にする
+                            target.Halving = true;
+                            Apply(s, source, target, part.Fail.Where(f => f.Type == EffectPart.Damage).ToList(), false, magical, withDc, ctx);
+                            target.Halving = false;
                         }
                         Apply(s, source, target, part.Success, false, magical, withDc, ctx);
                     }
@@ -1366,8 +1423,10 @@ public sealed class CombatEngine(GameData data, IRandom rng)
             s.Add(p.Raging ? "combat.rage_no_cast" : "combat.shape_no_cast", p.Name);
             return;
         }
+        // 呪文の熟達(ウィザード L18): 選んだ呪文を初級呪文の欄(スロット 0)から唱えると、枠を使わず、もとのレベルで唱える
+        bool free = !spell.IsCantrip && cmd.SlotLevel == 0 && Spellcasting.IsMastery(_data, c, spell);
         int slot = spell.IsCantrip ? 0 : Math.Max(Spellcasting.AssignedLevel(_data, c, spell), cmd.SlotLevel);   // クラスで割り当てたレベル(spelllv)のスロットから
-        if (!spell.IsCantrip && Spellcasting.SlotsLeft(_data, c, slot) <= 0)
+        if (!spell.IsCantrip && !free && Spellcasting.SlotsLeft(_data, c, slot) <= 0)
         {
             if (Spellcasting.LowestSlot(_data, c, spell) is int lower) slot = lower;
             else
@@ -1376,7 +1435,7 @@ public sealed class CombatEngine(GameData data, IRandom rng)
                 return;
             }
         }
-        if (!spell.IsCantrip) Spellcasting.UseSlot(_data, c, slot);
+        if (!spell.IsCantrip && !free) Spellcasting.UseSlot(_data, c, slot);
         s.Add("combat.cast", p.Name, spell.Name);
         if (TryCounter(s, p, spell, slot))   // 敵のカウンタースペル
         {
@@ -1389,6 +1448,7 @@ public sealed class CombatEngine(GameData data, IRandom rng)
         if (cmd.Empower && CanEmpower(_data, c, spell) && ClassFeatures.Spend(_data, c, "sorcery_points"))
         {
             ctx.Empower = Math.Max(1, c.Scores.Mod(Ability.Cha));
+            ctx.EmpowerMax = FeatureChecks.Has(_data, p, "empower_max");
             s.Add("combat.empowered", p.Name);
         }
         Resolve(s, p, spell, cmd, ctx, Spellcasting.AttackBonus(_data, cls, c));
@@ -1451,7 +1511,7 @@ public sealed class CombatEngine(GameData data, IRandom rng)
     /// ダメージを振る。reroll があれば、その目以下のダイスを1回だけ振り直す(大型武器)。
     /// empower があれば、平均より低い目のダイスを、低いものから empower 個まで振り直す(呪文の強化)。
     /// </summary>
-    private int RollDamage(DiceExpression expr, int reroll, int empower)
+    private int RollDamage(DiceExpression expr, int reroll, int empower, bool empowerMax = false)
     {
         if (reroll <= 0 && empower <= 0) return expr.Roll(_rng).Total;
         int total = 0;
@@ -1468,9 +1528,13 @@ public sealed class CombatEngine(GameData data, IRandom rng)
                     dice.Add((v, t.Sides, t.Sign));
                 }
         }
-        foreach (var i in dice.Select((d, i) => (d, i)).Where(x => x.d.Sign > 0 && x.d.Value < (x.d.Sides + 1) / 2.0)
-                     .OrderBy(x => x.d.Value).Take(empower).Select(x => x.i).ToList())
-            dice[i] = dice[i] with { Value = _rng.Roll(dice[i].Sides) };
+        if (empowerMax)
+            foreach (var i in dice.Select((d, i) => (d, i)).Where(x => x.d.Sign > 0).OrderBy(x => x.d.Value).Take(empower).Select(x => x.i).ToList())
+                dice[i] = dice[i] with { Value = dice[i].Sides };   // 魔力の極み: 低い方から最大の目に
+        else
+            foreach (var i in dice.Select((d, i) => (d, i)).Where(x => x.d.Sign > 0 && x.d.Value < (x.d.Sides + 1) / 2.0)
+                         .OrderBy(x => x.d.Value).Take(empower).Select(x => x.i).ToList())
+                dice[i] = dice[i] with { Value = _rng.Roll(dice[i].Sides) };
         return total + dice.Sum(d => d.Sign * d.Value);
     }
 
@@ -1549,7 +1613,7 @@ public sealed class CombatEngine(GameData data, IRandom rng)
         }
         int dc = ItemSpellDc(Math.Max(1, level));
         int mod = Spellcasting.CasterClass(_data, p.Character) is { } cls ? Spellcasting.Mod(cls, p.Character) : 2;
-        Resolve(s, p, spell, cmd, new CastContext(p, spell, level, mod, dc), dc - 8);
+        Resolve(s, p, spell, cmd, new CastContext(p, spell, level, mod, dc) { FromItem = true }, dc - 8);
     }
 
     /// <summary>
@@ -1586,7 +1650,7 @@ public sealed class CombatEngine(GameData data, IRandom rng)
             s.Lingerings.RemoveAll(l => l.Caster == p && l.Spell.Id == spell.Id);   // 同じ呪文をかけ直したら、前のものは消える(重ねない)
             s.Lingerings.Add(new Lingering
             {
-                Caster = p, Spell = spell, Level = ctx.Level, Mod = ctx.Mod, Dc = ctx.Dc, Targets = again, AttackBonus = attackBonus,
+                Caster = p, Spell = spell, Level = ctx.Level, Mod = ctx.Mod, Dc = ctx.Dc, Targets = again, AttackBonus = attackBonus, FromItem = ctx.FromItem,
                 RoundsLeft = spell.Concentration ? null : Math.Max(1, spell.Rounds),
             });
         }
@@ -1674,7 +1738,7 @@ public sealed class CombatEngine(GameData data, IRandom rng)
     private void Beams(CombatState s, PartyMember p, SpellDef spell, CastContext ctx, int attackBonus, MonsterUnit first, bool spread)
     {
         var group = s.GroupOf(first);
-        int n = spell.BeamsAt(ctx.Level);
+        int n = spell.BeamsAt(ctx.Level) + FeatureChecks.ExtraBeams(_data, p, spell.Id);   // 異界の主(ウォーロック L20)で 1 本増える
         var order = new List<MonsterUnit>();
         if (spread)
         {
@@ -1765,7 +1829,7 @@ public sealed class CombatEngine(GameData data, IRandom rng)
         string? spell = caster.Concentration;
         if (spell == null) return;
         caster.Concentration = null;
-        s.Lingerings.RemoveAll(l => l.Caster == caster);
+        s.Lingerings.RemoveAll(l => l.Caster == caster && l.RoundsLeft == null);   // 集中で続くものだけ(森の主の召喚やスピリチュアル・ウェポンは残る)
         var everyone = s.Party.Cast<Combatant>().Concat(s.Groups.SelectMany(g => g.Units));
         foreach (var c in everyone)
         {
@@ -1812,7 +1876,7 @@ public sealed class CombatEngine(GameData data, IRandom rng)
         foreach (var l in s.Lingerings.Where(l => l.Caster == c).ToList())
         {
             if (l.RoundsLeft != null) l.RoundsLeft--;
-            var ctx = new CastContext(c, l.Spell, l.Level, l.Mod, l.Dc);
+            var ctx = new CastContext(c, l.Spell, l.Level, l.Mod, l.Dc) { FromItem = l.FromItem };
             if (l.Summoned is { } beast)
             {
                 var attack = beast.Actions.Where(a => a.IsAttack).OrderByDescending(a => a.ToHit).FirstOrDefault();
@@ -1903,12 +1967,17 @@ public sealed class CombatEngine(GameData data, IRandom rng)
     /// <summary>
     /// 回復の上乗せ(装備の慈愛の: 唱えた回復呪文に、唱えた人の分。薬効の: 水薬などの道具で回復するとき、受ける人の分)。
     /// </summary>
+    /// <summary>回復のダイス。至高の癒し(クレリック L20)なら、唱えた回復の呪文はいつも最大の目(道具の回復は振る)。</summary>
+    private int HealDice(Combatant source, string dice, CastContext? ctx) =>
+        ctx is { FromItem: false } && FeatureChecks.Has(_data, source, "max_heal_dice")
+            ? DiceExpression.Parse(dice).Max : RollDice(dice);
+
     private int HealBonus(Combatant source, Combatant target, CastContext? ctx)
     {
         if (ctx == null) return 0;
         bool item = ctx.Spell.Id.StartsWith("item:");
         if (item) return target is PartyMember drinker ? Math.Max(0, drinker.Character.PassiveBonus(_data, "potion_heal")) : 0;
-        return source is PartyMember caster ? Math.Max(0, caster.Character.PassiveBonus(_data, "heal_spell")) : 0;
+        return source is PartyMember caster ? Math.Max(0, caster.Character.PassiveBonus(_data, "heal_spell")) + (ctx.FromItem ? 0 : caster.Character.BoonCount("spell")) : 0;
     }
 
     /// <summary>その武器の追加効果の、その武器で殴ったときだけ効く修正値(命中・ダメージ・薙ぎ。マジックとレアの効き方で弱めたもの)。</summary>

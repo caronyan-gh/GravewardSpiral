@@ -20,6 +20,10 @@ Weapon slots include main hand, off hand, ranged weapon, and ammunition. Other s
 - Weapons can be used without proficiency, but do not receive your proficiency bonus on attack rolls.
 - Item descriptions show which party members can equip an item and who is proficient with it.
 
+## Robes
+
+A robe is clothing worn in the armor slot. It counts as no armor, so Unarmored Defense (monk and barbarian), Martial Arts and Mage Armor keep working, and no armor proficiency is needed. A robe adds no AC by itself, but robes found as treasure carry +N (its AC part) and extra properties like armor.
+
 ## Ammunition and thrown weapons
 
 Ordinary arrows and bolts do not need replenishing. Equipped special ammunition is consumed when you attack.

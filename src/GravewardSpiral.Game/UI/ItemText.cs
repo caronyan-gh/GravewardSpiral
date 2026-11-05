@@ -114,6 +114,11 @@ public static class ItemText
                 else if (def.Has("thrown")) yield return s["item.thrown"];
                 if (bonus != 0) yield return s.Format("item.bonus_attack", Signed(ItemInstance.HitAcBonus(bonus)), Signed(bonus));
                 break;
+            case ItemKind.Armor when def.ArmorType == ArmorType.Robe:
+                // ローブ: 鎧なしの扱いのまま、強化値の AC の分だけ足す
+                yield return s["item.robe"];
+                if (bonus != 0) yield return s.Format("item.robe_bonus", Signed(ItemInstance.HitAcBonus(bonus)));
+                break;
             case ItemKind.Armor:
                 yield return s.Format("item.armor", def.ArmorClass + ItemInstance.HitAcBonus(bonus), s["armor." + def.ArmorType.ToString()!.ToLowerInvariant()]);
                 // 敏捷力の修正の足し方(重装鎧は足さない、中装鎧は上限まで、軽装鎧はそのまま)

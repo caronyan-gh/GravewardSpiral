@@ -320,7 +320,7 @@ public static class ClassFeatures
 
     /// <summary>武術が働くか(武術の能力を持っていて、鎧も盾も着けていない)。</summary>
     public static bool MartialArts(GameData data, Character c) =>
-        HasPassive(data, c, "martial_arts") && c.Inventory[EquipSlot.Armor] == null
+        HasPassive(data, c, "martial_arts") && !c.WearingArmor(data)
         && !(c.Inventory[EquipSlot.OffHand] is { } off && data.Items.TryGetValue(off.ItemId, out var d) && d.Kind == ItemKind.Shield);
 
     /// <summary>

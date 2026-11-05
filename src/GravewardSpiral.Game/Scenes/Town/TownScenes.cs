@@ -298,7 +298,11 @@ public sealed class TrainingScene : MenuScene
                 var cls = data.Classes[id];
                 int lv = pc.LevelIn(id);
                 bool ok = pc.CanTakeClass(data, id);
-                string detail = lv > 0 ? $"Lv{lv} → {lv + 1}" : ok ? s["training.new_class"] : Requirement(cls) + (cls.MeetsMulticlass(pc.Scores) ? s["training.now_short"] : "");
+                string detail = lv > 0 && lv >= pc.ClassCap(id) ? s.Format("training.class_max", lv)
+                    : lv > 0 ? $"Lv{lv} → {lv + 1}"
+                    : ok ? s.Format("training.new_class_cap", pc.ClassCap(id))
+                    : pc.ClassIds.Count() >= Character.MaxClasses ? s.Format("training.class_limit", Character.MaxClasses)
+                    : Requirement(cls) + (cls.MeetsMulticlass(pc.Scores) ? s["training.now_short"] : "");
                 yield return new MenuItem(Services.Name(cls.Name), detail, ok, cls);
             }
             yield return new MenuItem(s["common.back"], Tag: "back");
@@ -308,9 +312,15 @@ public sealed class TrainingScene : MenuScene
         {
             yield return new MenuItem(s["training.status"], Tag: "status");
             yield return new MenuItem(s["camp.items"], Tag: "items");
-            yield return new MenuItem(s["training.level_up"], c.CanLevelUp ? s["training.can"] : null, Enabled: c.CanLevelUp && c.IsAlive, Tag: "level");
+            bool canLevel = c.CanLevelUp && c.HasLevelToTake(Services.Data);
+            yield return new MenuItem(s["training.level_up"], canLevel ? s["training.can"] : c.CanLevelUp ? s["training.no_class"] : null, Enabled: canLevel && c.IsAlive, Tag: "level");
             if (c.AbilityPoints(Services.Data) > 0) yield return new MenuItem(s.Format("training.asi", c.AbilityPoints(Services.Data)), Enabled: c.IsAlive, Tag: "asi");
             if (c.EpicPoints > 0) yield return new MenuItem(s.Format("training.boon", c.EpicPoints), Tag: "boon");
+            // 20 の能力で呪文を1つ選ぶ(呪文の熟達・森の主)
+            if (Spellcasting.MasteryMaxLevel(Services.Data, c) > 0)
+                yield return new MenuItem(s["training.mastery"], Spellcasting.Mastery(Services.Data, c) is { } ms ? Services.Name(ms.Name) : s["choice.unset"], Tag: "mastery");
+            if (Spellcasting.CompanionChoices(Services.Data, c).Any())
+                yield return new MenuItem(s["training.companion"], Spellcasting.Companion(Services.Data, c) is { } cs ? Services.Name(cs.Name) : s["choice.unset"], Tag: "companion");
             // 呪文は術者のクラスごと(マルチクラスでは、選ぶ画面で左右にクラスを切り替える)
             var casters = Spellcasting.CasterClasses(Services.Data, c).ToList();
             if (casters.Any(cls => Spellcasting.CantripsKnown(cls, c) > 0)) yield return new MenuItem(s["training.cantrips"], Tag: "cantrips");
@@ -334,7 +344,7 @@ public sealed class TrainingScene : MenuScene
             else
             {
                 // 「↑」の右下に小さく、レベルを上げられるなら LV、振っていない能力値上昇の点があれば ST(両方なら LV)
-                string? mark = ch.CanLevelUp ? s["training.mark_level"] : ch.AbilityPoints(Services.Data) > 0 ? s["training.mark_asi"] : null;
+                string? mark = ch.CanLevelUp && ch.HasLevelToTake(Services.Data) ? s["training.mark_level"] : ch.AbilityPoints(Services.Data) > 0 ? s["training.mark_asi"] : null;
                 yield return new MenuItem(ch.Name, $"{Services.Name(Services.Data.Classes[ch.ClassId].Name)} Lv{ch.Level}{(mark != null ? " ↑" : "")}", Tag: ch, DetailMark: mark);
             }
         }
@@ -381,6 +391,12 @@ public sealed class TrainingScene : MenuScene
             case "boon":
                 Stack.Push(new BoonScene(_selected!, Refresh));
                 break;
+            case "mastery":
+                Stack.Push(new SpellChoiceScene(_selected!, SpellChoiceScene.Kind.Mastery, Refresh));
+                break;
+            case "companion":
+                Stack.Push(new SpellChoiceScene(_selected!, SpellChoiceScene.Kind.Companion, Refresh));
+                break;
             case "asi":
                 Stack.Push(new AbilityIncreaseScene(_selected!, Refresh));
                 break;
@@ -393,6 +409,20 @@ public sealed class TrainingScene : MenuScene
             case "prepared":
                 Stack.Push(new SpellPickScene(_selected!, SpellPickScene.Kind.Prepared, SelectedParty));
                 break;
+            case "level" when _selected!.IsEpic:
+            {
+                // 4 つのクラスが全部上限: クラスを選ばずに上がる(HP は一律、恩恵の点が1つ)
+                var who = _selected!;
+                Stack.Push(new ConfirmScene(s.Format("training.confirm_epic", who.Level + 1), () =>
+                {
+                    int before = who.MaxHp;
+                    who.LevelUp(Services.Data, maxLevels: 1);
+                    Message = s.Format("training.leveled", who.Name, who.Level, who.MaxHp - before) + "\n" + s.Format("training.boon_ready", who.EpicPoints);
+                    Services.Audio.PlaySe(Audio.Sounds.LevelUp);
+                    Refresh();
+                }));
+                break;
+            }
             case "level":
                 _pickingClass = true;
                 List.SetItems(Items(), 0);
@@ -411,7 +441,7 @@ public sealed class TrainingScene : MenuScene
                     Message = s.Format("training.leveled_class", who.Name, Services.Name(cls.Name), who.LevelIn(cls.Id), who.MaxHp - before);
                     if (who.AbilityPoints(Services.Data) > 0) Message += "\n" + s.Format("training.asi_ready", who.AbilityPoints(Services.Data));
                     Services.Audio.PlaySe(Audio.Sounds.LevelUp);
-                    if (!who.CanLevelUp) _pickingClass = false;
+                    if (!who.CanLevelUp || who.IsEpic || !who.HasLevelToTake(Services.Data)) _pickingClass = false;
                     List.SetItems(Items(), 0);
                 }));
                 break;

@@ -164,6 +164,9 @@ public sealed class PartyMember(Character character, GameData data) : Combatant
     }
     private readonly GameData _data = data;
 
+    /// <summary>この戦闘のデータ(戦闘のあとに残す呪文を見分けるのに使う)。</summary>
+    public GameData Data => _data;
+
     public override Side Side => Side.Party;
     public override string Id => Character.Id;
     public override LocalizedText Name => LocalizedText.Of(Character.Name);
@@ -196,6 +199,9 @@ public sealed class PartyMember(Character character, GameData data) : Combatant
 
     /// <summary>急所攻撃を最後に使ったラウンド(1ラウンドに1回)。</summary>
     public int SneakRound { get; set; } = -1;
+
+    /// <summary>幸運の一撃(ローグ L20)を使ったラウンド(1ラウンドに1回)。</summary>
+    public int LuckRound { get; set; } = -1;
 
     /// <summary>ワイルドシェイプで変身している獣(この戦闘の終わりまで。獣の HP が 0 になると戻る)。</summary>
     public MonsterDef? Shape { get; set; }

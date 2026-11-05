@@ -1024,11 +1024,48 @@ public sealed class MazeScene : Scene
     private PartyPosition? _saidAt;
     private bool _messagesExpanded;
 
+    /// <summary>
+    /// 続いている効き目(キャンプで唱えた明かり・フェザー・フォール)を、迷宮の画面の左上に縦に並べる。アイコンと残り(分 = 歩)。
+    /// 載せると名前と説明。アイコンは art/buffs/&lt;id&gt;.png、無ければ呪文のアイコン。
+    /// </summary>
+    private void DrawBuffs(Draw2D d)
+    {
+        var s = Services.Strings;
+        float x = ViewArea.X + 10, y = ViewArea.Y + 10, icon = 30;
+        foreach (var (id, fallback, left) in new[] { ("light", "light", State.LightMinutes), ("feather", "float", State.FeatherMinutes) })
+        {
+            if (left <= 0) continue;
+            var rect = new RectangleF(x, y, icon, icon);
+            if (Services.BuffIcon(id, fallback) is { } tex) d.Image(tex, rect, Color.White);
+            else d.FillRect(rect, new Color(60, 80, 100));
+            d.Text(left.ToString(), new Vector2(x + icon + 6, y + 5), 18, Theme.Text);
+            UI.Tooltip.Hover(new RectangleF(x, y, icon + 50, icon), s["maze.buff." + id], s.Format("maze.buff.about." + id, left));
+            y += icon + 6;
+        }
+        // 仲間に続いている呪文の効き目(呪文ごとに1つ。数字は一番早く切れる人の残り。長いものは ∞)
+        var party = Services.Session?.Roster.PartyMembers.ToList() ?? [];
+        foreach (var g in party.SelectMany(c => c.Buffs.Select(b => (c, b))).GroupBy(x => x.b.SpellId))
+        {
+            if (!Services.Data.Spells.TryGetValue(g.Key, out var sp)) continue;
+            var rect = new RectangleF(x, y, icon, icon);
+            if (Services.BuffIcon(g.Key, sp.Icon ?? "buff") is { } tex) d.Image(tex, rect, Color.White);
+            else d.FillRect(rect, new Color(60, 80, 100));
+            int? least = g.All(x => x.b.Minutes.HasValue) ? g.Min(x => x.b.Minutes) : g.Where(x => x.b.Minutes.HasValue).Select(x => x.b.Minutes).Min();
+            d.Text(least?.ToString() ?? "∞", new Vector2(x + icon + 6, y + 5), 18, Theme.Text);
+            var who = string.Join(s["item.affix_sep"], g.Select(x => x.c.Name).Distinct());
+            string about = least is int m ? s.Format("maze.buff.about.spell", who, m) : s.Format("maze.buff.about.spell_long", who);
+            about = string.Join('\n', UI.SpellText.Effects(s, sp, sp.Level)) is { Length: > 0 } fx ? fx + '\n' + about : about;   // 何が効いているか
+            UI.Tooltip.Hover(new RectangleF(x, y, icon + 50, icon), Services.Name(sp.Name), about);
+            y += icon + 6;
+        }
+    }
+
     public override void Draw(Draw2D d)
     {
         var s = Services.Strings;
         d.Primitives(ViewArea, pb => WireframeRenderer.Draw(pb, State, ViewArea, _time));
         d.Rect(ViewArea, new Color(70, 90, 110), 1.5f);
+        DrawBuffs(d);
         if (Services.Options.MazeMouse && Services.Options.MazeMouseOverlay) DrawMouseOverlay(d);
         if (State.InDark)
             d.Text(s["maze.darkness"], new Vector2(ViewArea.X + ViewArea.Width / 2, ViewArea.Y + ViewArea.Height / 2 - 16), 28, new Color(90, 100, 110), TextAlign.Center, FontStyle.Story);

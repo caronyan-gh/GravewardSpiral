@@ -114,10 +114,37 @@ public static class FeatureChecks
     public static IReadOnlyList<(string Dice, string Type)> MeleeWeaponExtraDamage(GameData data, PartyMember p) =>
         MeleeWeaponExtraDamageFrom(data, p).Select(x => (x.Dice, x.Type)).ToList();
 
-    /// <summary>同じもので、くれた能力の id も(戦闘のログに出どころを添える)。</summary>
+    /// <summary>同じもので、くれた能力の id も(戦闘のログに出どころを添える)。value は決まった数(命を吸う刃の魅力の修正値。0 以下なら足さない)。</summary>
     public static IReadOnlyList<(string Dice, string Type, string Feature)> MeleeWeaponExtraDamageFrom(GameData data, PartyMember p) =>
-        PassiveRules.PickByGroup(Effects(data, p, "extra_damage").Where(e => e.Effect.On == "melee_weapon"), e => DiceAverage(e.Effect.Dice))   // max は平均の大きいもの1つ
-            .Select(e => (e.Effect.Dice!, e.Effect.DamageType!, e.Def.Id)).ToList();
+        PassiveRules.PickByGroup(Effects(data, p, "extra_damage").Where(e => e.Effect.On == "melee_weapon"), e => DiceAverage(e.Effect.Dice) + (e.Effect.Value?.Eval(p.Character, e.Level) ?? 0))   // max は平均の大きいもの1つ
+            .Select(e => (Dice: ExtraDice(e, p), Type: e.Effect.DamageType!, Feature: e.Def.Id)).Where(x => x.Dice != null)
+            .Select(x => (x.Dice!, x.Type, x.Feature)).ToList();
+
+    /// <summary>追加のダメージの式(ダイスと決まった数。どちらも無ければ null)。</summary>
+    private static string? ExtraDice(PassiveRules.Active e, PartyMember p)
+    {
+        int flat = Math.Max(0, e.Effect.Value?.Eval(p.Character, e.Level) ?? 0);
+        if (e.Effect.Dice is { Length: > 0 } dice) return flat > 0 ? $"{dice}+{flat}" : dice;
+        return flat > 0 ? flat.ToString() : null;
+    }
+
+    // ---- 20 の能力(Step 4c のあと。docs/design.md のクラスの 20 の能力) ----
+
+    /// <summary>その種類の効果を持っているか(数の無い印の効果)。</summary>
+    public static bool Has(GameData data, Combatant c, string type) => Effects(data, c, type).Any();
+
+    /// <summary>近くに敵がいても、飛び道具を撃つときに不利にならないか(steady_shot。宿敵を討つ)。</summary>
+    public static bool SteadyShot(GameData data, Combatant c) => Has(data, c, "steady_shot");
+
+    /// <summary>飛び道具で撃つ攻撃のダメージに足す値(damage_bonus の ranged_shot。宿敵を討つは判断力の 2 倍)。</summary>
+    /// <summary>武器の攻撃(利き手・もう片方の手・投げ・飛び道具。damage_bonus の on: weapon)のダメージの上乗せ。宿敵を討つ。</summary>
+    public static int WeaponDamageBonus(GameData data, PartyMember p) => PassiveRules.Sum(data, p.Character, "damage_bonus", "weapon", p.Now);
+
+    public static int RangedShotDamageBonus(GameData data, PartyMember p) => PassiveRules.Sum(data, p.Character, "damage_bonus", "ranged_shot", p.Now);
+
+    /// <summary>その呪文の光線を増やす数(extra_beam。異界の主はエルドリッチ・ブラストに 1)。</summary>
+    public static int ExtraBeams(GameData data, Combatant c, string spellId) =>
+        c is PartyMember p ? PassiveRules.Total(Effects(data, p, "extra_beam").Where(e => e.Effect.Spell == spellId).Select(e => (p.Character, e))) : 0;
 
     /// <summary>ダイスの式の平均(読めないか無ければ 0)。</summary>
     private static double DiceAverage(string? dice) =>

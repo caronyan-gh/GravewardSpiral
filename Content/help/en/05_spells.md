@@ -18,6 +18,7 @@ Choosing which spells you can use is separate from having slots to cast them. Ca
 - Wizard: first choose spells for your spellbook, then prepare the ones you want to use. A spell must be prepared, not merely written in the book.
 - Sorcerer, Bard, Ranger, and Warlock: cast known spells directly. No preparation is needed.
 - At camp, you can also cast spells you have not prepared: Clerics, Druids, and Paladins choose from their class list, Wizards from the spells in their spellbook. Camp-only spells such as Light or Remove Curse no longer appear in the preparation list.
+- Long-lasting spells that need no concentration, such as Mage Armor or Freedom of Movement, keep working across fights. One-hour spells end after 60 steps; longer ones last until a long rest or returning to town. A short rest takes an hour. Active effects are shown at the top left of the maze view with an icon and the steps left (∞ for the long ones).
 
 Cantrips are chosen separately. The number you can learn increases with class level.
 

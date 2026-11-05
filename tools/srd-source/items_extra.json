@@ -35,5 +35,6 @@
   { "id": "plain_circlet", "kind": "accessory", "name": { "en": "Circlet", "ja": "額飾り" }, "slot": "head", "price": 5, "description": { "en": "A thin metal circlet.", "ja": "細い金属の額飾り。" } },
   { "id": "leather_gloves", "kind": "accessory", "name": { "en": "Leather Gloves", "ja": "革の手袋" }, "slot": "hands", "price": 1, "description": { "en": "Plain leather gloves.", "ja": "ただの革の手袋。" } },
   { "id": "leather_boots", "kind": "accessory", "name": { "en": "Leather Boots", "ja": "革の長靴" }, "slot": "feet", "price": 2, "description": { "en": "Plain leather boots.", "ja": "ただの革の長靴。" } },
-  { "id": "leather_belt", "kind": "accessory", "name": { "en": "Leather Belt", "ja": "革の帯" }, "slot": "waist", "price": 1, "description": { "en": "A plain leather belt.", "ja": "ただの革の帯。" } }
+  { "id": "leather_belt", "kind": "accessory", "name": { "en": "Leather Belt", "ja": "革の帯" }, "slot": "waist", "price": 1, "description": { "en": "A plain leather belt.", "ja": "ただの革の帯。" } },
+  {"id": "robe", "kind": "armor", "armor_type": "robe", "armor_class": 0, "name": {"en": "Robe", "ja": "ローブ"}, "price": 1, "description": {"en": "Plain cloth robes worn in the armor slot. They count as no armor, so Unarmored Defense, Martial Arts and Mage Armor still work, and no armor proficiency is needed. Treasure robes carry +N and extra properties like armor.", "ja": "鎧の枠に着る布のローブ。鎧を着ていない扱いなので、鎧なしの防御・武術・メイジ・アーマーがそのまま効き、鎧の習熟も要らない。宝のローブには、鎧と同じく +N や追加効果が付く。"}}
 ]

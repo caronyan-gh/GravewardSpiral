@@ -111,8 +111,10 @@ public static class CombatSimulator
         if (Spellcasting.CasterClass(data, c) is not { } cls) return null;
         var spells = Spellcasting.Castable(data, c).Where(x => x.InCombat).ToList();
         bool Has(SpellDef x, string type) => x.Effects.SelectMany(e => e.Flatten()).Any(e => e.Type == type);
+        // 呪文の熟達(ウィザード L18)の呪文は、枠を使わずに初級呪文の欄(スロット 0)から唱える
+        bool Free(SpellDef x) => !x.IsCantrip && Spellcasting.IsMastery(data, c, x);
         PlayerCommand? Cast(SpellDef x, int group = -1, int member = -1) =>
-            Spellcasting.LowestSlot(data, c, x) is int slot ? new PlayerCommand(CommandKind.Cast, group, member, x.Id, slot) : null;
+            (Free(x) ? 0 : Spellcasting.LowestSlot(data, c, x)) is int slot ? new PlayerCommand(CommandKind.Cast, group, member, x.Id, slot) : null;
 
         // 回復: HP が 4 割を切った(か倒れた)味方
         var hurt = s.Party.Select((m, i) => (m, i)).Where(x => x.m.Character.State is LifeState.Alive or LifeState.Unconscious
@@ -130,7 +132,7 @@ public static class CombatSimulator
         // 上のスロットで強くなる呪文は、空いている一番上のスロットで唱える
         int? SlotFor(SpellDef x)
         {
-            if (x.IsCantrip) return 0;
+            if (x.IsCantrip || Free(x)) return 0;
             if (x.Scale != "slot") return Spellcasting.LowestSlot(data, c, x);
             for (int lv = 9; lv >= Spellcasting.AssignedLevel(data, c, x); lv--)   // クラスで割り当てたレベルのスロットまで(並べ方の強さは、もとのレベルのまま)
             {
@@ -222,8 +224,8 @@ public static class CombatSimulator
                 options.Add((x, reach[0].i, slot, x.Summon.CountAt(x.Level, Spellcasting.EffectLevel(data, c, x, slot)) * hit * 0.6 * 3));
             }
         }
-        var cantrip = options.Where(o => o.x.IsCantrip).OrderByDescending(o => o.v).FirstOrDefault();
-        var best = options.Where(o => !o.x.IsCantrip).OrderByDescending(o => o.v).FirstOrDefault();
+        var cantrip = options.Where(o => o.slot == 0).OrderByDescending(o => o.v).FirstOrDefault();   // 枠を使わないもの(初級呪文と熟達の呪文)
+        var best = options.Where(o => o.slot > 0).OrderByDescending(o => o.v).FirstOrDefault();
         if (best.x != null && best.v > Math.Max(1, cantrip.v) * 1.5 && (dangerous || s.Groups[best.g].AliveCount >= 2 || best.x.Target != SpellTarget.Enemy)
             && !(best.x.Summon != null && !dangerous))   // 召喚は強い戦いのときだけ
             return new PlayerCommand(CommandKind.Cast, best.g, -1, best.x.Id, best.slot);

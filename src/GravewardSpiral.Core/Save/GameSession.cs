@@ -434,5 +434,10 @@ public sealed class GameSession
         return Exploration;
     }
 
-    public void ReturnToTown() => Location = Location.Town;
+    /// <summary>町に戻った。キャンプで唱えた長い呪文の効き目は、ここで切れる。</summary>
+    public void ReturnToTown()
+    {
+        Location = Location.Town;
+        foreach (var c in Roster.Characters) c.Buffs.Clear();
+    }
 }

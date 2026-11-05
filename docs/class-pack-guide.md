@@ -88,12 +88,15 @@
 | advantage | 有利(roll は initiative・melee_attack・attacked・save。save は ability・condition・on: magic で絞れる) |
 | no_advantage_against / evasion | 相手の有利を消す / 回避(敏捷力のセーヴで半分のものを成功 0・失敗半分) |
 | attack_bonus / damage_bonus / reroll_damage / offhand_mod | 攻撃の上乗せ(on で効く攻撃を決める) |
-| extra_damage / drain / crit_extra_dice / magical / spell_damage_bonus | 当たったときに足すもの |
+| extra_damage / drain / crit_extra_dice / magical / spell_damage_bonus | 当たったときに足すもの(extra_damage は dice か、決まった数の value。両方も書ける) |
 | reaction_reduce / reaction_halve | 攻撃を受けたときの反応 |
 | stay_up | 倒れかけたときに踏みとどまる(セーヴか、回数 pool を使う) |
 | reroll_natural_one | d20 の 1 を振り直す(幸運) |
 | no_cast / no_concentration | 唱えられない / 集中できない(集中できなくなったら、そのときの集中が切れる。集中の呪文を唱えても、集中はすぐ切れる)。unless に能力の id を書けば、その能力を持つ人には効かない |
 | instant_kill | 攻撃で敵を一撃で倒す(Wizardry の忍者の首はね)。on は unarmed(素手)・melee(近接)・attack(どの攻撃でも)。value は倒す確率の百分率。1回の攻撃の行動で1度だけ、ダメージを1以上与えたときに振る。resist_base と resist_die を書くと、0〜resist_die−1 の乱数が resist_base + 敵の CR(切り捨て)を超えたときだけ倒れる。no_boss: true ならボスと名のある敵には効かない。文は message(省くと combat.instant_kill。首をはねる文は combat.decapitate) |
+| steady_shot / miss_to_hit / unarmed_with_weapon | 近くに敵がいても撃つときに不利にならない / 1ラウンドに1回、外れた武器の攻撃を当たりに / 武術の素手の打撃も利き手のモンクの武器で打つ |
+| max_heal_dice / empower_max / extra_beam | 唱えた回復の呪文のダイスがいつも最大 / 強化した呪文の低い方から魅力の修正値の個数のダイスを最大に / その呪文(spell)の光線を value 本増やす |
+| endless_inspiration / spell_mastery / companion_summon | 仲間全員がいつも鼓舞のダイスを1つ持つ / value のレベルまでの呪文書の呪文1つを枠なしで何度でも(訓練場で選ぶ) / 選んだ召喚の呪文の召喚が戦闘の始めからいる(訓練場で選ぶ) |
 | resist_instant_kill | 一撃で倒されるのをこらえる確率(value の百分率)。敵の攻撃の kill の chance(首はね)に効く。効果ごとに別々に振り、どれか1つに当たればこらえる(Wizardry ではクラスの分 15% などと、レベル × 2%・上限 50% の分を別に振る) |
 
 - `to: allies` を書くと、立っている仲間全員に届く(オーラ)。

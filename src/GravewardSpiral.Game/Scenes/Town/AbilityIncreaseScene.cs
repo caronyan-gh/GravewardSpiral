@@ -9,7 +9,7 @@ using Microsoft.Xna.Framework;
 namespace GravewardSpiral.Game.Scenes.Town;
 
 /// <summary>
-/// 能力値上昇の点を振る(1点ごとに能力値 +1。20 まで)。選んだ分は仮に置き、点を使い切るか戻るときに確かめてから決める
+/// 能力値上昇の点を振る(1点ごとに能力値 +1。20 まで。6つとも 20 になったら 30 まで)。選んだ分は仮に置き、点を使い切るか戻るときに確かめてから決める
 /// (押し間違えても、やり直せる)。閉じたら onClose(呼んだ画面の一覧を作り直す)。
 /// </summary>
 public sealed class AbilityIncreaseScene(Character c, Action? onClose = null) : MenuScene
@@ -26,12 +26,13 @@ public sealed class AbilityIncreaseScene(Character c, Action? onClose = null) : 
     protected override IEnumerable<MenuItem> Items()
     {
         var s = Services.Strings;
+        int cap = Character.IncreaseCap(ScoreOf);   // 仮の分で6つとも 20 になれば、そこから 30 まで
         foreach (var a in Abilities.All)
         {
             int score = ScoreOf(a);
             int added = score - c.Scores[a];
-            string detail = score >= Character.MaxIncreasedScore ? $"{score} (MAX)" : $"{score} → {score + 1}";
-            yield return new MenuItem(s["ability." + a.Code()], added > 0 ? $"(+{added}) {detail}" : detail, Left > 0 && score < Character.MaxIncreasedScore, a);
+            string detail = score >= cap ? $"{score} (MAX)" : $"{score} → {score + 1}";
+            yield return new MenuItem(s["ability." + a.Code()], added > 0 ? $"(+{added}) {detail}" : detail, Left > 0 && score < cap, a);
         }
         yield return new MenuItem(s["common.back"], Tag: "back");
     }

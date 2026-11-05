@@ -6,7 +6,8 @@ namespace GravewardSpiral.Core.Items;
 /// <summary>アイテムの種類。Ammo は特別な弾(ふつうの矢とボルトは数えず、無限にある)。</summary>
 public enum ItemKind { Weapon, Armor, Shield, Backpack, Consumable, Gear, Accessory, Key, Ammo }
 
-public enum ArmorType { Light, Medium, Heavy }
+/// <summary>鎧の重さ。Robe はローブ(服): 鎧の枠に着るが、鎧を着ていない扱い(AC は鎧なしの計算、習熟は要らない。+N の AC の分と追加効果は乗る)。</summary>
+public enum ArmorType { Light, Medium, Heavy, Robe }
 
 /// <summary>
 /// アイテムの種類のデータ(パックの items.json。SRD の武器・鎧・盾は tools/srd_import.py で作り、魔法のアイテムは手で書く)。

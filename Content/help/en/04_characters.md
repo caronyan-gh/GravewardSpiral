@@ -15,7 +15,7 @@ Checks use an ability modifier calculated as (score - 10) divided by 2, rounded 
 
 At creation, assign the standard values (15, 14, 13, 12, 10, 8) or use point buy. Ability scores are not rolled randomly. Starting gold depends on the class.
 
-At class levels 4, 8, 12, 16 and 19 (fighters also at 6 and 14, rogues at 10), gain 2 ability points. At the training grounds, choose "Raise Ability Scores" to add 1 to a score per point (up to 20). Points can be saved, so you can use them to meet multiclass requirements. Raising your Constitution modifier also raises your max HP by your level.
+At class levels 4, 8, 12, 16 and 19 (fighters also at 6 and 14, rogues at 10), gain 2 ability points. At the training grounds, choose "Raise Ability Scores" to add 1 to a score per point (up to 20; once all six are 20, up to 30). Points can be saved, so you can use them to meet multiclass requirements. Raising your Constitution modifier also raises your max HP by your level.
 
 ## Races and classes
 
@@ -50,13 +50,13 @@ There are twelve classes.
 
 When a character has enough experience, level up at the Training Grounds. An arrow marks eligible characters in the list, and a notice also appears after battle.
 
-As a game-specific progression rule, there is no cap on total character level. From level 21, each "epic" level lets you choose a boon.
+As a game-specific progression rule, there is no cap on total character level. A character can have up to four classes, capped at levels 20, 15, 10 and 5 in the order they were taken. Once all four reach their caps (total level 50), further levels are "epic": they add no class, raise HP by a flat 5 + your Constitution modifier, and let you choose one boon. The boons are Max HP +10, Weapon damage +1 and Spell +1 (damage and healing of spells you cast), and each can be taken any number of times.
 
 ## Multiclassing
 
 Each time you level up, choose which class to advance. Taking a new class does not remove the levels or features of your existing classes.
 
-To take a new class, meet the ability score requirements for your current classes and the new class. The selection screen shows the required scores. Unlike the narrower SRD multiclass proficiency rules, this game grants all weapon and armor proficiencies of the new class.
+To take a new class, meet the ability score requirements for your current classes and the new class. The selection screen shows the required scores. Class caps follow the order you took the classes and cannot be swapped later, so which class you take deep and which you only dip into defines the character. Unlike the narrower SRD multiclass proficiency rules, this game grants all weapon and armor proficiencies of the new class.
 
 Total character level and individual class levels are different. A fighter 5 / barbarian 2 has a total level of 7, but their barbarian features work at level 2.
 

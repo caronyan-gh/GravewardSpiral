@@ -58,4 +58,25 @@ These abilities work without selecting a combat command. Levels below refer to l
 - Monk's Martial Arts and Evasion: Without armor or a shield, you can use Dexterity with unarmed strikes and monk weapons (shortswords and simple melee weapons that aren't heavy or two-handed), and make an extra unarmed strike after attacking. With armor or a shield, Martial Arts stops working and Flurry of Blows can't be chosen. Evasion becomes available at level 7.
 - Wizard's Arcane Recovery: Recover some spell slots during a short rest, once between long rests.
 - Bard's Song of Rest: Restore additional HP to allies who spent Hit Dice healing during a short rest.
-- Warlock invocations: Automatically learn Agonizing Blast at level 2, Thirsting Blade at level 5, and Lifedrinker at level 12. Thirsting Blade grants two attacks, and Lifedrinker drains HP with melee attacks. This game does not offer invocation or Pact Boon selection.
+- Warlock invocations: Automatically learn Agonizing Blast at level 2, Thirsting Blade at level 5, and Lifedrinker at level 12. Thirsting Blade grants two attacks, and Lifedrinker adds necrotic damage equal to your Charisma modifier to melee weapon hits. This game does not offer invocation or Pact Boon selection.
+
+## Level 20 abilities
+
+Every class except fighter and druid gains a new ability at class level 20 (wizards also at 18). Classes taken after the first cannot reach level 20, so only your first class can give you its level 20 ability. Which class you take first shapes the character. The abilities each class gains at level 20 (wizards also at 18) are shown below.
+
+| Class | Ability |
+|---|---|
+| Fighter | Four attacks (as before) |
+| Barbarian | Primal Champion: while raging, take half damage of every type, and Reckless Attack no longer gives enemies advantage against you |
+| Paladin | Holy Avatar: every melee weapon hit deals another 1d8 radiant damage |
+| Ranger | Foe Slayer: add your Wisdom modifier to weapon damage (twice with ranged weapons), and no disadvantage for shooting with an enemy close by |
+| Rogue | Stroke of Luck: once per round, a weapon attack that misses hits instead |
+| Monk | Martial Mastery: Martial Arts and Flurry of Blows strikes use the monk weapon in your main hand, with its bonus, element and properties |
+| Cleric | Supreme Healing: the dice of your healing spells always roll their maximum |
+| Druid | Archdruid (as before) and Lord of the Wild: choose one summoning spell, and what it calls is with you from the start of every battle, with no slot or concentration |
+| Wizard | Spell Mastery (from 18): choose one spellbook spell of level 2 or lower and cast it from the cantrip tab without a slot, as often as you like. From level 20, up to level 3 |
+| Sorcerer | Arcane Apex: an Empowered Spell sets its lowest dice, up to your Charisma modifier, to their maximum |
+| Warlock | Eldritch Master: Eldritch Blast fires one more beam |
+| Bard | Endless Inspiration: while you are up, every ally always holds an Inspiration die, which comes back the round after it is used |
+
+Choose the spells for Spell Mastery and Lord of the Wild at the training grounds: select the character, then "Choose Spell Mastery" or "Choose Lord of the Wild summon". You can change them any time.

@@ -47,11 +47,12 @@ public static class Spellcasting
     public static ClassDef? ClassFor(GameData data, Character c, string spellId) =>
         CasterClasses(data, c).FirstOrDefault(cls => CanCastAs(cls, c, spellId)) ?? CasterClass(data, c);
 
-    /// <summary>そのクラスとして今その呪文を唱えられるか(覚えた・準備した呪文の一覧にある)。</summary>
+    /// <summary>そのクラスとして今その呪文を唱えられるか(覚えた・準備した呪文の一覧にある。呪文の熟達で選んだ呪文は、準備していなくても)。</summary>
     public static bool CanCastAs(ClassDef cls, Character c, string spellId)
     {
         if (!c.Books.TryGetValue(cls.Id, out var b)) return false;
         if (b.Cantrips.Contains(spellId)) return true;
+        if (Kind(cls) == CasterKind.Book && c.MasterySpell == spellId && b.Known.Contains(spellId)) return true;
         return Kind(cls) is CasterKind.Prepared or CasterKind.Book ? b.Prepared.Contains(spellId) : b.Known.Contains(spellId);
     }
 
@@ -293,6 +294,7 @@ public static class Spellcasting
             ids.AddRange(b.Cantrips);
             ids.AddRange(Kind(cls) is CasterKind.Prepared or CasterKind.Book ? b.Prepared : b.Known);
         }
+        if (Mastery(data, c) is { } mastered) ids.Add(mastered.Id);   // 呪文の熟達: 準備していなくても唱えられる
         return ids.Distinct().Select(id => data.Spells.GetValueOrDefault(id)).OfType<SpellDef>().Where(s => s.Usable)
             .OrderBy(s => AssignedLevel(data, c, s)).ThenBy(s => s.Id, StringComparer.Ordinal);
     }
@@ -321,6 +323,7 @@ public static class Spellcasting
     /// </summary>
     public static bool ListedAt(GameData data, Character c, SpellDef sp, int slotLevel)
     {
+        if (slotLevel == 0 && IsMastery(data, c, sp)) return true;   // 呪文の熟達: 初級呪文の欄からも唱えられる(枠を使わない)
         if (slotLevel == 0 || sp.IsCantrip) return slotLevel == 0 && sp.IsCantrip;
         int level = AssignedLevel(data, c, sp);
         if (level == slotLevel) return true;
@@ -329,6 +332,44 @@ public static class Spellcasting
         if (CasterClass(data, c) == null || SlotsLeft(data, c, level) > 0) return false;
         return LowestSlot(data, c, sp) == slotLevel;
     }
+
+    // ---- 呪文の熟達(ウィザード L18・L20)と森の主(ドルイド L20) ----
+
+    /// <summary>呪文の熟達で選べる呪文のレベルの上限(能力 spell_mastery の value。持っていなければ 0)。</summary>
+    public static int MasteryMaxLevel(GameData data, Character c) =>
+        PassiveRules.Effects(data, c, "spell_mastery").Select(e => e.Effect.Value?.Eval(c, e.Level) ?? 0).DefaultIfEmpty(0).Max();
+
+    /// <summary>呪文の熟達で選べる呪文(呪文書の、1 レベルから上限までの、戦闘かキャンプで使えるもの)。</summary>
+    public static IEnumerable<SpellDef> MasteryChoices(GameData data, Character c)
+    {
+        int max = MasteryMaxLevel(data, c);
+        if (max <= 0) return [];
+        var books = CasterClasses(data, c).Where(cls => Kind(cls) == CasterKind.Book).Select(cls => c.Books.GetValueOrDefault(cls.Id)).OfType<SpellBook>();
+        return books.SelectMany(b => b.Known).Distinct().Select(id => data.Spells.GetValueOrDefault(id)).OfType<SpellDef>()
+            .Where(s => s.Usable && !s.IsCantrip && s.Level <= max)
+            .OrderBy(s => s.Level).ThenBy(s => s.Id, StringComparer.Ordinal);
+    }
+
+    /// <summary>今効いている呪文の熟達の呪文(選んでいて、今も選べるもの)。</summary>
+    public static SpellDef? Mastery(GameData data, Character c) =>
+        c.MasterySpell is { } id ? MasteryChoices(data, c).FirstOrDefault(s => s.Id == id) : null;
+
+    /// <summary>その呪文が、呪文の熟達で枠を使わずに唱えられるものか。</summary>
+    public static bool IsMastery(GameData data, Character c, SpellDef sp) => c.MasterySpell == sp.Id && Mastery(data, c) != null;
+
+    /// <summary>森の主で選べる召喚の呪文(準備できるクラスの呪文のうち、呼ぶものがいて、唱えられるレベルのもの)。</summary>
+    public static IEnumerable<SpellDef> CompanionChoices(GameData data, Character c)
+    {
+        if (!PassiveRules.Effects(data, c, "companion_summon").Any()) return [];
+        return CasterClasses(data, c).Where(cls => Kind(cls) is CasterKind.Prepared or CasterKind.Book)
+            .SelectMany(cls => ClassSpells(data, cls, c, cantrips: false))
+            .Where(s => s.Summon != null && data.Monsters.ContainsKey(s.Summon.Monster)).DistinctBy(s => s.Id)
+            .OrderBy(s => s.Level).ThenBy(s => s.Id, StringComparer.Ordinal);
+    }
+
+    /// <summary>今効いている森の主の召喚の呪文(選んでいて、今も選べるもの)。</summary>
+    public static SpellDef? Companion(GameData data, Character c) =>
+        c.CompanionSpell is { } id ? CompanionChoices(data, c).FirstOrDefault(s => s.Id == id) : null;
 
     /// <summary>その呪文を唱えられる一番低いスロット(初級呪文は 0)。無ければ null。</summary>
     public static int? LowestSlot(GameData data, Character c, SpellDef s)

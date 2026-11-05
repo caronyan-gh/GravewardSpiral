@@ -291,6 +291,9 @@ public sealed class GameServices
     /// <summary>呪文のアイコン(効果の種類ごと。art/spells/&lt;icon&gt;.png)。無ければ null。</summary>
     public Microsoft.Xna.Framework.Graphics.Texture2D? SpellIcon(Core.Magic.SpellDef spell) => Art("spells", spell.Icon ?? "buff");
 
+    /// <summary>迷宮で続く効き目のアイコン(art/buffs/&lt;id&gt;.png)。無ければ呪文のアイコン(art/spells/&lt;fallback&gt;.png)。</summary>
+    public Microsoft.Xna.Framework.Graphics.Texture2D? BuffIcon(string id, string fallback) => Art("buffs", id) ?? Art("spells", fallback);
+
     /// <summary>クラスのアイコン(art/classes/&lt;id&gt;.png)。無ければ null。</summary>
     public Microsoft.Xna.Framework.Graphics.Texture2D? ClassIcon(string classId) => Art("classes", classId);
 

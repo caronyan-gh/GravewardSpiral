@@ -21,16 +21,18 @@ public static class PassiveRules
         ["ac_ability", "save_proficiency", "save_bonus", "immune_condition", "immune_magic_condition", "immune_damage", "resist_damage",
          "advantage", "no_advantage_against", "evasion", "reroll_natural_one",
          "attack_bonus", "damage_bonus", "reroll_damage", "offhand_mod", "ac_bonus",
-         "extra_damage", "drain", "crit_extra_dice", "magical", "spell_damage_bonus", "reaction_reduce", "reaction_halve", "stay_up", "no_cast", "no_concentration", "instant_kill", "resist_instant_kill"];
+         "extra_damage", "drain", "crit_extra_dice", "magical", "spell_damage_bonus", "reaction_reduce", "reaction_halve", "stay_up", "no_cast", "no_concentration", "instant_kill", "resist_instant_kill",
+         // 20 の能力の印(数のないものは、持っているだけで効く)
+         "steady_shot", "miss_to_hit", "unarmed_with_weapon", "max_heal_dice", "empower_max", "extra_beam", "endless_inspiration", "spell_mastery", "companion_summon"];
 
     /// <summary>
     /// 効果の種類ごとの、on に書ける攻撃。ranged_shot は飛び道具で撃つ攻撃、main_melee は利き手の近接武器の攻撃、
-    /// melee_weapon は近接の武器の攻撃(もう片方の手も)、melee は近接の攻撃(素手も)、unarmed は武術の素手の攻撃。
+    /// weapon は武器の攻撃すべて(どの手でも、投げても撃っても)、melee_weapon は近接の武器の攻撃(もう片方の手も)、melee は近接の攻撃(素手も)、unarmed は武術の素手の攻撃。
     /// </summary>
     public static readonly Dictionary<string, string[]> OnsFor = new()
     {
         ["attack_bonus"] = ["ranged_shot", "main_melee"],
-        ["damage_bonus"] = ["ranged_shot", "main_melee", "melee_str"],
+        ["damage_bonus"] = ["ranged_shot", "main_melee", "melee_str", "weapon"],
         ["reroll_damage"] = ["main_melee"],
         ["extra_damage"] = ["melee_weapon"],
         ["drain"] = ["melee_weapon"],
@@ -134,9 +136,9 @@ public static class PassiveRules
     public static bool Holds(Character c, string when, Situation now, GameData data) => when switch
     {
         "always" => true,
-        "no_armor" => c.Inventory[EquipSlot.Armor] == null,
-        "no_armor_no_shield" => c.Inventory[EquipSlot.Armor] == null && !HoldingShield(c, data),
-        "wearing_armor" => c.Inventory[EquipSlot.Armor] != null,
+        "no_armor" => !c.WearingArmor(data),
+        "no_armor_no_shield" => !c.WearingArmor(data) && !HoldingShield(c, data),
+        "wearing_armor" => c.WearingArmor(data),
         "standing" => now.Standing,
         "raging" => now.Raging,
         "shaped" => now.Shaped,
@@ -157,7 +159,7 @@ public static class PassiveRules
         var inv = c.Inventory;
         ItemDef? Weapon(EquipSlot slot) => inv[slot] is { } it && data.Items.TryGetValue(it.ItemId, out var d) && d.Kind == ItemKind.Weapon ? d : null;
         var main = Weapon(EquipSlot.MainHand);
-        if (main == null) return Weapon(EquipSlot.Ranged) != null ? "ranged" : inv[EquipSlot.Armor] != null ? "none_armored" : "none";
+        if (main == null) return Weapon(EquipSlot.Ranged) != null ? "ranged" : c.WearingArmor(data) ? "none_armored" : "none";
         if (main.Ranged) return "ranged";
         if (Weapon(EquipSlot.OffHand) != null) return "two_weapons";
         if (main.Has("two_handed") || (main.VersatileDamage != null && inv[EquipSlot.OffHand] == null)) return "two_handed";
@@ -210,7 +212,10 @@ public static class PassiveRules
                 _ when OnsFor.TryGetValue(e.Type, out var ons) && !ons.Contains(e.On ?? "") => $"{e.Type} の on は {string.Join(" / ", ons)} のどれかです",
                 "attack_bonus" or "damage_bonus" or "reroll_damage" or "ac_bonus" or "drain" or "crit_extra_dice" or "spell_damage_bonus" when e.Value == null
                     => $"{e.Type} には value が要ります",
-                "extra_damage" when string.IsNullOrEmpty(e.Dice) || !Rules.DiceExpression.TryParse(e.Dice, out _, out _) => "extra_damage には dice(ダイスの書き方)が要ります",
+                "extra_damage" when string.IsNullOrEmpty(e.Dice) && e.Value == null => "extra_damage には dice(ダイスの書き方)か value(決まった数)が要ります",
+                "extra_damage" when !string.IsNullOrEmpty(e.Dice) && !Rules.DiceExpression.TryParse(e.Dice, out _, out _) => "extra_damage の dice が読めません",
+                "extra_beam" when e.Value == null || string.IsNullOrEmpty(e.Spell) => "extra_beam には spell(呪文の id)と value(増やす本数)が要ります",
+                "spell_mastery" when e.Value == null => "spell_mastery には value(選べる呪文のレベルの上限)が要ります",
                 "extra_damage" when string.IsNullOrEmpty(e.DamageType) => "extra_damage には damage_type が要ります",
                 "spell_damage_bonus" when string.IsNullOrEmpty(e.Spell) => "spell_damage_bonus には spell(呪文の id)が要ります",
                 "reaction_reduce" when e.Dice == null && e.Value == null => "reaction_reduce には dice か value が要ります",

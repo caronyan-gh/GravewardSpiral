@@ -8,7 +8,7 @@
     "pools": [
       {"id": "rage", "name": {"en": "Rage", "ja": "激怒"}, "max": {"by_level": {"1": 2, "3": 3, "6": 4, "12": 5, "17": 6, "20": 99}}, "recharge": "long"}
     ],
-    "features": [{"id": "rage_limits", "level": 1}, {"id": "rage_damage", "level": 1}, {"id": "rage", "level": 1}, {"id": "unarmored_defense_con", "level": 1}, {"id": "reckless_attack", "level": 2}, {"id": "danger_sense", "level": 2}, {"id": "feral_instinct", "level": 7}, {"id": "brutal_critical", "level": 9}, {"id": "relentless_rage", "level": 11}],
+    "features": [{"id": "rage_limits", "level": 1}, {"id": "rage_damage", "level": 1}, {"id": "rage", "level": 1}, {"id": "unarmored_defense_con", "level": 1}, {"id": "reckless_attack", "level": 2}, {"id": "danger_sense", "level": 2}, {"id": "feral_instinct", "level": 7}, {"id": "brutal_critical", "level": 9}, {"id": "relentless_rage", "level": 11}, {"id": "primal_champion", "level": 20}],
     "multiclass": [{ "str": 13 }],
     "primary": ["str", "con", "dex"],
     "saves": ["str", "con"],
@@ -30,7 +30,7 @@
     "pools": [
       {"id": "bardic_inspiration", "name": {"en": "Inspiration", "ja": "鼓舞"}, "max": {"ability": "cha", "min": 1}, "recharge": "long", "short_with": "font_of_inspiration"}
     ],
-    "features": [{"id": "bardic_inspiration", "level": 1}, {"id": "song_of_rest", "level": 2}, {"id": "font_of_inspiration", "level": 5}],
+    "features": [{"id": "bardic_inspiration", "level": 1}, {"id": "song_of_rest", "level": 2}, {"id": "font_of_inspiration", "level": 5}, {"id": "endless_inspiration", "level": 20}],
     "multiclass": [{ "cha": 13 }],
     "primary": ["cha", "dex", "con"],
     "saves": ["dex", "cha"],
@@ -67,7 +67,7 @@
     "pools": [
       {"id": "channel_divinity", "name": {"en": "Channel Divinity", "ja": "チャネル・ディヴィニティ"}, "max": {"by_level": {"2": 1, "6": 2, "18": 3}}, "recharge": "short"}
     ],
-    "features": [{"id": "turn_undead", "level": 2}, {"id": "destroy_undead", "level": 5}],
+    "features": [{"id": "turn_undead", "level": 2}, {"id": "destroy_undead", "level": 5}, {"id": "supreme_healing", "level": 20}],
     "multiclass": [{ "wis": 13 }],
     "primary": ["wis", "con", "str"],
     "saves": ["wis", "cha"],
@@ -104,7 +104,7 @@
     "pools": [
       {"id": "wild_shape", "name": {"en": "Wild Shape", "ja": "ワイルドシェイプ"}, "max": {"by_level": {"2": 2, "20": 99}}, "recharge": "short"}
     ],
-    "features": [{"id": "wild_shape", "level": 2}, {"id": "wild_shape_limits", "level": 2}, {"id": "beast_spells", "level": 18}, {"id": "archdruid", "level": 20}],
+    "features": [{"id": "wild_shape", "level": 2}, {"id": "wild_shape_limits", "level": 2}, {"id": "beast_spells", "level": 18}, {"id": "archdruid", "level": 20}, {"id": "lord_of_the_wild", "level": 20}],
     "multiclass": [{ "wis": 13 }],
     "primary": ["wis", "con", "dex"],
     "saves": ["int", "wis"],
@@ -163,7 +163,7 @@
     "pools": [
       {"id": "ki", "name": {"en": "Ki", "ja": "気"}, "max": {"class_level": 1}, "recharge": "short", "from_level": 2}
     ],
-    "features": [{"id": "flurry_of_blows", "level": 2}, {"id": "patient_defense", "level": 2}, {"id": "stunning_strike", "level": 5}, {"id": "unarmored_defense_wis", "level": 1}, {"id": "martial_arts", "level": 1}, {"id": "deflect_missiles", "level": 3}, {"id": "ki_empowered_strikes", "level": 6}, {"id": "evasion", "level": 7}, {"id": "purity_of_body", "level": 10}, {"id": "diamond_soul", "level": 14}],
+    "features": [{"id": "flurry_of_blows", "level": 2}, {"id": "patient_defense", "level": 2}, {"id": "stunning_strike", "level": 5}, {"id": "unarmored_defense_wis", "level": 1}, {"id": "martial_arts", "level": 1}, {"id": "deflect_missiles", "level": 3}, {"id": "ki_empowered_strikes", "level": 6}, {"id": "evasion", "level": 7}, {"id": "purity_of_body", "level": 10}, {"id": "diamond_soul", "level": 14}, {"id": "martial_mastery", "level": 20}],
     "multiclass": [{ "dex": 13, "wis": 13 }],
     "primary": ["dex", "wis", "con"],
     "saves": ["str", "dex"],
@@ -185,7 +185,7 @@
     "pools": [
       {"id": "lay_on_hands", "name": {"en": "Lay on Hands", "ja": "レイ・オン・ハンズ"}, "max": {"class_level": 5}, "recharge": "long"}
     ],
-    "features": [{"id": "lay_on_hands", "level": 1}, {"id": "divine_smite", "level": 2}, {"id": "style_archery", "level": 2}, {"id": "style_defense", "level": 2}, {"id": "style_dueling", "level": 2}, {"id": "style_great_weapon", "level": 2}, {"id": "style_two_weapon", "level": 2}, {"id": "aura_of_protection", "level": 6}, {"id": "aura_of_courage", "level": 10}, {"id": "improved_divine_smite", "level": 11}],
+    "features": [{"id": "lay_on_hands", "level": 1}, {"id": "divine_smite", "level": 2}, {"id": "style_archery", "level": 2}, {"id": "style_defense", "level": 2}, {"id": "style_dueling", "level": 2}, {"id": "style_great_weapon", "level": 2}, {"id": "style_two_weapon", "level": 2}, {"id": "aura_of_protection", "level": 6}, {"id": "aura_of_courage", "level": 10}, {"id": "improved_divine_smite", "level": 11}, {"id": "holy_avatar", "level": 20}],
     "multiclass": [{ "str": 13, "cha": 13 }],
     "primary": ["str", "cha", "con"],
     "saves": ["wis", "cha"],
@@ -214,7 +214,7 @@
     "tags": ["divine"],
     "hit_die": 10,
     "progression": {"attacks": {"by_level": {"1": 1, "5": 2}}, "ability_increases": [4, 8, 12, 16, 19]},
-    "features": [{"id": "style_archery", "level": 2}, {"id": "style_defense", "level": 2}, {"id": "style_dueling", "level": 2}, {"id": "style_great_weapon", "level": 2}, {"id": "style_two_weapon", "level": 2}],
+    "features": [{"id": "style_archery", "level": 2}, {"id": "style_defense", "level": 2}, {"id": "style_dueling", "level": 2}, {"id": "style_great_weapon", "level": 2}, {"id": "style_two_weapon", "level": 2}, {"id": "foe_slayer", "level": 20}],
     "multiclass": [{ "dex": 13, "wis": 13 }],
     "primary": ["dex", "wis", "con"],
     "saves": ["str", "dex"],
@@ -242,7 +242,7 @@
     "abbr": "ROG",
     "hit_die": 8,
     "progression": {"ability_increases": [4, 8, 10, 12, 16, 19]},
-    "features": [{"id": "sneak_attack", "level": 1}, {"id": "uncanny_dodge", "level": 5}, {"id": "evasion", "level": 7}, {"id": "slippery_mind", "level": 15}, {"id": "elusive", "level": 18}],
+    "features": [{"id": "sneak_attack", "level": 1}, {"id": "uncanny_dodge", "level": 5}, {"id": "evasion", "level": 7}, {"id": "slippery_mind", "level": 15}, {"id": "elusive", "level": 18}, {"id": "stroke_of_luck", "level": 20}],
     "multiclass": [{ "dex": 13 }],
     "primary": ["dex", "int", "con"],
     "saves": ["dex", "int"],
@@ -265,7 +265,7 @@
     "pools": [
       {"id": "sorcery_points", "name": {"en": "Sorcery Points", "ja": "ソーサリーポイント"}, "description": {"en": "Spent on Empowered Spell (1 point to reroll low damage dice of a spell). As many as your sorcerer level; restored on a long rest.", "ja": "呪文の強化(1点でダメージの呪文の低い出目を振り直す)に使う点。ソーサラーのレベルと同じ数で、大休憩で戻る。"}, "max": {"class_level": 1}, "recharge": "long", "from_level": 2}
     ],
-    "features": [{"id": "empowered_spell", "level": 3}],
+    "features": [{"id": "empowered_spell", "level": 3}, {"id": "empowered_apex", "level": 20}],
     "multiclass": [{ "cha": 13 }],
     "primary": ["cha", "con", "dex"],
     "saves": ["con", "cha"],
@@ -299,7 +299,7 @@
     "tags": ["arcane"],
     "hit_die": 8,
     "progression": {"attacks": {"by_level": {"1": 1, "5": 2}}, "ability_increases": [4, 8, 12, 16, 19]},
-    "features": [{"id": "agonizing_blast", "level": 2}, {"id": "thirsting_blade", "level": 5}, {"id": "lifedrinker", "level": 12}],
+    "features": [{"id": "agonizing_blast", "level": 2}, {"id": "thirsting_blade", "level": 5}, {"id": "lifedrinker", "level": 12}, {"id": "eldritch_master", "level": 20}],
     "multiclass": [{ "cha": 13 }],
     "primary": ["cha", "con", "dex"],
     "saves": ["wis", "cha"],
@@ -336,7 +336,7 @@
     "pools": [
       {"id": "arcane_recovery", "name": {"en": "Arcane Recovery", "ja": "秘術の回復"}, "description": {"en": "Once per long rest, a short rest automatically restores used spell slots of level 5 or lower, highest first, up to a total of half your wizard level (rounded up).", "ja": "大休憩までに1回、小休憩で使った呪文スロットを自動で戻す。5 レベル以下を上のレベルから、合わせてウィザードのレベルの半分(切り上げ)まで。"}, "max": 1, "recharge": "long"}
     ],
-    "features": [{"id": "arcane_recovery", "level": 1}],
+    "features": [{"id": "arcane_recovery", "level": 1}, {"id": "spell_mastery", "level": 18}],
     "multiclass": [{ "int": 13 }],
     "primary": ["int", "con", "dex"],
     "saves": ["int", "wis"],

@@ -5,6 +5,7 @@ using GravewardSpiral.Core.Items;
 using GravewardSpiral.Core.Maze;
 using GravewardSpiral.Core.MazeGen;
 using GravewardSpiral.Core.Rng;
+using GravewardSpiral.Core.Rules;
 
 namespace GravewardSpiral.Tests.Maze;
 
@@ -199,16 +200,80 @@ public class GimmickTests
     }
 
     [Fact]
-    public void EpicBoonsAfterLevel20()
+    public void ClassStopsAt20AndTheNextLevelGoesToAnotherClass()
     {
-        var c = CharacterFactory.QuickCreate(Data, "E", "human", "fighter", 22);
-        Assert.Equal(22, c.Level);
-        Assert.Equal(2, c.EpicPoints);
+        var c = CharacterFactory.QuickCreate(Data, "E", "human", "fighter", 1);
+        foreach (var a in Abilities.All) c.Scores[a] = 14;   // どのクラスのマルチクラスの条件も満たす
+        c.Xp = Progression.XpForLevel(22);
+        Assert.Equal(21, c.LevelUp(Data));
+        Assert.Equal(20, c.LevelIn("fighter"));
+        Assert.Equal(2, c.Level - c.LevelIn("fighter"));   // 21 からは別のクラス
+        Assert.False(c.CanTakeClass(Data, "fighter"));
+        var second = c.ClassIds.Last();
+        Assert.Equal(15, c.ClassCap(second));   // 2つ目のクラスは 15 まで
+        Assert.Equal(0, c.EpicPoints);   // 恩恵は 4 クラスを全部上限にしてから
+        Assert.False(c.TakeBoon("hp"));
+    }
+
+    [Fact]
+    public void AtMostFourClassesCappedInTheOrderTaken()
+    {
+        var c = CharacterFactory.QuickCreate(Data, "E", "human", "fighter", 1);
+        foreach (var a in Abilities.All) c.Scores[a] = 14;
+        foreach (var id in new[] { "barbarian", "cleric", "wizard" })
+        {
+            c.Xp = Progression.XpForLevel(c.Level + 1);
+            Assert.Equal(1, c.LevelUp(Data, id, maxLevels: 1));
+        }
+        Assert.Equal(4, c.ClassIds.Count());
+        Assert.Equal([20, 15, 10, 5], c.ClassIds.Select(c.ClassCap).ToArray());
+        c.Xp = Progression.XpForLevel(c.Level + 10);
+        Assert.Equal(4, c.LevelUp(Data, "wizard"));   // 4つ目は 5 で止まる
+        Assert.Equal(5, c.LevelIn("wizard"));
+        Assert.False(c.CanTakeClass(Data, "wizard"));
+        Assert.False(c.CanTakeClass(Data, "bard"));
+        c.Xp = Progression.XpForLevel(c.Level + 1);
+        Assert.Equal(0, c.LevelUp(Data, "bard"));
+        Assert.True(c.CanTakeClass(Data, "cleric"));   // 上限に届いていないクラスは上げられる
+    }
+
+    [Fact]
+    public void AfterAllClassesAtTheirCapsLevelsGiveFlatHpAndBoons()
+    {
+        var c = CharacterFactory.QuickCreate(Data, "E", "human", "fighter", 1);
+        foreach (var a in Abilities.All) c.Scores[a] = 20;
+        c.Xp = Progression.XpForLevel(Character.EpicFrom);
+        c.LevelUp(Data);
+        Assert.Equal(Character.EpicFrom, c.Level);
+        Assert.Equal(Character.MaxClasses, c.ClassIds.Count());
+        Assert.All(c.ClassIds, id => Assert.Equal(c.ClassCap(id), c.LevelIn(id)));
+        Assert.True(c.IsEpic);
+        Assert.Equal(0, c.EpicPoints);
+
         int hp = c.MaxHp;
+        c.Xp = Progression.XpForLevel(Character.EpicFrom + 2);
+        Assert.Equal(2, c.LevelUp(Data));
+        Assert.Equal(hp + 2 * (Character.EpicHpBase + 5), c.MaxHp);   // 一律 5 + 耐久力の修正値(20 で +5)
+        Assert.All(c.ClassIds, id => Assert.Equal(c.ClassCap(id), c.LevelIn(id)));
+        Assert.Equal(2, c.EpicPoints);
+
+        hp = c.MaxHp;
         Assert.True(c.TakeBoon("hp"));
         Assert.Equal(hp + 10, c.MaxHp);
-        Assert.True(c.TakeBoon("damage"));
-        Assert.Equal(1, c.DamageBonus(Data));
-        Assert.False(c.TakeBoon("str"));   // もう無い
+        Assert.True(c.TakeBoon("spell"));
+        Assert.Equal(1, c.BoonCount("spell"));
+        Assert.False(c.TakeBoon("damage"));   // もう無い
+        Assert.False(c.TakeBoon("save"));     // セーヴの恩恵は無い
+    }
+
+    [Fact]
+    public void AbilityIncreaseGoesTo30OnlyWhenAllSixAre20()
+    {
+        var c = CharacterFactory.QuickCreate(Data, "E", "human", "fighter", 1);
+        foreach (var a in Abilities.All) c.Scores[a] = 20;
+        c.Scores[Ability.Cha] = 19;
+        Assert.Equal(Character.MaxIncreasedScore, c.IncreaseCap());
+        c.Scores[Ability.Cha] = 20;
+        Assert.Equal(Character.MaxScore, c.IncreaseCap());
     }
 }

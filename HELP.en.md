@@ -160,7 +160,7 @@ Checks use an ability modifier calculated as (score - 10) divided by 2, rounded 
 
 At creation, assign the standard values (15, 14, 13, 12, 10, 8) or use point buy. Ability scores are not rolled randomly. Starting gold depends on the class.
 
-At class levels 4, 8, 12, 16 and 19 (fighters also at 6 and 14, rogues at 10), gain 2 ability points. At the training grounds, choose "Raise Ability Scores" to add 1 to a score per point (up to 20). Points can be saved, so you can use them to meet multiclass requirements. Raising your Constitution modifier also raises your max HP by your level.
+At class levels 4, 8, 12, 16 and 19 (fighters also at 6 and 14, rogues at 10), gain 2 ability points. At the training grounds, choose "Raise Ability Scores" to add 1 to a score per point (up to 20; once all six are 20, up to 30). Points can be saved, so you can use them to meet multiclass requirements. Raising your Constitution modifier also raises your max HP by your level.
 
 ### Races and classes
 
@@ -195,13 +195,13 @@ There are twelve classes.
 
 When a character has enough experience, level up at the Training Grounds. An arrow marks eligible characters in the list, and a notice also appears after battle.
 
-As a game-specific progression rule, there is no cap on total character level. From level 21, each "epic" level lets you choose a boon.
+As a game-specific progression rule, there is no cap on total character level. A character can have up to four classes, capped at levels 20, 15, 10 and 5 in the order they were taken. Once all four reach their caps (total level 50), further levels are "epic": they add no class, raise HP by a flat 5 + your Constitution modifier, and let you choose one boon. The boons are Max HP +10, Weapon damage +1 and Spell +1 (damage and healing of spells you cast), and each can be taken any number of times.
 
 ### Multiclassing
 
 Each time you level up, choose which class to advance. Taking a new class does not remove the levels or features of your existing classes.
 
-To take a new class, meet the ability score requirements for your current classes and the new class. The selection screen shows the required scores. Unlike the narrower SRD multiclass proficiency rules, this game grants all weapon and armor proficiencies of the new class.
+To take a new class, meet the ability score requirements for your current classes and the new class. The selection screen shows the required scores. Class caps follow the order you took the classes and cannot be swapped later, so which class you take deep and which you only dip into defines the character. Unlike the narrower SRD multiclass proficiency rules, this game grants all weapon and armor proficiencies of the new class.
 
 Total character level and individual class levels are different. A fighter 5 / barbarian 2 has a total level of 7, but their barbarian features work at level 2.
 
@@ -256,6 +256,7 @@ Choosing which spells you can use is separate from having slots to cast them. Ca
 - Wizard: first choose spells for your spellbook, then prepare the ones you want to use. A spell must be prepared, not merely written in the book.
 - Sorcerer, Bard, Ranger, and Warlock: cast known spells directly. No preparation is needed.
 - At camp, you can also cast spells you have not prepared: Clerics, Druids, and Paladins choose from their class list, Wizards from the spells in their spellbook. Camp-only spells such as Light or Remove Curse no longer appear in the preparation list.
+- Long-lasting spells that need no concentration, such as Mage Armor or Freedom of Movement, keep working across fights. One-hour spells end after 60 steps; longer ones last until a long rest or returning to town. A short rest takes an hour. Active effects are shown at the top left of the maze view with an icon and the steps left (∞ for the long ones).
 
 Cantrips are chosen separately. The number you can learn increases with class level.
 
@@ -551,7 +552,28 @@ These abilities work without selecting a combat command. Levels below refer to l
 - Monk's Martial Arts and Evasion: Without armor or a shield, you can use Dexterity with unarmed strikes and monk weapons (shortswords and simple melee weapons that aren't heavy or two-handed), and make an extra unarmed strike after attacking. With armor or a shield, Martial Arts stops working and Flurry of Blows can't be chosen. Evasion becomes available at level 7.
 - Wizard's Arcane Recovery: Recover some spell slots during a short rest, once between long rests.
 - Bard's Song of Rest: Restore additional HP to allies who spent Hit Dice healing during a short rest.
-- Warlock invocations: Automatically learn Agonizing Blast at level 2, Thirsting Blade at level 5, and Lifedrinker at level 12. Thirsting Blade grants two attacks, and Lifedrinker drains HP with melee attacks. This game does not offer invocation or Pact Boon selection.
+- Warlock invocations: Automatically learn Agonizing Blast at level 2, Thirsting Blade at level 5, and Lifedrinker at level 12. Thirsting Blade grants two attacks, and Lifedrinker adds necrotic damage equal to your Charisma modifier to melee weapon hits. This game does not offer invocation or Pact Boon selection.
+
+### Level 20 abilities
+
+Every class except fighter and druid gains a new ability at class level 20 (wizards also at 18). Classes taken after the first cannot reach level 20, so only your first class can give you its level 20 ability. Which class you take first shapes the character. The abilities each class gains at level 20 (wizards also at 18) are shown below.
+
+| Class | Ability |
+|---|---|
+| Fighter | Four attacks (as before) |
+| Barbarian | Primal Champion: while raging, take half damage of every type, and Reckless Attack no longer gives enemies advantage against you |
+| Paladin | Holy Avatar: every melee weapon hit deals another 1d8 radiant damage |
+| Ranger | Foe Slayer: add your Wisdom modifier to weapon damage (twice with ranged weapons), and no disadvantage for shooting with an enemy close by |
+| Rogue | Stroke of Luck: once per round, a weapon attack that misses hits instead |
+| Monk | Martial Mastery: Martial Arts and Flurry of Blows strikes use the monk weapon in your main hand, with its bonus, element and properties |
+| Cleric | Supreme Healing: the dice of your healing spells always roll their maximum |
+| Druid | Archdruid (as before) and Lord of the Wild: choose one summoning spell, and what it calls is with you from the start of every battle, with no slot or concentration |
+| Wizard | Spell Mastery (from 18): choose one spellbook spell of level 2 or lower and cast it from the cantrip tab without a slot, as often as you like. From level 20, up to level 3 |
+| Sorcerer | Arcane Apex: an Empowered Spell sets its lowest dice, up to your Charisma modifier, to their maximum |
+| Warlock | Eldritch Master: Eldritch Blast fires one more beam |
+| Bard | Endless Inspiration: while you are up, every ally always holds an Inspiration die, which comes back the round after it is used |
+
+Choose the spells for Spell Mastery and Lord of the Wild at the training grounds: select the character, then "Choose Spell Mastery" or "Choose Lord of the Wild summon". You can change them any time.
 
 ## Items and Equipment
 
@@ -574,6 +596,10 @@ Weapon slots include main hand, off hand, ranged weapon, and ammunition. Other s
 - Armor and shields require proficiency.
 - Weapons can be used without proficiency, but do not receive your proficiency bonus on attack rolls.
 - Item descriptions show which party members can equip an item and who is proficient with it.
+
+### Robes
+
+A robe is clothing worn in the armor slot. It counts as no armor, so Unarmored Defense (monk and barbarian), Martial Arts and Mage Armor keep working, and no armor proficiency is needed. A robe adds no AC by itself, but robes found as treasure carry +N (its AC part) and extra properties like armor.
 
 ### Ammunition and thrown weapons
 
@@ -743,7 +769,7 @@ This game adapts the D&D 5th edition SRD 5.1 for dungeon exploration. These are 
 - Ability Score Improvements and feats: Gain 2 points at class levels 4, 8, 12, 16 and 19 (fighters also at 6 and 14, rogues at 10) and spend them one at a time at the training grounds. There are no feats (the only SRD 5.1 feat is for grappling, which this game does not have).
 - Fighting Style: You don't choose one. It follows what you wield. Shots with a ranged weapon always get Archery, whatever is in your main hand. In melee: two weapons, Two-Weapon Fighting; two-handed, Great Weapon Fighting; one-handed, Dueling. With no weapon but armor, Defense. The status screen shows the styles in effect (or None).
 - Wild Shape: While transformed, your AC is the beast's fixed value. Unarmored Defense and gear don't add to it.
-- Level cap: Total character level has no cap. From level 21 onward, gain an epic boon with each level.
+- Level cap: Total character level has no cap. Up to four classes, capped at 20, 15, 10 and 5 in the order taken. Once all four reach their caps (total level 50), each further level is epic and grants a boon. Ability Score Improvements can raise scores to 30 once all six are 20.
 
 ### Combat
 

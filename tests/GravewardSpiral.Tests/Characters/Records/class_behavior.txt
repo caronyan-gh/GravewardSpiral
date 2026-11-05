@@ -265,13 +265,13 @@ str human barbarian19 | race: adv_against= magic_save_adv= lucky=False magic_imm
 str human barbarian19 | trap: poison_needle=21/30,20/30,22/30 gas_bomb=30+poisoned/30+poisoned,30/30,30/30+poisoned crossbow_bolt=14/30,17/30,7/30 exploding_box=8/13,21/19,10/17 stunner=30/30,30/30,30/30 teleporter=30/30/tp,30/30/tp,30/30/tp mage_blaster=30/30,30/30,30/30 priest_blaster=30/30,30/30,30/30 alarm=30/30/alarm,30/30/alarm,30/30/alarm
 str human barbarian19 | action_nums: second_wind_bonus=0 sneak_d6=0 arcane_budget=0 turn_dc=0
 str human barbarian20 | actions: rage
-str human barbarian20 | passives: unarmored_defense_con,reckless_attack,danger_sense,feral_instinct,brutal_critical,relentless_rage
+str human barbarian20 | passives: unarmored_defense_con,reckless_attack,danger_sense,feral_instinct,brutal_critical,relentless_rage,primal_champion
 str human barbarian20 | traits: 
 str human barbarian20 | pools: rage=99
 str human barbarian20 | short_rest: 
 str human barbarian20 | numbers: attacks=2 asi=10 prof=6 ac=15 rage_dmg=4 brutal=3 ma_die=4 ki_dc=0 insp_die=0 destroy_cr=-1 beasts= style=False/ evasion=False martial=False cast_raging=False cast_shaped=True smite=-
 str human barbarian20 | defense: saves=str+con immune= poison=- fire=- aura=0 aura_down=0
-str human barbarian20 | combat: init=True atk_calm_melee=0/0 atk_rage_melee=1/1 atk_rage_ranged=0/1 dex_save=True evade=False dex_save_blind=False evade_stunned=False elusive_stunned=False
+str human barbarian20 | combat: init=True atk_calm_melee=0/0 atk_rage_melee=1/1x atk_rage_ranged=0/1x dex_save=True evade=False dex_save_blind=False evade_stunned=False elusive_stunned=False
 str human barbarian20 | styles: none:15//-/0/0/0 mail:16//-/0/0/0 sword_shield:18//-/0/0/0 great:16//-/0/0/0 versatile:15//-/0/0/0 dual:15//-/0/0/0 bow:15//-/0/0/0 sword_bow:18//-/0/0/0
 str human barbarian20 | onhit: extra= drain=0 crit_dice=3 unarmed_magic=False eb=0 fire_bolt=0
 str human barbarian20 | react: melee=- ranged=- stay=- stay_raging=Con:10+5:combat.relentless
@@ -621,7 +621,7 @@ str human bard19 | cast bard: kind=Known cantrips=4 known=22 prepared=0 class_ma
 str human bard19 | book bard: cantrips=vicious_mockery,dancing_lights,light known=feather_fall,shatter,thunderwave,mass_cure_wounds,cure_wounds,healing_word,feeblemind,arcane_sword,heat_metal,animate_objects,confusion,fear,hypnotic_pattern,stinking_cloud,bane,sleep,power_word_kill,true_polymorph,dominate_monster,mind_blank,power_word_stun,forcecage prepared=
 str human bard19 | castable: dancing_lights@bard,light@bard,vicious_mockery@bard,bane@bard,cure_wounds@bard,feather_fall@bard,healing_word@bard,sleep@bard,thunderwave@bard,heat_metal@bard,shatter@bard,fear@bard,hypnotic_pattern@bard,stinking_cloud@bard,confusion@bard,animate_objects@bard,mass_cure_wounds@bard,arcane_sword@bard,forcecage@bard,dominate_monster@bard,feeblemind@bard,mind_blank@bard,power_word_stun@bard,power_word_kill@bard,true_polymorph@bard
 str human bard20 | actions: bardic_inspiration
-str human bard20 | passives: song_of_rest,font_of_inspiration
+str human bard20 | passives: song_of_rest,font_of_inspiration,endless_inspiration
 str human bard20 | traits: 
 str human bard20 | pools: bardic_inspiration=1
 str human bard20 | short_rest: bardic_inspiration
@@ -981,7 +981,7 @@ str human cleric19 | cast cleric: kind=Prepared cantrips=5 known=0 prepared=19 c
 str human cleric19 | book cleric: cantrips=sacred_flame,resistance,spare_the_dying,light known= prepared=fire_storm,blade_barrier,flame_strike,insect_plague,control_water,spirit_guardians,mass_heal,heal,mass_cure_wounds,mass_healing_word,cure_wounds,healing_word,harm,guardian_of_faith,spiritual_weapon,guiding_bolt,inflict_wounds,conjure_celestial,bane
 str human cleric19 | castable: light@cleric,resistance@cleric,sacred_flame@cleric,spare_the_dying@cleric,bane@cleric,cure_wounds@cleric,guiding_bolt@cleric,healing_word@cleric,inflict_wounds@cleric,spiritual_weapon@cleric,mass_healing_word@cleric,spirit_guardians@cleric,control_water@cleric,guardian_of_faith@cleric,flame_strike@cleric,insect_plague@cleric,mass_cure_wounds@cleric,blade_barrier@cleric,harm@cleric,heal@cleric,conjure_celestial@cleric,fire_storm@cleric,mass_heal@cleric
 str human cleric20 | actions: turn_undead
-str human cleric20 | passives: destroy_undead
+str human cleric20 | passives: destroy_undead,supreme_healing
 str human cleric20 | traits: 
 str human cleric20 | pools: channel_divinity=3
 str human cleric20 | short_rest: channel_divinity
@@ -1341,7 +1341,7 @@ str human druid19 | cast druid: kind=Prepared cantrips=4 known=0 prepared=19 cla
 str human druid19 | book druid: cantrips=poison_spray,produce_flame,resistance known= prepared=storm_of_vengeance,sunburst,fire_storm,sunbeam,wall_of_thorns,insect_plague,control_water,ice_storm,wall_of_fire,call_lightning,wind_wall,moonbeam,thunderwave,heal,mass_cure_wounds,cure_wounds,healing_word,feeblemind,blight
 str human druid19 | castable: poison_spray@druid,produce_flame@druid,resistance@druid,cure_wounds@druid,healing_word@druid,thunderwave@druid,moonbeam@druid,call_lightning@druid,wind_wall@druid,blight@druid,control_water@druid,ice_storm@druid,wall_of_fire@druid,insect_plague@druid,mass_cure_wounds@druid,heal@druid,sunbeam@druid,wall_of_thorns@druid,fire_storm@druid,feeblemind@druid,sunburst@druid,storm_of_vengeance@druid
 str human druid20 | actions: wild_shape
-str human druid20 | passives: beast_spells,archdruid
+str human druid20 | passives: beast_spells,archdruid,lord_of_the_wild
 str human druid20 | traits: 
 str human druid20 | pools: wild_shape=99
 str human druid20 | short_rest: wild_shape
@@ -1905,7 +1905,7 @@ str human monk19 | race: adv_against= magic_save_adv= lucky=False magic_immune=
 str human monk19 | trap: poison_needle=21/30,20/30,22/30 gas_bomb=30/30+poisoned,30/30,30/30+poisoned crossbow_bolt=14/30,17/30,7/30 exploding_box=30/11,30/8,30/20 stunner=30/30,30/30,30/30 teleporter=30/30/tp,30/30/tp,30/30/tp mage_blaster=30/30,30/30,30/30 priest_blaster=30/30,30/30,30/30 alarm=30/30/alarm,30/30/alarm,30/30/alarm
 str human monk19 | action_nums: second_wind_bonus=0 sneak_d6=0 arcane_budget=0 turn_dc=0
 str human monk20 | actions: flurry_of_blows,patient_defense,stunning_strike
-str human monk20 | passives: unarmored_defense_wis,martial_arts,deflect_missiles,ki_empowered_strikes,evasion,purity_of_body,diamond_soul
+str human monk20 | passives: unarmored_defense_wis,martial_arts,deflect_missiles,ki_empowered_strikes,evasion,purity_of_body,diamond_soul,martial_mastery
 str human monk20 | traits: 
 str human monk20 | pools: ki=20
 str human monk20 | short_rest: ki
@@ -2261,7 +2261,7 @@ str human paladin19 | cast paladin: kind=Prepared cantrips=0 known=0 prepared=8 
 str human paladin19 | book paladin: cantrips= known= prepared=cure_wounds,branding_smite,banishment,revivify,aid,lesser_restoration,protection_from_poison,bless
 str human paladin19 | castable: bless@paladin,cure_wounds@paladin,aid@paladin,branding_smite@paladin,lesser_restoration@paladin,protection_from_poison@paladin,revivify@paladin,banishment@paladin
 str human paladin20 | actions: lay_on_hands,divine_smite
-str human paladin20 | passives: aura_of_protection,aura_of_courage,improved_divine_smite
+str human paladin20 | passives: aura_of_protection,aura_of_courage,improved_divine_smite,holy_avatar
 str human paladin20 | traits: 
 str human paladin20 | pools: lay_on_hands=100
 str human paladin20 | short_rest: 
@@ -2269,7 +2269,7 @@ str human paladin20 | numbers: attacks=2 asi=10 prof=6 ac=13 rage_dmg=0 brutal=0
 str human paladin20 | defense: saves=wis+cha immune=frightened poison=- fire=- aura=1 aura_down=0
 str human paladin20 | combat: init=False atk_calm_melee=0/0 atk_rage_melee=0/0 atk_rage_ranged=0/0 dex_save=False evade=False dex_save_blind=False evade_stunned=False elusive_stunned=False
 str human paladin20 | styles: none:13//-/0/0/0 mail:17/style_defense/-/0/0/0 sword_shield:18/style_dueling/-/0/2/0 great:16/style_great_weapon/-/0/0/2 versatile:13/style_great_weapon/-/0/0/2 dual:13/style_two_weapon/off/0/0/0 bow:13/style_archery/-/2/0/0 sword_bow:18/style_dueling+style_archery/-/2/2/0
-str human paladin20 | onhit: extra=1d8:radiant drain=0 crit_dice=0 unarmed_magic=False eb=0 fire_bolt=0
+str human paladin20 | onhit: extra=1d8:radiant+1d8:radiant drain=0 crit_dice=0 unarmed_magic=False eb=0 fire_bolt=0
 str human paladin20 | react: melee=- ranged=- stay=- stay_raging=-
 str human paladin20 | race: adv_against= magic_save_adv= lucky=False magic_immune=
 str human paladin20 | trap: poison_needle=21/30,20/30,22/30 gas_bomb=30+poisoned/30+poisoned,30/30,30/30+poisoned crossbow_bolt=14/30,17/30,7/30 exploding_box=19/11,21/8,10/20 stunner=30/30,30+paralyzed/30,30/30 teleporter=30/30/tp,30/30/tp,30/30/tp mage_blaster=30/30,30/30,30/30 priest_blaster=16/30,12/30,4/30 alarm=30/30/alarm,30/30/alarm,30/30/alarm
@@ -2621,7 +2621,7 @@ str human ranger19 | cast ranger: kind=Known cantrips=0 known=11 prepared=0 clas
 str human ranger19 | book ranger: cantrips= known=wind_wall,cure_wounds,conjure_woodland_beings,conjure_animals,freedom_of_movement,stoneskin,protection_from_energy,barkskin,lesser_restoration,protection_from_poison,daylight prepared=
 str human ranger19 | castable: cure_wounds@ranger,barkskin@ranger,lesser_restoration@ranger,protection_from_poison@ranger,conjure_animals@ranger,daylight@ranger,protection_from_energy@ranger,wind_wall@ranger,conjure_woodland_beings@ranger,freedom_of_movement@ranger,stoneskin@ranger
 str human ranger20 | actions: 
-str human ranger20 | passives: 
+str human ranger20 | passives: foe_slayer
 str human ranger20 | traits: 
 str human ranger20 | pools: 
 str human ranger20 | short_rest: 
@@ -2905,7 +2905,7 @@ str human rogue19 | race: adv_against= magic_save_adv= lucky=False magic_immune=
 str human rogue19 | trap: poison_needle=21/30,20/30,22/30 gas_bomb=30+poisoned/30+poisoned,30/30,30/30+poisoned crossbow_bolt=14/30,17/30,7/30 exploding_box=30/11,30/8,30/20 stunner=30/30,30+paralyzed/30,30/30 teleporter=30/30/tp,30/30/tp,30/30/tp mage_blaster=30/30,30/30,30/30 priest_blaster=30/30,30/30,30/30 alarm=30/30/alarm,30/30/alarm,30/30/alarm
 str human rogue19 | action_nums: second_wind_bonus=0 sneak_d6=10 arcane_budget=0 turn_dc=0
 str human rogue20 | actions: 
-str human rogue20 | passives: sneak_attack,uncanny_dodge,evasion,slippery_mind,elusive
+str human rogue20 | passives: sneak_attack,uncanny_dodge,evasion,slippery_mind,elusive,stroke_of_luck
 str human rogue20 | traits: 
 str human rogue20 | pools: 
 str human rogue20 | short_rest: 
@@ -3261,7 +3261,7 @@ str human sorcerer19 | cast sorcerer: kind=Known cantrips=6 known=15 prepared=0 
 str human sorcerer19 | book sorcerer: cantrips=acid_splash,chill_touch,fire_bolt,poison_spray,ray_of_frost,shocking_grasp known=counterspell,feather_fall,incendiary_cloud,sunburst,delayed_blast_fireball,fire_storm,prismatic_spray,chain_lightning,circle_of_death,disintegrate,sunbeam,cloudkill,cone_of_cold,insect_plague,ice_storm prepared=
 str human sorcerer19 | castable: acid_splash@sorcerer,chill_touch@sorcerer,fire_bolt@sorcerer,poison_spray@sorcerer,ray_of_frost@sorcerer,shocking_grasp@sorcerer,feather_fall@sorcerer,counterspell@sorcerer,ice_storm@sorcerer,cloudkill@sorcerer,cone_of_cold@sorcerer,insect_plague@sorcerer,chain_lightning@sorcerer,circle_of_death@sorcerer,disintegrate@sorcerer,sunbeam@sorcerer,delayed_blast_fireball@sorcerer,fire_storm@sorcerer,prismatic_spray@sorcerer,incendiary_cloud@sorcerer,sunburst@sorcerer
 str human sorcerer20 | actions: 
-str human sorcerer20 | passives: empowered_spell
+str human sorcerer20 | passives: empowered_spell,empowered_apex
 str human sorcerer20 | traits: 
 str human sorcerer20 | pools: sorcery_points=20
 str human sorcerer20 | short_rest: 
@@ -3485,7 +3485,7 @@ str human warlock12 | numbers: attacks=2 asi=6 prof=4 ac=13 rage_dmg=0 brutal=0 
 str human warlock12 | defense: saves=wis+cha immune= poison=- fire=- aura=0 aura_down=0
 str human warlock12 | combat: init=False atk_calm_melee=0/0 atk_rage_melee=0/0 atk_rage_ranged=0/0 dex_save=False evade=False dex_save_blind=False evade_stunned=False elusive_stunned=False
 str human warlock12 | styles: none:13//-/0/0/0 mail:16//-/0/0/0 sword_shield:18//-/0/0/0 great:16//-/0/0/0 versatile:13//-/0/0/0 dual:13//-/0/0/0 bow:13//-/0/0/0 sword_bow:18//-/0/0/0
-str human warlock12 | onhit: extra= drain=30 crit_dice=0 unarmed_magic=False eb=0 fire_bolt=0
+str human warlock12 | onhit: extra= drain=0 crit_dice=0 unarmed_magic=False eb=0 fire_bolt=0
 str human warlock12 | react: melee=- ranged=- stay=- stay_raging=-
 str human warlock12 | race: adv_against= magic_save_adv= lucky=False magic_immune=
 str human warlock12 | trap: poison_needle=21/30,20/30,22/30 gas_bomb=30+poisoned/30+poisoned,30/30,30/30+poisoned crossbow_bolt=14/30,17/30,7/30 exploding_box=8/11,21/8,10/20 stunner=30/30,30+paralyzed/30,30/30 teleporter=30/30/tp,30/30/tp,30/30/tp mage_blaster=11/30,3/30,1/30 priest_blaster=30/30,30/30,30/30 alarm=30/30/alarm,30/30/alarm,30/30/alarm
@@ -3503,7 +3503,7 @@ str human warlock13 | numbers: attacks=2 asi=6 prof=5 ac=13 rage_dmg=0 brutal=0 
 str human warlock13 | defense: saves=wis+cha immune= poison=- fire=- aura=0 aura_down=0
 str human warlock13 | combat: init=False atk_calm_melee=0/0 atk_rage_melee=0/0 atk_rage_ranged=0/0 dex_save=False evade=False dex_save_blind=False evade_stunned=False elusive_stunned=False
 str human warlock13 | styles: none:13//-/0/0/0 mail:16//-/0/0/0 sword_shield:18//-/0/0/0 great:16//-/0/0/0 versatile:13//-/0/0/0 dual:13//-/0/0/0 bow:13//-/0/0/0 sword_bow:18//-/0/0/0
-str human warlock13 | onhit: extra= drain=30 crit_dice=0 unarmed_magic=False eb=0 fire_bolt=0
+str human warlock13 | onhit: extra= drain=0 crit_dice=0 unarmed_magic=False eb=0 fire_bolt=0
 str human warlock13 | react: melee=- ranged=- stay=- stay_raging=-
 str human warlock13 | race: adv_against= magic_save_adv= lucky=False magic_immune=
 str human warlock13 | trap: poison_needle=21/30,20/30,22/30 gas_bomb=30+poisoned/30+poisoned,30/30,30/30+poisoned crossbow_bolt=14/30,17/30,7/30 exploding_box=8/11,21/8,10/20 stunner=30/30,30+paralyzed/30,30/30 teleporter=30/30/tp,30/30/tp,30/30/tp mage_blaster=11/30,3/30,1/30 priest_blaster=30/30,30/30,30/30 alarm=30/30/alarm,30/30/alarm,30/30/alarm
@@ -3521,7 +3521,7 @@ str human warlock14 | numbers: attacks=2 asi=6 prof=5 ac=13 rage_dmg=0 brutal=0 
 str human warlock14 | defense: saves=wis+cha immune= poison=- fire=- aura=0 aura_down=0
 str human warlock14 | combat: init=False atk_calm_melee=0/0 atk_rage_melee=0/0 atk_rage_ranged=0/0 dex_save=False evade=False dex_save_blind=False evade_stunned=False elusive_stunned=False
 str human warlock14 | styles: none:13//-/0/0/0 mail:16//-/0/0/0 sword_shield:18//-/0/0/0 great:16//-/0/0/0 versatile:13//-/0/0/0 dual:13//-/0/0/0 bow:13//-/0/0/0 sword_bow:18//-/0/0/0
-str human warlock14 | onhit: extra= drain=30 crit_dice=0 unarmed_magic=False eb=0 fire_bolt=0
+str human warlock14 | onhit: extra= drain=0 crit_dice=0 unarmed_magic=False eb=0 fire_bolt=0
 str human warlock14 | react: melee=- ranged=- stay=- stay_raging=-
 str human warlock14 | race: adv_against= magic_save_adv= lucky=False magic_immune=
 str human warlock14 | trap: poison_needle=21/30,20/30,22/30 gas_bomb=30+poisoned/30+poisoned,30/30,30/30+poisoned crossbow_bolt=14/30,17/30,7/30 exploding_box=8/11,21/8,10/20 stunner=30/30,30+paralyzed/30,30/30 teleporter=30/30/tp,30/30/tp,30/30/tp mage_blaster=11/30,3/30,1/30 priest_blaster=30/30,30/30,30/30 alarm=30/30/alarm,30/30/alarm,30/30/alarm
@@ -3539,7 +3539,7 @@ str human warlock15 | numbers: attacks=2 asi=6 prof=5 ac=13 rage_dmg=0 brutal=0 
 str human warlock15 | defense: saves=wis+cha immune= poison=- fire=- aura=0 aura_down=0
 str human warlock15 | combat: init=False atk_calm_melee=0/0 atk_rage_melee=0/0 atk_rage_ranged=0/0 dex_save=False evade=False dex_save_blind=False evade_stunned=False elusive_stunned=False
 str human warlock15 | styles: none:13//-/0/0/0 mail:16//-/0/0/0 sword_shield:18//-/0/0/0 great:16//-/0/0/0 versatile:13//-/0/0/0 dual:13//-/0/0/0 bow:13//-/0/0/0 sword_bow:18//-/0/0/0
-str human warlock15 | onhit: extra= drain=30 crit_dice=0 unarmed_magic=False eb=0 fire_bolt=0
+str human warlock15 | onhit: extra= drain=0 crit_dice=0 unarmed_magic=False eb=0 fire_bolt=0
 str human warlock15 | react: melee=- ranged=- stay=- stay_raging=-
 str human warlock15 | race: adv_against= magic_save_adv= lucky=False magic_immune=
 str human warlock15 | trap: poison_needle=21/30,20/30,22/30 gas_bomb=30+poisoned/30+poisoned,30/30,30/30+poisoned crossbow_bolt=14/30,17/30,7/30 exploding_box=8/11,21/8,10/20 stunner=30/30,30+paralyzed/30,30/30 teleporter=30/30/tp,30/30/tp,30/30/tp mage_blaster=11/30,3/30,1/30 priest_blaster=30/30,30/30,30/30 alarm=30/30/alarm,30/30/alarm,30/30/alarm
@@ -3557,7 +3557,7 @@ str human warlock16 | numbers: attacks=2 asi=8 prof=5 ac=13 rage_dmg=0 brutal=0 
 str human warlock16 | defense: saves=wis+cha immune= poison=- fire=- aura=0 aura_down=0
 str human warlock16 | combat: init=False atk_calm_melee=0/0 atk_rage_melee=0/0 atk_rage_ranged=0/0 dex_save=False evade=False dex_save_blind=False evade_stunned=False elusive_stunned=False
 str human warlock16 | styles: none:13//-/0/0/0 mail:16//-/0/0/0 sword_shield:18//-/0/0/0 great:16//-/0/0/0 versatile:13//-/0/0/0 dual:13//-/0/0/0 bow:13//-/0/0/0 sword_bow:18//-/0/0/0
-str human warlock16 | onhit: extra= drain=30 crit_dice=0 unarmed_magic=False eb=0 fire_bolt=0
+str human warlock16 | onhit: extra= drain=0 crit_dice=0 unarmed_magic=False eb=0 fire_bolt=0
 str human warlock16 | react: melee=- ranged=- stay=- stay_raging=-
 str human warlock16 | race: adv_against= magic_save_adv= lucky=False magic_immune=
 str human warlock16 | trap: poison_needle=21/30,20/30,22/30 gas_bomb=30+poisoned/30+poisoned,30/30,30/30+poisoned crossbow_bolt=14/30,17/30,7/30 exploding_box=8/11,21/8,10/20 stunner=30/30,30+paralyzed/30,30/30 teleporter=30/30/tp,30/30/tp,30/30/tp mage_blaster=11/30,3/30,1/30 priest_blaster=30/30,30/30,30/30 alarm=30/30/alarm,30/30/alarm,30/30/alarm
@@ -3575,7 +3575,7 @@ str human warlock17 | numbers: attacks=2 asi=8 prof=6 ac=13 rage_dmg=0 brutal=0 
 str human warlock17 | defense: saves=wis+cha immune= poison=- fire=- aura=0 aura_down=0
 str human warlock17 | combat: init=False atk_calm_melee=0/0 atk_rage_melee=0/0 atk_rage_ranged=0/0 dex_save=False evade=False dex_save_blind=False evade_stunned=False elusive_stunned=False
 str human warlock17 | styles: none:13//-/0/0/0 mail:16//-/0/0/0 sword_shield:18//-/0/0/0 great:16//-/0/0/0 versatile:13//-/0/0/0 dual:13//-/0/0/0 bow:13//-/0/0/0 sword_bow:18//-/0/0/0
-str human warlock17 | onhit: extra= drain=30 crit_dice=0 unarmed_magic=False eb=0 fire_bolt=0
+str human warlock17 | onhit: extra= drain=0 crit_dice=0 unarmed_magic=False eb=0 fire_bolt=0
 str human warlock17 | react: melee=- ranged=- stay=- stay_raging=-
 str human warlock17 | race: adv_against= magic_save_adv= lucky=False magic_immune=
 str human warlock17 | trap: poison_needle=21/30,20/30,22/30 gas_bomb=30+poisoned/30+poisoned,30/30,30/30+poisoned crossbow_bolt=14/30,17/30,7/30 exploding_box=8/11,21/8,10/20 stunner=30/30,30+paralyzed/30,30/30 teleporter=30/30/tp,30/30/tp,30/30/tp mage_blaster=11/30,3/30,1/30 priest_blaster=30/30,30/30,30/30 alarm=30/30/alarm,30/30/alarm,30/30/alarm
@@ -3593,7 +3593,7 @@ str human warlock18 | numbers: attacks=2 asi=8 prof=6 ac=13 rage_dmg=0 brutal=0 
 str human warlock18 | defense: saves=wis+cha immune= poison=- fire=- aura=0 aura_down=0
 str human warlock18 | combat: init=False atk_calm_melee=0/0 atk_rage_melee=0/0 atk_rage_ranged=0/0 dex_save=False evade=False dex_save_blind=False evade_stunned=False elusive_stunned=False
 str human warlock18 | styles: none:13//-/0/0/0 mail:16//-/0/0/0 sword_shield:18//-/0/0/0 great:16//-/0/0/0 versatile:13//-/0/0/0 dual:13//-/0/0/0 bow:13//-/0/0/0 sword_bow:18//-/0/0/0
-str human warlock18 | onhit: extra= drain=30 crit_dice=0 unarmed_magic=False eb=0 fire_bolt=0
+str human warlock18 | onhit: extra= drain=0 crit_dice=0 unarmed_magic=False eb=0 fire_bolt=0
 str human warlock18 | react: melee=- ranged=- stay=- stay_raging=-
 str human warlock18 | race: adv_against= magic_save_adv= lucky=False magic_immune=
 str human warlock18 | trap: poison_needle=21/30,20/30,22/30 gas_bomb=30+poisoned/30+poisoned,30/30,30/30+poisoned crossbow_bolt=14/30,17/30,7/30 exploding_box=8/11,21/8,10/20 stunner=30/30,30+paralyzed/30,30/30 teleporter=30/30/tp,30/30/tp,30/30/tp mage_blaster=11/30,3/30,1/30 priest_blaster=30/30,30/30,30/30 alarm=30/30/alarm,30/30/alarm,30/30/alarm
@@ -3611,7 +3611,7 @@ str human warlock19 | numbers: attacks=2 asi=10 prof=6 ac=13 rage_dmg=0 brutal=0
 str human warlock19 | defense: saves=wis+cha immune= poison=- fire=- aura=0 aura_down=0
 str human warlock19 | combat: init=False atk_calm_melee=0/0 atk_rage_melee=0/0 atk_rage_ranged=0/0 dex_save=False evade=False dex_save_blind=False evade_stunned=False elusive_stunned=False
 str human warlock19 | styles: none:13//-/0/0/0 mail:16//-/0/0/0 sword_shield:18//-/0/0/0 great:16//-/0/0/0 versatile:13//-/0/0/0 dual:13//-/0/0/0 bow:13//-/0/0/0 sword_bow:18//-/0/0/0
-str human warlock19 | onhit: extra= drain=30 crit_dice=0 unarmed_magic=False eb=0 fire_bolt=0
+str human warlock19 | onhit: extra= drain=0 crit_dice=0 unarmed_magic=False eb=0 fire_bolt=0
 str human warlock19 | react: melee=- ranged=- stay=- stay_raging=-
 str human warlock19 | race: adv_against= magic_save_adv= lucky=False magic_immune=
 str human warlock19 | trap: poison_needle=21/30,20/30,22/30 gas_bomb=30+poisoned/30+poisoned,30/30,30/30+poisoned crossbow_bolt=14/30,17/30,7/30 exploding_box=8/11,21/8,10/20 stunner=30/30,30+paralyzed/30,30/30 teleporter=30/30/tp,30/30/tp,30/30/tp mage_blaster=11/30,3/30,1/30 priest_blaster=30/30,30/30,30/30 alarm=30/30/alarm,30/30/alarm,30/30/alarm
@@ -3621,7 +3621,7 @@ str human warlock19 | cast warlock: kind=Pact cantrips=4 known=15 prepared=0 cla
 str human warlock19 | book warlock: cantrips=chill_touch,eldritch_blast,poison_spray known=counterspell,shatter,blight,vampiric_touch,fear,hypnotic_pattern,hold_monster,banishment,hold_person,invisibility,remove_curse prepared=
 str human warlock19 | castable: chill_touch@warlock,eldritch_blast@warlock,poison_spray@warlock,hold_person@warlock,invisibility@warlock,shatter@warlock,counterspell@warlock,fear@warlock,hypnotic_pattern@warlock,remove_curse@warlock,vampiric_touch@warlock,banishment@warlock,blight@warlock,hold_monster@warlock
 str human warlock20 | actions: 
-str human warlock20 | passives: agonizing_blast,thirsting_blade,lifedrinker
+str human warlock20 | passives: agonizing_blast,thirsting_blade,lifedrinker,eldritch_master
 str human warlock20 | traits: 
 str human warlock20 | pools: 
 str human warlock20 | short_rest: 
@@ -3629,7 +3629,7 @@ str human warlock20 | numbers: attacks=2 asi=10 prof=6 ac=13 rage_dmg=0 brutal=0
 str human warlock20 | defense: saves=wis+cha immune= poison=- fire=- aura=0 aura_down=0
 str human warlock20 | combat: init=False atk_calm_melee=0/0 atk_rage_melee=0/0 atk_rage_ranged=0/0 dex_save=False evade=False dex_save_blind=False evade_stunned=False elusive_stunned=False
 str human warlock20 | styles: none:13//-/0/0/0 mail:16//-/0/0/0 sword_shield:18//-/0/0/0 great:16//-/0/0/0 versatile:13//-/0/0/0 dual:13//-/0/0/0 bow:13//-/0/0/0 sword_bow:18//-/0/0/0
-str human warlock20 | onhit: extra= drain=30 crit_dice=0 unarmed_magic=False eb=0 fire_bolt=0
+str human warlock20 | onhit: extra= drain=0 crit_dice=0 unarmed_magic=False eb=0 fire_bolt=0
 str human warlock20 | react: melee=- ranged=- stay=- stay_raging=-
 str human warlock20 | race: adv_against= magic_save_adv= lucky=False magic_immune=
 str human warlock20 | trap: poison_needle=21/30,20/30,22/30 gas_bomb=30+poisoned/30+poisoned,30/30,30/30+poisoned crossbow_bolt=14/30,17/30,7/30 exploding_box=8/11,21/8,10/20 stunner=30/30,30+paralyzed/30,30/30 teleporter=30/30/tp,30/30/tp,30/30/tp mage_blaster=11/30,3/30,1/30 priest_blaster=30/30,30/30,30/30 alarm=30/30/alarm,30/30/alarm,30/30/alarm
@@ -3945,7 +3945,7 @@ str human wizard17 | cast wizard: kind=Book cantrips=5 known=38 prepared=18 clas
 str human wizard17 | book wizard: cantrips=acid_splash,chill_touch,fire_bolt,poison_spray,ray_of_frost known=counterspell,feather_fall,incendiary_cloud,sunburst,delayed_blast_fireball,prismatic_spray,chain_lightning,circle_of_death,disintegrate,freezing_sphere,sunbeam,wall_of_ice,cloudkill,cone_of_cold,black_tentacles,control_water,fire_shield,ice_storm,wall_of_fire,fireball,lightning_bolt,shatter,burning_hands,thunderwave,meteor_swarm,weird,feeblemind,arcane_sword,finger_of_death,arcane_hand,blight,faithful_hound,phantasmal_killer,vampiric_touch,acid_arrow,flaming_sphere,scorching_ray,magic_missile prepared=counterspell,incendiary_cloud,sunburst,delayed_blast_fireball,prismatic_spray,chain_lightning,circle_of_death,disintegrate,freezing_sphere,sunbeam,wall_of_ice,cloudkill,cone_of_cold,black_tentacles,control_water,fire_shield,ice_storm,wall_of_fire
 str human wizard17 | castable: acid_splash@wizard,chill_touch@wizard,fire_bolt@wizard,poison_spray@wizard,ray_of_frost@wizard,counterspell@wizard,black_tentacles@wizard,control_water@wizard,fire_shield@wizard,ice_storm@wizard,wall_of_fire@wizard,cloudkill@wizard,cone_of_cold@wizard,chain_lightning@wizard,circle_of_death@wizard,disintegrate@wizard,freezing_sphere@wizard,sunbeam@wizard,wall_of_ice@wizard,delayed_blast_fireball@wizard,prismatic_spray@wizard,incendiary_cloud@wizard,sunburst@wizard
 str human wizard18 | actions: 
-str human wizard18 | passives: 
+str human wizard18 | passives: spell_mastery
 str human wizard18 | traits: 
 str human wizard18 | pools: arcane_recovery=1
 str human wizard18 | short_rest: 
@@ -3963,7 +3963,7 @@ str human wizard18 | cast wizard: kind=Book cantrips=5 known=40 prepared=19 clas
 str human wizard18 | book wizard: cantrips=acid_splash,chill_touch,fire_bolt,poison_spray,ray_of_frost known=counterspell,feather_fall,incendiary_cloud,sunburst,delayed_blast_fireball,prismatic_spray,chain_lightning,circle_of_death,disintegrate,freezing_sphere,sunbeam,wall_of_ice,cloudkill,cone_of_cold,black_tentacles,control_water,fire_shield,ice_storm,wall_of_fire,fireball,lightning_bolt,shatter,burning_hands,thunderwave,meteor_swarm,weird,feeblemind,arcane_sword,finger_of_death,arcane_hand,blight,faithful_hound,phantasmal_killer,vampiric_touch,acid_arrow,flaming_sphere,scorching_ray,magic_missile,animate_objects,conjure_elemental prepared=counterspell,incendiary_cloud,sunburst,delayed_blast_fireball,prismatic_spray,chain_lightning,circle_of_death,disintegrate,freezing_sphere,sunbeam,wall_of_ice,cloudkill,cone_of_cold,black_tentacles,control_water,fire_shield,ice_storm,wall_of_fire,fireball
 str human wizard18 | castable: acid_splash@wizard,chill_touch@wizard,fire_bolt@wizard,poison_spray@wizard,ray_of_frost@wizard,counterspell@wizard,fireball@wizard,black_tentacles@wizard,control_water@wizard,fire_shield@wizard,ice_storm@wizard,wall_of_fire@wizard,cloudkill@wizard,cone_of_cold@wizard,chain_lightning@wizard,circle_of_death@wizard,disintegrate@wizard,freezing_sphere@wizard,sunbeam@wizard,wall_of_ice@wizard,delayed_blast_fireball@wizard,prismatic_spray@wizard,incendiary_cloud@wizard,sunburst@wizard
 str human wizard19 | actions: 
-str human wizard19 | passives: 
+str human wizard19 | passives: spell_mastery
 str human wizard19 | traits: 
 str human wizard19 | pools: arcane_recovery=1
 str human wizard19 | short_rest: 
@@ -3981,7 +3981,7 @@ str human wizard19 | cast wizard: kind=Book cantrips=5 known=42 prepared=20 clas
 str human wizard19 | book wizard: cantrips=acid_splash,chill_touch,fire_bolt,poison_spray,ray_of_frost known=counterspell,feather_fall,incendiary_cloud,sunburst,delayed_blast_fireball,prismatic_spray,chain_lightning,circle_of_death,disintegrate,freezing_sphere,sunbeam,wall_of_ice,cloudkill,cone_of_cold,black_tentacles,control_water,fire_shield,ice_storm,wall_of_fire,fireball,lightning_bolt,shatter,burning_hands,thunderwave,meteor_swarm,weird,feeblemind,arcane_sword,finger_of_death,arcane_hand,blight,faithful_hound,phantasmal_killer,vampiric_touch,acid_arrow,flaming_sphere,scorching_ray,magic_missile,animate_objects,conjure_elemental,conjure_minor_elementals,confusion prepared=counterspell,incendiary_cloud,sunburst,delayed_blast_fireball,prismatic_spray,chain_lightning,circle_of_death,disintegrate,freezing_sphere,sunbeam,wall_of_ice,cloudkill,cone_of_cold,black_tentacles,control_water,fire_shield,ice_storm,wall_of_fire,fireball,lightning_bolt
 str human wizard19 | castable: acid_splash@wizard,chill_touch@wizard,fire_bolt@wizard,poison_spray@wizard,ray_of_frost@wizard,counterspell@wizard,fireball@wizard,lightning_bolt@wizard,black_tentacles@wizard,control_water@wizard,fire_shield@wizard,ice_storm@wizard,wall_of_fire@wizard,cloudkill@wizard,cone_of_cold@wizard,chain_lightning@wizard,circle_of_death@wizard,disintegrate@wizard,freezing_sphere@wizard,sunbeam@wizard,wall_of_ice@wizard,delayed_blast_fireball@wizard,prismatic_spray@wizard,incendiary_cloud@wizard,sunburst@wizard
 str human wizard20 | actions: 
-str human wizard20 | passives: 
+str human wizard20 | passives: spell_mastery
 str human wizard20 | traits: 
 str human wizard20 | pools: arcane_recovery=1
 str human wizard20 | short_rest: 
@@ -5113,13 +5113,13 @@ cha human barbarian19 | race: adv_against= magic_save_adv= lucky=False magic_imm
 cha human barbarian19 | trap: poison_needle=21/30,20/30,22/30 gas_bomb=30+poisoned/30+poisoned,30/30,30/30+poisoned crossbow_bolt=14/30,17/30,7/30 exploding_box=8/13,11/19,10/17 stunner=30/30,30/30,30/30 teleporter=30/30/tp,30/30/tp,30/30/tp mage_blaster=30/30,30/30,30/30 priest_blaster=30/30,30/30,30/30 alarm=30/30/alarm,30/30/alarm,30/30/alarm
 cha human barbarian19 | action_nums: second_wind_bonus=0 sneak_d6=0 arcane_budget=0 turn_dc=0
 cha human barbarian20 | actions: rage
-cha human barbarian20 | passives: unarmored_defense_con,reckless_attack,danger_sense,feral_instinct,brutal_critical,relentless_rage
+cha human barbarian20 | passives: unarmored_defense_con,reckless_attack,danger_sense,feral_instinct,brutal_critical,relentless_rage,primal_champion
 cha human barbarian20 | traits: 
 cha human barbarian20 | pools: rage=99
 cha human barbarian20 | short_rest: 
 cha human barbarian20 | numbers: attacks=2 asi=10 prof=6 ac=11 rage_dmg=4 brutal=3 ma_die=4 ki_dc=0 insp_die=0 destroy_cr=-1 beasts= style=False/ evasion=False martial=False cast_raging=False cast_shaped=True smite=-
 cha human barbarian20 | defense: saves=str+con immune= poison=- fire=- aura=0 aura_down=0
-cha human barbarian20 | combat: init=True atk_calm_melee=0/0 atk_rage_melee=1/1 atk_rage_ranged=0/1 dex_save=True evade=False dex_save_blind=False evade_stunned=False elusive_stunned=False
+cha human barbarian20 | combat: init=True atk_calm_melee=0/0 atk_rage_melee=1/1x atk_rage_ranged=0/1x dex_save=True evade=False dex_save_blind=False evade_stunned=False elusive_stunned=False
 cha human barbarian20 | styles: none:11//-/0/0/0 mail:16//-/0/0/0 sword_shield:18//-/0/0/0 great:16//-/0/0/0 versatile:11//-/0/0/0 dual:11//-/0/0/0 bow:11//-/0/0/0 sword_bow:18//-/0/0/0
 cha human barbarian20 | onhit: extra= drain=0 crit_dice=3 unarmed_magic=False eb=0 fire_bolt=0
 cha human barbarian20 | react: melee=- ranged=- stay=- stay_raging=Con:10+5:combat.relentless
@@ -5469,7 +5469,7 @@ cha human bard19 | cast bard: kind=Known cantrips=4 known=22 prepared=0 class_ma
 cha human bard19 | book bard: cantrips=vicious_mockery,dancing_lights,light known=feather_fall,shatter,thunderwave,mass_cure_wounds,cure_wounds,healing_word,feeblemind,arcane_sword,heat_metal,animate_objects,confusion,fear,hypnotic_pattern,stinking_cloud,bane,sleep,power_word_kill,true_polymorph,dominate_monster,mind_blank,power_word_stun,forcecage prepared=
 cha human bard19 | castable: dancing_lights@bard,light@bard,vicious_mockery@bard,bane@bard,cure_wounds@bard,feather_fall@bard,healing_word@bard,sleep@bard,thunderwave@bard,heat_metal@bard,shatter@bard,fear@bard,hypnotic_pattern@bard,stinking_cloud@bard,confusion@bard,animate_objects@bard,mass_cure_wounds@bard,arcane_sword@bard,forcecage@bard,dominate_monster@bard,feeblemind@bard,mind_blank@bard,power_word_stun@bard,power_word_kill@bard,true_polymorph@bard
 cha human bard20 | actions: bardic_inspiration
-cha human bard20 | passives: song_of_rest,font_of_inspiration
+cha human bard20 | passives: song_of_rest,font_of_inspiration,endless_inspiration
 cha human bard20 | traits: 
 cha human bard20 | pools: bardic_inspiration=4
 cha human bard20 | short_rest: bardic_inspiration
@@ -5829,7 +5829,7 @@ cha human cleric19 | cast cleric: kind=Prepared cantrips=5 known=0 prepared=22 c
 cha human cleric19 | book cleric: cantrips=sacred_flame,resistance,spare_the_dying,light known= prepared=fire_storm,blade_barrier,flame_strike,insect_plague,control_water,spirit_guardians,mass_heal,heal,mass_cure_wounds,mass_healing_word,cure_wounds,healing_word,harm,guardian_of_faith,spiritual_weapon,guiding_bolt,inflict_wounds,conjure_celestial,bane,holy_aura,divine_word,plane_shift
 cha human cleric19 | castable: light@cleric,resistance@cleric,sacred_flame@cleric,spare_the_dying@cleric,bane@cleric,cure_wounds@cleric,guiding_bolt@cleric,healing_word@cleric,inflict_wounds@cleric,spiritual_weapon@cleric,mass_healing_word@cleric,spirit_guardians@cleric,control_water@cleric,guardian_of_faith@cleric,flame_strike@cleric,insect_plague@cleric,mass_cure_wounds@cleric,blade_barrier@cleric,harm@cleric,heal@cleric,conjure_celestial@cleric,divine_word@cleric,fire_storm@cleric,plane_shift@cleric,holy_aura@cleric,mass_heal@cleric
 cha human cleric20 | actions: turn_undead
-cha human cleric20 | passives: destroy_undead
+cha human cleric20 | passives: destroy_undead,supreme_healing
 cha human cleric20 | traits: 
 cha human cleric20 | pools: channel_divinity=3
 cha human cleric20 | short_rest: channel_divinity
@@ -6189,7 +6189,7 @@ cha human druid19 | cast druid: kind=Prepared cantrips=4 known=0 prepared=22 cla
 cha human druid19 | book druid: cantrips=poison_spray,produce_flame,resistance known= prepared=storm_of_vengeance,sunburst,fire_storm,sunbeam,wall_of_thorns,insect_plague,control_water,ice_storm,wall_of_fire,call_lightning,wind_wall,moonbeam,thunderwave,heal,mass_cure_wounds,cure_wounds,healing_word,feeblemind,blight,flame_blade,flaming_sphere,heat_metal
 cha human druid19 | castable: poison_spray@druid,produce_flame@druid,resistance@druid,cure_wounds@druid,healing_word@druid,thunderwave@druid,flame_blade@druid,flaming_sphere@druid,heat_metal@druid,moonbeam@druid,call_lightning@druid,wind_wall@druid,blight@druid,control_water@druid,ice_storm@druid,wall_of_fire@druid,insect_plague@druid,mass_cure_wounds@druid,heal@druid,sunbeam@druid,wall_of_thorns@druid,fire_storm@druid,feeblemind@druid,sunburst@druid,storm_of_vengeance@druid
 cha human druid20 | actions: wild_shape
-cha human druid20 | passives: beast_spells,archdruid
+cha human druid20 | passives: beast_spells,archdruid,lord_of_the_wild
 cha human druid20 | traits: 
 cha human druid20 | pools: wild_shape=99
 cha human druid20 | short_rest: wild_shape
@@ -6753,7 +6753,7 @@ cha human monk19 | race: adv_against= magic_save_adv= lucky=False magic_immune=
 cha human monk19 | trap: poison_needle=21/30,20/30,22/30 gas_bomb=30/30+poisoned,30/30,30/30+poisoned crossbow_bolt=14/30,17/30,7/30 exploding_box=30/11,30/8,20/20 stunner=30/30,30/30,30/30 teleporter=30/30/tp,30/30/tp,30/30/tp mage_blaster=30/30,30/30,30/30 priest_blaster=30/30,30/30,30/30 alarm=30/30/alarm,30/30/alarm,30/30/alarm
 cha human monk19 | action_nums: second_wind_bonus=0 sneak_d6=0 arcane_budget=0 turn_dc=0
 cha human monk20 | actions: flurry_of_blows,patient_defense,stunning_strike
-cha human monk20 | passives: unarmored_defense_wis,martial_arts,deflect_missiles,ki_empowered_strikes,evasion,purity_of_body,diamond_soul
+cha human monk20 | passives: unarmored_defense_wis,martial_arts,deflect_missiles,ki_empowered_strikes,evasion,purity_of_body,diamond_soul,martial_mastery
 cha human monk20 | traits: 
 cha human monk20 | pools: ki=20
 cha human monk20 | short_rest: ki
@@ -7109,7 +7109,7 @@ cha human paladin19 | cast paladin: kind=Prepared cantrips=0 known=0 prepared=13
 cha human paladin19 | book paladin: cantrips= known= prepared=cure_wounds,branding_smite,banishment,revivify,aid,lesser_restoration,protection_from_poison,bless,command,divine_favor,heroism,shield_of_faith
 cha human paladin19 | castable: bless@paladin,command@paladin,cure_wounds@paladin,divine_favor@paladin,heroism@paladin,shield_of_faith@paladin,aid@paladin,branding_smite@paladin,lesser_restoration@paladin,protection_from_poison@paladin,revivify@paladin,banishment@paladin
 cha human paladin20 | actions: lay_on_hands,divine_smite
-cha human paladin20 | passives: aura_of_protection,aura_of_courage,improved_divine_smite
+cha human paladin20 | passives: aura_of_protection,aura_of_courage,improved_divine_smite,holy_avatar
 cha human paladin20 | traits: 
 cha human paladin20 | pools: lay_on_hands=100
 cha human paladin20 | short_rest: 
@@ -7117,7 +7117,7 @@ cha human paladin20 | numbers: attacks=2 asi=10 prof=6 ac=10 rage_dmg=0 brutal=0
 cha human paladin20 | defense: saves=wis+cha immune=frightened poison=- fire=- aura=4 aura_down=0
 cha human paladin20 | combat: init=False atk_calm_melee=0/0 atk_rage_melee=0/0 atk_rage_ranged=0/0 dex_save=False evade=False dex_save_blind=False evade_stunned=False elusive_stunned=False
 cha human paladin20 | styles: none:10//-/0/0/0 mail:17/style_defense/-/0/0/0 sword_shield:18/style_dueling/-/0/2/0 great:16/style_great_weapon/-/0/0/2 versatile:10/style_great_weapon/-/0/0/2 dual:10/style_two_weapon/off/0/0/0 bow:10/style_archery/-/2/0/0 sword_bow:18/style_dueling+style_archery/-/2/2/0
-cha human paladin20 | onhit: extra=1d8:radiant drain=0 crit_dice=0 unarmed_magic=False eb=0 fire_bolt=0
+cha human paladin20 | onhit: extra=1d8:radiant+1d8:radiant drain=0 crit_dice=0 unarmed_magic=False eb=0 fire_bolt=0
 cha human paladin20 | react: melee=- ranged=- stay=- stay_raging=-
 cha human paladin20 | race: adv_against= magic_save_adv= lucky=False magic_immune=
 cha human paladin20 | trap: poison_needle=21/30,20/30,22/30 gas_bomb=30+poisoned/30,30/30,30/30+poisoned crossbow_bolt=14/30,17/30,7/30 exploding_box=19/11,21/8,10/20 stunner=30/30,30+paralyzed/30,30/30 teleporter=30/30/tp,30/30/tp,30/30/tp mage_blaster=30/30,30/30,30/30 priest_blaster=16/30,12/30,4/30 alarm=30/30/alarm,30/30/alarm,30/30/alarm
@@ -7469,7 +7469,7 @@ cha human ranger19 | cast ranger: kind=Known cantrips=0 known=11 prepared=0 clas
 cha human ranger19 | book ranger: cantrips= known=wind_wall,cure_wounds,conjure_woodland_beings,conjure_animals,freedom_of_movement,stoneskin,protection_from_energy,barkskin,lesser_restoration,protection_from_poison,daylight prepared=
 cha human ranger19 | castable: cure_wounds@ranger,barkskin@ranger,lesser_restoration@ranger,protection_from_poison@ranger,conjure_animals@ranger,daylight@ranger,protection_from_energy@ranger,wind_wall@ranger,conjure_woodland_beings@ranger,freedom_of_movement@ranger,stoneskin@ranger
 cha human ranger20 | actions: 
-cha human ranger20 | passives: 
+cha human ranger20 | passives: foe_slayer
 cha human ranger20 | traits: 
 cha human ranger20 | pools: 
 cha human ranger20 | short_rest: 
@@ -7753,7 +7753,7 @@ cha human rogue19 | race: adv_against= magic_save_adv= lucky=False magic_immune=
 cha human rogue19 | trap: poison_needle=21/30,20/30,22+poisoned/30 gas_bomb=30+poisoned/30+poisoned,30/30,30/30+poisoned crossbow_bolt=14/30,17/30,7/30 exploding_box=30/11,30/8,20/20 stunner=30+paralyzed/30,30+paralyzed/30,30/30 teleporter=30/30/tp,30/30/tp,30/30/tp mage_blaster=30/30,30/30,30/30 priest_blaster=30/30,30/30,30/30 alarm=30/30/alarm,30/30/alarm,30/30/alarm
 cha human rogue19 | action_nums: second_wind_bonus=0 sneak_d6=10 arcane_budget=0 turn_dc=0
 cha human rogue20 | actions: 
-cha human rogue20 | passives: sneak_attack,uncanny_dodge,evasion,slippery_mind,elusive
+cha human rogue20 | passives: sneak_attack,uncanny_dodge,evasion,slippery_mind,elusive,stroke_of_luck
 cha human rogue20 | traits: 
 cha human rogue20 | pools: 
 cha human rogue20 | short_rest: 
@@ -8109,7 +8109,7 @@ cha human sorcerer19 | cast sorcerer: kind=Known cantrips=6 known=15 prepared=0 
 cha human sorcerer19 | book sorcerer: cantrips=acid_splash,chill_touch,fire_bolt,poison_spray,ray_of_frost,shocking_grasp known=counterspell,feather_fall,incendiary_cloud,sunburst,delayed_blast_fireball,fire_storm,prismatic_spray,chain_lightning,circle_of_death,disintegrate,sunbeam,cloudkill,cone_of_cold,insect_plague,ice_storm prepared=
 cha human sorcerer19 | castable: acid_splash@sorcerer,chill_touch@sorcerer,fire_bolt@sorcerer,poison_spray@sorcerer,ray_of_frost@sorcerer,shocking_grasp@sorcerer,feather_fall@sorcerer,counterspell@sorcerer,ice_storm@sorcerer,cloudkill@sorcerer,cone_of_cold@sorcerer,insect_plague@sorcerer,chain_lightning@sorcerer,circle_of_death@sorcerer,disintegrate@sorcerer,sunbeam@sorcerer,delayed_blast_fireball@sorcerer,fire_storm@sorcerer,prismatic_spray@sorcerer,incendiary_cloud@sorcerer,sunburst@sorcerer
 cha human sorcerer20 | actions: 
-cha human sorcerer20 | passives: empowered_spell
+cha human sorcerer20 | passives: empowered_spell,empowered_apex
 cha human sorcerer20 | traits: 
 cha human sorcerer20 | pools: sorcery_points=20
 cha human sorcerer20 | short_rest: 
@@ -8333,7 +8333,7 @@ cha human warlock12 | numbers: attacks=2 asi=6 prof=4 ac=10 rage_dmg=0 brutal=0 
 cha human warlock12 | defense: saves=wis+cha immune= poison=- fire=- aura=0 aura_down=0
 cha human warlock12 | combat: init=False atk_calm_melee=0/0 atk_rage_melee=0/0 atk_rage_ranged=0/0 dex_save=False evade=False dex_save_blind=False evade_stunned=False elusive_stunned=False
 cha human warlock12 | styles: none:10//-/0/0/0 mail:16//-/0/0/0 sword_shield:18//-/0/0/0 great:16//-/0/0/0 versatile:10//-/0/0/0 dual:10//-/0/0/0 bow:10//-/0/0/0 sword_bow:18//-/0/0/0
-cha human warlock12 | onhit: extra= drain=30 crit_dice=0 unarmed_magic=False eb=4 fire_bolt=0
+cha human warlock12 | onhit: extra=4:necrotic drain=0 crit_dice=0 unarmed_magic=False eb=4 fire_bolt=0
 cha human warlock12 | react: melee=- ranged=- stay=- stay_raging=-
 cha human warlock12 | race: adv_against= magic_save_adv= lucky=False magic_immune=
 cha human warlock12 | trap: poison_needle=21/30,20/30,22+poisoned/30 gas_bomb=30+poisoned/30+poisoned,30/30,30/30+poisoned crossbow_bolt=14/30,17/30,7/30 exploding_box=8/11,11/8,10/20 stunner=30+paralyzed/30,30+paralyzed/30,30/30 teleporter=30/30/tp,30/30/tp,30/30/tp mage_blaster=11/30,3/30,1/30 priest_blaster=30/30,30/30,30/30 alarm=30/30/alarm,30/30/alarm,30/30/alarm
@@ -8351,7 +8351,7 @@ cha human warlock13 | numbers: attacks=2 asi=6 prof=5 ac=10 rage_dmg=0 brutal=0 
 cha human warlock13 | defense: saves=wis+cha immune= poison=- fire=- aura=0 aura_down=0
 cha human warlock13 | combat: init=False atk_calm_melee=0/0 atk_rage_melee=0/0 atk_rage_ranged=0/0 dex_save=False evade=False dex_save_blind=False evade_stunned=False elusive_stunned=False
 cha human warlock13 | styles: none:10//-/0/0/0 mail:16//-/0/0/0 sword_shield:18//-/0/0/0 great:16//-/0/0/0 versatile:10//-/0/0/0 dual:10//-/0/0/0 bow:10//-/0/0/0 sword_bow:18//-/0/0/0
-cha human warlock13 | onhit: extra= drain=30 crit_dice=0 unarmed_magic=False eb=4 fire_bolt=0
+cha human warlock13 | onhit: extra=4:necrotic drain=0 crit_dice=0 unarmed_magic=False eb=4 fire_bolt=0
 cha human warlock13 | react: melee=- ranged=- stay=- stay_raging=-
 cha human warlock13 | race: adv_against= magic_save_adv= lucky=False magic_immune=
 cha human warlock13 | trap: poison_needle=21/30,20/30,22+poisoned/30 gas_bomb=30+poisoned/30+poisoned,30/30,30/30+poisoned crossbow_bolt=14/30,17/30,7/30 exploding_box=8/11,11/8,10/20 stunner=30+paralyzed/30,30+paralyzed/30,30/30 teleporter=30/30/tp,30/30/tp,30/30/tp mage_blaster=11/30,3/30,1/30 priest_blaster=30/30,30/30,30/30 alarm=30/30/alarm,30/30/alarm,30/30/alarm
@@ -8369,7 +8369,7 @@ cha human warlock14 | numbers: attacks=2 asi=6 prof=5 ac=10 rage_dmg=0 brutal=0 
 cha human warlock14 | defense: saves=wis+cha immune= poison=- fire=- aura=0 aura_down=0
 cha human warlock14 | combat: init=False atk_calm_melee=0/0 atk_rage_melee=0/0 atk_rage_ranged=0/0 dex_save=False evade=False dex_save_blind=False evade_stunned=False elusive_stunned=False
 cha human warlock14 | styles: none:10//-/0/0/0 mail:16//-/0/0/0 sword_shield:18//-/0/0/0 great:16//-/0/0/0 versatile:10//-/0/0/0 dual:10//-/0/0/0 bow:10//-/0/0/0 sword_bow:18//-/0/0/0
-cha human warlock14 | onhit: extra= drain=30 crit_dice=0 unarmed_magic=False eb=4 fire_bolt=0
+cha human warlock14 | onhit: extra=4:necrotic drain=0 crit_dice=0 unarmed_magic=False eb=4 fire_bolt=0
 cha human warlock14 | react: melee=- ranged=- stay=- stay_raging=-
 cha human warlock14 | race: adv_against= magic_save_adv= lucky=False magic_immune=
 cha human warlock14 | trap: poison_needle=21/30,20/30,22+poisoned/30 gas_bomb=30+poisoned/30+poisoned,30/30,30/30+poisoned crossbow_bolt=14/30,17/30,7/30 exploding_box=8/11,11/8,10/20 stunner=30+paralyzed/30,30+paralyzed/30,30/30 teleporter=30/30/tp,30/30/tp,30/30/tp mage_blaster=11/30,3/30,1/30 priest_blaster=30/30,30/30,30/30 alarm=30/30/alarm,30/30/alarm,30/30/alarm
@@ -8387,7 +8387,7 @@ cha human warlock15 | numbers: attacks=2 asi=6 prof=5 ac=10 rage_dmg=0 brutal=0 
 cha human warlock15 | defense: saves=wis+cha immune= poison=- fire=- aura=0 aura_down=0
 cha human warlock15 | combat: init=False atk_calm_melee=0/0 atk_rage_melee=0/0 atk_rage_ranged=0/0 dex_save=False evade=False dex_save_blind=False evade_stunned=False elusive_stunned=False
 cha human warlock15 | styles: none:10//-/0/0/0 mail:16//-/0/0/0 sword_shield:18//-/0/0/0 great:16//-/0/0/0 versatile:10//-/0/0/0 dual:10//-/0/0/0 bow:10//-/0/0/0 sword_bow:18//-/0/0/0
-cha human warlock15 | onhit: extra= drain=30 crit_dice=0 unarmed_magic=False eb=4 fire_bolt=0
+cha human warlock15 | onhit: extra=4:necrotic drain=0 crit_dice=0 unarmed_magic=False eb=4 fire_bolt=0
 cha human warlock15 | react: melee=- ranged=- stay=- stay_raging=-
 cha human warlock15 | race: adv_against= magic_save_adv= lucky=False magic_immune=
 cha human warlock15 | trap: poison_needle=21/30,20/30,22+poisoned/30 gas_bomb=30+poisoned/30+poisoned,30/30,30/30+poisoned crossbow_bolt=14/30,17/30,7/30 exploding_box=8/11,11/8,10/20 stunner=30+paralyzed/30,30+paralyzed/30,30/30 teleporter=30/30/tp,30/30/tp,30/30/tp mage_blaster=11/30,3/30,1/30 priest_blaster=30/30,30/30,30/30 alarm=30/30/alarm,30/30/alarm,30/30/alarm
@@ -8405,7 +8405,7 @@ cha human warlock16 | numbers: attacks=2 asi=8 prof=5 ac=10 rage_dmg=0 brutal=0 
 cha human warlock16 | defense: saves=wis+cha immune= poison=- fire=- aura=0 aura_down=0
 cha human warlock16 | combat: init=False atk_calm_melee=0/0 atk_rage_melee=0/0 atk_rage_ranged=0/0 dex_save=False evade=False dex_save_blind=False evade_stunned=False elusive_stunned=False
 cha human warlock16 | styles: none:10//-/0/0/0 mail:16//-/0/0/0 sword_shield:18//-/0/0/0 great:16//-/0/0/0 versatile:10//-/0/0/0 dual:10//-/0/0/0 bow:10//-/0/0/0 sword_bow:18//-/0/0/0
-cha human warlock16 | onhit: extra= drain=30 crit_dice=0 unarmed_magic=False eb=4 fire_bolt=0
+cha human warlock16 | onhit: extra=4:necrotic drain=0 crit_dice=0 unarmed_magic=False eb=4 fire_bolt=0
 cha human warlock16 | react: melee=- ranged=- stay=- stay_raging=-
 cha human warlock16 | race: adv_against= magic_save_adv= lucky=False magic_immune=
 cha human warlock16 | trap: poison_needle=21/30,20/30,22+poisoned/30 gas_bomb=30+poisoned/30+poisoned,30/30,30/30+poisoned crossbow_bolt=14/30,17/30,7/30 exploding_box=8/11,11/8,10/20 stunner=30+paralyzed/30,30+paralyzed/30,30/30 teleporter=30/30/tp,30/30/tp,30/30/tp mage_blaster=11/30,3/30,1/30 priest_blaster=30/30,30/30,30/30 alarm=30/30/alarm,30/30/alarm,30/30/alarm
@@ -8423,7 +8423,7 @@ cha human warlock17 | numbers: attacks=2 asi=8 prof=6 ac=10 rage_dmg=0 brutal=0 
 cha human warlock17 | defense: saves=wis+cha immune= poison=- fire=- aura=0 aura_down=0
 cha human warlock17 | combat: init=False atk_calm_melee=0/0 atk_rage_melee=0/0 atk_rage_ranged=0/0 dex_save=False evade=False dex_save_blind=False evade_stunned=False elusive_stunned=False
 cha human warlock17 | styles: none:10//-/0/0/0 mail:16//-/0/0/0 sword_shield:18//-/0/0/0 great:16//-/0/0/0 versatile:10//-/0/0/0 dual:10//-/0/0/0 bow:10//-/0/0/0 sword_bow:18//-/0/0/0
-cha human warlock17 | onhit: extra= drain=30 crit_dice=0 unarmed_magic=False eb=4 fire_bolt=0
+cha human warlock17 | onhit: extra=4:necrotic drain=0 crit_dice=0 unarmed_magic=False eb=4 fire_bolt=0
 cha human warlock17 | react: melee=- ranged=- stay=- stay_raging=-
 cha human warlock17 | race: adv_against= magic_save_adv= lucky=False magic_immune=
 cha human warlock17 | trap: poison_needle=21/30,20/30,22+poisoned/30 gas_bomb=30+poisoned/30+poisoned,30/30,30/30+poisoned crossbow_bolt=14/30,17/30,7/30 exploding_box=8/11,11/8,10/20 stunner=30+paralyzed/30,30+paralyzed/30,30/30 teleporter=30/30/tp,30/30/tp,30/30/tp mage_blaster=11/30,3/30,1/30 priest_blaster=30/30,30/30,30/30 alarm=30/30/alarm,30/30/alarm,30/30/alarm
@@ -8441,7 +8441,7 @@ cha human warlock18 | numbers: attacks=2 asi=8 prof=6 ac=10 rage_dmg=0 brutal=0 
 cha human warlock18 | defense: saves=wis+cha immune= poison=- fire=- aura=0 aura_down=0
 cha human warlock18 | combat: init=False atk_calm_melee=0/0 atk_rage_melee=0/0 atk_rage_ranged=0/0 dex_save=False evade=False dex_save_blind=False evade_stunned=False elusive_stunned=False
 cha human warlock18 | styles: none:10//-/0/0/0 mail:16//-/0/0/0 sword_shield:18//-/0/0/0 great:16//-/0/0/0 versatile:10//-/0/0/0 dual:10//-/0/0/0 bow:10//-/0/0/0 sword_bow:18//-/0/0/0
-cha human warlock18 | onhit: extra= drain=30 crit_dice=0 unarmed_magic=False eb=4 fire_bolt=0
+cha human warlock18 | onhit: extra=4:necrotic drain=0 crit_dice=0 unarmed_magic=False eb=4 fire_bolt=0
 cha human warlock18 | react: melee=- ranged=- stay=- stay_raging=-
 cha human warlock18 | race: adv_against= magic_save_adv= lucky=False magic_immune=
 cha human warlock18 | trap: poison_needle=21/30,20/30,22+poisoned/30 gas_bomb=30+poisoned/30+poisoned,30/30,30/30+poisoned crossbow_bolt=14/30,17/30,7/30 exploding_box=8/11,11/8,10/20 stunner=30+paralyzed/30,30+paralyzed/30,30/30 teleporter=30/30/tp,30/30/tp,30/30/tp mage_blaster=11/30,3/30,1/30 priest_blaster=30/30,30/30,30/30 alarm=30/30/alarm,30/30/alarm,30/30/alarm
@@ -8459,7 +8459,7 @@ cha human warlock19 | numbers: attacks=2 asi=10 prof=6 ac=10 rage_dmg=0 brutal=0
 cha human warlock19 | defense: saves=wis+cha immune= poison=- fire=- aura=0 aura_down=0
 cha human warlock19 | combat: init=False atk_calm_melee=0/0 atk_rage_melee=0/0 atk_rage_ranged=0/0 dex_save=False evade=False dex_save_blind=False evade_stunned=False elusive_stunned=False
 cha human warlock19 | styles: none:10//-/0/0/0 mail:16//-/0/0/0 sword_shield:18//-/0/0/0 great:16//-/0/0/0 versatile:10//-/0/0/0 dual:10//-/0/0/0 bow:10//-/0/0/0 sword_bow:18//-/0/0/0
-cha human warlock19 | onhit: extra= drain=30 crit_dice=0 unarmed_magic=False eb=4 fire_bolt=0
+cha human warlock19 | onhit: extra=4:necrotic drain=0 crit_dice=0 unarmed_magic=False eb=4 fire_bolt=0
 cha human warlock19 | react: melee=- ranged=- stay=- stay_raging=-
 cha human warlock19 | race: adv_against= magic_save_adv= lucky=False magic_immune=
 cha human warlock19 | trap: poison_needle=21/30,20/30,22+poisoned/30 gas_bomb=30+poisoned/30+poisoned,30/30,30/30+poisoned crossbow_bolt=14/30,17/30,7/30 exploding_box=8/11,11/8,10/20 stunner=30+paralyzed/30,30+paralyzed/30,30/30 teleporter=30/30/tp,30/30/tp,30/30/tp mage_blaster=11/30,3/30,1/30 priest_blaster=30/30,30/30,30/30 alarm=30/30/alarm,30/30/alarm,30/30/alarm
@@ -8469,7 +8469,7 @@ cha human warlock19 | cast warlock: kind=Pact cantrips=4 known=15 prepared=0 cla
 cha human warlock19 | book warlock: cantrips=chill_touch,eldritch_blast,poison_spray known=counterspell,shatter,blight,vampiric_touch,fear,hypnotic_pattern,hold_monster,banishment,hold_person,invisibility,remove_curse prepared=
 cha human warlock19 | castable: chill_touch@warlock,eldritch_blast@warlock,poison_spray@warlock,hold_person@warlock,invisibility@warlock,shatter@warlock,counterspell@warlock,fear@warlock,hypnotic_pattern@warlock,remove_curse@warlock,vampiric_touch@warlock,banishment@warlock,blight@warlock,hold_monster@warlock
 cha human warlock20 | actions: 
-cha human warlock20 | passives: agonizing_blast,thirsting_blade,lifedrinker
+cha human warlock20 | passives: agonizing_blast,thirsting_blade,lifedrinker,eldritch_master
 cha human warlock20 | traits: 
 cha human warlock20 | pools: 
 cha human warlock20 | short_rest: 
@@ -8477,7 +8477,7 @@ cha human warlock20 | numbers: attacks=2 asi=10 prof=6 ac=10 rage_dmg=0 brutal=0
 cha human warlock20 | defense: saves=wis+cha immune= poison=- fire=- aura=0 aura_down=0
 cha human warlock20 | combat: init=False atk_calm_melee=0/0 atk_rage_melee=0/0 atk_rage_ranged=0/0 dex_save=False evade=False dex_save_blind=False evade_stunned=False elusive_stunned=False
 cha human warlock20 | styles: none:10//-/0/0/0 mail:16//-/0/0/0 sword_shield:18//-/0/0/0 great:16//-/0/0/0 versatile:10//-/0/0/0 dual:10//-/0/0/0 bow:10//-/0/0/0 sword_bow:18//-/0/0/0
-cha human warlock20 | onhit: extra= drain=30 crit_dice=0 unarmed_magic=False eb=4 fire_bolt=0
+cha human warlock20 | onhit: extra=4:necrotic drain=0 crit_dice=0 unarmed_magic=False eb=4 fire_bolt=0
 cha human warlock20 | react: melee=- ranged=- stay=- stay_raging=-
 cha human warlock20 | race: adv_against= magic_save_adv= lucky=False magic_immune=
 cha human warlock20 | trap: poison_needle=21/30,20/30,22+poisoned/30 gas_bomb=30+poisoned/30+poisoned,30/30,30/30+poisoned crossbow_bolt=14/30,17/30,7/30 exploding_box=8/11,11/8,10/20 stunner=30+paralyzed/30,30+paralyzed/30,30/30 teleporter=30/30/tp,30/30/tp,30/30/tp mage_blaster=11/30,3/30,1/30 priest_blaster=30/30,30/30,30/30 alarm=30/30/alarm,30/30/alarm,30/30/alarm
@@ -8793,7 +8793,7 @@ cha human wizard17 | cast wizard: kind=Book cantrips=5 known=38 prepared=19 clas
 cha human wizard17 | book wizard: cantrips=acid_splash,chill_touch,fire_bolt,poison_spray,ray_of_frost known=counterspell,feather_fall,incendiary_cloud,sunburst,delayed_blast_fireball,prismatic_spray,chain_lightning,circle_of_death,disintegrate,freezing_sphere,sunbeam,wall_of_ice,cloudkill,cone_of_cold,black_tentacles,control_water,fire_shield,ice_storm,wall_of_fire,fireball,lightning_bolt,shatter,burning_hands,thunderwave,meteor_swarm,weird,feeblemind,arcane_sword,finger_of_death,arcane_hand,blight,faithful_hound,phantasmal_killer,vampiric_touch,acid_arrow,flaming_sphere,scorching_ray,magic_missile prepared=counterspell,incendiary_cloud,sunburst,delayed_blast_fireball,prismatic_spray,chain_lightning,circle_of_death,disintegrate,freezing_sphere,sunbeam,wall_of_ice,cloudkill,cone_of_cold,black_tentacles,control_water,fire_shield,ice_storm,wall_of_fire,fireball
 cha human wizard17 | castable: acid_splash@wizard,chill_touch@wizard,fire_bolt@wizard,poison_spray@wizard,ray_of_frost@wizard,counterspell@wizard,fireball@wizard,black_tentacles@wizard,control_water@wizard,fire_shield@wizard,ice_storm@wizard,wall_of_fire@wizard,cloudkill@wizard,cone_of_cold@wizard,chain_lightning@wizard,circle_of_death@wizard,disintegrate@wizard,freezing_sphere@wizard,sunbeam@wizard,wall_of_ice@wizard,delayed_blast_fireball@wizard,prismatic_spray@wizard,incendiary_cloud@wizard,sunburst@wizard
 cha human wizard18 | actions: 
-cha human wizard18 | passives: 
+cha human wizard18 | passives: spell_mastery
 cha human wizard18 | traits: 
 cha human wizard18 | pools: arcane_recovery=1
 cha human wizard18 | short_rest: 
@@ -8811,7 +8811,7 @@ cha human wizard18 | cast wizard: kind=Book cantrips=5 known=40 prepared=20 clas
 cha human wizard18 | book wizard: cantrips=acid_splash,chill_touch,fire_bolt,poison_spray,ray_of_frost known=counterspell,feather_fall,incendiary_cloud,sunburst,delayed_blast_fireball,prismatic_spray,chain_lightning,circle_of_death,disintegrate,freezing_sphere,sunbeam,wall_of_ice,cloudkill,cone_of_cold,black_tentacles,control_water,fire_shield,ice_storm,wall_of_fire,fireball,lightning_bolt,shatter,burning_hands,thunderwave,meteor_swarm,weird,feeblemind,arcane_sword,finger_of_death,arcane_hand,blight,faithful_hound,phantasmal_killer,vampiric_touch,acid_arrow,flaming_sphere,scorching_ray,magic_missile,animate_objects,conjure_elemental prepared=counterspell,incendiary_cloud,sunburst,delayed_blast_fireball,prismatic_spray,chain_lightning,circle_of_death,disintegrate,freezing_sphere,sunbeam,wall_of_ice,cloudkill,cone_of_cold,black_tentacles,control_water,fire_shield,ice_storm,wall_of_fire,fireball,lightning_bolt
 cha human wizard18 | castable: acid_splash@wizard,chill_touch@wizard,fire_bolt@wizard,poison_spray@wizard,ray_of_frost@wizard,counterspell@wizard,fireball@wizard,lightning_bolt@wizard,black_tentacles@wizard,control_water@wizard,fire_shield@wizard,ice_storm@wizard,wall_of_fire@wizard,cloudkill@wizard,cone_of_cold@wizard,chain_lightning@wizard,circle_of_death@wizard,disintegrate@wizard,freezing_sphere@wizard,sunbeam@wizard,wall_of_ice@wizard,delayed_blast_fireball@wizard,prismatic_spray@wizard,incendiary_cloud@wizard,sunburst@wizard
 cha human wizard19 | actions: 
-cha human wizard19 | passives: 
+cha human wizard19 | passives: spell_mastery
 cha human wizard19 | traits: 
 cha human wizard19 | pools: arcane_recovery=1
 cha human wizard19 | short_rest: 
@@ -8829,7 +8829,7 @@ cha human wizard19 | cast wizard: kind=Book cantrips=5 known=42 prepared=21 clas
 cha human wizard19 | book wizard: cantrips=acid_splash,chill_touch,fire_bolt,poison_spray,ray_of_frost known=counterspell,feather_fall,incendiary_cloud,sunburst,delayed_blast_fireball,prismatic_spray,chain_lightning,circle_of_death,disintegrate,freezing_sphere,sunbeam,wall_of_ice,cloudkill,cone_of_cold,black_tentacles,control_water,fire_shield,ice_storm,wall_of_fire,fireball,lightning_bolt,shatter,burning_hands,thunderwave,meteor_swarm,weird,feeblemind,arcane_sword,finger_of_death,arcane_hand,blight,faithful_hound,phantasmal_killer,vampiric_touch,acid_arrow,flaming_sphere,scorching_ray,magic_missile,animate_objects,conjure_elemental,conjure_minor_elementals,confusion prepared=counterspell,incendiary_cloud,sunburst,delayed_blast_fireball,prismatic_spray,chain_lightning,circle_of_death,disintegrate,freezing_sphere,sunbeam,wall_of_ice,cloudkill,cone_of_cold,black_tentacles,control_water,fire_shield,ice_storm,wall_of_fire,fireball,lightning_bolt,shatter
 cha human wizard19 | castable: acid_splash@wizard,chill_touch@wizard,fire_bolt@wizard,poison_spray@wizard,ray_of_frost@wizard,shatter@wizard,counterspell@wizard,fireball@wizard,lightning_bolt@wizard,black_tentacles@wizard,control_water@wizard,fire_shield@wizard,ice_storm@wizard,wall_of_fire@wizard,cloudkill@wizard,cone_of_cold@wizard,chain_lightning@wizard,circle_of_death@wizard,disintegrate@wizard,freezing_sphere@wizard,sunbeam@wizard,wall_of_ice@wizard,delayed_blast_fireball@wizard,prismatic_spray@wizard,incendiary_cloud@wizard,sunburst@wizard
 cha human wizard20 | actions: 
-cha human wizard20 | passives: 
+cha human wizard20 | passives: spell_mastery
 cha human wizard20 | traits: 
 cha human wizard20 | pools: arcane_recovery=1
 cha human wizard20 | short_rest: 

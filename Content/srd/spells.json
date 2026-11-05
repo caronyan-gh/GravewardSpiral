@@ -1699,7 +1699,8 @@
   "status": "ok",
   "target": "ally",
   "use": [
-   "combat"
+   "combat",
+   "camp"
   ],
   "icon": "buff"
  },
@@ -4967,7 +4968,8 @@
   "status": "ok",
   "target": "ally",
   "use": [
-   "combat"
+   "combat",
+   "camp"
   ],
   "icon": "buff"
  },
@@ -8012,23 +8014,24 @@
   "ritual": false,
   "concentration": false,
   "time": "action",
-  "rounds": 600,
+  "rounds": 4800,
   "effects": [
    {
     "type": "immune_condition",
     "condition": "charmed",
-    "rounds": 600
+    "rounds": 4800
    },
    {
     "type": "resist",
     "damage_type": "psychic",
-    "rounds": 600
+    "rounds": 4800
    }
   ],
   "status": "ok",
   "target": "ally",
   "use": [
-   "combat"
+   "combat",
+   "camp"
   ],
   "icon": "protect"
  },
@@ -8134,7 +8137,7 @@
   "ritual": false,
   "concentration": false,
   "time": "long",
-  "rounds": 600,
+  "rounds": 4800,
   "use": [
    "camp"
   ],
@@ -8143,19 +8146,19 @@
     "type": "modifier",
     "stat": "attack",
     "value": 5,
-    "rounds": 600
+    "rounds": 4800
    },
    {
     "type": "modifier",
     "stat": "ac",
     "value": 5,
-    "rounds": 600
+    "rounds": 4800
    },
    {
     "type": "modifier",
     "stat": "save",
     "value": 5,
-    "rounds": 600
+    "rounds": 4800
    }
   ],
   "status": "ok",

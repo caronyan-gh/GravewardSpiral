@@ -14,7 +14,7 @@ This game adapts the D&D 5th edition SRD 5.1 for dungeon exploration. These are 
 - Ability Score Improvements and feats: Gain 2 points at class levels 4, 8, 12, 16 and 19 (fighters also at 6 and 14, rogues at 10) and spend them one at a time at the training grounds. There are no feats (the only SRD 5.1 feat is for grappling, which this game does not have).
 - Fighting Style: You don't choose one. It follows what you wield. Shots with a ranged weapon always get Archery, whatever is in your main hand. In melee: two weapons, Two-Weapon Fighting; two-handed, Great Weapon Fighting; one-handed, Dueling. With no weapon but armor, Defense. The status screen shows the styles in effect (or None).
 - Wild Shape: While transformed, your AC is the beast's fixed value. Unarmored Defense and gear don't add to it.
-- Level cap: Total character level has no cap. From level 21 onward, gain an epic boon with each level.
+- Level cap: Total character level has no cap. Up to four classes, capped at 20, 15, 10 and 5 in the order taken. Once all four reach their caps (total level 50), each further level is epic and grants a boon. Ability Score Improvements can raise scores to 30 once all six are 20.
 
 ## Combat
 

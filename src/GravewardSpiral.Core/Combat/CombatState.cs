@@ -147,4 +147,7 @@ public sealed class Lingering
 
     /// <summary>集中の要らない続く呪文(スピリチュアル・ウェポン)の残りのラウンド。null なら集中のあいだ続く。</summary>
     public int? RoundsLeft { get; set; }
+
+    /// <summary>道具で唱えた呪文が続いているもの(エピックの呪文の恩恵は乗らない)。</summary>
+    public bool FromItem { get; init; }
 }

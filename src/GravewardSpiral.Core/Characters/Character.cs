@@ -133,39 +133,68 @@ public sealed class Character
     public int TempHp { get; set; }
 
     /// <summary>
-    /// エピックレベルの恩恵(L21 から1レベルごとに1つ選ぶ)。str〜cha は能力値 +1(30 まで)、hp は最大 HP +10、
-    /// damage は武器のダメージ +1、save はセーヴ +1。
+    /// エピックの恩恵。4 つのクラスを全部上限まで上げたあと(合計 51 から)、1レベルごとに1つ選ぶ。
+    /// hp は最大 HP +10、damage は武器のダメージ +1、spell は呪文のダメージと回復 +1。どれも上限なし。
+    /// 前の形の恩恵(能力値・save)が残っていても、数えない(能力値と HP は取ったときに足してある)。
     /// </summary>
     public List<string> EpicBoons { get; set; } = [];
 
-    public const int MaxEpicScore = 30;
-    public static readonly string[] BoonKinds = ["str", "dex", "con", "int", "wis", "cha", "hp", "damage", "save"];
+    public static readonly string[] BoonKinds = ["hp", "damage", "spell"];
+
+    /// <summary>呪文の熟達(ウィザード L18)で選んだ呪文の id。枠を使わずに何度でも唱えられる(Spellcasting.Mastery)。</summary>
+    public string? MasterySpell { get; set; }
+
+    /// <summary>森の主(ドルイド L20)で選んだ召喚の呪文の id。戦闘の始めから、その召喚がいる(Spellcasting.Companion)。</summary>
+    public string? CompanionSpell { get; set; }
+
+    /// <summary>
+    /// クラスのレベルの上限。取った順に 20・15・10・5(1人 4 クラスまで)。1つしか 20 にできないので、
+    /// どれを深くしてどれをつまむかが作りになる。
+    /// </summary>
+    public static readonly int[] ClassCaps = [20, 15, 10, 5];
+    public static int MaxClasses => ClassCaps.Length;
+
+    /// <summary>この合計レベルを超えたら、クラスなしでレベルが上がり、恩恵を得る(上限の合計 50)。</summary>
+    public static int EpicFrom => ClassCaps.Sum();
+
+    /// <summary>エピックのレベルで増える HP(一律。d8 の平均 + 耐久力。最低 1)。</summary>
+    public const int EpicHpBase = 5;
+
+    /// <summary>クラスなしで上げたレベルの数(合計レベルからクラスのレベルを引いた分)。</summary>
+    public int EpicLevels => Math.Max(0, Level - ClassIds.Sum(LevelIn));
 
     /// <summary>まだ選んでいない恩恵の数。</summary>
-    public int EpicPoints => Math.Max(0, Level - 20) - EpicBoons.Count;
+    public int EpicPoints => EpicLevels - EpicBoons.Count(BoonKinds.Contains);
+
+    /// <summary>取った恩恵の数(種類ごと)。</summary>
+    public int BoonCount(string kind) => EpicBoons.Count(b => b == kind);
 
     /// <summary>恩恵を1つ選ぶ。選べなければ false。</summary>
     public bool TakeBoon(string kind)
     {
         if (EpicPoints <= 0 || !BoonKinds.Contains(kind)) return false;
-        if (kind.Length == 3 && kind != "hp" && Abilities.All.Any(a => a.Code() == kind) && Scores[Abilities.Parse(kind)] >= MaxEpicScore) return false;
         EpicBoons.Add(kind);
         if (kind == "hp")
         {
             MaxHp += 10;
             if (IsAlive) Hp += 10;
         }
-        else if (Abilities.All.Any(a => a.Code() == kind)) Scores[Abilities.Parse(kind)]++;
         return true;
     }
 
     /// <summary>
     /// 能力値上昇で上げた能力値(1点ごとに1つ。str〜cha)。5版どおり、クラスのレベル 4・8・12・16・19(ファイターは 6・14、
-    /// ローグは 10 も)で2点ずつ得て、訓練場で振る。能力値は 20 まで。
+    /// ローグは 10 も)で2点ずつ得て、訓練場で振る。能力値は 20 まで。6つとも 20 になったら 30 まで。
     /// </summary>
     public List<string> AbilityIncreases { get; set; } = [];
 
     public const int MaxIncreasedScore = 20;
+    public const int MaxScore = 30;
+
+    /// <summary>能力値上昇で上げられる上限(6つとも 20 以上なら 30、そうでなければ 20)。score は仮の分を足した値を渡せる。</summary>
+    public static int IncreaseCap(Func<Ability, int> score) => Abilities.All.All(a => score(a) >= MaxIncreasedScore) ? MaxScore : MaxIncreasedScore;
+
+    public int IncreaseCap() => IncreaseCap(a => Scores[a]);
 
     /// <summary>種族の特性を持っているか(races.json の traits)。</summary>
     public bool HasTrait(GameData data, string trait) => data.Races.TryGetValue(RaceId, out var r) && r.Traits.Contains(trait);
@@ -176,7 +205,7 @@ public sealed class Character
     /// <summary>能力値上昇の点を1つ振る(その能力値 +1)。振れなければ false。耐久力の修正値が上がれば、最大 HP もレベルの分上がる。</summary>
     public bool IncreaseAbility(GameData data, Ability a)
     {
-        if (AbilityPoints(data) <= 0 || Scores[a] >= MaxIncreasedScore) return false;
+        if (AbilityPoints(data) <= 0 || Scores[a] >= IncreaseCap()) return false;
         int conBefore = Scores.Mod(Ability.Con);
         AbilityIncreases.Add(a.Code());
         Scores[a]++;
@@ -188,22 +217,26 @@ public sealed class Character
         return true;
     }
 
-    /// <summary>能力値上昇の点を、おまかせで全部振る(ボット・確認用の起動)。クラスの主な能力値、耐久力、敏捷力の順に 20 まで。</summary>
+    /// <summary>能力値上昇の点を、おまかせで全部振る(ボット・確認用の起動)。クラスの主な能力値、耐久力、敏捷力の順に上限まで。</summary>
     public void AutoIncreaseAbilities(GameData data)
     {
         var order = data.Classes[ClassId].PrimaryAbilities.Concat([Ability.Con, Ability.Dex]).Concat(Abilities.All).Distinct().ToList();
         while (AbilityPoints(data) > 0)
         {
-            var a = order.FirstOrDefault(x => Scores[x] < MaxIncreasedScore, (Ability)(-1));
+            int cap = IncreaseCap();
+            var a = order.FirstOrDefault(x => Scores[x] < cap, (Ability)(-1));
             if ((int)a < 0 || !IncreaseAbility(data, a)) break;
         }
     }
 
     /// <summary>武器のダメージに足す値(装備の damage の修正値と、エピックの恩恵)。</summary>
-    public int DamageBonus(GameData data) => PassiveBonus(data, "damage") + EpicBoons.Count(b => b == "damage");
+    public int DamageBonus(GameData data) => PassiveBonus(data, "damage") + BoonCount("damage");
 
     /// <summary>戦闘のあとも残っている状態(毒など)。大休憩で消える。</summary>
     public List<Combat.LastingCondition> Lasting { get; set; } = [];
+
+    /// <summary>戦闘のあとも続いている呪文の効き目(メイジ・アーマーなど)。1時間までのものは歩数で減り、長いものは大休憩か町に戻るまで。</summary>
+    public List<Combat.LastingBuff> Buffs { get; set; } = [];
 
     public int ProficiencyBonus => Progression.ProficiencyBonus(Level);
 
@@ -260,12 +293,16 @@ public sealed class Character
     }
 
     public int SaveBonus(GameData data, Ability a) =>
-        Stats(data).Mod(a) + (SaveProficient(data, a) ? ProficiencyBonus : 0) + PassiveBonus(data, "save") + EpicBoons.Count(b => b == "save");
+        Stats(data).Mod(a) + (SaveProficient(data, a) ? ProficiencyBonus : 0) + PassiveBonus(data, "save");
 
     /// <summary>セーヴの習熟(最初のクラスと、能力の save_proficiency。つかみどころのない心で判断力、金剛の魂で全部)。</summary>
     public bool SaveProficient(GameData data, Ability a) =>
         data.Classes[ClassId].SavesWith(a)
         || PassiveRules.Effects(data, this, "save_proficiency").Any(e => e.Effect.Ability == null || Abilities.Parse(e.Effect.Ability) == a);
+
+    /// <summary>鎧を着ているか(ローブは鎧ではない。鎧なしの防御・武術・メイジ・アーマーはローブの上からも効く)。</summary>
+    public bool WearingArmor(GameData data) =>
+        Inventory[EquipSlot.Armor] is { } armor && !(data.Items.TryGetValue(armor.ItemId, out var a) && a.ArmorType == ArmorType.Robe);
 
     /// <summary>着ている鎧の習熟があるか(無いと攻撃が不利になり、呪文を唱えられない。5版)。鎧と盾の両方を見る。</summary>
     public bool ArmorProficient(GameData data)
@@ -289,6 +326,7 @@ public sealed class Character
     /// <summary>その鎧か盾の習熟があるか(鎧と盾でない品は true)。装備の画面は、習熟の無い鎧と盾を付けさせない。</summary>
     public bool CanWear(GameData data, ItemDef def)
     {
+        if (def.ArmorType == ArmorType.Robe) return true;   // ローブは誰でも着られる
         string? need = def.Kind == ItemKind.Shield ? "shield" : def.ArmorType?.ToString().ToLowerInvariant();
         return need == null || ClassIds.Select(id => data.Classes[id]).Any(c => c.Armor.Contains(need));
     }
@@ -305,7 +343,7 @@ public sealed class Character
         var stats = Stats(data);
         int dex = stats.Mod(Ability.Dex);
         int ac;
-        if (Inventory[EquipSlot.Armor] is { } armor && data.Items.TryGetValue(armor.ItemId, out var a))
+        if (Inventory[EquipSlot.Armor] is { } armor && data.Items.TryGetValue(armor.ItemId, out var a) && a.ArmorType != ArmorType.Robe)
         {
             // 重装鎧(上限 0)は敏捷力の修正を足さない(マイナスでも引かない)。中装鎧は上限まで
             ac = a.ArmorClass + armor.HitAcBonus(a) + (a.DexCap is 0 ? 0 : a.DexCap is int cap ? Math.Min(dex, cap) : dex);
@@ -317,6 +355,8 @@ public sealed class Character
             foreach (var e in PassiveRules.Effects(data, this, "ac_ability", now ?? new PassiveRules.Situation()))
                 ac += stats.Mod(Abilities.Parse(e.Effect.Ability!));
             if (unarmoredBase is int ub) ac = Math.Max(ac, ub + dex);
+            // ローブ: 鎧なしの AC に、強化値の AC の分だけ足す
+            if (Inventory[EquipSlot.Armor] is { } robe && data.Items.TryGetValue(robe.ItemId, out var rd)) ac += robe.HitAcBonus(rd);
         }
         if (Inventory[EquipSlot.OffHand] is { } off && data.Items.TryGetValue(off.ItemId, out var s) && s.Kind == ItemKind.Shield)
             ac += s.ArmorClass + off.HitAcBonus(s);
@@ -334,20 +374,32 @@ public sealed class Character
 
     /// <summary>
     /// 訓練場でのレベルアップ。経験値が足りていなければ何もしない。上がった数を返す。
-    /// classId は上げるクラス(省略すると最初のクラス。マルチクラスで別のクラスを選ぶ画面は M8)。
+    /// classId は上げるクラス。省略すると、20 に届いていない今のクラス(先に取ったものから)、それも無ければ取れる新しいクラス。
+    /// クラスは 4 つまで、上限は取った順に 20・15・10・5。4 つとも上限になったあと(合計 51 から)はクラスなしで上がり、
+    /// HP は一律(<see cref="EpicHpBase"/> + 耐久力)、恩恵の点が1つ増える。上げられるクラスが無ければ止まる。
     /// </summary>
     public int LevelUp(GameData data, string? classId = null, int maxLevels = int.MaxValue)
     {
         NormalizeClasses();
-        classId ??= ClassId;
         int gained = 0;
         while (CanLevelUp && gained < maxLevels)
         {
+            int hp;
+            if (IsEpic)
+            {
+                hp = EpicHpGain(data);
+            }
+            else
+            {
+                // 選んだクラスは数と上限だけを見る(能力値の条件は、選ぶ画面で見ている)
+                string? id = classId ?? AutoClass(data);
+                if (id == null || !WithinClassLimits(id)) break;
+                var entry = Classes.FirstOrDefault(x => x.ClassId == id);
+                if (entry == null) Classes.Add(entry = new ClassLevel { ClassId = id, Level = 0 });
+                entry.Level++;
+                hp = HpGainPerLevel(data, id);
+            }
             Level++;
-            var entry = Classes.FirstOrDefault(x => x.ClassId == classId);
-            if (entry == null) Classes.Add(entry = new ClassLevel { ClassId = classId, Level = 0 });
-            entry.Level++;
-            int hp = HpGainPerLevel(data, classId);
             MaxHp += hp;
             if (IsAlive) Hp += hp;
             HitDice++;
@@ -357,16 +409,45 @@ public sealed class Character
         return gained;
     }
 
+    /// <summary>4 つのクラスが全部上限で、次はクラスなしのエピックのレベルか。</summary>
+    public bool IsEpic => ClassIds.Count() >= MaxClasses && ClassIds.All(id => LevelIn(id) >= ClassCap(id));
+
+    /// <summary>そのクラスのレベルの上限(取った順で決まる。まだ取っていなければ、次に取ったときの上限)。</summary>
+    public int ClassCap(string classId)
+    {
+        var ids = ClassIds.ToList();
+        int i = ids.IndexOf(classId);
+        if (i < 0) i = ids.Count;
+        return i < ClassCaps.Length ? ClassCaps[i] : 0;
+    }
+
+    /// <summary>エピックのレベル1つで増える HP(一律。クラスのヒットダイスによらない)。</summary>
+    public int EpicHpGain(GameData data) =>
+        Math.Max(1, EpicHpBase + Scores.Mod(Ability.Con) + (data.Races.TryGetValue(RaceId, out var race) ? race.HpPerLevel : 0));
+
+    /// <summary>おまかせで上げるクラス: 20 に届いていない今のクラス、無ければ取れる新しいクラス(クラスの並び順)。</summary>
+    public string? AutoClass(GameData data) =>
+        ClassIds.FirstOrDefault(id => LevelIn(id) < ClassCap(id))
+        ?? data.ClassOrder.FirstOrDefault(id => !ClassIds.Contains(id) && CanTakeClass(data, id));
+
+    /// <summary>今、上げられるクラスがあるか(エピックのレベルなら、クラスは要らない)。</summary>
+    public bool HasLevelToTake(GameData data) => IsEpic || AutoClass(data) != null;
+
     /// <summary>
-    /// 次のレベルで上げられるクラスか。今のクラスなら上げられる。新しいクラス(マルチクラス)は、5版どおり、
+    /// 次のレベルで上げられるクラスか。今のクラスは上限(取った順に 20・15・10・5)まで上げられる。新しいクラス(マルチクラス)は、クラスが 4 つ未満で、5版どおり
     /// 新しいクラスと今のクラス全部のマルチクラスの条件(能力値)を満たすときだけ。
     /// </summary>
     public bool CanTakeClass(GameData data, string classId)
     {
+        if (!WithinClassLimits(classId)) return false;
         if (ClassIds.Contains(classId)) return true;
         if (!data.Classes.TryGetValue(classId, out var cls)) return false;
         return cls.MeetsMulticlass(Scores) && ClassIds.All(id => data.Classes[id].MeetsMulticlass(Scores));
     }
+
+    /// <summary>クラスの数(4 つまで)と、そのクラスのレベルの上限(取った順に 20・15・10・5)に収まるか。</summary>
+    public bool WithinClassLimits(string classId) =>
+        ClassIds.Contains(classId) ? LevelIn(classId) < ClassCap(classId) : ClassIds.Count() < MaxClasses;
 
     /// <summary>大休憩(宿屋)。HP が hpFraction まで戻り、ヒットダイスが全部戻る(5版の 2024 年の決まりと同じ。何泊でもできるので、半分ずつ戻しても手間が増えるだけ)。</summary>
     /// <param name="data">渡すと、装備で増えたスロットも満タンとして数え始める(渡さなければ、次に数えたときの値から)。</param>
@@ -382,6 +463,7 @@ public sealed class Character
         TempHp = 0;
         FeatureUses.Clear();
         Lasting.Clear();
+        Buffs.Clear();
         // ワンドや杖の回数が戻る
         foreach (var item in Inventory.Items.Concat(Inventory.Equipped.Values).Where(i => i.Charges != null)) item.Charges = null;
     }
@@ -401,6 +483,7 @@ public sealed class Character
             used++;
             Hp = Math.Min(MaxHp, Hp + Math.Max(1, rng.Roll(cls.HitDie) + Scores.Mod(Ability.Con)) + mending);
         }
+        Combat.Lasting.Pass(this, 60);   // 小休憩は1時間。1時間の呪文の効き目は切れる
         PactSlotsUsed = 0;   // 協約魔術のスロットが戻る(ふつうのスロットは戻らない)
         PactBonusSeen = Magic.Spellcasting.PactBonus(data, this);
         LastSlotsRecovered = ClassFeatures.ShortRest(data, this);   // 小休憩で戻る技の回数と、ウィザードの秘術の回復
