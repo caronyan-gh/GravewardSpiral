@@ -721,6 +721,10 @@ public sealed class CampaignSim
                     }
                     var outcome = Fight(groups, scale);
                     if (outcome == CombatOutcome.Defeat) return outcome;
+                    // イベントの中のボスも、はじめて倒したときはボスの宝箱(ゲームと同じ)
+                    if (outcome == CombatOutcome.Victory && c.Boss != null && _session.Boss(_data, c.Boss) is { } beaten
+                        && _session.Flags.Add(GameSession.BossBeatenFlag(beaten.Id)))
+                        AfterVictory(floor, groups, randomChest: false, boss: beaten.Id);
                     r.CombatEnded(outcome == CombatOutcome.Victory);
                     break;
                 }

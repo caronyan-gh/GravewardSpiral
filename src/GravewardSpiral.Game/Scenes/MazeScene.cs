@@ -767,7 +767,17 @@ public sealed class MazeScene : Scene
         }
         State.StepsSinceCombat = 0;
         Stack.Push(new CombatScene(groups, noMagic: State.Cell.Zone.HasFlag(Zone.AntiMagic), scale: scale, bgm: bgm,
-            onEnd: outcome => after(outcome == CombatOutcome.Victory)));
+            onEnd: outcome =>
+            {
+                // イベントの中のボスも、はじめて倒したときは、ボスのマスと同じボスの宝箱(罠なし)。閉じてからイベントの続き
+                if (outcome == CombatOutcome.Victory && fight.Boss != null && session.Boss(data, fight.Boss) is { } beatenBoss
+                    && session.Flags.Add(GameSession.BossBeatenFlag(beatenBoss.Id)))
+                {
+                    MaybeChest(Depth, _encounters.TargetLevel(Depth), groups, randomChest: false, boss: beatenBoss.Id, closed: () => after(true));
+                    return;
+                }
+                after(outcome == CombatOutcome.Victory);
+            }));
     }
 
     /// <summary>1歩ぶん、残っている状態の時間を進める。毒なら HP が減る。</summary>
@@ -903,7 +913,7 @@ public sealed class MazeScene : Scene
     /// room は部屋の敵・名のある敵(宝箱が出やすく、中身は部屋の宝の表。ボスはボスの表)。
     /// </summary>
     private void MaybeChest(double depth, double targetLevel, IEnumerable<(Core.Monsters.MonsterDef Def, int Count)> defeated, bool randomChest = true,
-        string? boss = null, bool room = false, IEnumerable<ItemInstance>? extra = null, bool always = false)
+        string? boss = null, bool room = false, IEnumerable<ItemInstance>? extra = null, bool always = false, Action? closed = null)
     {
         var session = Services.Session!;
         _treasure ??= TreasureSettings.Load(Services.Content);
@@ -913,6 +923,13 @@ public sealed class MazeScene : Scene
         if (extra != null) drops.AddRange(extra);   // 名のある敵の品(当たったとき)
         if (drops.Count == 0 && boss == null && !always && (!randomChest || rng.NextDouble() >= (room ? _treasure.RoomChestChance : _treasure.ChestChance))) return;
         var chest = Chest.Generate(Services.Data, _treasure, depth, targetLevel, rng, drops, source);
+        if (closed != null)
+        {
+            // 閉じたあとに続きがある宝箱(イベントの中のボス)は、罠を付けない(飛ばされたり、敵を呼んだりで続きが切れないように)
+            chest.Trap = "";
+            Stack.Push(new ChestScene(chest, TeleportRandom, () => { }) { Closed = closed });
+            return;
+        }
         // 警報: 襲ってきた敵を倒せば、元の宝箱(罠はもう無い)が残っている。逃げたら無くなる
         void Open() => Stack.Push(new ChestScene(chest, TeleportRandom, () =>
         {

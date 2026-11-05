@@ -598,13 +598,6 @@
             "count": 1
           },
           {
-            "type": "treasure",
-            "per_place": false,
-            "dc": 10,
-            "value": 0,
-            "count": 2
-          },
-          {
             "type": "flag",
             "per_place": false,
             "dc": 10,

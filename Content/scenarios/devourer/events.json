@@ -489,13 +489,6 @@
                         "id": "dv_company_rest",
                         "value": 0,
                         "count": 1
-                      },
-                      {
-                        "type": "treasure",
-                        "per_place": false,
-                        "dc": 10,
-                        "value": 0,
-                        "count": 2
                       }
                     ],
                     "lose": [
@@ -563,13 +556,6 @@
                     "id": "dv_company_rest",
                     "value": 0,
                     "count": 1
-                  },
-                  {
-                    "type": "treasure",
-                    "per_place": false,
-                    "dc": 10,
-                    "value": 0,
-                    "count": 2
                   }
                 ],
                 "lose": [
@@ -1306,13 +1292,6 @@
             "id": "dv_guardian_down",
             "value": 0,
             "count": 1
-          },
-          {
-            "type": "treasure",
-            "per_place": false,
-            "dc": 10,
-            "value": 0,
-            "count": 2
           }
         ],
         "lose": [

@@ -28,6 +28,15 @@ public sealed class ChestScene(Chest chest, Action onTeleport, Action onAlarm) :
 
     private Mode _mode;
     private Character? _who;
+
+    /// <summary>閉じたときに呼ぶ(イベントの中のボスの宝箱で、イベントの続きに戻る)。</summary>
+    public Action? Closed { get; init; }
+
+    public override void Leave()
+    {
+        base.Leave();
+        Closed?.Invoke();
+    }
     private readonly List<string> _lines = [];
 
     private GameData Data => Services.Data;

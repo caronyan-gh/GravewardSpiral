@@ -185,7 +185,7 @@ public sealed class EventOption
 /// - teleport: この階のどこか(岩盤でないマス)へパーティを飛ばす。イベントはここで終わる
 /// - alarm: 警報。この階の敵が襲ってくる。イベントはここで終わる(戦闘のあとに続かない)
 /// - light: value 分の明かり(0 なら明かりを消す)
-/// - combat: groups[monster, count] か boss か、どちらも無ければこの階の敵。win / lose(逃げた)
+/// - combat: groups[monster, count] か boss か、どちらも無ければこの階の敵。win / lose(逃げた)。boss は、はじめて勝ったときにボスのマスと同じボスの宝箱(罠なし)が出てから win に進む
 /// - open: id。印 gate:&lt;id&gt; のマスの錠を開ける(この階)。close: id。開けた錠をまた閉める
 /// - pick: 一人を選ぶ。text(問い)、when(選べる人の条件。一人ずつ見る)。value が 1 ならくじで選ぶ(罠が一人を襲う、など)。
 ///   選んだら then、選べる人がいないか、やめたら else(else に手順があるときだけ「やめる」を出す)。選んだ人は、イベントの終わりか次の pick まで
